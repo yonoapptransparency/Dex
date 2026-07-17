@@ -16,17 +16,15 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
 
-      - name: Manual Sync to Dex and Masterworld
+      - name: Sync and Split Repositories
         env:
           PAT: ${{ secrets.PAT }}
         run: |
           set -e
-          echo "--- Setting up Git ---"
           git config --global user.email "yonoapptransparency@example.com"
           git config --global user.name "yonoapptransparency"
-          git config --global init.defaultBranch main
 
-          # Define admin files to remove from Dex
+          # List of files that should ONLY exist in Masterworld (Admin)
           ADMIN_ONLY_FILES=(
             "src/pages/AdminDashboard.tsx"
             "src/pages/AdminLogin.tsx"
@@ -41,162 +39,50 @@ jobs:
             "firebase-applet-config.json"
             "firestore.rules"
             "firebase.json"
-            "add-admin.ts"
-            "fix-admin.ts"
-            "add-admin-rest.ts"
-            "debug-db.js"
-            "verify-db.js"
-            "verify-rules.js"
-            "check-env.ts"
-            "test-models-all.ts"
-            "test-payload.mjs"
-            "add_save_button.js"
-            "extract.js"
-            "fetch_git_cfg.js"
-            "fetch_real_git_cfg.js"
-            "fetch_rest.js"
-            "find_app_cache.js"
-            "fix_admin_dashboard.js"
-            "fix-aes.ts"
-            "fix-api.ts"
-            "fix_app_layout.js"
-            "fix_appstab.js"
-            "fix_css.js"
-            "fix_css_performance.js"
-            "fix-dashboard.ts"
-            "fix-download.ts"
-            "fix_h2.js"
-            "fix_header.js"
-            "fix_home.js"
-            "fix_home_layout.js"
-            "fix_lazy.js"
-            "fix_lenis_easing.js"
-            "fix_lenis.js"
-            "fix_lenis_settings.js"
-            "fix_lenis_ultra2.js"
-            "fix_lenis_ultra.js"
-            "fix_loading_all.js"
-            "fix_loading_home.js"
-            "fix_loading.js"
-            "fix_menu.js"
-            "fix-missing-urls.cjs"
-            "fix_newsdetail_date.js"
-            "fix_newspage_date.js"
-            "fix_news_published_at.js"
-            "fix_news_seo.js"
-            "fix_news_tab.js"
-            "fix_routes.js"
-            "fix_scroll.js"
-            "fix_secrets.sh"
-            "fix-seo.js"
-            "fix-seo.ts"
-            "fix_server2.js"
-            "fix_server3.js"
-            "fix_server.js"
-            "get_git_config.ts"
-            "insert_screenshots.js"
-            "patch.js"
-            "patch2.js"
-            "patch3.js"
-            "patch4.js"
-            "patch5.js"
-            "patch6.js"
-            "patch7.js"
-            "patch8.js"
-            "patch_menu.js"
-            "print-env.ts"
-            "remove_chatbot.js"
-            "replace-color.mjs"
-            "restore_app.js"
-            "restore_header_footer.js"
-            "test-admin-encrypt.js"
-            "test-admin.js"
-            "test-chat.ts"
-            "test-chunk-item.cjs"
-            "test-curl.ts"
-            "test-fetch.ts"
-            "test-firestore.ts"
-            "test-gemini.ts"
-            "test.js"
-            "test-pow.mjs"
-            "test_pull.js"
-            "test-secure-links.ts"
-            "update_appdetails.js"
-            "update_app_home.js"
-            "update_app.js"
-            "update_dashboard.patch"
-            "update_gateway.js"
-            "update_home.js"
-            "update_html.js"
-            "update_loading.js"
-            "update_vite.js"
-            "write_files.js"
+            "scripts/"
           )
 
           SOURCE_DIR=$(pwd)
           PARENT_DIR=$(dirname "$SOURCE_DIR")
 
-          echo "--- Syncing to Masterworld (Admin) ---"
-          cd "$PARENT_DIR"
-          rm -rf masterworld_repo
-          
-          # Clone Masterworld. Using x-access-token with PAT is correct for cloning private repos.
-          if git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo; then
-            echo "Successfully cloned masterworld."
-            cd masterworld_repo
-            git checkout -b main || git checkout main
-            # Sync files and DELETE removed ones in destination
-            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
-          else
-            echo "Clone failed or repo empty, initializing new masterworld repo..."
-            mkdir -p masterworld_repo
-            cd masterworld_repo
-            git init
-            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git
-            git checkout -b main
-            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
-          fi
-          
-          git add .
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Sync Admin from Source [skip ci]"
-            git push -u origin main
-          else
-            echo "No changes for Masterworld."
-          fi
+          sync_repo() {
+            REPO_NAME=$1
+            REPO_URL=$2
+            IS_PUBLIC=$3
 
-          echo "--- Syncing to Dex (Public) ---"
-          cd "$PARENT_DIR"
-          rm -rf dex_repo
-          if git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git dex_repo; then
-            echo "Successfully cloned Dex."
-            cd dex_repo
-            git checkout -b main || git checkout main
-            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
-          else
-            echo "Clone failed or repo empty, initializing new Dex repo..."
-            mkdir -p dex_repo
-            cd dex_repo
-            git init
-            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git
-            git checkout -b main
-            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
-          fi
-
-          # REMOVE Admin Files from Dex
-          for file in "${ADMIN_ONLY_FILES[@]}"; do
-            if [ -e "$file" ]; then
-              rm -rf "$file"
-              echo "Cleaned $file from Dex"
+            echo "--- Syncing to $REPO_NAME ---"
+            cd "$PARENT_DIR"
+            rm -rf "${REPO_NAME}_repo"
+            
+            if git clone "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git" "${REPO_NAME}_repo"; then
+              cd "${REPO_NAME}_repo"
+              git checkout -b main || git checkout main
+              rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
+            else
+              mkdir -p "${REPO_NAME}_repo"
+              cd "${REPO_NAME}_repo"
+              git init
+              git remote add origin "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git"
+              git checkout -b main
+              rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
             fi
-          done
-          
-          git add .
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Sync Clean Website to Dex [skip ci]"
-            git push -u origin main
-          else
-            echo "No changes for Dex."
-          fi
 
-          echo "--- Sync Complete ---"
+            if [ "$IS_PUBLIC" = "true" ]; then
+              echo "Cleaning admin files from $REPO_NAME..."
+              for file in "${ADMIN_ONLY_FILES[@]}"; do
+                rm -rf "$file"
+              done
+            fi
+
+            git add .
+            if [ -n "$(git status --porcelain)" ]; then
+              git commit -m "Auto-sync from source [skip ci]"
+              git push -u origin main
+            else
+              echo "No changes for $REPO_NAME."
+            fi
+          }
+
+          sync_repo "masterworld" "yonoapptransparency/masterworld" "false"
+          sync_repo "Dex" "yonoapptransparency/Dex" "true"
+
