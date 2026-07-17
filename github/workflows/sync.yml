@@ -1,0 +1,23 @@
+name: Sync to Masterworld
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  sync_job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to masterworld
+        uses: cpina/github-action-push-to-another-repository@v1.7.0
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.PAT }}
+        with:
+          destination-github-username: 'yonoapptransparency'
+          destination-repository-name: 'masterworld'
+          user_email: 'yonoapptransparency@example.com'
+          user_name: 'yonoapptransparency'
+          
