@@ -14,21 +14,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # We use GITHUB_TOKEN for the source repo to avoid 403 errors if PAT is only for targets
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
 
       - name: Manual Sync to Dex and Masterworld
         env:
           PAT: ${{ secrets.PAT }}
         run: |
+          set -e
+          echo "--- Setting up Git ---"
           git config --global user.email "yonoapptransparency@example.com"
           git config --global user.name "yonoapptransparency"
+          git config --global init.defaultBranch main
 
-          # List of files that should ONLY exist in Masterworld (Admin)
+          # Define admin files to remove from Dex
           ADMIN_ONLY_FILES=(
             "src/pages/AdminDashboard.tsx"
             "src/pages/AdminLogin.tsx"
+            "src/components/AdminLogin.tsx"
             "src/components/NewsTab.tsx"
+            "src/components/SecurityTab.tsx"
+            "src/components/FirebaseStatusPanel.tsx"
+            "src/components/ClearanceButton.tsx"
             "src/lib/githubSync.ts"
             "api/"
             "server.ts"
@@ -125,27 +131,32 @@ jobs:
             "update_loading.js"
             "update_vite.js"
             "write_files.js"
-            "src/components/SecurityTab.tsx"
-            "src/components/FirebaseStatusPanel.tsx"
-            "src/components/ClearanceButton.tsx"
-            "src/components/AdminLogin.tsx"
           )
 
-          # SOURCE_DIR is the current directory after checkout
           SOURCE_DIR=$(pwd)
           PARENT_DIR=$(dirname "$SOURCE_DIR")
 
-          echo "--- Processing Masterworld (Admin) ---"
+          echo "--- Syncing to Masterworld (Admin) ---"
           cd "$PARENT_DIR"
           rm -rf masterworld_repo
-          # Clone with PAT. If it fails (e.g. empty repo), we init it.
-          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo || (mkdir masterworld_repo && cd masterworld_repo && git init && git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git && cd ..)
           
-          # Sync EVERYTHING to masterworld
-          rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" masterworld_repo/
+          # Clone Masterworld. Using x-access-token with PAT is correct for cloning private repos.
+          if git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo; then
+            echo "Successfully cloned masterworld."
+            cd masterworld_repo
+            git checkout -b main || git checkout main
+            # Sync files and DELETE removed ones in destination
+            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
+          else
+            echo "Clone failed or repo empty, initializing new masterworld repo..."
+            mkdir -p masterworld_repo
+            cd masterworld_repo
+            git init
+            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git
+            git checkout -b main
+            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
+          fi
           
-          cd masterworld_repo
-          git checkout -b main || git checkout main
           git add .
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "Sync Admin from Source [skip ci]"
@@ -153,27 +164,33 @@ jobs:
           else
             echo "No changes for Masterworld."
           fi
-          cd "$SOURCE_DIR"
 
-          echo "--- Processing Dex (Public) ---"
+          echo "--- Syncing to Dex (Public) ---"
           cd "$PARENT_DIR"
           rm -rf dex_repo
-          # Clone with PAT
-          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git dex_repo || (mkdir dex_repo && cd dex_repo && git init && git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git && cd ..)
-          
-          # Sync EVERYTHING to Dex
-          rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" dex_repo/
-          
+          if git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git dex_repo; then
+            echo "Successfully cloned Dex."
+            cd dex_repo
+            git checkout -b main || git checkout main
+            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
+          else
+            echo "Clone failed or repo empty, initializing new Dex repo..."
+            mkdir -p dex_repo
+            cd dex_repo
+            git init
+            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git
+            git checkout -b main
+            rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
+          fi
+
           # REMOVE Admin Files from Dex
-          cd dex_repo
           for file in "${ADMIN_ONLY_FILES[@]}"; do
             if [ -e "$file" ]; then
               rm -rf "$file"
-              echo "Removed $file from Dex"
+              echo "Cleaned $file from Dex"
             fi
           done
           
-          git checkout -b main || git checkout main
           git add .
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "Sync Clean Website to Dex [skip ci]"
@@ -181,6 +198,5 @@ jobs:
           else
             echo "No changes for Dex."
           fi
-          cd "$SOURCE_DIR"
 
           echo "--- Sync Complete ---"
