@@ -53,7 +53,8 @@ jobs:
 
           echo "Cloning masterworld repository..."
           cd ..
-          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo
+          # Clone the repo (it's okay if it's empty)
+          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo || mkdir masterworld_repo
           
           echo "Copying files to masterworld..."
           for file in "${ADMIN_ONLY_FILES[@]}" "${SHARED_FILES[@]}"; do
@@ -66,10 +67,20 @@ jobs:
           done
 
           cd masterworld_repo
+          # Initialize git if it's a completely empty folder
+          if [ ! -d ".git" ]; then
+            git init
+            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git
+          fi
+          
+          # Ensure we are on the main branch
+          git checkout -b main || git checkout main
+          
           git add .
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "Sync Admin & Backend from Dex [skip ci]"
-            git push origin main
+            # Force push if it's the first time, or regular push
+            git push -u origin main
           else
             echo "No changes to push to masterworld."
           fi
