@@ -4,25 +4,27 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   split-and-sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Dex (Source)
+      - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          path: Dex
           fetch-depth: 0
-          token: ${{ secrets.PAT }}
+          # We use GITHUB_TOKEN for the source repo to avoid 403 errors if PAT is only for targets
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Manual Sync and Cleanup
+      - name: Manual Sync to Dex and Masterworld
         env:
           PAT: ${{ secrets.PAT }}
         run: |
           git config --global user.email "yonoapptransparency@example.com"
           git config --global user.name "yonoapptransparency"
 
+          # List of files that should ONLY exist in Masterworld (Admin)
           ADMIN_ONLY_FILES=(
             "src/pages/AdminDashboard.tsx"
             "src/pages/AdminLogin.tsx"
@@ -129,64 +131,56 @@ jobs:
             "src/components/AdminLogin.tsx"
           )
 
-          SHARED_FILES=(
-            "package.json"
-            "package-lock.json"
-            "tsconfig.json"
-            "vite.config.ts"
-            "scripts/"
-            ".env.example"
-            "README.md"
-          )
+          # SOURCE_DIR is the current directory after checkout
+          SOURCE_DIR=$(pwd)
+          PARENT_DIR=$(dirname "$SOURCE_DIR")
 
-          echo "Cloning masterworld repository..."
-          cd ..
-          # Clone the repo (it's okay if it's empty)
-          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo || mkdir masterworld_repo
+          echo "--- Processing Masterworld (Admin) ---"
+          cd "$PARENT_DIR"
+          rm -rf masterworld_repo
+          # Clone with PAT. If it fails (e.g. empty repo), we init it.
+          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo || (mkdir masterworld_repo && cd masterworld_repo && git init && git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git && cd ..)
           
-          echo "Copying files to masterworld..."
-          for file in "${ADMIN_ONLY_FILES[@]}" "${SHARED_FILES[@]}"; do
-            if [ -e "Dex/$file" ]; then
-              dest_dir="masterworld_repo/$(dirname "$file")"
-              mkdir -p "$dest_dir"
-              cp -r "Dex/$file" "$dest_dir/"
-              echo "Copied $file to masterworld"
-            fi
-          done
-
+          # Sync EVERYTHING to masterworld
+          rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" masterworld_repo/
+          
           cd masterworld_repo
-          # Initialize git if it's a completely empty folder
-          if [ ! -d ".git" ]; then
-            git init
-            git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git
-          fi
-          
-          # Ensure we are on the main branch
           git checkout -b main || git checkout main
-          
           git add .
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Sync Admin & Backend from Dex [skip ci]"
-            # Force push if it's the first time, or regular push
+            git commit -m "Sync Admin from Source [skip ci]"
             git push -u origin main
           else
-            echo "No changes to push to masterworld."
+            echo "No changes for Masterworld."
           fi
+          cd "$SOURCE_DIR"
 
-          echo "Cleaning up Dex repository..."
-          cd ../Dex
+          echo "--- Processing Dex (Public) ---"
+          cd "$PARENT_DIR"
+          rm -rf dex_repo
+          # Clone with PAT
+          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git dex_repo || (mkdir dex_repo && cd dex_repo && git init && git remote add origin https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git && cd ..)
+          
+          # Sync EVERYTHING to Dex
+          rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" dex_repo/
+          
+          # REMOVE Admin Files from Dex
+          cd dex_repo
           for file in "${ADMIN_ONLY_FILES[@]}"; do
             if [ -e "$file" ]; then
-              git rm -rf "$file"
-              echo "Deleted $file from Dex"
+              rm -rf "$file"
+              echo "Removed $file from Dex"
             fi
           done
-
+          
+          git checkout -b main || git checkout main
+          git add .
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "chore: isolate public repo by removing admin logic [skip ci]"
-            # Use origin which is already configured by actions/checkout with the PAT
-            git push origin main
+            git commit -m "Sync Clean Website to Dex [skip ci]"
+            git push -u origin main
           else
-            echo "No admin files found to remove in Dex."
+            echo "No changes for Dex."
           fi
+          cd "$SOURCE_DIR"
 
+          echo "--- Sync Complete ---"
