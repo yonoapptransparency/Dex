@@ -100,7 +100,7 @@ const Blogs = lazyWithRetry(pageFactories.Blogs);
 const BlogDetailPage = lazyWithRetry(pageFactories.BlogDetailPage);
 const VideoDetailPage = lazyWithRetry(pageFactories.VideoDetailPage);
 
-const AdminLogin = lazyWithRetry(() => import('./pages/AdminLogin'));
+const AdminLoginPageLazy = lazyWithRetry(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
 
 import FallbackRouteMatcher from './components/FallbackRouteMatcher';
@@ -230,8 +230,8 @@ function Header() {
                       { to: '/notice', label: 'Notice', icon: ShieldCheck },
                       { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                       { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-                      { to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield },
-                    ].map((item) => (
+                      ...(__ADMIN_ENABLED__ ? [{ to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield }] : []),
+                    ].map((item: any) => (
                       item.to ? (
                         <Link 
                           key={item.to}
@@ -365,8 +365,8 @@ function Header() {
                 { to: '/notice', label: 'Notice', icon: ShieldCheck },
                 { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                 { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-                { to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield },
-              ].map((item) => {
+                ...(__ADMIN_ENABLED__ ? [{ to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield }] : []),
+              ].map((item: any) => {
                 const active = item.to && pathname === item.to;
                 return item.to ? (
                   <Link 
@@ -1059,7 +1059,7 @@ function AppContent() {
             <Route path={`/${adminPath}/login`} element={
               <ErrorBoundary fallback={<div className="p-8 text-center"><h2 className="text-xl font-bold">Failed to load Admin section</h2><p className="text-slate-500 mt-2">This may happen if you are on the public repository where admin files are stripped.</p></div>}>
                 <Suspense fallback={<div className="flex h-screen items-center justify-center p-8"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>}>
-                  <AdminLogin />
+                  <AdminLoginPageLazy />
                 </Suspense>
               </ErrorBoundary>
             } />

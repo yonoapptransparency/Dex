@@ -894,6 +894,8 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
       keywords = getField(newsItem, 'seo_keywords') || keywords;
       ogImage = getField(newsItem, 'og_image_url') || getField(newsItem, 'logo_url') || ogImage;
       author = getField(newsItem, 'ceo_name') || siteTitle;
+      const cleanHostApp = (hostUrl || process.env.VITE_PUBLIC_DOMAIN || process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online').replace(/\/+$/, '');
+      canonicalUrlOverride = getField(newsItem, 'canonical_url') || `${cleanHostApp}/news/${getField(newsItem, 'slug')}`;
     }
   } else if (urlPath.startsWith('/blog/') && urlPath.length > 6) {
     const slug = decodeURIComponent(urlPath.split('/blog/')[1].split('/')[0].split('?')[0]);
