@@ -1,0 +1,102 @@
+name: Dual Repo Split & Sync
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  split-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dex (Source)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "yonoapptransparency@example.com"
+          git config --global user.name "yonoapptransparency"
+
+      - name: Prepare Admin Files for Masterworld
+        run: |
+          # Create a temporary directory for masterworld content
+          mkdir -p ../masterworld_temp
+          
+          # List of admin-specific files/folders to move
+          # Modify this list as your admin section grows
+          ADMIN_FILES=(
+            "src/pages/AdminDashboard.tsx"
+            "src/pages/AdminLogin.tsx"
+            "src/components/NewsTab.tsx"
+            "src/lib/githubSync.ts"
+            "api/"
+            "server.ts"
+            "firebase-applet-config.json"
+            "firestore.rules"
+            "firebase.json"
+            "scripts/"
+            "add-admin.ts"
+            "fix-admin.ts"
+            "add-admin-rest.ts"
+            "debug-db.js"
+            "verify-db.js"
+            "verify-rules.js"
+          )
+
+          for file in "${ADMIN_FILES[@]}"; do
+            if [ -e "$file" ]; then
+              # Get directory structure
+              dest_dir="../masterworld_temp/$(dirname "$file")"
+              mkdir -p "$dest_dir"
+              cp -r "$file" "$dest_dir/"
+              echo "Prepared $file for migration."
+            fi
+          done
+
+      - name: Push to Masterworld Repository
+        uses: cpina/github-action-push-to-another-repository@v1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.PAT }}
+        with:
+          source-directory: '../masterworld_temp'
+          destination-github-username: 'yonoapptransparency'
+          destination-repository-name: 'masterworld'
+          user-email: 'yonoapptransparency@example.com'
+          target-branch: 'main'
+          commit-message: 'Sync Admin Section & Backend from Dex'
+
+      - name: Cleanup Admin Files from Dex
+        run: |
+          # Delete the admin files from the current (Dex) repository
+          ADMIN_FILES=(
+            "src/pages/AdminDashboard.tsx"
+            "src/pages/AdminLogin.tsx"
+            "src/components/NewsTab.tsx"
+            "src/lib/githubSync.ts"
+            "api/"
+            "server.ts"
+            "add-admin.ts"
+            "fix-admin.ts"
+            "add-admin-rest.ts"
+            "debug-db.js"
+            "verify-db.js"
+            "verify-rules.js"
+          )
+          
+          for file in "${ADMIN_FILES[@]}"; do
+            if [ -f "$file" ] || [ -d "$file" ]; then
+              git rm -rf "$file"
+              echo "Removed $file from Dex."
+            fi
+          done
+          
+          # Check if there are changes to commit
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "chore: remove admin files from public repo"
+            git push origin main
+          else
+            echo "No admin files found to remove in Dex."
+          fi
