@@ -12,22 +12,18 @@ jobs:
       - name: Checkout Dex (Source)
         uses: actions/checkout@v4
         with:
+          path: Dex
           fetch-depth: 0
           token: ${{ secrets.PAT }}
 
-      - name: Setup Git
+      - name: Manual Sync and Cleanup
+        env:
+          PAT: ${{ secrets.PAT }}
         run: |
           git config --global user.email "yonoapptransparency@example.com"
           git config --global user.name "yonoapptransparency"
 
-      - name: Prepare Admin Files for Masterworld
-        run: |
-          # Create a temporary directory for masterworld content
-          mkdir -p ../masterworld_temp
-          
-          # List of admin-specific files/folders to move
-          # Modify this list as your admin section grows
-          ADMIN_FILES=(
+          ADMIN_ONLY_FILES=(
             "src/pages/AdminDashboard.tsx"
             "src/pages/AdminLogin.tsx"
             "src/components/NewsTab.tsx"
@@ -37,66 +33,60 @@ jobs:
             "firebase-applet-config.json"
             "firestore.rules"
             "firebase.json"
+            "add-admin.ts"
+            "fix-admin.ts"
+            "add-admin-rest.ts"
+            "debug-db.js"
+            "verify-db.js"
+            "verify-rules.js"
+          )
+
+          SHARED_FILES=(
+            "package.json"
+            "package-lock.json"
+            "tsconfig.json"
+            "vite.config.ts"
             "scripts/"
-            "add-admin.ts"
-            "fix-admin.ts"
-            "add-admin-rest.ts"
-            "debug-db.js"
-            "verify-db.js"
-            "verify-rules.js"
+            ".env.example"
+            "README.md"
           )
 
-          for file in "${ADMIN_FILES[@]}"; do
-            if [ -e "$file" ]; then
-              # Get directory structure
-              dest_dir="../masterworld_temp/$(dirname "$file")"
+          echo "Cloning masterworld repository..."
+          cd ..
+          git clone https://x-access-token:${PAT}@github.com/yonoapptransparency/masterworld.git masterworld_repo
+          
+          echo "Copying files to masterworld..."
+          for file in "${ADMIN_ONLY_FILES[@]}" "${SHARED_FILES[@]}"; do
+            if [ -e "Dex/$file" ]; then
+              dest_dir="masterworld_repo/$(dirname "$file")"
               mkdir -p "$dest_dir"
-              cp -r "$file" "$dest_dir/"
-              echo "Prepared $file for migration."
+              cp -r "Dex/$file" "$dest_dir/"
+              echo "Copied $file to masterworld"
             fi
           done
 
-      - name: Push to Masterworld Repository
-        uses: cpina/github-action-push-to-another-repository@v1.7.2
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.PAT }}
-        with:
-          source-directory: '../masterworld_temp'
-          destination-github-username: 'yonoapptransparency'
-          destination-repository-name: 'masterworld'
-          user-email: 'yonoapptransparency@example.com'
-          target-branch: 'main'
-          commit-message: 'Sync Admin Section & Backend from Dex'
-
-      - name: Cleanup Admin Files from Dex
-        run: |
-          # Delete the admin files from the current (Dex) repository
-          ADMIN_FILES=(
-            "src/pages/AdminDashboard.tsx"
-            "src/pages/AdminLogin.tsx"
-            "src/components/NewsTab.tsx"
-            "src/lib/githubSync.ts"
-            "api/"
-            "server.ts"
-            "add-admin.ts"
-            "fix-admin.ts"
-            "add-admin-rest.ts"
-            "debug-db.js"
-            "verify-db.js"
-            "verify-rules.js"
-          )
-          
-          for file in "${ADMIN_FILES[@]}"; do
-            if [ -f "$file" ] || [ -d "$file" ]; then
-              git rm -rf "$file"
-              echo "Removed $file from Dex."
-            fi
-          done
-          
-          # Check if there are changes to commit
+          cd masterworld_repo
+          git add .
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "chore: remove admin files from public repo"
+            git commit -m "Sync Admin & Backend from Dex [skip ci]"
             git push origin main
+          else
+            echo "No changes to push to masterworld."
+          fi
+
+          echo "Cleaning up Dex repository..."
+          cd ../Dex
+          for file in "${ADMIN_ONLY_FILES[@]}"; do
+            if [ -e "$file" ]; then
+              git rm -rf "$file"
+              echo "Deleted $file from Dex"
+            fi
+          done
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "chore: isolate public repo by removing admin logic [skip ci]"
+            git push https://x-access-token:${PAT}@github.com/yonoapptransparency/Dex.git main
           else
             echo "No admin files found to remove in Dex."
           fi
+
