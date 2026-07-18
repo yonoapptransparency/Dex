@@ -2364,7 +2364,65 @@ const rateLimitMap = new Map<string, number[]>();
 
   // API Route: Public link status check — called before verification to avoid
   // wasting the user's time if no download link has been configured for this app.
-  app.get("/api/v1/link-check", async (req, res) => { res.json({ configured: false }); });
+  app.get("/api/v1/link-check", async (req, res) => {
+    const appId = req.query.id as string;
+    if (!appId) {
+      return res.json({ configured: false });
+    }
+
+    try {
+      const AES_SECRET = process.env.AES_SECRET || (typeof AES_SECRET_GLOBAL !== 'undefined' ? AES_SECRET_GLOBAL : '');
+      if (!AES_SECRET) {
+        // Fail-open if secret is not set, so developers and previewers can still test the flow.
+        return res.json({ configured: true });
+      }
+
+      let matchEncrypted = "";
+      const vaultPath = require('path').join(process.cwd(), 'src/lib/secureVault.ts');
+      if (require('fs').existsSync(vaultPath)) {
+        const vaultContent = require('fs').readFileSync(vaultPath, 'utf8');
+        const match = vaultContent.match(/export const ENCRYPTED_LINKS = "([^"]+)";/);
+        if (match && match[1]) matchEncrypted = match[1];
+      }
+
+      if (!matchEncrypted) {
+        // Fail-open if no vault found or is empty
+        return res.json({ configured: true });
+      }
+
+      let dec = '';
+      if (typeof safeDecrypt !== 'undefined') {
+        dec = safeDecrypt(matchEncrypted, AES_SECRET);
+      } else {
+        const CryptoJS = require('crypto-js');
+        const bytes = CryptoJS.AES.decrypt(matchEncrypted, AES_SECRET);
+        dec = bytes.toString(CryptoJS.enc.Utf8);
+      }
+
+      if (!dec) {
+        // Decryption failed (probably wrong secret), let's fail-open
+        return res.json({ configured: true });
+      }
+
+      const parsed = JSON.parse(dec);
+      let foundLink = false;
+      if (Array.isArray(parsed)) {
+        const matchItem = parsed.find(item => item && item.id === appId);
+        if (matchItem && (matchItem.url || matchItem.more_information_url)) {
+          foundLink = true;
+        }
+      } else if (parsed && typeof parsed === 'object') {
+        if (parsed[appId]) {
+          foundLink = true;
+        }
+      }
+
+      return res.json({ configured: foundLink });
+    } catch (e) {
+      // Any error, fail-open to preserve usability
+      return res.json({ configured: true });
+    }
+  });
 
 // Rate limiting map for public chat
   const publicChatRateLimits = new Map<string, { count: number, resetTime: number }>();

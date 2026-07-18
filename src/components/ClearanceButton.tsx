@@ -605,6 +605,7 @@ export default function ClearanceButton({ appId, status, variant = 'default' }: 
           touch: touchUsed.current,
           cfToken: cfTokenRef.current,
           sid,
+          appId,
         }),
       });
 
