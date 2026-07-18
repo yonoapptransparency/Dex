@@ -22,8 +22,11 @@ function stripAdmin() {
   content = content.replace(/const adminPath = getAdminPath\(\);\n/g, '');
   
   // Remove isAdminPath (we want to replace it with `const isAdminPath = false;`)
-  content = content.replace(/const isAdminPath = location\.pathname\.startsWith\(`\/\$\{adminPath\}`\);\n/g, 'const isAdminPath = false;\n');
+  content = content.replace(/const isAdminPath = true; \/\/ location\.pathname\.startsWith\(`\/\$\{adminPath\}`\);\n/g, 'const isAdminPath = false;\n');
   content = content.replace(/&& !isAdminPath/g, '');
+  
+  // Remove the Admin return block completely
+  content = content.replace(/\/\/ __ADMIN_BLOCK_START__[\s\S]*?\/\/ __ADMIN_BLOCK_END__\n?/g, '');
   
   fs.writeFileSync(appTsxPath, content, 'utf8');
   
