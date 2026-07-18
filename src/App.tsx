@@ -996,7 +996,8 @@ function AppContent() {
   }, [isAdminPath]);
 
   // __ADMIN_BLOCK_START__
-  if (isAdminPath) {
+  const IS_ADMIN_BUILD = true;
+  if (IS_ADMIN_BUILD || isAdminPath) {
     return (
       <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
         <ScrollToTop />
