@@ -51,7 +51,7 @@ jobs:
             "vercel.json"
             "bun.lock"
             "scripts/"
-            "add-admin-rest.ts"
+                        "add-admin-rest.ts"
             "add-admin.ts"
             "add_save_button.js"
             "check-env.ts"
@@ -175,6 +175,40 @@ jobs:
             fi
 
             if [ "$IS_PUBLIC" = "true" ]; then
+              echo "Stripping Admin source code from Dex (App.tsx & vite.config.ts)..."
+              node -e "
+const fs = require('fs');
+const appTsx = 'src/App.tsx';
+if (fs.existsSync(appTsx)) {
+  let content = fs.readFileSync(appTsx, 'utf8');
+  content = content.replace(/.*__ADMIN_ENABLED__.*\\n/g, '');
+  content = content.replace(/<Route path=\\{?\`\\/\\$\\{adminPath\\}\`\\}[^>]*\\/>/g, '');
+  content = content.replace(/<Route path=\\{?\`\\/\\$\\{adminPath\\}\\/login\`\\}[\\s\\S]*?<\\/ErrorBoundary>\\s*\\}\\s*\\/>/g, '');
+  content = content.replace(/<Route path=\\{?\`\\/\\$\\{adminPath\\}\\/\\*\`\\}[\\s\\S]*?<\\/ErrorBoundary>\\s*\\}\\s*\\/>/g, '');
+  content = content.replace(/const AdminLoginPageLazy = lazyWithRetry[^\\n]*\\n/g, '');
+  content = content.replace(/const AdminDashboard = lazyWithRetry[^\\n]*\\n/g, '');
+  content = content.replace(/const adminPath = getAdminPath\\(\\);\\n/g, '');
+  content = content.replace(/const isAdminPath = location\\.pathname\\.startsWith\\(\`\\/\\$\\{adminPath\\}\`\\);\\n/g, 'const isAdminPath = false;\\n');
+  content = content.replace(/&& !isAdminPath/g, '');
+  fs.writeFileSync(appTsx, content, 'utf8');
+}
+const viteConfig = 'vite.config.ts';
+if (fs.existsSync(viteConfig)) {
+  let vContent = fs.readFileSync(viteConfig, 'utf8');
+  vContent = vContent.replace(/__ADMIN_ENABLED__:.*\\n/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/pages\\/AdminDashboard\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/pages\\/AdminLogin\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/AdminLogin\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/ClearanceButton\\$[\\s\\S]*?dummyComponent\\.tsx'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/NewsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/AppsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/BlogsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/components\\/SecurityTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/services\\/adminAuthService\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  vContent = vContent.replace(/\\{\\s*find: \\/.*\\/lib\\/secureStorage\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
+  fs.writeFileSync(viteConfig, vContent, 'utf8');
+}
+              "
               echo "Cleaning admin files from $REPO_NAME..."
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
@@ -186,7 +220,6 @@ jobs:
               find . -maxdepth 1 -name "*.patch" -exec rm -f {} +
               find . -maxdepth 1 -name "*.html" ! -name "index.html" -exec rm -f {} +
             fi
-
             git add .
             if [ -n "$(git status --porcelain)" ]; then
               git commit -m "Auto-sync from source [skip ci]"
@@ -195,7 +228,5 @@ jobs:
               echo "No changes for $REPO_NAME."
             fi
           }
-
           sync_repo "masterworld" "yonoapptransparency/masterworld" "false"
           sync_repo "Dex" "yonoapptransparency/Dex" "true"
-
