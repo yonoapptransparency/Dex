@@ -808,6 +808,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       message: `Admin Release: Manual platform synchronization triggered`
     });
 
+    const isMasterOrSource = ['masterworld', 'yono-transparency'].includes(configToUse.repo.toLowerCase());
+    if (isMasterOrSource) {
+      try {
+        log("GitHub Sync: Also syncing static data to public companion repo 'Dex'...");
+        await commitFileToGitHub({
+          owner: configToUse.owner,
+          repo: 'Dex',
+          token: configToUse.token,
+          branch: configToUse.branch || 'main',
+          path: 'src/lib/staticData.ts',
+          content: updatedCode,
+          message: `Admin Release: Manual platform synchronization triggered (Dex Companion)`
+        });
+        log("GitHub Sync: Public static data successfully synced to companion repo 'Dex'.");
+      } catch (dexErr: any) {
+        log(`GitHub Sync Warning (Dex Companion): ${dexErr.message}`);
+      }
+    }
+
     log("GitHub Sync: Public static data successfully synced.");
     
     log("Local System: Applying backend static data patch...");
@@ -843,6 +862,24 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               message: `Admin Release: Secure vault synchronization`
             });
             log(`GitHub Sync: Encrypted Vault successfully synced to "${configToUse.repo}".`);
+
+            if (isMasterOrSource) {
+              try {
+                log("GitHub Sync: Also syncing secure vault to public companion repo 'Dex'...");
+                await commitFileToGitHub({
+                  owner: configToUse.owner,
+                  repo: 'Dex',
+                  token: configToUse.token,
+                  branch: configToUse.branch || 'main',
+                  path: 'src/lib/secureVault.ts',
+                  content: `export const ENCRYPTED_LINKS = "${vaultData.ciphertext}";\n`,
+                  message: `Admin Release: Secure vault synchronization (Dex Companion)`
+                });
+                log("GitHub Sync: Secure vault successfully synced to companion repo 'Dex'.");
+              } catch (dexErr: any) {
+                log(`GitHub Sync Warning (Dex Companion Vault): ${dexErr.message}`);
+              }
+            }
          } else {
             throw new Error(vaultData.error || "No ciphertext returned");
          }
