@@ -558,7 +558,7 @@ function SyncStatus() {
   const [confirmClear, setConfirmClear] = useState(false);
   const location = useLocation();
   const adminPath = getAdminPath();
-  const isAdminPath = true; // location.pathname.startsWith(`/${adminPath}`);
+  const isAdminPath = location.pathname.startsWith(`/${adminPath}`);
 
   if (!isAdminPath) {
     return null;
@@ -713,7 +713,7 @@ function AppContent() {
   const [isAgeVerified, setIsAgeVerified] = useState(true);
 
   const adminPath = getAdminPath();
-  const isAdminPath = true; // location.pathname.startsWith(`/${adminPath}`);
+  const isAdminPath = location.pathname.startsWith(`/${adminPath}`);
 
   // Prefetch other pages in the background after initial render so subsequent navigation is instant
   useEffect(() => {
