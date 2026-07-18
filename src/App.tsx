@@ -178,7 +178,7 @@ function Header() {
         variants={navVariants}
         className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-transparent py-2' : 'bg-transparent py-3'}`}
       >
-        <div className="w-full px-2.5 sm:px-4 lg:px-6 mx-auto relative flex justify-between items-center">
+        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
           <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2 sm:gap-3 group">
             <div className="p-0 transition-transform group-hover:scale-[1.02] duration-300">
               {settings.logo_url ? <img src={settings.logo_url} width={48} height={48} className="w-10 h-10 sm:w-14 sm:h-14 object-contain" alt="Logo" /> : <div className="w-10 h-10 sm:w-14 sm:h-14 bg-blue-500 rounded-lg sm:rounded-2xl flex items-center justify-center text-white font-semibold">{settings.site_title?.substring(0, 1)}</div>}
@@ -1027,7 +1027,7 @@ function AppContent() {
         </div>
       )}
       
-      <main className="flex-1 w-full mx-auto py-0 sm:py-3 pb-16 sm:pb-24 overflow-x-hidden relative">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0 sm:py-3 pb-16 sm:pb-24 overflow-x-hidden relative">
         <Suspense fallback={<LoadingScreen />}>
           <Routes location={location}>
             <Route path="/" element={<Home />} />

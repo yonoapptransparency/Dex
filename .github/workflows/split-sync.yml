@@ -196,5 +196,6 @@ jobs:
             fi
           }
 
+          sync_repo "masterworld" "yonoapptransparency/masterworld" "false"
           sync_repo "Dex" "yonoapptransparency/Dex" "true"
 
