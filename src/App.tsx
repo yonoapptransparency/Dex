@@ -99,8 +99,6 @@ const Blogs = lazyWithRetry(pageFactories.Blogs);
 const BlogDetailPage = lazyWithRetry(pageFactories.BlogDetailPage);
 const VideoDetailPage = lazyWithRetry(pageFactories.VideoDetailPage);
 
-const AdminLoginPageLazy = lazyWithRetry(() => import('./pages/AdminLogin'));
-const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
 
 import FallbackRouteMatcher from './components/FallbackRouteMatcher';
 
@@ -130,8 +128,7 @@ function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const adminPath = getAdminPath();
-
+  
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -229,7 +226,6 @@ function Header() {
                       { to: '/notice', label: 'Notice', icon: ShieldCheck },
                       { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                       { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-                      ...(__ADMIN_ENABLED__ ? [{ to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield }] : []),
                     ].map((item: any) => (
                       item.to ? (
                         <Link 
@@ -364,7 +360,6 @@ function Header() {
                 { to: '/notice', label: 'Notice', icon: ShieldCheck },
                 { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                 { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-                ...(__ADMIN_ENABLED__ ? [{ to: `/${adminPath}/login`, label: 'Admin Login', icon: Shield }] : []),
               ].map((item: any) => {
                 const active = item.to && pathname === item.to;
                 return item.to ? (
@@ -561,7 +556,7 @@ function SyncStatus() {
   const [confirmClear, setConfirmClear] = useState(false);
   const location = useLocation();
   const adminPath = import.meta.env.VITE_ADMIN_PATH || 'admin';
-  const isAdminPath = location.pathname.startsWith(`/${adminPath}`);
+  const isAdminPath = false;
 
   if (!isAdminPath) {
     return null;
@@ -715,8 +710,7 @@ function AppContent() {
   const location = useLocation();
   const [isAgeVerified, setIsAgeVerified] = useState(true);
 
-  const adminPath = getAdminPath();
-  const isAdminPath = location.pathname.startsWith(`/${adminPath}`);
+    const isAdminPath = false;
 
   // Prefetch other pages in the background after initial render so subsequent navigation is instant
   useEffect(() => {
@@ -1054,21 +1048,8 @@ function AppContent() {
             <Route path="/panel" element={<Navigate to="/" replace />} />
             
             {/* Keep obfuscated paths as fallback mapping */}
-            <Route path={`/${adminPath}`} element={<Navigate to={`/${adminPath}/dashboard`} replace />} />
-            <Route path={`/${adminPath}/login`} element={
-              <ErrorBoundary fallback={<div className="p-8 text-center"><h2 className="text-xl font-bold">Failed to load Admin section</h2><p className="text-slate-500 mt-2">This may happen if you are on the public repository where admin files are stripped.</p></div>}>
-                <Suspense fallback={<div className="flex h-screen items-center justify-center p-8"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>}>
-                  <AdminLoginPageLazy />
-                </Suspense>
-              </ErrorBoundary>
-            } />
-            <Route path={`/${adminPath}/*`} element={
-              <ErrorBoundary fallback={<div className="p-8 text-center"><h2 className="text-xl font-bold">Failed to load Admin section</h2><p className="text-slate-500 mt-2">This may happen if you are on the public repository where admin files are stripped.</p></div>}>
-                <Suspense fallback={<div className="flex h-screen items-center justify-center p-8"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>}>
-                  <AdminDashboard />
-                </Suspense>
-              </ErrorBoundary>
-            } />
+                        
+            
                 
                 <Route path="*" element={<FallbackRouteMatcher />} />
               </Routes>
