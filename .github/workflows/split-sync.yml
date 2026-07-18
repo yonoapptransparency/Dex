@@ -180,16 +180,7 @@ jobs:
 
             if [ "$IS_PUBLIC" = "true" ]; then
               echo "Cleaning admin files from $REPO_NAME..."
-              cat << 'VERCEL_EOF' > vercel.json
-{
-  "version": 2,
-  "outputDirectory": "dist",
-  "buildCommand": "npm run build",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
-VERCEL_EOF
+              echo '{"version": 2, "outputDirectory": "dist", "buildCommand": "npm run build", "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]}' > vercel.json
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
