@@ -180,22 +180,6 @@ jobs:
                 rm -rf "$file"
               done
 
-
-              # Strip Admin source code completely
-              if [ -f "rewrite-datacontext-for-dex.js" ]; then
-                node rewrite-datacontext-for-dex.js
-                rm -f rewrite-datacontext-for-dex.js
-              fi
-              if [ -f "strip-admin-from-dex.js" ]; then
-                node strip-admin-from-dex.js
-                rm -f strip-admin-from-dex.js
-              fi
-
-              # Bulletproof safety net: strip any residual maintenance, test, or config files from root of Dex
-              if [ -f "scripts/strip-admin-from-dex.js" ]; then
-                node scripts/strip-admin-from-dex.js
-              fi
-
               # Strip Admin source code completely
               if [ -f "rewrite-datacontext-for-dex.js" ]; then
                 node rewrite-datacontext-for-dex.js

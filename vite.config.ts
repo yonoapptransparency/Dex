@@ -15,7 +15,8 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-          },
+      __ADMIN_ENABLED__: JSON.stringify(fs.existsSync(path.resolve(__dirname, 'src/pages/AdminDashboard.tsx'))),
+    },
     resolve: {
       dedupe: ['react', 'react-dom'],
       alias: [
