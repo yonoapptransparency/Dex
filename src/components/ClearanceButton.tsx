@@ -79,7 +79,7 @@ const K_POW = new Uint32Array([
 const rotR_pow = (v: number, a: number) => (v >>> a) | (v << (32 - a));
 
 // ── Internal API paths (match backend) ──
-const API_BASE = import.meta.env.VITE_API_URL || 'https://www.rummyapp.online';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 const _EP = {
   challenge: `${API_BASE}/api/v1/init-file`,
   process:   `${API_BASE}/api/v1/process-file`,

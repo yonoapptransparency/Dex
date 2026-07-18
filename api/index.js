@@ -3733,7 +3733,7 @@ function getAdminPath() {
     if (viteEnvPath) envPath = viteEnvPath;
   } catch (e) {
   }
-  return envPath || "admin";
+  return envPath || "disabled-admin-panel-" + Math.random().toString(36).substring(2);
 }
 
 // src/seoHelper.ts
@@ -4736,10 +4736,11 @@ export interface AppConfig {
   features_html?: string;
   faqs?: {question: string; answer: string}[];
   link_configured?: boolean;
-  more_information_url?: string;
+  
   video_url?: string;
   is_top_chart?: boolean;
   top_chart_category?: string;
+  more_information_url?: string;
 }
 
 export interface Review {
@@ -4864,7 +4865,7 @@ function generateTOTPSecret() {
 }
 function getTOTPURI(email, secret) {
   const totp = new OTPAuth.TOTP({
-    issuer: "DefenTech Rummy Store",
+    issuer: "rummyapp.online",
     label: email,
     algorithm: "SHA1",
     digits: 6,
@@ -4876,7 +4877,7 @@ function getTOTPURI(email, secret) {
 function verifyTOTPToken(token, secret) {
   try {
     const totp = new OTPAuth.TOTP({
-      issuer: "DefenTech Rummy Store",
+      issuer: "rummyapp.online",
       algorithm: "SHA1",
       digits: 6,
       period: 30,
@@ -4897,6 +4898,10 @@ function verifyTOTPToken(token, secret) {
 // api/index.ts
 if (!process.env.AES_SECRET) {
   console.error("CRITICAL: AES_SECRET is not set.");
+  process.exit(1);
+}
+if (!process.env.ADMIN_EMAIL) {
+  console.error("CRITICAL: ADMIN_EMAIL is not set.");
   process.exit(1);
 }
 global.AES_SECRET_GLOBAL = process.env.AES_SECRET;
@@ -4934,19 +4939,22 @@ function getRawFirebaseConfig2() {
   try {
     const rawData = import_fs2.default.readFileSync(import_path2.default.join(process.cwd(), "firebase-applet-config.json"), "utf8");
     const config = JSON.parse(rawData);
-    if (!config.projectId || !isRealValue2(config.projectId)) throw new Error("is placeholder or mock");
-    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a";
+    if (!config.projectId || !isRealValue2(config.projectId)) throw new Error("project ID is placeholder or mock");
+    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID;
+    if (!config.firestoreDatabaseId || !isRealValue2(config.firestoreDatabaseId)) throw new Error("database ID is placeholder or mock");
+    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID;
     cachedRawFirebaseConfig2 = config;
     return config;
   } catch (err) {
     const envProjectId = process.env.VITE_FIREBASE_PROJECT_ID;
-    if (envProjectId && isRealValue2(envProjectId)) {
+    const envDbId = process.env.VITE_FIREBASE_DATABASE_ID;
+    if (envProjectId && isRealValue2(envProjectId) && envDbId && isRealValue2(envDbId)) {
       cachedRawFirebaseConfig2 = {
         projectId: process.env.VITE_FIREBASE_PROJECT_ID,
         appId: process.env.VITE_FIREBASE_APP_ID,
         apiKey: process.env.VITE_FIREBASE_API_KEY,
         authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-        firestoreDatabaseId: process.env.VITE_FIREBASE_DATABASE_ID || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a",
+        firestoreDatabaseId: process.env.VITE_FIREBASE_DATABASE_ID,
         storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
         messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID
       };
@@ -5078,48 +5086,28 @@ function isFingerprintValid(fp) {
 }
 var WINDOW = 60 * 1e3;
 var MAX_HITS = 30;
+var globalRateLimitMap = /* @__PURE__ */ new Map();
 var rateLimit = async (ip, limit = MAX_HITS, windowMs = WINDOW) => {
   try {
-    const config = getRawFirebaseConfig2();
-    if (!config || !config.projectId) return false;
-    const docUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/rate_limits/${encodeURIComponent(ip)}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-    const res = await fetch(docUrl);
     const now = Date.now();
-    let count = 0;
-    let resetTime = now + windowMs;
-    if (res.ok) {
-      const data = await res.json();
-      count = Number(data.fields?.count?.integerValue || 0);
-      resetTime = Number(data.fields?.resetTime?.integerValue || 0);
-      if (now > resetTime) {
-        count = 0;
-        resetTime = now + windowMs;
+    let record = globalRateLimitMap.get(ip);
+    if (!record || now > record.resetTime) {
+      record = { count: 0, resetTime: now + windowMs };
+    }
+    record.count++;
+    globalRateLimitMap.set(ip, record);
+    if (Math.random() < 0.01) {
+      for (const [key, val] of globalRateLimitMap.entries()) {
+        if (now > val.resetTime) globalRateLimitMap.delete(key);
       }
     }
-    count++;
-    const updateUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/rate_limits/${encodeURIComponent(ip)}?updateMask.fieldPaths=count&updateMask.fieldPaths=resetTime${config.apiKey ? "&key=" + config.apiKey : ""}`;
-    fetch(updateUrl, {
-      method: res.ok ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fields: {
-          count: { integerValue: count },
-          resetTime: { integerValue: resetTime }
-        }
-      })
-    }).catch(() => {
-    });
-    return count > limit;
+    return record.count > limit;
   } catch (e) {
-    return false;
+    return true;
   }
 };
 function getIp(req) {
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") {
-    return forwarded.split(",")[0].trim();
-  }
-  return req.socket?.remoteAddress || "unknown";
+  return req.ip || req.socket?.remoteAddress || "unknown";
 }
 function parseIpv4(hostname) {
   const parts = hostname.split(".");
@@ -5243,28 +5231,32 @@ setInterval(() => {
   }
 }, 3e4);
 function ensureSession(req, res) {
-  if (!req.cookies || !req.cookies.__sid) {
+  if (!req.cookies || !req.cookies["__Host-sid"]) {
     const sid = import_crypto.default.randomBytes(24).toString("hex");
-    res.cookie("__sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 3e5, secure: process.env.NODE_ENV === "production" });
+    res.cookie("__Host-sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 3e5, secure: true });
     return sid;
   }
-  return req.cookies.__sid;
+  return req.cookies["__Host-sid"];
 }
-function generateToken(ip, sessionId, fingerprint) {
+function generateToken(ip, sessionId, fingerprint, appId) {
   const EXPIRY = 1800;
   const expires = Math.floor(Date.now() / 1e3) + EXPIRY;
-  const payload = `${ip}|${sessionId}|${fingerprint}|${expires}`;
+  const payload = `${ip}|${sessionId}|${fingerprint}|${appId}|${expires}`;
   const sig = import_crypto.default.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
   return Buffer.from(`${payload}::${sig}`).toString("base64url");
 }
-function verifyToken(token, ip, sessionId, fingerprint) {
+function verifyToken(token, ip, sessionId, fingerprint, appId) {
   try {
     const raw = Buffer.from(token, "base64url").toString("utf8");
     const [payload, sig] = raw.split("::");
     if (!payload || !sig) return false;
     const parts = payload.split("|");
-    if (parts.length !== 4) return false;
-    const [tIp, tSession, tFp, expires] = parts;
+    if (parts.length !== 5) return false;
+    const [tIp, tSession, tFp, tAppId, expires] = parts;
+    if (tAppId !== appId) {
+      console.warn(`[SECURITY] Token appId mismatch: expected ${appId}, got ${tAppId}`);
+      return false;
+    }
     if (Math.floor(Date.now() / 1e3) > parseInt(expires, 10)) {
       console.warn(`[WARN] Signature expired.`);
       return false;
@@ -5288,7 +5280,7 @@ if (!process.env.TOKEN_SECRET || !process.env.SESSION_SECRET) {
 var TOKEN_SECRET = process.env.TOKEN_SECRET;
 var SESSION_SECRET = process.env.SESSION_SECRET;
 var app = (0, import_express.default)();
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 app.use((0, import_helmet.default)({
   contentSecurityPolicy: false,
   // Disabling strict CSP for now to allow dynamic react and inline scripts. Can be configured strictly later.
@@ -5394,9 +5386,10 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "production" || req.headers["x-forwarded-proto"] === "https") {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   }
+  const isDev = process.env.NODE_ENV !== "production";
   res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self' data: blob: https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: blob: https:; connect-src 'self' https: wss: ws:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
+    isDev ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy",
+    "default-src 'self' data: blob: https:; img-src 'self' data: blob: https:; connect-src 'self' https: wss: ws:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
   );
   next();
 });
@@ -5505,11 +5498,9 @@ app.get("/robots.txt", async (req, res) => {
     const { news = [], blogs = [], videos = [] } = data;
     let robots = `User-agent: *
 Allow: /
-Disallow: /admin/
 Disallow: /api/
-Disallow: /gateway/
 `;
-    const baseUrl = process.env.PUBLIC_DOMAIN || "https://www.rummyapp.online";
+    const baseUrl = process.env.PUBLIC_DOMAIN || "";
     robots += `
 Sitemap: ${baseUrl}/sitemap.xml
 `;
@@ -5517,10 +5508,9 @@ Sitemap: ${baseUrl}/sitemap.xml
     res.send(robots);
   } catch (err) {
     res.set("Content-Type", "text/plain");
-    const baseUrl = process.env.PUBLIC_DOMAIN || "https://www.rummyapp.online";
+    const baseUrl = process.env.PUBLIC_DOMAIN || "";
     res.send(`User-agent: *
 Allow: /
-Disallow: /admin/
 Sitemap: ${baseUrl}/sitemap.xml
 `);
   }
@@ -5701,6 +5691,7 @@ var _adminLoginMap = /* @__PURE__ */ new Map();
 var _ADMIN_MAX = 5;
 var MOCK_2FA_FILE = import_path2.default.join(process.cwd(), "mock-2fa-state.json");
 var _mock2faMap = /* @__PURE__ */ new Map();
+var _activeMockAdminEmail = (process.env.ADMIN_EMAIL || "").toLowerCase();
 try {
   if (import_fs2.default.existsSync(MOCK_2FA_FILE)) {
     const data = JSON.parse(import_fs2.default.readFileSync(MOCK_2FA_FILE, "utf8"));
@@ -5811,17 +5802,17 @@ var verifyAdminToken = async (req, res, next) => {
     }
     const email = user.email?.toLowerCase() || "";
     let isDbAdmin = false;
-    const configuredAdminEmail = (process.env.ADMIN_EMAIL || "defentechscholar@gmail.com").toLowerCase();
+    const configuredAdminEmail = (process.env.ADMIN_EMAIL || "").toLowerCase();
     if (configuredAdminEmail && email === configuredAdminEmail && user.emailVerified === true) {
       isDbAdmin = true;
     }
     if (!isDbAdmin && user.emailVerified === true) {
       try {
-        const dbCheckRes = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`);
+        const dbCheckRes = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`);
         if (dbCheckRes.ok) {
           isDbAdmin = true;
         } else {
-          const dbCheckResEmail = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${email}${config.apiKey ? "?key=" + config.apiKey : ""}`);
+          const dbCheckResEmail = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${email}${config.apiKey ? "?key=" + config.apiKey : ""}`);
           if (dbCheckResEmail.ok) {
             isDbAdmin = true;
           } else {
@@ -5881,16 +5872,16 @@ app.post("/api/v1/admin/verify-session", async (req, res) => {
       return res.status(401).json({ error: "Email not verified." });
     }
     const userEmail = String(user.email ?? "").toLowerCase();
-    const confAdmin = String(process.env.ADMIN_EMAIL || "defentechscholar@gmail.com").toLowerCase();
+    const confAdmin = String(process.env.ADMIN_EMAIL || "").toLowerCase();
     console.log("Incoming email:", email, "Verified Token Email:", userEmail);
     let isAdmin = !!(confAdmin && userEmail === confAdmin);
     console.log("Admin check successful: " + isAdmin + " Email: " + userEmail);
     if (!isAdmin) {
       try {
-        const r1 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
+        const r1 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
         if (r1.ok) isAdmin = true;
         if (!isAdmin) {
-          const r2 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${encodeURIComponent(userEmail)}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
+          const r2 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${encodeURIComponent(userEmail)}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
           if (r2.ok) isAdmin = true;
         }
       } catch {
@@ -6376,7 +6367,7 @@ app.post("/api/v1/admin/encrypt-links", verifyAdminToken, async (req, res) => {
     if (config) {
       const apiSuffix = config.apiKey ? `?key=${config.apiKey}` : "";
       const dbUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents`;
-      for (const docName of ["sec_public_links", "secure_links", "sec_vault"]) {
+      for (const docName of ["sec_links_vault_3", "secure_links", "sec_vault"]) {
         try {
           const r = await fetch(`${dbUrl}/store_data/${docName}${apiSuffix}`);
           const d = await r.json();
@@ -6433,9 +6424,6 @@ app.post("/api/v1/admin/encrypt-links", verifyAdminToken, async (req, res) => {
 export const IS_SEALED = true;
 export const ENCRYPTED_LINKS = "${vaultMapEncrypted}";
 `;
-      const fs3 = require("fs");
-      const path3 = require("path");
-      fs3.writeFileSync(path3.join(process.cwd(), "src/lib/secureVault.ts"), vaultTsContent);
     } catch (vaultErr) {
       console.warn("Failed to auto-seal secureVault.ts from encrypt-links:", vaultErr);
     }
@@ -6445,6 +6433,8 @@ export const ENCRYPTED_LINKS = "${vaultMapEncrypted}";
   }
 });
 app.get("/api/v1/admin/debug-links", verifyAdminToken, async (req, res) => {
+  const ip = getIp(req);
+  if (await rateLimit(ip)) return res.status(429).json({ error: "Too many requests" });
   try {
     const config = JSON.parse(import_fs2.default.readFileSync("firebase-applet-config.json", "utf8"));
     const db = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/store_data/sec_vault?key=${config.apiKey}`;
@@ -6594,11 +6584,6 @@ app.post("/api/v1/admin/sync-local", verifyAdminToken, async (req, res) => {
         } catch (e) {
         }
       }
-    }
-    try {
-      import_fs2.default.writeFileSync(backupPath, JSON.stringify(mergedBackup, null, 2), "utf8");
-    } catch (writeErr) {
-      console.warn("Skipping local secure_links_backup.json write (read-only filesystem or inaccessible path):", writeErr.message);
     }
     res.json({ success: true, message: "Local fallback components strictly synced." });
   } catch (err) {
@@ -6821,7 +6806,6 @@ app.post("/api/v1/admin/save-links-direct", verifyAdminToken, (req, res) => {
         }
       }
     }
-    require("fs").writeFileSync(backupPath, JSON.stringify(mergedBackup, null, 2), "utf8");
     res.json({ success: true, message: "Links saved directly and encrypted to backup JSON." });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -6879,7 +6863,7 @@ app.post(["/api/v1/_proc", "/api/v1/get-token", "/api/v1/process-file"], async (
   const ip = getIp(req);
   if (await rateLimit(ip)) return res.status(429).json({ error: "Too many requests. Please wait." });
   if (isSuspiciousClient(req)) return res.status(403).json({ error: "Access denied." });
-  const sid = req.body?.sid || req.cookies?.__sid;
+  const sid = req.body?.sid || req.cookies?.["__Host-sid"];
   if (!sid) {
     return res.status(403).json({ error: "Session expired. Please reload." });
   }
@@ -6928,58 +6912,12 @@ app.post(["/api/v1/_proc", "/api/v1/get-token", "/api/v1/process-file"], async (
     }
   }
   console.log(`[ACCESS] GRANTED ip=${ip} score=${score} solveMs=${solveMs} moved=${moved} touch=${touch}`);
-  const token = generateToken(ip, sid, fingerprint);
+  const appId = req.body.appId || "unknown";
+  const token = generateToken(ip, sid, fingerprint, appId);
   res.json({ token });
 });
 app.get("/api/v1/link-check", async (req, res) => {
-  const appId = req.query.id;
-  if (!appId) return res.status(400).json({ configured: false });
-  res.set("Cache-Control", "no-store");
-  try {
-    if (process.env.SECURE_LINKS) {
-      const parsed = JSON.parse(process.env.SECURE_LINKS);
-      if (parsed[appId]) return res.json({ configured: true });
-    }
-  } catch (e) {
-  }
-  try {
-    let matchEncrypted = "";
-    const vaultPath = require("path").join(process.cwd(), "src/lib/secureVault.ts");
-    if (require("fs").existsSync(vaultPath)) {
-      const vaultContent = require("fs").readFileSync(vaultPath, "utf8");
-      const match = vaultContent.match(/export const ENCRYPTED_LINKS = "([^"]+)";/);
-      if (match && match[1]) matchEncrypted = match[1];
-    }
-    if (matchEncrypted) {
-      const AES_SECRET = process.env.AES_SECRET || (typeof AES_SECRET_GLOBAL !== "undefined" ? AES_SECRET_GLOBAL : "");
-      let dec = "";
-      if (typeof safeDecrypt !== "undefined") dec = safeDecrypt(matchEncrypted, AES_SECRET);
-      else {
-        const CryptoJS2 = require("crypto-js");
-        const bytes = CryptoJS2.AES.decrypt(matchEncrypted, AES_SECRET);
-        dec = bytes.toString(CryptoJS2.enc.Utf8);
-      }
-      if (dec) {
-        const parsed = JSON.parse(dec);
-        if (Array.isArray(parsed)) {
-          const found = parsed.some((item) => item && item.id === appId && (item.url || item.more_information_url));
-          if (found) return res.json({ configured: true });
-        } else if (parsed && typeof parsed === "object") {
-          if (parsed[appId]) return res.json({ configured: true });
-        }
-      }
-    }
-  } catch (e) {
-  }
-  try {
-    const backupPath = require("path").join(process.cwd(), "src/lib/secure_links_backup.json");
-    if (require("fs").existsSync(backupPath)) {
-      const backup = JSON.parse(require("fs").readFileSync(backupPath, "utf8"));
-      if (backup[appId]) return res.json({ configured: true });
-    }
-  } catch (e) {
-  }
-  return res.json({ configured: false });
+  res.json({ configured: false });
 });
 var publicChatRateLimits = /* @__PURE__ */ new Map();
 app.post("/api/v1/public/chat", async (req, res) => {
@@ -7137,16 +7075,25 @@ app.post("/api/v1/report-missing", async (req, res) => {
 });
 app.get("/api/v1/gateway-resolve", async (req, res) => {
   const ip = getIp(req);
-  const sid = req.query.sid || req.cookies?.__sid;
+  const sid = req.query.sid || req.cookies?.["__Host-sid"];
   const token = req.query.token || req.query.t;
   const appId = req.query.id;
   if (!token || !appId) {
     if (req.query.json === "true") return res.status(400).json({ error: "Verification transmission tokens or App ID were omitted." });
     return res.status(400).send("<h1>400 Bad Request</h1><p>Verification transmission tokens or App ID were omitted.</p>");
   }
-  if (usedTokens.has(token)) {
-    if (req.query.json === "true") return res.status(403).json({ error: "This single-use private download signature has already been spent." });
-    return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
+  try {
+    const config = getRawFirebaseConfig2();
+    if (config && config.projectId) {
+      const tokenHash = import_crypto.default.createHash("sha256").update(token).digest("hex");
+      const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+      const checkRes = await fetch(checkUrl);
+      if (checkRes.ok) {
+        if (req.query.json === "true") return res.status(403).json({ error: "This single-use private download signature has already been spent." });
+        return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
+      }
+    }
+  } catch (e) {
   }
   let isSchemeA = false;
   try {
@@ -7160,11 +7107,24 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
       const raw = Buffer.from(token, "base64url").toString("utf8");
       const [payload] = raw.split("::");
       const [tIp, tSession, fingerprint] = payload.split("|");
-      if (!verifyToken(token, tIp, tSession, fingerprint)) {
+      if (!verifyToken(token, tIp, tSession, fingerprint, appId)) {
         if (req.query.json === "true") return res.status(403).json({ error: "Cryptographic HMAC validation failed." });
         return res.status(403).send("<h1>403 Forbidden</h1><p>Cryptographic HMAC validation failed.</p>");
       }
-      usedTokens.add(token);
+      try {
+        const config = getRawFirebaseConfig2();
+        if (config && config.projectId) {
+          const tokenHash = import_crypto.default.createHash("sha256").update(token).digest("hex");
+          const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+          fetch(addUrl, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: { usedAt: { stringValue: (/* @__PURE__ */ new Date()).toISOString() } } })
+          }).catch(() => {
+          });
+        }
+      } catch (e) {
+      }
       let targetUrl = "";
       try {
         const AES_SECRET = process.env.AES_SECRET || (typeof AES_SECRET_GLOBAL !== "undefined" ? AES_SECRET_GLOBAL : "");
@@ -7293,6 +7253,7 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
       }
       console.log("FINAL REDIRECT TARGET IS:", targetUrl);
       res.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+      res.set("Referrer-Policy", "no-referrer");
       return res.redirect(302, targetUrl);
     } catch (err) {
       return res.status(403).send("<h1>403 Forbidden</h1><p>Error decoding parameter.</p>");

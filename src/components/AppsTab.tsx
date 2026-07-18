@@ -1044,7 +1044,12 @@ const AppsTab = React.memo(({ appsList, editingAppId, setEditingAppId, handleDel
                                 });
                                 const data = await res.json();
                                 if (data.decrypted) {
-                                  alert('Decrypted Link URL:\n' + data.decrypted);
+                                  try {
+                                      await navigator.clipboard.writeText(data.decrypted);
+                                      alert('Link copied to clipboard (hidden for security)');
+                                    } catch (e) {
+                                      console.log('Failed to copy');
+                                    }
                                 } else {
                                   alert('Failed to decrypt URL.');
                                 }

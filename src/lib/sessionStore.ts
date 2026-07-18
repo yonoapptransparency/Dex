@@ -1,4 +1,4 @@
-export const secureStorage = {
+export const sessionStore = {
   getItem: (key: string) => {
     if (typeof window === 'undefined') return null;
     try { return sessionStorage.getItem(key); } catch (e) { return null; }

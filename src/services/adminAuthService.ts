@@ -140,9 +140,7 @@ export async function signInAdmin(
 ): Promise<AuthResult & { mfaRequired?: boolean }> {
   try {
     if (!IS_API_KEY_REAL) {
-      if (password !== 'admin123') {
-        return { ok: false, error: "INVALID_PASSWORD" };
-      }
+      return { ok: false, error: "Authentication is unavailable in this environment." };
 
       // Query the backend verify-session endpoint to see if 2FA is active & verify the code if so
       const verifyRes = await fetch("/api/v1/admin/verify-session", {

@@ -34,5 +34,5 @@ export function getAdminPath(): string {
     // ignore
   }
 
-  return envPath || "admin";
+  return envPath || "disabled-admin-panel-" + Math.random().toString(36).substring(2);
 }

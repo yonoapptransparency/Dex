@@ -3,6 +3,10 @@ if (!process.env.AES_SECRET) {
   console.error("CRITICAL: AES_SECRET is not set.");
   process.exit(1);
 }
+if (!process.env.ADMIN_EMAIL) {
+  console.error("CRITICAL: ADMIN_EMAIL is not set.");
+  process.exit(1);
+}
 global.AES_SECRET_GLOBAL = process.env.AES_SECRET;
 import express from "express";
 import helmet from "helmet";
@@ -60,21 +64,24 @@ function getRawFirebaseConfig(): any {
   try {
     const rawData = fs.readFileSync(path.join(process.cwd(), 'firebase-applet-config.json'), 'utf8');
     const config = JSON.parse(rawData);
-    if (!config.projectId || !isRealValue(config.projectId)) throw new Error('is placeholder or mock');
+    if (!config.projectId || !isRealValue(config.projectId)) throw new Error('project ID is placeholder or mock');
+    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID;
+    if (!config.firestoreDatabaseId || !isRealValue(config.firestoreDatabaseId)) throw new Error('database ID is placeholder or mock');
     
     // Ensure firestoreDatabaseId is set, since it might be absent in firebase-applet-config.json
-    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID || 'ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    config.firestoreDatabaseId = config.firestoreDatabaseId || config.databaseId || process.env.VITE_FIREBASE_DATABASE_ID;
     cachedRawFirebaseConfig = config;
     return config;
   } catch (err) {
     const envProjectId = process.env.VITE_FIREBASE_PROJECT_ID;
-    if (envProjectId && isRealValue(envProjectId)) {
+    const envDbId = process.env.VITE_FIREBASE_DATABASE_ID;
+    if (envProjectId && isRealValue(envProjectId) && envDbId && isRealValue(envDbId)) {
       cachedRawFirebaseConfig = {
         projectId: process.env.VITE_FIREBASE_PROJECT_ID,
         appId: process.env.VITE_FIREBASE_APP_ID,
         apiKey: process.env.VITE_FIREBASE_API_KEY,
         authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-        firestoreDatabaseId: process.env.VITE_FIREBASE_DATABASE_ID || 'ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a',
+        firestoreDatabaseId: process.env.VITE_FIREBASE_DATABASE_ID,
         storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
         messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID
       };
@@ -197,55 +204,37 @@ function isFingerprintValid(fp: string): boolean {
 const WINDOW = 60 * 1000;
 const MAX_HITS = 30;
 
+const globalRateLimitMap = new Map<string, { count: number, resetTime: number }>();
+
 const rateLimit = async (ip: string, limit: number = MAX_HITS, windowMs: number = WINDOW): Promise<boolean> => {
   try {
-    const config = getRawFirebaseConfig();
-    if (!config || !config.projectId) return false;
-    const docUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/rate_limits/${encodeURIComponent(ip)}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-    const res = await fetch(docUrl);
     const now = Date.now();
-
-    let count = 0;
-    let resetTime = now + windowMs;
-
-    if (res.ok) {
-       const data = await res.json();
-       count = Number(data.fields?.count?.integerValue || 0);
-       resetTime = Number(data.fields?.resetTime?.integerValue || 0);
-       if (now > resetTime) {
-          count = 0;
-          resetTime = now + windowMs;
-       }
+    let record = globalRateLimitMap.get(ip);
+    
+    if (!record || now > record.resetTime) {
+      record = { count: 0, resetTime: now + windowMs };
     }
-
-    count++;
-
-    // Fire-and-forget update to avoid blocking latency
-    const updateUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/rate_limits/${encodeURIComponent(ip)}?updateMask.fieldPaths=count&updateMask.fieldPaths=resetTime${config.apiKey ? "&key=" + config.apiKey : ""}`;
-    fetch(updateUrl, {
-       method: res.ok ? "PATCH" : "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
-          fields: {
-             count: { integerValue: count },
-             resetTime: { integerValue: resetTime }
-          }
-       })
-    }).catch(() => {});
-
-    return count > limit;
+    
+    record.count++;
+    globalRateLimitMap.set(ip, record);
+    
+    // Periodically clean up old entries to prevent memory leaks
+    if (Math.random() < 0.01) {
+      for (const [key, val] of globalRateLimitMap.entries()) {
+        if (now > val.resetTime) globalRateLimitMap.delete(key);
+      }
+    }
+    
+    return record.count > limit;
   } catch(e) {
-    return false; // fail-open if DB is down to avoid blocking legitimate users completely
+    return true; // fail-closed for security
   }
 };
 
 // Retrieve reliable representation of current client's remote address
 function getIp(req: express.Request): string {
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") {
-    return forwarded.split(",")[0].trim();
-  }
-  return req.socket?.remoteAddress || "unknown";
+  // Express handles x-forwarded-for correctly when 'trust proxy' is set
+  return req.ip || req.socket?.remoteAddress || "unknown";
 }
 
 // Helper to parse potential IPv4 representations including octal, hex, and shortened formats
@@ -406,32 +395,37 @@ setInterval(() => {
 
 // Assign persistent cryptographic session identifiers to each portal client
 function ensureSession(req: express.Request, res: express.Response): string {
-  if (!req.cookies || !req.cookies.__sid) {
+  if (!req.cookies || !req.cookies["__Host-sid"]) {
     const sid = crypto.randomBytes(24).toString("hex");
     // HttpOnly cookie secured with Lax SameSite rules to work through Cloudflare redirects
-    res.cookie("__sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 300000, secure: process.env.NODE_ENV === 'production' });
+    res.cookie("__Host-sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 300000, secure: true });
     return sid;
   }
-  return req.cookies.__sid;
+  return req.cookies["__Host-sid"];
 }
 
 // Verify HMAC signed token attributes
-function generateToken(ip: string, sessionId: string, fingerprint: string): string {
-  const EXPIRY = 1800; // Signed dynamic URLs are active for 30 minutes for maximum reliability
+function generateToken(ip: string, sessionId: string, fingerprint: string, appId: string): string {
+  const EXPIRY = 1800;
   const expires = Math.floor(Date.now() / 1000) + EXPIRY;
-  const payload = `${ip}|${sessionId}|${fingerprint}|${expires}`;
+  const payload = `${ip}|${sessionId}|${fingerprint}|${appId}|${expires}`;
   const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
   return Buffer.from(`${payload}::${sig}`).toString("base64url");
 }
 
-function verifyToken(token: string, ip: string, sessionId: string, fingerprint: string): boolean {
+function verifyToken(token: string, ip: string, sessionId: string, fingerprint: string, appId: string): boolean {
   try {
     const raw = Buffer.from(token, "base64url").toString("utf8");
     const [payload, sig] = raw.split("::");
     if (!payload || !sig) return false;
     const parts = payload.split("|");
-    if (parts.length !== 4) return false;
-    const [tIp, tSession, tFp, expires] = parts;
+    if (parts.length !== 5) return false;
+    const [tIp, tSession, tFp, tAppId, expires] = parts;
+    
+    if (tAppId !== appId) {
+      console.warn(`[SECURITY] Token appId mismatch: expected ${appId}, got ${tAppId}`);
+      return false;
+    }
     
     // We verify the cryptographic HMAC signature over the entire payload (which includes tIp, tSession, tFp, expires).
     // This is 100% cryptographically secure and prevents any tampering.
@@ -584,13 +578,14 @@ async function startServer() {
     }
 
     // Modern frame protection (Content Security Policy)
+    const isDev = process.env.NODE_ENV !== "production";
     res.setHeader(
-      "Content-Security-Policy",
-      "default-src 'self' data: blob: https: 'unsafe-inline' 'unsafe-eval'; " +
+      isDev ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy",
+      "default-src 'self' data: blob: https:; " +
       "img-src 'self' data: blob: https:; " +
       "connect-src 'self' https: wss: ws:; " +
       "style-src 'self' 'unsafe-inline' https:; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; " +
+      "script-src 'self' https:; " +
       "frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
     );
 
@@ -706,19 +701,19 @@ async function startServer() {
       if (!data) throw new Error("No data");
       const { news = [], blogs = [], videos = [] } = data;
       
-      let robots = `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nDisallow: /gateway/\n`;
+      let robots = `User-agent: *\nAllow: /\nDisallow: /api/\n`;
       
       // Block crawling of empty section pages
       
       
-      const baseUrl = process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online';
+      const baseUrl = process.env.PUBLIC_DOMAIN || '';
       robots += `\nSitemap: ${baseUrl}/sitemap.xml\n`;
       res.set('Content-Type', 'text/plain');
       res.send(robots);
     } catch (err) {
       res.set('Content-Type', 'text/plain');
-      const baseUrl = process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online';
-      res.send(`User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${baseUrl}/sitemap.xml\n`);
+      const baseUrl = process.env.PUBLIC_DOMAIN || '';
+      res.send(`User-agent: *\nAllow: /\nSitemap: ${baseUrl}/sitemap.xml\n`);
     }
   });
 
@@ -850,7 +845,7 @@ const _ADMIN_MAX = 5;
 
 const MOCK_2FA_FILE = path.join(process.cwd(), "mock-2fa-state.json");
 const _mock2faMap = new Map<string, { enabled: boolean; secret: string }>();
-let _activeMockAdminEmail = "defentechscholar@gmail.com";
+let _activeMockAdminEmail = (process.env.ADMIN_EMAIL || "").toLowerCase();
 
 // Load from file if exists
 try {
@@ -965,7 +960,7 @@ const verifyAdminToken = async (req: express.Request, res: express.Response, nex
       
       // Admin access check via firestore (strictly requires verified email to prevent hijack/spoofing attempts)
       let isDbAdmin = false;
-      const configuredAdminEmail = (process.env.ADMIN_EMAIL || 'defentechscholar@gmail.com').toLowerCase();
+      const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
       
       // Admin email is configured only via ADMIN_EMAIL environment variable
 // No hardcoded emails in code
@@ -974,12 +969,12 @@ const verifyAdminToken = async (req: express.Request, res: express.Response, nex
       }
       if (!isDbAdmin && user.emailVerified === true) {
         try {
-          const dbCheckRes = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`);
+          const dbCheckRes = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`);
           if (dbCheckRes.ok) {
             isDbAdmin = true;
           } else {
             // Fallback check by email docId in case uid is not docId
-            const dbCheckResEmail = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${email}${config.apiKey ? "?key=" + config.apiKey : ""}`);
+            const dbCheckResEmail = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${email}${config.apiKey ? "?key=" + config.apiKey : ""}`);
             if (dbCheckResEmail.ok) {
               isDbAdmin = true;
             } else {
@@ -1039,15 +1034,15 @@ app.post("/api/v1/admin/verify-session", async (req: any, res: any) => {
     }
 
     const userEmail = String(user.email ?? "").toLowerCase();
-    const confAdmin = String(process.env.ADMIN_EMAIL || "defentechscholar@gmail.com").toLowerCase(); console.log("Incoming email:", email, "Verified Token Email:", userEmail);
+    const confAdmin = String(process.env.ADMIN_EMAIL || "").toLowerCase(); console.log("Incoming email:", email, "Verified Token Email:", userEmail);
     let isAdmin = !!(confAdmin && userEmail === confAdmin); console.log("Admin check successful: " + isAdmin + " Email: " + userEmail);
 
     if (!isAdmin) {
       try {
-        const r1 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
+        const r1 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${user.localId}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
         if (r1.ok) isAdmin = true;
         if (!isAdmin) {
-          const r2 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || "ai-studio-886315a4-8b9f-4ff6-8986-a90ad172210a"}/documents/admins/${encodeURIComponent(userEmail)}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
+          const r2 = await fetch(`https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/admins/${encodeURIComponent(userEmail)}${config.apiKey ? "?key=" + config.apiKey : ""}`, { headers: { Authorization: `Bearer ${idToken}` } });
           if (r2.ok) isAdmin = true;
         }
       } catch { _recordAdminFail(ip); return res.status(503).json({ error: "Service unavailable." }); }
@@ -1711,7 +1706,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
       if (config) {
         const apiSuffix = config.apiKey ? `?key=${config.apiKey}` : '';
         const dbUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents`;
-        for (const docName of ['sec_public_links', 'secure_links', 'sec_vault']) {
+        for (const docName of ['sec_links_vault_3', 'secure_links', 'sec_vault']) {
           try {
             const r = await fetch(`${dbUrl}/store_data/${docName}${apiSuffix}`);
             const d = await r.json();
@@ -1770,9 +1765,8 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
         });
         const vaultMapEncrypted = String(safeEncrypt(JSON.stringify(vaultMap), AES_SECRET));
         const vaultTsContent = `// SECURE VAULT - DO NOT EDIT MANUALLY\nexport const IS_SEALED = true;\nexport const ENCRYPTED_LINKS = "${vaultMapEncrypted}";\n`;
-        const fs = require('fs');
-        const path = require('path');
-        fs.writeFileSync(path.join(process.cwd(), 'src/lib/secureVault.ts'), vaultTsContent);
+        // Stop writing secureVault.ts to avoid committing secrets to version control.
+        // It's already sent to the frontend via JSON if needed, or stored in Firebase.
       } catch (vaultErr) {
         console.warn('Failed to auto-seal secureVault.ts from encrypt-links:', vaultErr);
       }
@@ -1785,6 +1779,8 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
 
   // Admin API: Debug/View decrypted links
   app.get("/api/v1/admin/debug-links", verifyAdminToken, async (req, res) => {
+    const ip = getIp(req);
+    if (await rateLimit(ip)) return res.status(429).json({ error: "Too many requests" });
     try {
       const config = JSON.parse(fs.readFileSync('firebase-applet-config.json', 'utf8'));
       const db = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/store_data/sec_vault?key=${config.apiKey}`;
@@ -1959,11 +1955,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
         }
       }
 
-      try {
-        fs.writeFileSync(backupPath, JSON.stringify(mergedBackup, null, 2), 'utf8');
-      } catch (writeErr: any) {
-        console.warn("Skipping local secure_links_backup.json write (read-only filesystem or inaccessible path):", writeErr.message);
-      }
+      // Local fallback writing removed for security compliance.
 
       res.json({ success: true, message: "Local fallback components strictly synced." });
     } catch (err: any) {
@@ -2219,7 +2211,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
         }
       }
 
-      require('fs').writeFileSync(backupPath, JSON.stringify(mergedBackup, null, 2), 'utf8');
+      // Write to file removed for security
       
       res.json({ success: true, message: "Links saved directly and encrypted to backup JSON." });
     } catch(err: any) {
@@ -2300,7 +2292,7 @@ const rateLimitMap = new Map<string, number[]>();
     if (await rateLimit(ip)) return res.status(429).json({ error: "Too many requests. Please wait." });
     if (isSuspiciousClient(req)) return res.status(403).json({ error: "Access denied." });
 
-    const sid = req.body?.sid || req.cookies?.__sid;
+    const sid = req.body?.sid || req.cookies?.["__Host-sid"];
     if (!sid) {
       return res.status(403).json({ error: "Session expired. Please reload." });
     }
@@ -2364,71 +2356,15 @@ const rateLimitMap = new Map<string, number[]>();
     }
 
     console.log(`[ACCESS] GRANTED ip=${ip} score=${score} solveMs=${solveMs} moved=${moved} touch=${touch}`);
-    const token = generateToken(ip, sid, fingerprint);
+    const appId = req.body.appId || 'unknown';
+    const token = generateToken(ip, sid, fingerprint, appId);
 
     res.json({ token });
   });
 
   // API Route: Public link status check — called before verification to avoid
   // wasting the user's time if no download link has been configured for this app.
-  app.get("/api/v1/link-check", async (req, res) => {
-  const appId = req.query.id as string;
-  if (!appId) return res.status(400).json({ configured: false });
-  res.set("Cache-Control", "no-store");
-
-  // Lookup 1: Env Var
-  try {
-    if (process.env.SECURE_LINKS) {
-      const parsed = JSON.parse(process.env.SECURE_LINKS);
-      if (parsed[appId]) return res.json({ configured: true });
-    }
-  } catch(e) {}
-
-  // Lookup 2: Git Vault & Backup JSON
-  try {
-    let matchEncrypted = "";
-    
-    const vaultPath = require('path').join(process.cwd(), 'src/lib/secureVault.ts');
-    if (require('fs').existsSync(vaultPath)) {
-      const vaultContent = require('fs').readFileSync(vaultPath, 'utf8');
-      const match = vaultContent.match(/export const ENCRYPTED_LINKS = "([^"]+)";/);
-      if (match && match[1]) matchEncrypted = match[1];
-    }
-
-    if (matchEncrypted) {
-        // @ts-ignore
-        const AES_SECRET = process.env.AES_SECRET || (typeof AES_SECRET_GLOBAL !== 'undefined' ? AES_SECRET_GLOBAL : '');
-        let dec = '';
-        if (typeof safeDecrypt !== 'undefined') dec = safeDecrypt(matchEncrypted, AES_SECRET);
-        else {
-           const CryptoJS = require('crypto-js');
-           const bytes = CryptoJS.AES.decrypt(matchEncrypted, AES_SECRET);
-           dec = bytes.toString(CryptoJS.enc.Utf8);
-        }
-        if (dec) {
-           const parsed = JSON.parse(dec);
-           if (Array.isArray(parsed)) {
-              const found = parsed.some(item => item && item.id === appId && (item.url || item.more_information_url));
-              if (found) return res.json({ configured: true });
-           } else if (parsed && typeof parsed === 'object') {
-              if (parsed[appId]) return res.json({ configured: true });
-           }
-        }
-    }
-  } catch(e) {}
-  
-  
-  // Lookup 3: Local Offline Backup directly
-  try {
-    const backupPath = require('path').join(process.cwd(), 'src/lib/secure_links_backup.json');
-    if (require('fs').existsSync(backupPath)) {
-      const backup = JSON.parse(require('fs').readFileSync(backupPath, 'utf8'));
-      if (backup[appId]) return res.json({ configured: true });
-    }
-  } catch (e) {}
-
-  return res.json({ configured: false });
-});
+  app.get("/api/v1/link-check", async (req, res) => { res.json({ configured: false }); });
 
 // Rate limiting map for public chat
   const publicChatRateLimits = new Map<string, { count: number, resetTime: number }>();
@@ -2613,7 +2549,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
     // to support various mobile browsers and system download managers that might strip browser-like headers.
 
     const ip = getIp(req);
-    const sid = (req.query.sid || req.cookies?.__sid) as string;
+    const sid = (req.query.sid || req.cookies?.["__Host-sid"]) as string;
     const token = (req.query.token || req.query.t) as string;
     const appId = req.query.id as string;
 
@@ -2622,11 +2558,19 @@ ${JSON.stringify(publicContext, null, 2)}`;
       return res.status(400).send("<h1>400 Bad Request</h1><p>Verification transmission tokens or App ID were omitted.</p>");
     }
 
-    // Strict replay protection - re-enabled for security
-    if (usedTokens.has(token)) {
-      if (req.query.json === 'true') return res.status(403).json({ error: "This single-use private download signature has already been spent." });
-      return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
-    }
+    // Strict replay protection - cross-instance using Firestore
+    try {
+      const config = getRawFirebaseConfig();
+      if (config && config.projectId) {
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+        const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+        const checkRes = await fetch(checkUrl);
+        if (checkRes.ok) {
+          if (req.query.json === 'true') return res.status(403).json({ error: "This single-use private download signature has already been spent." });
+          return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
+        }
+      }
+    } catch (e) {}
 
     // Determine verification scheme
     // Scheme A: Extended Fingerprint token (containing '::' signature splitter inside base64url encoded token)
@@ -2643,13 +2587,24 @@ ${JSON.stringify(publicContext, null, 2)}`;
         const [payload] = raw.split("::");
         const [tIp, tSession, fingerprint] = payload.split("|");
 
-        if (!verifyToken(token, tIp, tSession, fingerprint)) {
+        if (!verifyToken(token, tIp, tSession, fingerprint, appId)) {
           if (req.query.json === 'true') return res.status(403).json({ error: "Cryptographic HMAC validation failed." });
           return res.status(403).send("<h1>403 Forbidden</h1><p>Cryptographic HMAC validation failed.</p>");
         }
 
         // Spend token to prevent reuse / replay attacks
-        usedTokens.add(token);
+        try {
+          const config = getRawFirebaseConfig();
+          if (config && config.projectId) {
+            const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+            const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+            fetch(addUrl, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ fields: { usedAt: { stringValue: new Date().toISOString() } } })
+            }).catch(() => {});
+          }
+        } catch (e) {}
 
         let targetUrl = '';
         try {
@@ -2794,6 +2749,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
 
         console.log("FINAL REDIRECT TARGET IS:", targetUrl);
         res.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        res.set("Referrer-Policy", "no-referrer");
         return res.redirect(302, targetUrl);
       } catch (err) {
         return res.status(403).send("<h1>403 Forbidden</h1><p>Error decoding parameter.</p>");
@@ -2845,39 +2801,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
 
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const { createServer: createViteServer } = await import("vite");
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "custom",
-    });
-    app.use(vite.middlewares);
-    
-    // We override index.html serving to inject our SEO tags locally too!
-    app.use('*', async (req, res, next) => {
-      // Allow assets to be handled by Vite
-      if (req.originalUrl.includes('.')) return next();
-      try {
-        let template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
-        template = await vite.transformIndexHtml(req.originalUrl, template);
-        const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
-        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummyapp.online");
-        const hostUrl = `${String(protocol).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
-        const userAgent = req.headers['user-agent'] || '';
-        template = await injectSeoTags(template, req.originalUrl, hostUrl, userAgent);
-        try {
-          fs.writeFileSync(path.resolve(process.cwd(), 'debug-inject.log'), "Injected length: " + template.length + " has_initial: " + template.includes("__INITIAL_DATA__"));
-        } catch (logErr) {
-          // Ignore log write errors in read-only environments
-        }
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-      } catch (e: any) {
-        vite.ssrFixStacktrace(e);
-        next(e);
-      }
-    });
-
-  } else {
+  
     const getDistPath = (): string => {
       const pathsToTry = [
         path.join(process.cwd(), 'dist'),
@@ -2982,7 +2906,6 @@ ${JSON.stringify(publicContext, null, 2)}`;
         }).sendFile(templatePath);
       }
     });
-  }
 
   // Global Express Error Handler
   app.use((err: any, req: any, res: any, next: any) => {
@@ -2991,13 +2914,15 @@ ${JSON.stringify(publicContext, null, 2)}`;
       const logFile = path.join(process.cwd(), 'server_requests.log');
       fs.appendFileSync(logFile, `[${new Date().toISOString()}] ERROR in ${req.method} ${req.originalUrl}: ${err.message || err}\n`, 'utf8');
     } catch (e) {}
-
+    
     if (res.headersSent) {
       return next(err);
     }
+    
     if (req.originalUrl.startsWith('/api/')) {
       return res.status(500).json({ error: "Internal server error" });
     }
+    
     res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
   });
 

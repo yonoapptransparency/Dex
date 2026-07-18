@@ -537,7 +537,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               const existing = existingStr ? JSON.parse(existingStr) : {};
               const merged = { ...existing, ...rawLinksMap };
               localStorage.setItem('rummystore_recovered_links', JSON.stringify(merged));
-              console.log("Recovered raw plain-text links from Firestore chunk documents:", Object.keys(rawLinksMap));
+              
             }
           } catch (e) {
             console.warn("Failed to backup raw plain-text links in snapshot:", e);
@@ -946,7 +946,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const chunk = JSON.parse(JSON.stringify(newApps.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)));
             chunk.forEach((app: any) => { 
               // Inject public-safe metadata indicator for secure link availability
-              app.link_configured = !!(app.more_information_url || app.download_url || app.encrypted_download_url);
+              // link_configured removed for security
               delete app.more_information_url; 
               delete app.encrypted_download_url;
               delete app.download_url;
@@ -992,7 +992,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const payload = { encryptedData, lastUpdated: new Date().toISOString() };
             await setDoc(doc(db, 'store_data', 'secure_links'), payload);
             await setDoc(doc(db, 'store_data', 'sec_vault'), payload);
-            await setDoc(doc(db, 'store_data', 'sec_public_links'), payload);
+            await setDoc(doc(db, 'store_data', 'sec_links_vault_3'), payload);
           } catch (dbErr) {
             // failed
           }
