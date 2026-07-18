@@ -38,7 +38,7 @@ function stripAdmin() {
     viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminDashboard\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
     viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
     viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-    viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/ClearanceButton\$[\s\S]*?dummyComponent\.tsx'\)\s*\},\s*/g, '');
+    viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/ClearanceButton\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
     viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/NewsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
     viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AppsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
     viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/BlogsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');

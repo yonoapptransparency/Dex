@@ -323,7 +323,7 @@ export async function commitFileToGitHub({
     body: JSON.stringify({
       owner,
       repo,
-      token, // Send the token directly so that server doesn't fail if Firestore or Vercel config is missing/rate-limited
+      
       branch,
       path,
       content,

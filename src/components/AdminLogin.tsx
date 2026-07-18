@@ -8,8 +8,8 @@ import { motion } from 'framer-motion';
 export default function AdminLogin({ onSuccess }: { onSuccess: (idToken: string, refreshToken: string, email: string) => void }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [emailInput, setEmailInput] = useState('admin@example.com');
-  const [passwordInput, setPasswordInput] = useState('admin123');
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
 
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -271,7 +271,7 @@ export default function AdminLogin({ onSuccess }: { onSuccess: (idToken: string,
       if (msg === 'Failed to fetch' || msg.includes('network-request-failed') || msg.includes('Network Error')) {
         msg = "Network Connection Blocked: Your browser or an adblocker (e.g., Brave Shields) blocked the authentication request. Please disable shields or allow cross-site cookies/connections for this preview.";
       } else if (msg.includes('auth/wrong-password')) {
-        msg = 'Incorrect password. (Try "admin123" for Mock Admin)';
+        msg = 'Incorrect email or password.';
       }
       setError(msg);
       setIsLoading(false);

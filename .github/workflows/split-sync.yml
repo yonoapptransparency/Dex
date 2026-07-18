@@ -21,7 +21,7 @@ jobs:
           PAT: ${{ secrets.PAT }}
         run: |
           set -e
-          git config --global user.email "defentechscholar@gmail.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "${{ github.event.head_commit.author.name || 'yonoapptransparency' }}"
 
           # List of files that should ONLY exist in Masterworld (Admin)
@@ -32,7 +32,6 @@ jobs:
             "src/components/NewsTab.tsx"
             "src/components/SecurityTab.tsx"
             "src/components/FirebaseStatusPanel.tsx"
-            "src/components/ClearanceButton.tsx"
             "src/components/AppsTab.tsx"
             "src/components/BlogsTab.tsx"
             "src/services/adminAuthService.ts"

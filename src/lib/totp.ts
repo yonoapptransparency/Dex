@@ -5,7 +5,7 @@ import * as OTPAuth from 'otpauth';
  * @returns A random Base32 string.
  */
 export function generateTOTPSecret(): string {
-  const secret = new OTPAuth.Secret({ size: 10 });
+  const secret = new OTPAuth.Secret({ size: 20 });
   return secret.base32;
 }
 

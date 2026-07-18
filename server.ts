@@ -1,11 +1,9 @@
 declare global { var AES_SECRET_GLOBAL: string; }
 if (!process.env.AES_SECRET) {
-  console.error("AES_SECRET not set. Defaulting to '4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a' fallback.");
-  process.env.AES_SECRET = "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
-  global.AES_SECRET_GLOBAL = process.env.AES_SECRET || "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
-} else {
-  global.AES_SECRET_GLOBAL = process.env.AES_SECRET || "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
+  console.error("CRITICAL: AES_SECRET is not set.");
+  process.exit(1);
 }
+global.AES_SECRET_GLOBAL = process.env.AES_SECRET;
 import express from "express";
 import helmet from "helmet";
 import expressRateLimit from "express-rate-limit";
@@ -23,13 +21,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { verifyTOTPToken, generateTOTPSecret, getTOTPURI } from "./src/lib/totp";
 
 function safeDecrypt(ciphertext: string, secret: string): string {
-    const keys = [
-        secret, 
-        process.env.AES_SECRET, 
-        "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a", 
-        "Shehzad@78", 
-        "security"
-    ].filter(Boolean);
+    const keys = [secret, process.env.AES_SECRET].filter(Boolean);
     const uniqueKeys = Array.from(new Set(keys));
     for (const key of uniqueKeys) {
         if (!key || key.trim() === '') continue;
@@ -456,27 +448,28 @@ function verifyToken(token: string, ip: string, sessionId: string, fingerprint: 
 }
 
 if (!process.env.TOKEN_SECRET || !process.env.SESSION_SECRET) {
-  console.error("TOKEN/SESSION secrets not set. Defaulting to 'security' fallback.");
-  process.env.TOKEN_SECRET = process.env.TOKEN_SECRET || "security";
-  process.env.SESSION_SECRET = process.env.SESSION_SECRET || "security";
+  
+  if (!process.env.TOKEN_SECRET) { console.error("CRITICAL: TOKEN_SECRET is not set."); process.exit(1); }
+  if (!process.env.SESSION_SECRET) { console.error("CRITICAL: SESSION_SECRET is not set."); process.exit(1); }
 }
 const TOKEN_SECRET = process.env.TOKEN_SECRET; const SESSION_SECRET = process.env.SESSION_SECRET;
 
 async function startServer() {
   const app = express();
-  app.set('trust proxy', true);
+  app.set('trust proxy', 1);
   const PORT = 3000;
   
   // Security Headers
   app.use(helmet({
     contentSecurityPolicy: false, // Disabling strict CSP for now to allow dynamic react and inline scripts. Can be configured strictly later.
     crossOriginEmbedderPolicy: false,
+    xFrameOptions: false,
   }));
   
   // Rate Limiting
   const limiter = expressRateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 1000, // Limit each IP to 1000 requests per `window`
+    limit: 200, // Limit each IP to 1000 requests per `window`
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     validate: {
@@ -484,6 +477,17 @@ async function startServer() {
     },
   });
   app.use(limiter);
+
+  const strictLimiter = expressRateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    limit: 10,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+  });
+  app.use('/admin', strictLimiter);
+  app.use('/api/v1/admin', strictLimiter);
+  app.use('/api/download', strictLimiter);
+
 
   // File Logging Middleware for Diagnostics in Sandbox Environment
   app.use((req, res, next) => {
@@ -493,9 +497,7 @@ async function startServer() {
       const duration = Date.now() - startTime;
       const contentType = res.getHeader('content-type') || 'unknown';
       const safeUrl = req.originalUrl.replace(/([?&])(token|sid|fingerprint)=[^&]+/ig, '$1$2=REDACTED');
-      const logLine = `[${new Date().toISOString()}] ${req.method} ${safeUrl} - Status: ${res.statusCode} - Duration: ${duration}ms - Type: ${contentType} - IP: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress} - UA: ${req.headers['user-agent']} - Accept: ${req.headers['accept']}\n`;
       try {
-        fs.appendFileSync(logFile, logLine, 'utf8');
       } catch (e) {}
     });
     next();
@@ -542,7 +544,7 @@ async function startServer() {
       if (parsedUrl) {
         const hostname = parsedUrl.hostname;
         const mainDomain = process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).hostname : "www.rummyapp.online";
-        if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".google.com") || hostname.endsWith(".studio") || hostname.endsWith(".run.app") || hostname === mainDomain || hostname === mainDomain.replace(/^www\./, '')) {
+        if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".google.com") || hostname.endsWith(".studio") || hostname.endsWith(".run.app") || hostname.endsWith(".vercel.app") || hostname === mainDomain || hostname === mainDomain.replace(/^www\./, '')) {
           isAllowed = true;
         } else if (process.env.ALLOWED_ORIGINS) {
           const list = process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim());
@@ -584,17 +586,19 @@ async function startServer() {
     // Modern frame protection (Content Security Policy)
     res.setHeader(
       "Content-Security-Policy",
-      "default-src 'self' 'unsafe-inline' data: blob: https:; " +
+      "default-src 'self' data: blob: https: 'unsafe-inline' 'unsafe-eval'; " +
       "img-src 'self' data: blob: https:; " +
-      "connect-src 'self' https: wss:; " +
+      "connect-src 'self' https: wss: ws:; " +
+      "style-src 'self' 'unsafe-inline' https:; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; " +
       "frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
     );
 
     next();
   });
 
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  app.use(express.json({ limit: '2mb' }));
+  app.use(express.urlencoded({ limit: '2mb', extended: true }));
 
   // ── HONEYPOT PATHS ──
   [
@@ -2992,7 +2996,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
       return next(err);
     }
     if (req.originalUrl.startsWith('/api/')) {
-      return res.status(500).json({ error: err.message || "Internal server error" });
+      return res.status(500).json({ error: "Internal server error" });
     }
     res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
   });

@@ -4859,7 +4859,7 @@ var import_crypto_js = __toESM(require("crypto-js"));
 // src/lib/totp.ts
 var OTPAuth = __toESM(require("otpauth"));
 function generateTOTPSecret() {
-  const secret = new OTPAuth.Secret({ size: 10 });
+  const secret = new OTPAuth.Secret({ size: 20 });
   return secret.base32;
 }
 function getTOTPURI(email, secret) {
@@ -4896,20 +4896,12 @@ function verifyTOTPToken(token, secret) {
 
 // api/index.ts
 if (!process.env.AES_SECRET) {
-  console.error("AES_SECRET not set. Defaulting to '4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a' fallback.");
-  process.env.AES_SECRET = "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
-  global.AES_SECRET_GLOBAL = process.env.AES_SECRET || "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
-} else {
-  global.AES_SECRET_GLOBAL = process.env.AES_SECRET || "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a";
+  console.error("CRITICAL: AES_SECRET is not set.");
+  process.exit(1);
 }
+global.AES_SECRET_GLOBAL = process.env.AES_SECRET;
 function safeDecrypt(ciphertext, secret) {
-  const keys = [
-    secret,
-    process.env.AES_SECRET,
-    "4a7bde29f3c158d6e0a4f5c381d9b6270fae35c890bd247165efc3a289b0de8a",
-    "Shehzad@78",
-    "security"
-  ].filter(Boolean);
+  const keys = [secret, process.env.AES_SECRET].filter(Boolean);
   const uniqueKeys = Array.from(new Set(keys));
   for (const key of uniqueKeys) {
     if (!key || key.trim() === "") continue;
@@ -5284,9 +5276,14 @@ function verifyToken(token, ip, sessionId, fingerprint) {
   }
 }
 if (!process.env.TOKEN_SECRET || !process.env.SESSION_SECRET) {
-  console.error("TOKEN/SESSION secrets not set. Defaulting to 'security' fallback.");
-  process.env.TOKEN_SECRET = process.env.TOKEN_SECRET || "security";
-  process.env.SESSION_SECRET = process.env.SESSION_SECRET || "security";
+  if (!process.env.TOKEN_SECRET) {
+    console.error("CRITICAL: TOKEN_SECRET is not set.");
+    process.exit(1);
+  }
+  if (!process.env.SESSION_SECRET) {
+    console.error("CRITICAL: SESSION_SECRET is not set.");
+    process.exit(1);
+  }
 }
 var TOKEN_SECRET = process.env.TOKEN_SECRET;
 var SESSION_SECRET = process.env.SESSION_SECRET;
@@ -5295,12 +5292,13 @@ app.set("trust proxy", true);
 app.use((0, import_helmet.default)({
   contentSecurityPolicy: false,
   // Disabling strict CSP for now to allow dynamic react and inline scripts. Can be configured strictly later.
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  xFrameOptions: false
 }));
 var limiter = (0, import_express_rate_limit.default)({
   windowMs: 15 * 60 * 1e3,
   // 15 minutes
-  limit: 1e3,
+  limit: 200,
   // Limit each IP to 1000 requests per `window`
   standardHeaders: "draft-7",
   legacyHeaders: false,
@@ -5309,6 +5307,16 @@ var limiter = (0, import_express_rate_limit.default)({
   }
 });
 app.use(limiter);
+var strictLimiter = (0, import_express_rate_limit.default)({
+  windowMs: 1 * 60 * 1e3,
+  // 1 minute
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
+app.use("/admin", strictLimiter);
+app.use("/api/v1/admin", strictLimiter);
+app.use("/api/download", strictLimiter);
 app.use((req, res, next) => {
   const startTime = Date.now();
   res.on("finish", () => {
@@ -5316,10 +5324,7 @@ app.use((req, res, next) => {
     const duration = Date.now() - startTime;
     const contentType = res.getHeader("content-type") || "unknown";
     const safeUrl = req.originalUrl.replace(/([?&])(token|sid|fingerprint)=[^&]+/ig, "$1$2=REDACTED");
-    const logLine = `[${(/* @__PURE__ */ new Date()).toISOString()}] ${req.method} ${safeUrl} - Status: ${res.statusCode} - Duration: ${duration}ms - Type: ${contentType} - IP: ${req.headers["x-forwarded-for"] || req.socket.remoteAddress} - UA: ${req.headers["user-agent"]} - Accept: ${req.headers["accept"]}
-`;
     try {
-      import_fs2.default.appendFileSync(logFile, logLine, "utf8");
     } catch (e) {
     }
   });
@@ -5355,7 +5360,7 @@ app.use((req, res, next) => {
     if (parsedUrl) {
       const hostname = parsedUrl.hostname;
       const mainDomain = process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).hostname : "www.rummyapp.online";
-      if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".google.com") || hostname.endsWith(".studio") || hostname.endsWith(".run.app") || hostname === mainDomain || hostname === mainDomain.replace(/^www\./, "")) {
+      if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".google.com") || hostname.endsWith(".studio") || hostname.endsWith(".run.app") || hostname.endsWith(".vercel.app") || hostname === mainDomain || hostname === mainDomain.replace(/^www\./, "")) {
         isAllowed = true;
       } else if (process.env.ALLOWED_ORIGINS) {
         const list = process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim());
@@ -5391,12 +5396,12 @@ app.use((req, res, next) => {
   }
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self' 'unsafe-inline' data: blob: https:; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
+    "default-src 'self' data: blob: https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: blob: https:; connect-src 'self' https: wss: ws:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; frame-ancestors 'self' https://*.google.com https://*.studio https://*.run.app http://localhost:*;"
   );
   next();
 });
-app.use(import_express.default.json({ limit: "50mb" }));
-app.use(import_express.default.urlencoded({ limit: "50mb", extended: true }));
+app.use(import_express.default.json({ limit: "2mb" }));
+app.use(import_express.default.urlencoded({ limit: "2mb", extended: true }));
 [
   "/trap/link",
   "/trap/form",
@@ -7436,7 +7441,7 @@ app.use((err, req, res, next) => {
     return next(err);
   }
   if (req.originalUrl.startsWith("/api/")) {
-    return res.status(500).json({ error: err.message || "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
   res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
 });

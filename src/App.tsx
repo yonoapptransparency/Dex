@@ -555,7 +555,7 @@ function SyncStatus() {
   const [testing, setTesting] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const location = useLocation();
-  const adminPath = import.meta.env.VITE_ADMIN_PATH || 'admin';
+  const adminPath = 'admin';
   const isAdminPath = false;
 
   if (!isAdminPath) {

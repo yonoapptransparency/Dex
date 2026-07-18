@@ -25,7 +25,7 @@ export interface AuthResult {
 // ─────────────────────────────────────────────────────────────────────────────
 const SESSION_KEY = "__adm_session";
 const TOKEN_LIFETIME_MS = 55 * 60 * 1000; // 55 minutes (Firebase tokens last 60m)
-import appletConfig from '../../firebase-applet-config.json';
+const appletConfig: any = {};
 const FIREBASE_API_KEY = (import.meta as any).env?.VITE_FIREBASE_API_KEY || (appletConfig as any).apiKey || "";
 
 const isFirebaseApiKeyReal = (key: string | undefined): boolean => {

@@ -1,4 +1,5 @@
-export const secureStorage = {
+const fs = require('fs');
+let code = `export const secureStorage = {
   getItem: (key: string) => {
     if (typeof window === 'undefined') return null;
     try { return sessionStorage.getItem(key); } catch (e) { return null; }
@@ -15,4 +16,5 @@ export const secureStorage = {
     if (typeof window === 'undefined') return;
     try { sessionStorage.clear(); } catch (e) {}
   }
-};
+};`
+fs.writeFileSync('src/lib/secureStorage.ts', code);

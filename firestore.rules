@@ -16,7 +16,7 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && 
              (request.auth.token.email_verified == true &&
-              (request.auth.token.email == 'defentechscholar@gmail.com' ||
+              (
                exists(/databases/$(database)/documents/admins/$(request.auth.uid)) || 
                exists(/databases/$(database)/documents/admins/$(request.auth.token.email))));
     }
@@ -92,7 +92,7 @@ service cloud.firestore {
 
       // Non-sensitive public data documents can be read by anyone
       allow read: if docId in [
-        'apps', 'apps_meta', 'settings', 'categories', 'faqs', 'developers',
+        'apps', 'apps_meta', 'public_settings', 'categories', 'faqs', 'developers',
         'news', 'blogs', 'videos', 'quick_links'
       ] || docId.startsWith('apps_chunk_');
     }

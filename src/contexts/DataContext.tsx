@@ -300,7 +300,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const backup = await res.json();
           if (backup) {
-            const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + (import.meta.env.VITE_ADMIN_PATH || 'admin')));
+            const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'));
 
             setApps(prev => {
               if (backup.apps && backup.apps.length > 0) {
@@ -388,7 +388,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const timeout = setTimeout(() => {
       setLoading(false);
       setLoadedFromServer(true);
-    }, 10);
+    }, 5000);
 
     // Fast sync fallback for deep links (especially new apps not in cache) - set to snappy visual performance
     const syncTimeout = setTimeout(() => {
@@ -404,10 +404,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setServerBlogsFetched(true);
       setServerVideosFetched(true);
       setLoading(false);
-    }, 10);
+    }, 5000);
 
     const checkConnection = async () => {
-      if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + (import.meta.env.VITE_ADMIN_PATH || 'admin'))))) {
+      if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + 'admin')))) {
           setIsConnected(false);
           setLoadedFromServer(true);
           setLoading(false);
@@ -462,9 +462,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkConnection();
-    const connInterval = setInterval(checkConnection, 60000);
 
-    const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + (import.meta.env.VITE_ADMIN_PATH || 'admin')));
+    const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'));
 
     if (!isFirebaseReal || !isAdminRoute) {
         // Mark as loaded immediately
@@ -478,7 +477,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return () => {
             if (timeout) clearTimeout(timeout);
             clearTimeout(syncTimeout);
-            clearInterval(connInterval);
         };
     }
 
@@ -593,7 +591,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setLoadedFromServer(true);
         checkLoaded('apps');
       }),
-      onSnapshot(doc(db, 'store_data', 'settings'), (snap) => {
+      onSnapshot(doc(db, 'store_data', 'public_settings'), (snap) => {
         if (snap.metadata.fromCache && (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__)) return;
         if (snap.exists()) {
           const data = snap.data() as GlobalSettings;
@@ -715,7 +713,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       unsubs.forEach(u => u());
       if (timeout) clearTimeout(timeout);
       clearTimeout(syncTimeout);
-      clearInterval(connInterval);
     };
   }, []);
 
@@ -1032,7 +1029,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (isFirebaseReal) {
-        const docRef = doc(db, 'store_data', 'settings');
+        const docRef = doc(db, 'store_data', 'public_settings');
         console.log("Cloud: Pushing Settings update...");
         // Sanitize settings payload to exclude any 'undefined' properties, preventing Firestore write failures
         const sanitized = JSON.parse(JSON.stringify(settingsWithTime));
@@ -1165,9 +1162,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
 
   const testCloudConnection = React.useCallback(async () => {
-    if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + (import.meta.env.VITE_ADMIN_PATH || 'admin'))))) return false;
+    if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + 'admin')))) return false;
     console.log("Connectivity Test: Starting...");
-    const settingsDoc = doc(db, 'store_data', 'settings');
+    const settingsDoc = doc(db, 'store_data', 'public_settings');
     
     try {
       const snap = await getDoc(settingsDoc);
@@ -1184,7 +1181,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refreshAll = React.useCallback(async (silent = false) => {
-    if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + (import.meta.env.VITE_ADMIN_PATH || 'admin'))))) {
+    if (!isFirebaseReal || (typeof window !== 'undefined' && !(window.location.pathname.startsWith('/' + 'admin')))) {
         setIsConnected(false);
         setLoading(false);
         return;
