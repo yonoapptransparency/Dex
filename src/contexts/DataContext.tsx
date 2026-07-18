@@ -808,7 +808,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       message: `Admin Release: Manual platform synchronization triggered`
     });
 
-    const isMasterOrSource = ['masterworld', 'yono-transparency'].includes(configToUse.repo.toLowerCase());
+    const isMasterOrSource = ['masterworld', 'yono-transparency', 'yonotransparency-'].includes(configToUse.repo.toLowerCase());
     if (isMasterOrSource) {
       try {
         log("GitHub Sync: Also syncing static data to public companion repo 'Dex'...");
