@@ -164,14 +164,16 @@ jobs:
             if git clone "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git" "${REPO_NAME}_repo"; then
               cd "${REPO_NAME}_repo"
               git checkout -b main || git checkout main
-              rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
+              rsync -rv --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='dist' --delete "$SOURCE_DIR/" .
+              rm -rf .github
             else
               mkdir -p "${REPO_NAME}_repo"
               cd "${REPO_NAME}_repo"
               git init
               git remote add origin "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git"
               git checkout -b main
-              rsync -rv --exclude='.git' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
+              rsync -rv --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='dist' "$SOURCE_DIR/" .
+              rm -rf .github
             fi
 
             if [ "$IS_PUBLIC" = "true" ]; then
