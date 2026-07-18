@@ -102,6 +102,15 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // 7. Spent Tokens collection (Token replay protection)
+    match /spent_tokens/{tokenId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['usedAt']) &&
+                    request.resource.data.keys().size() == 1 &&
+                    request.resource.data.usedAt is string;
+      allow update, delete: if false;
+    }
+
     // Default catch-all deny rule
     match /{document=**} {
       allow read, write: if false;

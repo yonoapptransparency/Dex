@@ -92,6 +92,29 @@ function getRawFirebaseConfig(): any {
   }
 }
 
+let cachedAdminDb: any = null;
+let adminInitFailed = false;
+
+function getFirebaseAdminDb(): any {
+  if (cachedAdminDb) return cachedAdminDb;
+  if (adminInitFailed) return null;
+  try {
+    const admin = require('firebase-admin');
+    if (admin.apps.length === 0) {
+      admin.initializeApp();
+    }
+    const config = getRawFirebaseConfig();
+    const dbId = config?.firestoreDatabaseId || '(default)';
+    cachedAdminDb = admin.firestore(dbId);
+    console.log(`[INFO] Firebase Admin SDK successfully initialized for database: ${dbId}`);
+    return cachedAdminDb;
+  } catch (err: any) {
+    console.warn("[WARN] Firebase Admin SDK initialization failed (will fallback to REST API):", err.message || err);
+    adminInitFailed = true;
+    return null;
+  }
+}
+
 
 
 // Cryptographic secrets for hashing, signature verification, and session identifiers
@@ -1931,13 +1954,14 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
             try {
               backupLinks[app.id] = safeEncrypt(app.more_information_url, AES_SECRET);
             } catch (encryptErr) {
-              backupLinks[app.id] = app.more_information_url;
+              console.warn(`[SECURITY] Skipped backup link for ${app.id} due to encryption failure`);
+              // NEVER fallback to plaintext URL!
             }
           }
         }
       });
 
-      const backupPath = path.join(process.cwd(), 'src/lib/secure_links_backup.json');
+      const backupPath = path.join(process.cwd(), '.local/secure_links_backup.json');
       let mergedBackup = backupLinks;
       if (fs.existsSync(backupPath)) {
         try {
@@ -1951,7 +1975,9 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
         if (val && !val.startsWith('U2FsdGVkX1')) {
           try {
             mergedBackup[key] = safeEncrypt(val, AES_SECRET);
-          } catch (e) {}
+          } catch (e) {
+            delete mergedBackup[key]; // NEVER permit plaintext fallback!
+          }
         }
       }
 
@@ -1999,7 +2025,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
       }
 
       // 2. Try to overlay with the local secure_links_backup.json file (filesystem fallback)
-      const backupPath = path.join(process.cwd(), 'src/lib/secure_links_backup.json');
+      const backupPath = path.join(process.cwd(), '.local/secure_links_backup.json');
       if (fs.existsSync(backupPath)) {
         try {
           const backupData = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
@@ -2187,13 +2213,14 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
             try {
               backupLinks[item.id] = safeEncrypt(urlValue, AES_SECRET);
             } catch (encryptErr) {
-              backupLinks[item.id] = urlValue;
+              console.warn(`[SECURITY] Skipped backup link for ${item.id} due to encryption failure`);
+              // NEVER fallback to plaintext URL!
             }
           }
         }
       });
       
-      const backupPath = require('path').join(process.cwd(), 'src/lib/secure_links_backup.json');
+      const backupPath = require('path').join(process.cwd(), '.local/secure_links_backup.json');
       let mergedBackup = backupLinks;
       if (require('fs').existsSync(backupPath)) {
         try {
@@ -2207,7 +2234,9 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
         if (val && !val.startsWith('U2FsdGVkX1')) {
           try {
             mergedBackup[key] = safeEncrypt(val, AES_SECRET);
-          } catch (e) {}
+          } catch (e) {
+            delete mergedBackup[key]; // NEVER permit plaintext fallback!
+          }
         }
       }
 
@@ -2621,9 +2650,34 @@ ${JSON.stringify(publicContext, null, 2)}`;
       const config = getRawFirebaseConfig();
       if (config && config.projectId) {
         const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-        const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-        const checkRes = await fetch(checkUrl);
-        if (checkRes.ok) {
+        let tokenSpent = false;
+        
+        const adminDb = getFirebaseAdminDb();
+        if (adminDb) {
+          try {
+            const docSnap = await adminDb.collection('spent_tokens').doc(tokenHash).get();
+            if (docSnap.exists) {
+              tokenSpent = true;
+            }
+          } catch (adminErr: any) {
+            console.warn("[WARN] Failed to query spent_tokens via firebase-admin, using REST fallback:", adminErr.message);
+            // REST Fallback
+            const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+            const checkRes = await fetch(checkUrl);
+            if (checkRes.ok) {
+              tokenSpent = true;
+            }
+          }
+        } else {
+          // REST Fallback
+          const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+          const checkRes = await fetch(checkUrl);
+          if (checkRes.ok) {
+            tokenSpent = true;
+          }
+        }
+
+        if (tokenSpent) {
           if (req.query.json === 'true') return res.status(403).json({ error: "This single-use private download signature has already been spent." });
           return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
         }
@@ -2655,12 +2709,34 @@ ${JSON.stringify(publicContext, null, 2)}`;
           const config = getRawFirebaseConfig();
           if (config && config.projectId) {
             const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-            const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-            fetch(addUrl, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ fields: { usedAt: { stringValue: new Date().toISOString() } } })
-            }).catch(() => {});
+            const usedAtStr = new Date().toISOString();
+            
+            const adminDb = getFirebaseAdminDb();
+            if (adminDb) {
+              try {
+                await adminDb.collection('spent_tokens').doc(tokenHash).set({
+                  usedAt: usedAtStr
+                });
+                console.log(`[AUDIT] Successfully spent token ${tokenHash} via firebase-admin SDK`);
+              } catch (adminWriteErr: any) {
+                console.warn("[WARN] Failed to write spent_tokens via firebase-admin, using REST fallback:", adminWriteErr.message);
+                // REST Fallback
+                const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+                fetch(addUrl, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ fields: { usedAt: { stringValue: usedAtStr } } })
+                }).catch(() => {});
+              }
+            } else {
+              // REST Fallback
+              const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+              fetch(addUrl, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fields: { usedAt: { stringValue: usedAtStr } } })
+              }).catch(() => {});
+            }
           }
         } catch (e) {}
 
@@ -2739,7 +2815,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
           // Fallback to local offline file backup if Firestore is unreachable/exceeded quota
           if (!targetUrl || !targetUrl.startsWith('http')) {
             try {
-              const backupPath = require('path').join(process.cwd(), 'src/lib/secure_links_backup.json');
+              const backupPath = require('path').join(process.cwd(), '.local/secure_links_backup.json');
               if (require('fs').existsSync(backupPath)) {
                 const parsed = JSON.parse(require('fs').readFileSync(backupPath, 'utf8'));
                 let encryptedUrl = '';
@@ -2787,7 +2863,108 @@ ${JSON.stringify(publicContext, null, 2)}`;
         
         if (!targetUrl || (!targetUrl.startsWith('http') && !targetUrl.startsWith('/'))) {
           console.error("CRITICAL: Failed to retrieve or decrypt URL for app:", appId, "Result:", targetUrl);
-          return res.status(404).json({ error: "Download link not found or not yet configured for this app." });
+          if (req.query.json === 'true') {
+            return res.status(404).json({ error: "Download link not found or not yet configured for this app." });
+          }
+          return res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Link Not Found | RummyStore</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      background-color: #fef3c7;
+      color: #d97706;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: #111827;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #4b5563;
+      margin: 0 0 32px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #09090b;
+        color: #f4f4f5;
+      }
+      .card {
+        background-color: #18181b;
+        border-color: #27272a;
+      }
+      h1 {
+        color: #f4f4f5;
+      }
+      p {
+        color: #a1a1aa;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h1>Information Page Pending</h1>
+    <p>This download link or details has not been configured yet, or is currently undergoing maintenance. Please try again later or contact our support team.</p>
+    <a href="/" class="btn">Go Back Home</a>
+  </div>
+</body>
+</html>`);
         }
 
         // Apply Mistake 5 fix: Add affiliate referral code server-side

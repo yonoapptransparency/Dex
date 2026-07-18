@@ -3775,6 +3775,27 @@ function getRawFirebaseConfig() {
     return null;
   }
 }
+var cachedAdminDb = null;
+var adminInitFailed = false;
+function getFirebaseAdminDb() {
+  if (cachedAdminDb) return cachedAdminDb;
+  if (adminInitFailed) return null;
+  try {
+    const admin = require("firebase-admin");
+    if (admin.apps.length === 0) {
+      admin.initializeApp();
+    }
+    const config = getRawFirebaseConfig();
+    const dbId = (config == null ? void 0 : config.firestoreDatabaseId) || "(default)";
+    cachedAdminDb = admin.firestore(dbId);
+    console.log(`[INFO] Firebase Admin SDK successfully initialized for database: ${dbId}`);
+    return cachedAdminDb;
+  } catch (err) {
+    console.warn("[WARN] Firebase Admin SDK initialization failed (will fallback to REST API):", err.message || err);
+    adminInitFailed = true;
+    return null;
+  }
+}
 function getField(obj, key, fallback = "") {
   if (!obj) return fallback;
   const value = obj[key];
@@ -6563,12 +6584,13 @@ app.post("/api/v1/admin/sync-local", verifyAdminToken, async (req, res) => {
           try {
             backupLinks[app2.id] = safeEncrypt(app2.more_information_url, AES_SECRET);
           } catch (encryptErr) {
-            backupLinks[app2.id] = app2.more_information_url;
+            console.warn(`[SECURITY] Skipped backup link for ${app2.id} due to encryption failure`);
+            // NEVER fallback to plaintext URL!
           }
         }
       }
     });
-    const backupPath = import_path2.default.join(process.cwd(), "src/lib/secure_links_backup.json");
+    const backupPath = import_path2.default.join(process.cwd(), ".local/secure_links_backup.json");
     let mergedBackup = backupLinks;
     if (import_fs2.default.existsSync(backupPath)) {
       try {
@@ -6582,6 +6604,7 @@ app.post("/api/v1/admin/sync-local", verifyAdminToken, async (req, res) => {
         try {
           mergedBackup[key] = safeEncrypt(val, AES_SECRET);
         } catch (e) {
+          delete mergedBackup[key]; // NEVER permit plaintext fallback!
         }
       }
     }
@@ -6621,7 +6644,7 @@ app.get("/api/v1/admin/backup-links-get", verifyAdminToken, (req, res) => {
         console.warn("backup-links-get: Failed to parse secureVault.ts:", vaultErr.message);
       }
     }
-    const backupPath = import_path2.default.join(process.cwd(), "src/lib/secure_links_backup.json");
+    const backupPath = import_path2.default.join(process.cwd(), ".local/secure_links_backup.json");
     if (import_fs2.default.existsSync(backupPath)) {
       try {
         const backupData = JSON.parse(import_fs2.default.readFileSync(backupPath, "utf8"));
@@ -6784,12 +6807,13 @@ app.post("/api/v1/admin/save-links-direct", verifyAdminToken, (req, res) => {
           try {
             backupLinks[item.id] = safeEncrypt(urlValue, AES_SECRET);
           } catch (encryptErr) {
-            backupLinks[item.id] = urlValue;
+            console.warn(`[SECURITY] Skipped backup link for ${item.id} due to encryption failure`);
+            // NEVER fallback to plaintext URL!
           }
         }
       }
     });
-    const backupPath = require("path").join(process.cwd(), "src/lib/secure_links_backup.json");
+    const backupPath = require("path").join(process.cwd(), ".local/secure_links_backup.json");
     let mergedBackup = backupLinks;
     if (require("fs").existsSync(backupPath)) {
       try {
@@ -6803,6 +6827,7 @@ app.post("/api/v1/admin/save-links-direct", verifyAdminToken, (req, res) => {
         try {
           mergedBackup[key] = safeEncrypt(val, AES_SECRET);
         } catch (e) {
+          delete mergedBackup[key]; // NEVER permit plaintext fallback!
         }
       }
     }
@@ -6917,7 +6942,52 @@ app.post(["/api/v1/_proc", "/api/v1/get-token", "/api/v1/process-file"], async (
   res.json({ token });
 });
 app.get("/api/v1/link-check", async (req, res) => {
-  res.json({ configured: false });
+  const appId = req.query.id;
+  if (!appId) {
+    return res.json({ configured: false });
+  }
+  try {
+    const AES_SECRET = process.env.AES_SECRET || (typeof AES_SECRET_GLOBAL !== "undefined" ? AES_SECRET_GLOBAL : "");
+    if (!AES_SECRET) {
+      return res.json({ configured: true });
+    }
+    let matchEncrypted = "";
+    const vaultPath = require("path").join(process.cwd(), "src/lib/secureVault.ts");
+    if (require("fs").existsSync(vaultPath)) {
+      const vaultContent = require("fs").readFileSync(vaultPath, "utf8");
+      const match = vaultContent.match(/export const ENCRYPTED_LINKS = "([^"]+)";/);
+      if (match && match[1]) matchEncrypted = match[1];
+    }
+    if (!matchEncrypted) {
+      return res.json({ configured: true });
+    }
+    let dec = "";
+    if (typeof safeDecrypt !== "undefined") {
+      dec = safeDecrypt(matchEncrypted, AES_SECRET);
+    } else {
+      const CryptoJS2 = require("crypto-js");
+      const bytes = CryptoJS2.AES.decrypt(matchEncrypted, AES_SECRET);
+      dec = bytes.toString(CryptoJS2.enc.Utf8);
+    }
+    if (!dec) {
+      return res.json({ configured: true });
+    }
+    const parsed = JSON.parse(dec);
+    let foundLink = false;
+    if (Array.isArray(parsed)) {
+      const matchItem = parsed.find((item) => item && item.id === appId);
+      if (matchItem && (matchItem.url || matchItem.more_information_url)) {
+        foundLink = true;
+      }
+    } else if (parsed && typeof parsed === "object") {
+      if (parsed[appId]) {
+        foundLink = true;
+      }
+    }
+    return res.json({ configured: foundLink });
+  } catch (e) {
+    return res.json({ configured: true });
+  }
 });
 var publicChatRateLimits = /* @__PURE__ */ new Map();
 app.post("/api/v1/public/chat", async (req, res) => {
@@ -7086,9 +7156,30 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
     const config = getRawFirebaseConfig2();
     if (config && config.projectId) {
       const tokenHash = import_crypto.default.createHash("sha256").update(token).digest("hex");
-      const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-      const checkRes = await fetch(checkUrl);
-      if (checkRes.ok) {
+      let tokenSpent = false;
+      const adminDb = getFirebaseAdminDb();
+      if (adminDb) {
+        try {
+          const docSnap = await adminDb.collection("spent_tokens").doc(tokenHash).get();
+          if (docSnap.exists) {
+            tokenSpent = true;
+          }
+        } catch (adminErr) {
+          console.warn("[WARN] Failed to query spent_tokens via firebase-admin, using REST fallback:", adminErr.message);
+          const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+          const checkRes = await fetch(checkUrl);
+          if (checkRes.ok) {
+            tokenSpent = true;
+          }
+        }
+      } else {
+        const checkUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+        const checkRes = await fetch(checkUrl);
+        if (checkRes.ok) {
+          tokenSpent = true;
+        }
+      }
+      if (tokenSpent) {
         if (req.query.json === "true") return res.status(403).json({ error: "This single-use private download signature has already been spent." });
         return res.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>");
       }
@@ -7115,13 +7206,33 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
         const config = getRawFirebaseConfig2();
         if (config && config.projectId) {
           const tokenHash = import_crypto.default.createHash("sha256").update(token).digest("hex");
-          const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
-          fetch(addUrl, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fields: { usedAt: { stringValue: (/* @__PURE__ */ new Date()).toISOString() } } })
-          }).catch(() => {
-          });
+          const usedAtStr = (/* @__PURE__ */ new Date()).toISOString();
+          const adminDb = getFirebaseAdminDb();
+          if (adminDb) {
+            try {
+              await adminDb.collection("spent_tokens").doc(tokenHash).set({
+                usedAt: usedAtStr
+              });
+              console.log(`[AUDIT] Successfully spent token ${tokenHash} via firebase-admin SDK`);
+            } catch (adminWriteErr) {
+              console.warn("[WARN] Failed to write spent_tokens via firebase-admin, using REST fallback:", adminWriteErr.message);
+              const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+              fetch(addUrl, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fields: { usedAt: { stringValue: usedAtStr } } })
+              }).catch(() => {
+              });
+            }
+          } else {
+            const addUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId}/documents/spent_tokens/${tokenHash}${config.apiKey ? "?key=" + config.apiKey : ""}`;
+            fetch(addUrl, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fields: { usedAt: { stringValue: usedAtStr } } })
+            }).catch(() => {
+            });
+          }
         }
       } catch (e) {
       }
@@ -7193,7 +7304,7 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
         }
         if (!targetUrl || !targetUrl.startsWith("http")) {
           try {
-            const backupPath = require("path").join(process.cwd(), "src/lib/secure_links_backup.json");
+            const backupPath = require("path").join(process.cwd(), ".local/secure_links_backup.json");
             if (require("fs").existsSync(backupPath)) {
               const parsed = JSON.parse(require("fs").readFileSync(backupPath, "utf8"));
               let encryptedUrl = "";
@@ -7235,7 +7346,108 @@ app.get("/api/v1/gateway-resolve", async (req, res) => {
       }
       if (!targetUrl || !targetUrl.startsWith("http") && !targetUrl.startsWith("/")) {
         console.error("CRITICAL: Failed to retrieve or decrypt URL for app:", appId, "Result:", targetUrl);
-        return res.status(404).json({ error: "Download link not found or not yet configured for this app." });
+        if (req.query.json === "true") {
+          return res.status(404).json({ error: "Download link not found or not yet configured for this app." });
+        }
+        return res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Link Not Found | RummyStore</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      background-color: #fef3c7;
+      color: #d97706;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: #111827;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #4b5563;
+      margin: 0 0 32px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #09090b;
+        color: #f4f4f5;
+      }
+      .card {
+        background-color: #18181b;
+        border-color: #27272a;
+      }
+      h1 {
+        color: #f4f4f5;
+      }
+      p {
+        color: #a1a1aa;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h1>Information Page Pending</h1>
+    <p>This download link or details has not been configured yet, or is currently undergoing maintenance. Please try again later or contact our support team.</p>
+    <a href="/" class="btn">Go Back Home</a>
+  </div>
+</body>
+</html>`);
       }
       try {
         if (targetUrl.startsWith("http")) {

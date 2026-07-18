@@ -525,24 +525,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
         
         if (fetchedData) {
-          try {
-            const rawLinksMap: Record<string, string> = {};
-            loadedApps.forEach((app: any) => {
-              if (app.more_information_url && !app.more_information_url.startsWith('U2FsdGVkX1')) {
-                rawLinksMap[app.id] = app.more_information_url;
-              }
-            });
-            if (Object.keys(rawLinksMap).length > 0) {
-              const existingStr = localStorage.getItem('rummystore_recovered_links');
-              const existing = existingStr ? JSON.parse(existingStr) : {};
-              const merged = { ...existing, ...rawLinksMap };
-              localStorage.setItem('rummystore_recovered_links', JSON.stringify(merged));
-              
-            }
-          } catch (e) {
-            console.warn("Failed to backup raw plain-text links in snapshot:", e);
-          }
-
           const data = loadedApps.map((app: any) => {
             delete app.more_information_url;
             delete app.encrypted_download_url;
