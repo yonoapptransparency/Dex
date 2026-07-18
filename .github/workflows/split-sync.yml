@@ -48,7 +48,6 @@ jobs:
             "firestore.rules"
             "firebase.json"
             ".firebaserc"
-            "vercel.json"
             "bun.lock"
             "scripts/"
                         "add-admin-rest.ts"
@@ -176,6 +175,16 @@ jobs:
 
             if [ "$IS_PUBLIC" = "true" ]; then
               echo "Cleaning admin files from $REPO_NAME..."
+              cat << 'VERCEL_EOF' > vercel.json
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "buildCommand": "npm run build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+VERCEL_EOF
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
