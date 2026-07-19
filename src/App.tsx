@@ -1043,6 +1043,7 @@ function AppContent() {
   }
   // __ADMIN_BLOCK_END__
 
+  // __PUBLIC_BLOCK_START__
   return (
     <div className="flex flex-col min-h-screen">
       <ScrollToTop />
@@ -1114,6 +1115,7 @@ function AppContent() {
       <BackToTop />
     </div>
   );
+  // __PUBLIC_BLOCK_END__
 }
 
 function App() {
