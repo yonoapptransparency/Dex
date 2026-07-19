@@ -8,7 +8,7 @@ import { useLocation, BrowserRouter as Router, Routes, Route, Link, Navigate } f
 import { HelmetProvider } from 'react-helmet-async';
 import { Menu, Shield, ShieldCheck, Info, ArrowRight, X, LayoutGrid, Newspaper, Sparkles, Send, MoreHorizontal, Search, Video, Star, Facebook, Instagram, Twitter, Linkedin, Youtube, Bot, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import PublicChatbot from './components/PublicChatbot';
+
 import Home from './pages/Home';
 import React, { useState, useEffect, useMemo, Suspense, lazy, ComponentType, LazyExoticComponent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1108,7 +1108,7 @@ function AppContent() {
         </Suspense>
       </main>
       
-      {!isAdminPath && <PublicChatbot />}
+
       
       <Ticker />
       {memoizedFooter}
