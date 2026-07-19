@@ -260,7 +260,7 @@ jobs:
 
             git add .
             if [ -n "$(git status --porcelain)" ]; then
-              git commit -m "Auto-sync ($TYPE) [skip ci]"
+              git commit -m "Auto-sync ($TYPE)"
               git push -u origin main
             else
               echo "No changes for $REPO_NAME."
