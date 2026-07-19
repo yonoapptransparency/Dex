@@ -1,9 +1,11 @@
 # Project Instructions: Yono Transparency Single-Target Sync System
 
 ## Core Architecture
-This repository acts as the **Source of Truth**. It uses a GitHub Actions workflow (`.github/workflows/split-sync.yml`) to automatically split, clean, and synchronize code directly to the main repository:
+This repository acts as the **Source of Truth**. It uses a GitHub Actions workflow (`.github/workflows/split-sync.yml`) to automatically split, clean, and synchronize code directly to the public website:
 
 1.  **Dex (Public)**: A public repository containing only the user-facing website. All sensitive admin files and backend scripts are **automatically removed** during the sync process to guarantee security.
+
+**Note on Admin (Masterworld)**: The admin repository (`masterworld`) is **EXCLUDED** from the automated sync process. It is managed as a standalone "Admin Control" environment to prevent automated updates from overwriting admin-specific configurations or causing site instability.
 
 ## Critical Sync Rules
 When adding new files or features, you MUST follow these rules to maintain security:

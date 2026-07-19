@@ -163,8 +163,6 @@ jobs:
             if [ "$IS_PUBLIC" = "true" ]; then
               # For Dex, we exclude content files from being overwritten by the stale source
               RSYNC_EXCLUDES="--exclude=.git --exclude=.github --exclude=node_modules --exclude=dist --exclude=src/lib/staticData.ts --exclude=src/lib/secureVault.ts"
-            else
-              RSYNC_EXCLUDES="--exclude=.git --exclude=node_modules --exclude=dist"
             fi
 
             if git clone "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git" "${REPO_NAME}_repo"; then
@@ -203,18 +201,6 @@ jobs:
                 node strip-admin-from-dex.js
                 rm -f strip-admin-from-dex.js
               fi
-            else
-              # IS_ADMIN (masterworld) - We must ENSURE that public static data is NOT committed to the admin repo
-              echo "Cleaning public content data from $REPO_NAME (Admin/Masterworld)..."
-              
-              if [ -f "strip-public-from-masterworld.js" ]; then
-                node strip-public-from-masterworld.js
-                rm -f strip-public-from-masterworld.js
-              fi
-              
-              # Cleanup scripts that shouldn't be in admin either
-              find . -maxdepth 1 -name "patch-*.js" -exec rm -f {} +
-              rm -f strip-admin-from-dex.js rewrite-datacontext-for-dex.js
             fi
 
             git add .
@@ -226,5 +212,4 @@ jobs:
             fi
           }
 
-          sync_repo "masterworld" "yonoapptransparency/masterworld" "false"
           sync_repo "Dex" "yonoapptransparency/Dex" "true"
