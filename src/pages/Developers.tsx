@@ -1,5 +1,5 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { Github, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -15,9 +15,11 @@ export default function Developers() {
         exit={{ opacity: 0, y: -20 }}
       >
         <div className="min-h-screen pt-32 px-4 pb-20 flex flex-col items-center justify-center text-center">
-          <Helmet>
-            <title>Meet Our Team | {settings.site_title}</title>
-          </Helmet>
+          <Meta 
+            title="Meet Our Team"
+            description="Our talented engineering and design teams developing high-performance secure platforms."
+            canonical={window.location.origin + "/developers"}
+          />
           <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-black/5 dark:border-white/5 p-12 rounded-[3rem] max-w-lg mx-auto shadow-2xl">
             <h1 className="text-3xl font-black mb-4 dark:text-white uppercase tracking-tight italic">Our Developers</h1>
             <p className="text-slate-600 dark:text-slate-400 font-medium">Information about our developers is not available at this moment. Please check back later.</p>
@@ -34,10 +36,11 @@ export default function Developers() {
       exit={{ opacity: 0, y: -20 }}
     >
       <div className="min-h-screen pt-32 px-4 pb-20">
-        <Helmet>
-          <title>Meet Our Team | {settings.site_title}</title>
-          <meta name="description" content={`Meet the brilliant developers behind ${settings.site_title}. Discover our team's expertise and passion.`} />
-        </Helmet>
+        <Meta 
+          title="Meet Our Team"
+          description={`Meet the brilliant developers behind our platform. Discover our team's expertise and passion.`}
+          canonical={window.location.origin + "/developers"}
+        />
 
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 animate-fade-in">

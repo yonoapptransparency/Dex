@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { auth, db, isFirebaseConfigured } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import Meta from '../components/Meta';
 
 export default function Contact() {
   const { settings: mockSettings } = useData();
@@ -22,6 +23,11 @@ export default function Contact() {
   const [errorText, setErrorText] = useState('');
   return (
     <div className="max-w-7xl mx-auto py-16 px-6 sm:px-10 animate-fade-in pb-20">
+      <Meta 
+        title="Contact Us"
+        description="Get in touch with our helpdesk team. Submit your inquiries, app suggestions, or feedback securely."
+        canonical={window.location.origin + "/contact"}
+      />
       <div className="mb-10">
         <Link 
           to="/" 

@@ -8,7 +8,7 @@ import { Newspaper, Search, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { motion } from 'framer-motion';
 
 export default function NewsPage() {
@@ -34,12 +34,11 @@ export default function NewsPage() {
           Home
         </Link>
       </div>
-      <Helmet>
-        <title>Latest News & Updates - {mockSettings.site_title}</title>
-        <meta name="description" content="Stay updated with the latest news, transmissions, and intel from our secure network." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={window.location.origin + "/news"} />
-      </Helmet>
+      <Meta 
+        title="Latest News & Updates"
+        description="Stay updated with the latest news, transmissions, and intel from our secure network."
+        canonical={window.location.origin + "/news"}
+      />
 
       <div className="mb-12">
         <h1 className="text-3xl sm:text-5xl font-bold mb-6 text-zinc-900 tracking-tight">

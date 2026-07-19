@@ -5,11 +5,11 @@
 
 import { safeHtml } from '../lib/safeHtml';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useData } from '../contexts/DataContext';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, Sparkles, Info, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useEffect, useMemo, useState, useRef } from 'react';
+import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';
 import { motion, AnimatePresence } from 'framer-motion';
 import UserReviews from '../components/UserReviews';
@@ -450,39 +450,15 @@ export default function AppDetails() {
           Back to storefront
         </Link>
       </div>
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={desc} />
-        {app.seo_keywords && <meta name="keywords" content={app.seo_keywords} />}
-        <meta name="author" content={mockSettings.site_title} />
-        <meta name="robots" content="index, follow" />
-        {app.target_region && <meta name="geo.region" content={app.target_region} />}
-        {app.target_region && <meta name="coverage" content={app.target_region} />}
-        
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={desc} />
-        <meta property="og:image" content={ogImage} />
-        <meta property="og:url" content={app.canonical_url || `${window.location.origin}/${app.slug}`} />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={desc} />
-        <meta name="twitter:image" content={ogImage} />
-
-        <link rel="canonical" href={app.canonical_url || `${window.location.origin}/${app.slug}`} />
-        <script type="application/ld+json">
-          {JSON.stringify(softwareSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-        {faqSchema && (
-          <script type="application/ld+json">
-            {JSON.stringify(faqSchema)}
-          </script>
-        )}
-      </Helmet>
+      <Meta 
+        title={title}
+        description={desc}
+        keywords={app.seo_keywords}
+        image={ogImage}
+        canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
+        schema={softwareSchema}
+        faqSchema={faqSchema}
+      />
       <div className="w-full">
         
         <div className="flex w-full items-center gap-4 sm:gap-6 mb-6 pl-8 pr-4 sm:pl-12 sm:pr-6 mt-2">

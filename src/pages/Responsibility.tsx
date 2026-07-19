@@ -7,7 +7,7 @@ import { safeHtml } from '../lib/safeHtml';
 import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
 import { ShieldCheck, Info, ArrowLeft } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { Link } from 'react-router-dom';
 
 export default function Responsibility() {
@@ -26,9 +26,11 @@ export default function Responsibility() {
           Home
         </Link>
       </div>
-      <Helmet>
-        <title>Responsibility | {mockSettings.site_title}</title>
-      </Helmet>
+      <Meta 
+        title="Responsibility"
+        description="Official safety guidelines advising users on secure gaming techniques and safety benchmarks."
+        canonical={window.location.origin + "/responsibility"}
+      />
 
       <motion.div>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-16">

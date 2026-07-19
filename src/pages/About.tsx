@@ -8,11 +8,17 @@ import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import Meta from '../components/Meta';
 
 export default function About() {
   const { settings: mockSettings } = useData();
   return (
     <div className="max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10 animate-fade-in pb-20">
+      <Meta 
+        title="About Us"
+        description="Learn more about our platform mission, safe verification frameworks, threat monitoring standards, and stable node guidelines."
+        canonical={window.location.origin + "/about"}
+      />
       <div className="mb-12 pt-4">
         <Link 
           to="/" 

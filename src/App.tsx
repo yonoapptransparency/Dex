@@ -444,7 +444,7 @@ function Footer() {
   );
 
   const footerLinks = (
-    <div className="w-full max-w-[500px] grid grid-cols-2 gap-x-6 gap-y-10 lg:text-right">
+    <div className="w-full max-w-[500px] grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-10 lg:text-right">
       <div className="flex flex-col gap-3 lg:items-end">
         <h4 className="text-slate-900 font-bold mb-1">Company</h4>
         <Link to="/" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Home</Link>

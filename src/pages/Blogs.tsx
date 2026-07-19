@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
 import { FileText, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { motion } from 'framer-motion';
 
 export default function Blogs() {
@@ -19,12 +19,11 @@ export default function Blogs() {
 
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto py-12 plain-content px-3 sm:px-6 md:px-10">
-      <Helmet>
-        <title>Latest App Updates - {mockSettings.site_title}</title>
-        <meta name="description" content="Read the latest updates, features, and release notes for our secure applications." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={window.location.origin + "/blogs"} />
-      </Helmet>
+      <Meta 
+        title="Latest App Updates"
+        description="Read the latest updates, features, and release notes for our secure applications."
+        canonical={window.location.origin + "/blogs"}
+      />
 
       <div className="mb-10">
         <Link 

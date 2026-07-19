@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { Video, Search, ArrowLeft, Play, Calendar, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -59,12 +59,11 @@ export default function VideosPage() {
         </Link>
       </div>
 
-      <Helmet>
-        <title>Video Transmissions - {mockSettings.site_title}</title>
-        <meta name="description" content="Watch high-quality video walkthroughs and tutorials of our catalog applications." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={window.location.origin + "/videos"} />
-      </Helmet>
+      <Meta 
+        title="Video Transmissions"
+        description="Watch high-quality video walkthroughs and tutorials of our catalog applications."
+        canonical={window.location.origin + "/videos"}
+      />
 
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-8">

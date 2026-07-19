@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { ArrowLeft, MessageSquare, Send, Calendar, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -147,17 +147,15 @@ export default function VideoDetailPage() {
 
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 pb-12">
-      <Helmet>
-        <title>{videoItem.title} - {mockSettings.site_title}</title>
-        <meta name="description" content={videoItem.description} />
-        {videoItem.seo_keywords && <meta name="keywords" content={videoItem.seo_keywords} />}
-        <meta property="og:title" content={videoItem.title} />
-        <meta property="og:description" content={videoItem.description} />
-        <meta property="og:image" content={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} />
-        <meta property="og:type" content="video.other" />
-      </Helmet>
+      <Meta 
+        title={`${videoItem.title} - ${mockSettings.site_title}`}
+        description={videoItem.description}
+        keywords={videoItem.seo_keywords}
+        image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+        url={window.location.href}
+        type="website"
+        canonical={window.location.origin + "/video/" + encodeURIComponent(videoItem.slug || videoItem.id)}
+      />
       
       <div className="mb-6 pt-4">
         <Link 

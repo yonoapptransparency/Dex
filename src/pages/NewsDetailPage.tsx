@@ -6,7 +6,7 @@
 import { safeHtml } from '../lib/safeHtml';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { ArrowLeft, MessageSquare, Send, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -133,29 +133,15 @@ export default function NewsDetailPage() {
 
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 plain-content mb-20">
-      <Helmet>
-        <title>{newsItem.seo_title || newsItem.title} - {mockSettings.site_title}</title>
-        <meta name="description" content={newsItem.seo_description || newsItem.description} />
-        {newsItem.seo_keywords && <meta name="keywords" content={newsItem.seo_keywords} />}
-        <meta name="author" content={newsItem.ceo_name || mockSettings.site_title} />
-        <meta name="robots" content="index, follow" />
-        {newsItem.target_region && <meta name="geo.region" content={newsItem.target_region} />}
-        {newsItem.target_region && <meta name="coverage" content={newsItem.target_region} />}
-        {newsItem.canonical_url ? <link rel="canonical" href={newsItem.canonical_url} /> : <link rel="canonical" href={window.location.origin + "/news/" + newsItem.slug} />}
-
-        <meta property="og:title" content={newsItem.seo_title || newsItem.title} />
-        <meta property="og:description" content={newsItem.seo_description || newsItem.description} />
-        <meta property="og:image" content={newsItem.og_image_url || newsItem.logo_url} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={newsItem.canonical_url || window.location.href} />
-        <meta property="article:published_time" content={newsItem.date || newsItem.published_at || new Date().toISOString()} />
-        <meta property="article:author" content={newsItem.ceo_name} />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={newsItem.seo_title || newsItem.title} />
-        <meta name="twitter:description" content={newsItem.seo_description || newsItem.description} />
-        <meta name="twitter:image" content={newsItem.og_image_url || newsItem.logo_url} />
-      </Helmet>
+      <Meta 
+        title={newsItem.seo_title || newsItem.title}
+        description={newsItem.seo_description || newsItem.description}
+        keywords={newsItem.seo_keywords}
+        image={newsItem.og_image_url || newsItem.logo_url}
+        url={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
+        type="article"
+        canonical={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
+      />
       
       <div className="mb-10">
         <Link 

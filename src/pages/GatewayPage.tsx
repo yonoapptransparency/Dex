@@ -5,7 +5,7 @@
 
 import { safeHtml } from '../lib/safeHtml';
 import { useParams, Navigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { Shield, ShieldAlert, ShieldCheck, MessageSquare, AlertTriangle, Info, CheckCircle2, ChevronRight, ChevronLeft, Fingerprint, Lock, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -256,25 +256,15 @@ export default function GatewayPage() {
           Back to details
         </Link>
       </div>
-      <Helmet>
-        <title>{`${app.name} - Download`}</title>
-        <meta name="description" content={`${app.name} download page. Complete verification to access the download link.`} />
-        {app.seo_keywords && <meta name="keywords" content={`${app.seo_keywords}, info ${app.name}, ${app.name} technical info`} />}
-        <meta property="og:title" content={`${app.name} - Download`} />
-        <meta property="og:description" content={`${app.name} download page. Complete verification to access the download link.`} />
-        <meta property="og:image" content={app.og_image_url || app.icon_url} />
-        <meta property="og:url" content={`https://www.rummyapp.online/app/${app.slug}`} />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href={`https://www.rummyapp.online/app/${app.slug}`} />
-        <script type="application/ld+json">
-          {JSON.stringify(softwareSchema)}
-        </script>
-        {faqSchema && (
-          <script type="application/ld+json">
-            {JSON.stringify(faqSchema)}
-          </script>
-        )}
-      </Helmet>
+      <Meta 
+        title={`${app.name} - Download`}
+        description={`${app.name} download page. Complete verification to access the download link.`}
+        keywords={app.seo_keywords ? `${app.seo_keywords}, info ${app.name}, ${app.name} technical info` : undefined}
+        image={app.og_image_url || app.icon_url}
+        canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
+        schema={softwareSchema}
+        faqSchema={faqSchema}
+      />
       
       {/* Header section */}
       <div className="text-center mb-8 max-w-xl mx-auto px-4">

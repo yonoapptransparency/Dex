@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 
 export default function Privacy() {
   const { settings: mockSettings } = useData();
@@ -26,9 +26,11 @@ export default function Privacy() {
           Home
         </Link>
       </div>
-      <Helmet>
-        <title>Privacy Policy | {mockSettings.site_title}</title>
-      </Helmet>
+      <Meta 
+        title="Privacy Policy"
+        description="Our official privacy guidelines explaining cookie protection, device logs, and storage obfuscation criteria."
+        canonical={window.location.origin + "/privacy"}
+      />
 
       <motion.div>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-16">

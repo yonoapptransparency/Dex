@@ -8,6 +8,7 @@ import { useData } from '../contexts/DataContext';
 import { ShieldCheck, ShieldAlert, Sparkles, Star, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { safeVibrate } from '../lib/utils';
+import Meta from '../components/Meta';
 
 export default function NewApps() {
   const { apps: mockApps, settings: mockSettings, loading } = useData();
@@ -30,6 +31,11 @@ export default function NewApps() {
 
   return (
     <div className="max-w-[1550px] mx-auto pb-20 px-3 sm:px-6 md:px-10 select-none">
+      <Meta 
+        title="Newly Added Apps"
+        description="Browse our collection of newly added and recently updated verified apps and tools."
+        canonical={window.location.origin + "/new-additions"}
+      />
       <div className="px-1 mb-2 pt-4">
         <Link 
           to="/" 

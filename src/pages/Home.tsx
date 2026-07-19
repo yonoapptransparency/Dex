@@ -6,11 +6,11 @@
 import { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { safeHtml } from '../lib/safeHtml';
 import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useData } from '../contexts/DataContext';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
+import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
 import AccordionItem from '../components/AccordionItem';
@@ -138,57 +138,23 @@ export default function Home() {
 
   return (
     <div className="select-none min-h-screen">
-      <Helmet>
-        <title>{mockSettings.site_title}</title>
-        <meta name="description" content={mockSettings.meta_description} />
-        {mockSettings.seo_keywords && <meta name="keywords" content={mockSettings.seo_keywords} />}
-        <meta name="author" content={mockSettings.site_title} />
-        <meta name="robots" content="index, follow" />
-        
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={mockSettings.site_title} />
-        <meta property="og:description" content={mockSettings.meta_description} />
-        <meta property="og:image" content={mockSettings.logo_url} />
-        <meta property="og:url" content={window.location.origin} />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={mockSettings.site_title} />
-        <meta name="twitter:description" content={mockSettings.meta_description} />
-        <meta name="twitter:image" content={mockSettings.logo_url} />
-
-        <link rel="canonical" href={window.location.origin} />
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": mockSettings.site_title,
-            "url": window.location.origin,
-            "description": mockSettings.meta_description,
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": `${window.location.origin}/?q={search_term_string}`,
-              "query-input": "required name=search_term_string"
+      <Meta 
+        title={mockSettings.site_title}
+        description={mockSettings.meta_description}
+        keywords={mockSettings.seo_keywords}
+        faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": mockSettings.website_faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer
             }
-          })}
-        </script>
-        {mockSettings.website_faqs && mockSettings.website_faqs.length > 0 && (
-          <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": mockSettings.website_faqs.map(faq => ({
-              "@type": "Question",
-              "name": faq.question,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer
-              }
-            }))
-          })}
-          </script>
-        )}
-      </Helmet>
+          }))
+        } : undefined}
+      />
       {!deferredSearchTerm && (
         <WebsiteTitleHero settings={mockSettings} />
       )}

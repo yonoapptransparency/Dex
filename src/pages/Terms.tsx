@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 
 export default function Terms() {
   const { settings: mockSettings } = useData();
@@ -26,9 +26,11 @@ export default function Terms() {
           Home
         </Link>
       </div>
-      <Helmet>
-        <title>Terms & Conditions | {mockSettings.site_title}</title>
-      </Helmet>
+      <Meta 
+        title="Terms & Conditions"
+        description="Official user agreement protocols, cookies consent directives, and listing responsibility guidelines."
+        canonical={window.location.origin + "/terms"}
+      />
 
       <motion.div>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-12">

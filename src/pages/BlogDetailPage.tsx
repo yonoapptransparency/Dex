@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContext';
 import { ArrowLeft, MessageSquare, Calendar, Clock, ShieldAlert } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -91,29 +91,15 @@ export default function BlogDetailPage() {
 
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 plain-content mb-20">
-      <Helmet>
-        <title>{blog.seo_title || blog.title} - {mockSettings.site_title}</title>
-        <meta name="description" content={blog.seo_description || blog.description || blog.content.substring(0, 160).replace(/<[^>]*>?/gm, '')} />
-        {blog.seo_keywords && <meta name="keywords" content={blog.seo_keywords} />}
-        <meta name="author" content={blog.author || "Administrator"} />
-        <meta name="robots" content="index, follow" />
-        {blog.target_region && <meta name="geo.region" content={blog.target_region} />}
-        {blog.target_region && <meta name="coverage" content={blog.target_region} />}
-        {blog.canonical_url ? <link rel="canonical" href={blog.canonical_url} /> : <link rel="canonical" href={window.location.origin + "/blog/" + encodeURIComponent(blog.slug || blog.id)} />}
-
-        <meta property="og:title" content={blog.seo_title || blog.title} />
-        <meta property="og:description" content={blog.seo_description || blog.description || blog.content.substring(0, 160).replace(/<[^>]*>?/gm, '')} />
-        <meta property="og:image" content={blog.cover_url} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={blog.canonical_url || window.location.origin + "/blog/" + encodeURIComponent(blog.slug || blog.id)} />
-        <meta property="article:published_time" content={new Date(blog.published_at).toISOString()} />
-        <meta property="article:author" content={blog.author} />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={blog.seo_title || blog.title} />
-        <meta name="twitter:description" content={blog.seo_description || blog.description || blog.content.substring(0, 160).replace(/<[^>]*>?/gm, '')} />
-        <meta name="twitter:image" content={blog.cover_url} />
-      </Helmet>
+      <Meta 
+        title={blog.seo_title || blog.title}
+        description={blog.seo_description || blog.description || blog.content.substring(0, 160).replace(/<[^>]*>?/gm, '')}
+        keywords={blog.seo_keywords}
+        image={blog.cover_url}
+        url={blog.canonical_url || window.location.origin + "/blog/" + encodeURIComponent(blog.slug || blog.id)}
+        type="article"
+        canonical={blog.canonical_url || window.location.origin + "/blog/" + encodeURIComponent(blog.slug || blog.id)}
+      />
       
       <div className="mb-10">
         <Link 

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import Meta from '../components/Meta';
 
 export default function Disclaimer() {
   const { settings: mockSettings } = useData();
@@ -21,9 +21,11 @@ export default function Disclaimer() {
           Home
         </Link>
       </div>
-      <Helmet>
-        <title>{mockSettings.disclaimer_heading || 'Disclaimer'} | {mockSettings.site_title}</title>
-      </Helmet>
+      <Meta 
+        title={mockSettings.disclaimer_heading || 'Disclaimer'}
+        description="Official disclaimer notes, policy limitations, and user responsibility details."
+        canonical={window.location.origin + "/disclaimer"}
+      />
 
       <motion.div>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-16">
