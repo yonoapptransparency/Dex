@@ -1,1 +1,16 @@
-{"version": 2, "outputDirectory": "dist", "buildCommand": "npm run build", "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]}
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "buildCommand": "npm run build",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
