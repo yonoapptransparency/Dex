@@ -40,7 +40,6 @@ jobs:
             "src/lib/githubSync.ts"
             "src/lib/totp.ts"
             "src/lib/secureStorage.ts"
-            "src/lib/firebase.ts"
             "src/lib/secure_links_backup.json"
             "src/lib/public_backup.json"
             "api/"
@@ -183,6 +182,8 @@ jobs:
             "src/components/UserReviews.tsx"
             "src/components/WebsiteTitleHero.tsx"
             "src/contexts/DataContextPublic.tsx"
+            "src/lib/staticData.ts"
+            "src/lib/secureVault.ts"
             "public/"
           )
 
@@ -199,7 +200,7 @@ jobs:
             rm -rf "${REPO_NAME}_repo"
             
             # Common excludes - strictly prevent secrets/backups from leaking anywhere unvetted
-            RSYNC_EXCLUDES="--exclude=.git --exclude=.github --exclude=node_modules --exclude=dist --exclude=src/lib/staticData.ts --exclude=src/lib/secureVault.ts"
+            RSYNC_EXCLUDES="--exclude=.git --exclude=.github --exclude=node_modules --exclude=dist"
 
             if git clone "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git" "${REPO_NAME}_repo"; then
               cd "${REPO_NAME}_repo"
@@ -224,42 +225,6 @@ jobs:
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
-              
-              # Strip firebase from Dex package.json
-              node -e "
-              const fs = require('fs');
-              const path = 'package.json';
-              if (fs.existsSync(path)) {
-                const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
-                if (pkg.dependencies && pkg.dependencies.firebase) {
-                  delete pkg.dependencies.firebase;
-                }
-                fs.writeFileSync(path, JSON.stringify(pkg, null, 2), 'utf8');
-              }
-              "
-              
-              # Swap to public DataContext
-              if [ -f src/contexts/DataContextPublic.tsx ]; then
-                mv src/contexts/DataContextPublic.tsx src/contexts/DataContext.tsx
-              fi
-              
-              # Inject dummy firebase stub
-              printf "%s\n" \
-                "export const db = null;" \
-                "export const auth = null;" \
-                "export const app = null;" \
-                "export const isFirebaseConfigured = false;" \
-                "export const isFirebaseReal = false;" \
-                "export const OperationType = { CREATE: 'CREATE', READ: 'READ', UPDATE: 'UPDATE', DELETE: 'DELETE' };" \
-                "export const handleFirestoreError = () => ({ message: 'Offline mode', code: 'offline' });" \
-                > src/lib/firebase.ts
-
-              # Inject dummy firestore stubs
-              mkdir -p node_modules/firebase/firestore node_modules/firebase/auth
-              echo "export const collection = () => null; export const addDoc = async () => null; export const getDocs = async () => []; export const query = () => null; export const where = () => null; export const orderBy = () => null; export const doc = () => null; export const updateDoc = async () => null;" > node_modules/firebase/firestore/index.js
-              echo "export const onAuthStateChanged = () => null; export const signOut = async () => null;" > node_modules/firebase/auth/index.js
-
-
 
               # Strip any residual maintenance, test, or config files from root of Dex
               find . -maxdepth 1 -name "*.js" ! -name "eslint.config.mjs" ! -name "eslint.config.cjs" ! -name "postcss.config.js" ! -name "tailwind.config.js" -exec rm -f {} +
@@ -268,30 +233,11 @@ jobs:
               find . -maxdepth 1 -name "*.patch" -exec rm -f {} +
               find . -maxdepth 1 -name "*.html" ! -name "index.html" -exec rm -f {} +
 
-              node -e "
-              const fs = require('fs');
-              const path = 'vite.config.ts';
-              if (fs.existsSync(path)) {
-                let c = fs.readFileSync(path, 'utf8');
-                c = c.replace(/__ADMIN_ENABLED__:.*\\n/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/pages\\/AdminDashboard\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/pages\\/AdminLogin\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/AdminLogin\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/ClearanceButton\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/NewsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/AppsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/BlogsTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/components\\/SecurityTab\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/services\\/adminAuthService\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                c = c.replace(/\\{\\s*find: \\/.*\\/lib\\/secureStorage\\$[\\s\\S]*?dummyAdmin\\.ts'\\)\\s*\\},\\s*/g, '');
-                fs.writeFileSync(path, c, 'utf8');
-              }
-              " 
-              
-              if [ -f src/AppPublic.tsx ]; then
-                mv src/AppPublic.tsx src/App.tsx
-                rm -f src/AppAdmin.tsx
+              if [ -f "strip-admin-from-dex.js" ]; then
+                node strip-admin-from-dex.js
+                rm -f strip-admin-from-dex.js
               fi
+              rm -f strip-public-from-masterworld.js
             fi
 
             if [ "$TYPE" = "admin" ]; then
@@ -306,20 +252,14 @@ jobs:
               find src/pages -type f ! -name "AdminDashboard.tsx" ! -name "AdminLogin.tsx" -delete
               
               echo "Purging non-admin components..."
-              find src/components -type f ! -name "AdminLogin.tsx" ! -name "ClearanceButton.tsx" ! -name "FirebaseStatusIndicator.tsx" ! -name "FirebaseStatusPanel.tsx" ! -name "NewsTab.tsx" ! -name "SecurityTab.tsx" ! -name "AppsTab.tsx" ! -name "BlogsTab.tsx" ! -name "GlobalErrorBoundary.tsx" -delete
+              find src/components -type f ! -name "AdminLogin.tsx" ! -name "ClearanceButton.tsx" ! -name "FirebaseStatusIndicator.tsx" ! -name "FirebaseStatusPanel.tsx" ! -name "NewsTab.tsx" ! -name "SecurityTab.tsx" ! -name "GlobalErrorBoundary.tsx" -delete
 
               # 3. Clean App.tsx routes
-              if [ -f src/AppAdmin.tsx ]; then
-                mv src/AppAdmin.tsx src/App.tsx
-                rm -f src/AppPublic.tsx
+              if [ -f "strip-public-from-masterworld.js" ]; then
+                node strip-public-from-masterworld.js
+                rm -f strip-public-from-masterworld.js
               fi
-
-              # 4. Strip local maintenance, test, and setup scripts from Masterworld root to keep it clean of clutter
-              find . -maxdepth 1 -name "*.js" ! -name "eslint.config.mjs" ! -name "eslint.config.cjs" ! -name "postcss.config.js" ! -name "tailwind.config.js" -exec rm -f {} +
-              find . -maxdepth 1 -name "*.patch" -exec rm -f {} +
-              find . -maxdepth 1 -name "test_browser*" -exec rm -f {} +
-              find . -maxdepth 1 -name "patch-*" -exec rm -f {} +
-              rm -f new-split-sync.yml
+              rm -f strip-admin-from-dex.js
             fi
 
             git add .
@@ -335,5 +275,19 @@ jobs:
             fi
           }
 
+          # Always sync Dex (Public)
           sync_repo "Dex" "yonoapptransparency/Dex" "public"
-          sync_repo "masterworld" "yonoapptransparency/masterworld" "admin"
+          
+          # CRITICAL ISOLATION RULE: 
+          # Never push static data updates back to the Admin repository.
+          # If the commit message contains "Admin Release", skip masterworld entirely.
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" == *"Admin Release"* ]]; then
+            echo "================================================================="
+            echo "🚫 SECURITY ISOLATION TRIGGERED 🚫"
+            echo "Commit is a data sync ('Admin Release')."
+            echo "Skipping 'masterworld' (Admin) repository sync completely to prevent loop/breakage."
+            echo "================================================================="
+          else
+            sync_repo "masterworld" "yonoapptransparency/masterworld" "admin"
+          fi
