@@ -89,7 +89,7 @@ export default function GatewayPage() {
     }
   }, [slug]);
 
-  // Handle browser Back-Forward Cache (Bfcache) restorative states to guarantee fresh, re-executable gateway handshake
+  // Handle browser Back-Forward Cache (Bfcache) restorative states to guarantee fresh, re-executable moreinfo handshake
   useEffect(() => {
     const handlePageShow = () => {
       setIsVerified(false);
@@ -115,7 +115,7 @@ export default function GatewayPage() {
     if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      console.log(`Deep Link Sync: Verification gateway index for "${slug}" not found in local cache. Syncing latest indices...`);
+      console.log(`Deep Link Sync: Verification moreinfo index for "${slug}" not found in local cache. Syncing latest indices...`);
       refreshAll(true)
         .catch((e: any) => {
           console.warn("Deep Link Auto-Sync failed (quota or net):", e.message || e);
