@@ -8,7 +8,6 @@ on:
 
 jobs:
   split-and-sync:
-    if: github.repository != 'yonoapptransparency/Dex' && github.repository != 'yonoapptransparency/masterworld'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
