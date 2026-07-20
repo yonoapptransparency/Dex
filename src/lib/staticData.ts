@@ -1420,29 +1420,7 @@ export const saveMockBlogs = (blogs: BlogPost[]) => {
   mockBlogs.splice(0, mockBlogs.length, ...blogs);
 };
 
-export const mockVideos: VideoItem[] = [
-  {
-    "seo_title": "Rummy ",
-    "youtube_url": "https://youtu.be/0uPeAuXIRdQ?si=aP9WFCyYCHKW2z5F",
-    "created_at": "2026-05-22T12:22:35.244Z",
-    "title": "RummyApp Online ",
-    "slug": "",
-    "id": "1",
-    "seo_description": "",
-    "description": "Looking for the best UI SMOOTH experience rummy "
-  },
-  {
-    "seo_description": "",
-    "id": "73jeeqtsr",
-    "created_at": "2026-05-29T14:26:28.226Z",
-    "description": "",
-    "slug": "",
-    "title": "",
-    "youtube_url": "",
-    "seo_keywords": "",
-    "seo_title": ""
-  }
-];
+export const mockVideos: VideoItem[] = [];
 
 export const saveMockVideos = (videos: VideoItem[]) => {
   try {
