@@ -241,7 +241,8 @@ export const mockApps: AppConfig[] = [
     "name": "YONO ARCADE",
     "og_image_url": "",
     "custom_admin_box_heading": "",
-    "is_coming_soon": false
+    "is_coming_soon": false,
+    "is_hot": false
   },
   {
     "safety_status": "Verified",
