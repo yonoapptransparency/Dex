@@ -347,8 +347,15 @@ async function getPagePreRender(urlPath: string, data: any): Promise<string> {
     bodyContent = renderHome(apps, settings, news, blogs, videos);
   } else if (cleanPathLower === '/new-apps') {
     bodyContent = renderNewApps(apps, settings);
-  } else if (cleanPathLower.startsWith('/info/') || cleanPathLower.startsWith('/gateway/')) {
-    const slug = cleanPathLower.startsWith('/info/') ? cleanPath.split('/info/')[1] : cleanPath.split('/gateway/')[1];
+  } else if (cleanPathLower.startsWith('/info/') || cleanPathLower.startsWith('/gateway/') || cleanPathLower.startsWith('/moredetail/')) {
+    let slug = '';
+    if (cleanPathLower.startsWith('/info/')) {
+      slug = cleanPath.split('/info/')[1];
+    } else if (cleanPathLower.startsWith('/gateway/')) {
+      slug = cleanPath.split('/gateway/')[1];
+    } else {
+      slug = cleanPath.split('/moredetail/')[1];
+    }
     bodyContent = renderGateway(slug, apps, settings);
   } else if (cleanPathLower === '/news') {
     bodyContent = renderNewsList(news, settings);
@@ -842,6 +849,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
   if (!ogImage) ogImage = "https://res.cloudinary.com/dq34n0ncz/image/upload/v1713280000/default_og_image.png";
   let author = siteTitle || "Platform Administrator";
   let canonicalUrlOverride: string | null = null;
+  let faviconUrl = getField(settings, 'favicon_url') || getField(settings, 'logo_url');
   
   const rawPathStr = urlPath.split('?')[0].split('#')[0];
   const possibleAppSlug = rawPathStr.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '').toLowerCase();
@@ -864,9 +872,10 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
       ogImage = getField(app, 'og_image_url') || getField(app, 'icon_url') || ogImage;
       const cleanHostApp = (hostUrl || process.env.VITE_PUBLIC_DOMAIN || process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online').replace(/\/+$/, '');
       canonicalUrlOverride = getField(app, 'canonical_url') || `${cleanHostApp}/app/${getField(app, 'slug')}`;
+      faviconUrl = getField(app, 'icon_url') || faviconUrl;
     }
-  } else if (urlPath.startsWith('/info/') || urlPath.startsWith('/gateway/')) {
-    const prefix = urlPath.startsWith('/info/') ? '/info/' : '/gateway/';
+  } else if (urlPath.startsWith('/info/') || urlPath.startsWith('/gateway/') || urlPath.startsWith('/moredetail/')) {
+    const prefix = urlPath.startsWith('/info/') ? '/info/' : (urlPath.startsWith('/gateway/') ? '/gateway/' : '/moredetail/');
     const slug = decodeURIComponent(urlPath.split(prefix)[1].split('/')[0].split('?')[0]);
     const app = apps.find((a: any) => {
       const aSlug = getField(a, 'slug');
@@ -882,6 +891,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
       ogImage = getField(app, 'og_image_url') || getField(app, 'icon_url') || ogImage;
       const cleanHostApp = (hostUrl || process.env.VITE_PUBLIC_DOMAIN || process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online').replace(/\/+$/, '');
       canonicalUrlOverride = getField(app, 'canonical_url') || `${cleanHostApp}/app/${getField(app, 'slug')}`;
+      faviconUrl = getField(app, 'icon_url') || faviconUrl;
     }
   } else if (urlPath.startsWith('/news/') && urlPath.length > 6) {
     const slug = decodeURIComponent(urlPath.split('/news/')[1].split('/')[0].split('?')[0]);
@@ -962,6 +972,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
         keywords = getField(app, 'seo_keywords');
         ogImage = getField(app, 'og_image_url') || getField(app, 'icon_url') || ogImage;
         canonicalUrlOverride = getField(app, 'canonical_url');
+        faviconUrl = getField(app, 'icon_url') || faviconUrl;
       }
     }
   }
@@ -985,7 +996,6 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     }
   }
 
-  const faviconUrl = getField(settings, 'favicon_url') || getField(settings, 'logo_url');
   let absoluteFaviconUrl = faviconUrl;
   if (faviconUrl) {
     const trimmedFav = faviconUrl.trim();
@@ -1015,7 +1025,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
   let schemaOrg: any = null;
   if (!isAdmin) {
     const isAppSlug = apps.some((a: any) => a.slug?.toLowerCase() === urlPath.split('?')[0].split('#')[0].replace(/^\/app\//, '/').replace(/^\/|\/$/g, '').toLowerCase());
-    if (isAppSlug || urlPath.startsWith('/gateway/')) {
+    if (isAppSlug || urlPath.startsWith('/gateway/') || urlPath.startsWith('/moredetail/')) {
        schemaOrg = {
          "@context": "https://schema.org",
          "@type": "SoftwareApplication",

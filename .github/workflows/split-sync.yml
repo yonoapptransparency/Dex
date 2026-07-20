@@ -214,6 +214,9 @@ jobs:
               git checkout -b main
               rsync -rv $RSYNC_EXCLUDES "$SOURCE_DIR/" .
             fi
+            
+            # Explicitly remove .github to prevent workflow nesting/looping
+            rm -rf .github
 
             if [ "$TYPE" = "public" ]; then
               echo "Enforcing Public-Only Dex Isolation..."
@@ -229,11 +232,32 @@ jobs:
               find . -maxdepth 1 -name "*.patch" -exec rm -f {} +
               find . -maxdepth 1 -name "*.html" ! -name "index.html" -exec rm -f {} +
 
-              if [ -f "strip-admin-from-dex.js" ]; then
-                node strip-admin-from-dex.js
-                rm -f strip-admin-from-dex.js
+              cat << 'JS_EOF' > strip-admin.js
+const fs = require('fs');
+const viteConfigPath = 'vite.config.ts';
+if (fs.existsSync(viteConfigPath)) {
+  let viteContent = fs.readFileSync(viteConfigPath, 'utf8');
+  viteContent = viteContent.replace(/__ADMIN_ENABLED__:.*\n/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminDashboard\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/ClearanceButton\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/NewsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AppsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/BlogsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/SecurityTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/services\/adminAuthService\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  viteContent = viteContent.replace(/\{\s*find: \/.*\/lib\/secureStorage\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+  fs.writeFileSync(viteConfigPath, viteContent, 'utf8');
+}
+JS_EOF
+              node strip-admin.js
+              rm -f strip-admin.js
+              
+              if [ -f src/AppPublic.tsx ]; then
+                mv src/AppPublic.tsx src/App.tsx
+                rm -f src/AppAdmin.tsx
               fi
-              rm -f strip-public-from-masterworld.js
             fi
 
             if [ "$TYPE" = "admin" ]; then
@@ -251,16 +275,19 @@ jobs:
               find src/components -type f ! -name "AdminLogin.tsx" ! -name "ClearanceButton.tsx" ! -name "FirebaseStatusIndicator.tsx" ! -name "FirebaseStatusPanel.tsx" ! -name "NewsTab.tsx" ! -name "SecurityTab.tsx" ! -name "GlobalErrorBoundary.tsx" -delete
 
               # 3. Clean App.tsx routes
-              if [ -f "strip-public-from-masterworld.js" ]; then
-                node strip-public-from-masterworld.js
-                rm -f strip-public-from-masterworld.js
+              if [ -f src/AppAdmin.tsx ]; then
+                mv src/AppAdmin.tsx src/App.tsx
+                rm -f src/AppPublic.tsx
               fi
-              rm -f strip-admin-from-dex.js
             fi
 
             git add .
             if [ -n "$(git status --porcelain)" ]; then
-              git commit -m "Auto-sync ($TYPE)"
+              if [ "$TYPE" = "admin" ]; then
+                git commit -m "Auto-sync ($TYPE) [skip ci]"
+              else
+                git commit -m "Auto-sync ($TYPE)"
+              fi
               git push -u origin main
             else
               echo "No changes for $REPO_NAME."

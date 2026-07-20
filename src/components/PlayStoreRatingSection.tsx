@@ -140,7 +140,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
   return (
     <div 
       id="play-store-rating-sec" 
-      className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-black/5 dark:border-white/5 rounded-2xl p-5 sm:p-6 text-left my-4 select-none relative overflow-hidden transition-all duration-300"
+      className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-black/5 dark:border-white/10 rounded-2xl p-4 sm:p-6 text-left my-4 select-none relative overflow-hidden transition-all duration-300"
     >
       <AnimatePresence mode="wait">
         {!submitted ? (

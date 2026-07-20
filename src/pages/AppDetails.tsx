@@ -6,7 +6,7 @@
 import { safeHtml } from '../lib/safeHtml';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
-import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, Sparkles, Info, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, Sparkles, Info, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, Play, MoreVertical, Flag } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
@@ -439,7 +439,7 @@ export default function AppDetails() {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="px-4 sm:px-6 mb-4">
+      <div className="px-3 sm:px-6 mb-4">
         <Link 
           to="/" 
           className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
@@ -461,9 +461,15 @@ export default function AppDetails() {
       />
       <div className="w-full">
         
-        <div className="flex w-full items-center gap-4 sm:gap-6 mb-6 pl-8 pr-4 sm:pl-12 sm:pr-6 mt-2">
-          <div className="relative w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] shrink-0">
-            <div className="w-full h-full rounded-[20px] overflow-hidden shadow-sm bg-white border border-black/5 dark:border-white/10 group">
+        <div className="flex w-full items-center gap-4 sm:gap-6 mb-6 px-3 sm:px-6 mt-2">
+          <div className="relative w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] shrink-0 premium-logo-container">
+            {/* Dynamic glowing colorful aura background */}
+            <div className="premium-logo-aura"></div>
+            
+            <div className="w-full h-full rounded-[20px] overflow-hidden shadow-sm bg-white border border-black/5 dark:border-white/10 premium-logo-image-frame">
+              {/* Dynamic glossy sweep light overlay */}
+              <div className="premium-logo-shine-overlay"></div>
+              
               {app.icon_url ? (
                 <img src={app.icon_url || undefined} alt={app.name} width={128} height={128} className="w-full h-full object-cover" />
               ) : (
@@ -534,11 +540,11 @@ export default function AppDetails() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row w-full sm:w-full justify-center select-none mb-6 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-6 px-3 sm:px-6">
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full"
+            className="w-full sm:flex-1"
           >
             {isActuallyComingSoon ? (
                   <div className="flex flex-col items-center">
@@ -573,26 +579,43 @@ export default function AppDetails() {
                   </div>
                 ) : (
                   <Link 
-                    to={`/gateway/${app.slug}`}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]"
+                    to={`/moredetail/${app.slug}`}
+                    className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]"
                   >
-                    <span className="flex items-center gap-1.5 font-bold">More Info <ArrowRight className="w-4 h-4" /></span>
+                    <span className="flex items-center gap-1.5 font-bold text-white !text-white">More Details <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" /></span>
                   </Link>
                 )}
               </motion.div>
  
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto min-w-[130px] sm:min-w-[150px]"
-              >
-                <button 
-                  onClick={handleShare}
-                  className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm"
+              <div className="flex w-full gap-3 sm:w-auto shrink-0">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
                 >
-                  <Share2 className="w-4 h-4 text-blue-500" /> Share app
-                </button>
-              </motion.div>
+                  <button 
+                    onClick={handleShare}
+                    className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm h-[44px] truncate"
+                  >
+                    <Share2 className="w-4 h-4 text-blue-500 shrink-0" /> <span className="truncate">Share app</span>
+                  </button>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
+                >
+                  <button 
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('open-report-modal', { detail: { app } }));
+                    }}
+                    className="w-full bg-rose-50 hover:bg-rose-100/80 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-rose-200/40 dark:border-rose-900/40 shadow-xs h-[44px] truncate"
+                  >
+                    <Flag className="w-4 h-4 text-rose-500 shrink-0" /> <span className="truncate">Flag app</span>
+                  </button>
+                </motion.div>
+              </div>
             </div>
 
             
@@ -617,7 +640,7 @@ export default function AppDetails() {
 
         {relatedApps.length > 0 && (
           <div className="mb-6 px-0">
-            <div className="flex items-center justify-between mb-4 px-4 sm:px-6">
+            <div className="flex items-center justify-between mb-4 px-3 sm:px-6">
               <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
                 You might also like
               </h2>
@@ -632,7 +655,7 @@ export default function AppDetails() {
       </div>
 
       {/* RESTORED SAFETY & INFO BOXES */}
-      <div className="px-4 sm:px-6 space-y-3 mb-8 w-full">
+      <div className="px-3 sm:px-6 space-y-3 mb-8 w-full">
 
         {app.red_box_msg && app.red_box_msg.trim() !== '.' && app.red_box_msg.trim() !== '' && (
           <div className="bg-rose-50/50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 p-4 rounded-2xl flex items-start gap-4 shadow-sm group">
@@ -740,12 +763,12 @@ export default function AppDetails() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 mb-8">
+      <div className="px-3 sm:px-6 mb-8">
         <UserReviews key={reviewsRefreshKey} appId={app.id} appTitle={app.name} overallRating={app.rating} />
       </div>
       
       {app.faqs && app.faqs.length > 0 && (
-         <div className="mb-20 px-4 sm:px-6">
+         <div className="mb-20 px-3 sm:px-6">
            <div className="py-8 border-t border-black/5 dark:border-white/5">
             <h2 className="text-xl font-bold mb-6 text-zinc-900 dark:text-zinc-100">
               Frequently Asked Questions

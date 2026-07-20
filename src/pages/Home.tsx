@@ -177,10 +177,10 @@ export default function Home() {
             <h2 className="text-xl font-bold mb-4 mt-6 text-zinc-900 dark:text-zinc-100 flex items-center px-0">
               New Additions <BadgeCheck className="w-5 h-5 text-blue-500 fill-blue-500/20 ml-1.5" />
             </h2>
-            <div className="flex overflow-x-auto gap-3.5 sm:gap-4 px-4 sm:px-1 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex overflow-x-auto gap-3.5 sm:gap-4 px-4 sm:px-1 pt-2.5 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {loading ? (
                 Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="flex-none w-[76px] sm:w-[92px] snap-start">
+                  <div key={i} className="flex-none w-[80px] sm:w-[96px] snap-start">
                     <NewAdditionItemSkeleton />
                   </div>
                 ))
@@ -190,38 +190,44 @@ export default function Home() {
                   return (
                   <motion.div
                     key={app.id}
-                    className="flex-none w-[76px] sm:w-[92px] snap-start"
+                    className="flex-none w-[80px] sm:w-[96px] snap-start"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Link to={`/${app.slug}`} className="flex flex-col gap-2 group active:scale-[0.98] transition-transform">
-                      <div className="aspect-square rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all relative">
-                        <img 
-                          src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
-                          alt={app.name} 
-                          referrerPolicy="no-referrer"
-                          loading="lazy"
-                          width={128}
-                          height={128}
-                          className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
-                        />
-                        <div className="absolute top-1 left-1 pointer-events-none z-10">
-                          <span className="flex h-4 items-center justify-center rounded-full bg-zinc-950/85 backdrop-blur-[4px] px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/40 shadow-[0_2px_10px_rgba(16,185,129,0.25)] gap-1">
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
-                            </span>
-                            NEW
-                          </span>
-                        </div>
-                        {isActuallyComingSoon && (
-                          <div className="absolute top-1 right-1 pointer-events-none">
-                            <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[8px] font-black uppercase tracking-widest px-1.5 py-[1px] rounded shadow-sm border border-amber-400">
-                              Soon
+                      <div className="relative w-full aspect-square">
+                        <div className="w-full h-full rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
+                          <img 
+                            src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+                            alt={app.name} 
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            width={128}
+                            height={128}
+                            className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
+                          />
+                          {isActuallyComingSoon && (
+                            <div className="absolute top-1 right-1 pointer-events-none">
+                              <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[8px] font-black uppercase tracking-widest px-1.5 py-[1px] rounded shadow-sm border border-amber-400">
+                                Soon
+                              </div>
                             </div>
+                          )}
+                        </div>
+                        {app.is_hot ? (
+                          <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
+                            <span className="bg-[#ff3d00] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                              HOT
+                            </span>
                           </div>
-                        )}
+                        ) : app.is_new ? (
+                          <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
+                            <span className="bg-[#00c853] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                              NEW
+                            </span>
+                          </div>
+                        ) : null}
                       </div>
                       <div className="px-1 text-center">
                         <h3 className="text-[10px] sm:text-xs font-medium text-zinc-800 dark:text-zinc-200 truncate">{app.name}</h3>

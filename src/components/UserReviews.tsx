@@ -380,7 +380,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
 
   return (
     <div id="ratings-and-reviews-section" className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 lg:gap-6 lg:gap-12">
         
         {/* Left Side: Score summary */}
         <div className="w-full lg:w-1/3">
@@ -389,7 +389,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
             <span>Ratings and reviews</span>
           </h2>
 
-          <div className="flex items-center gap-6 p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/5">
+          <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/10">
             <div className="text-center">
               <div className="text-5xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none mb-1">
                 {averageValue}
@@ -439,10 +439,10 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
         </div>
 
         {/* Right Side: Reviews Feed and submission form */}
-        <div className="w-full lg:w-2/3 flex flex-col gap-6">
+        <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
           
           {/* Form to submit review */}
-          <div className="p-6 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl shadow-sm">
+          <div className="p-4 sm:p-6 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl shadow-sm">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>Share your gameplay review</span>
@@ -515,7 +515,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                 </div>
 
                 {/* Action and notifications */}
-                <div className="flex items-center justify-between gap-4 pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                   <div className="flex-1">
                     {errorText && (
                       <div className="flex items-center gap-1 text-xs font-semibold text-rose-500">
@@ -542,7 +542,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex items-center justify-center gap-2 h-10 px-5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-bold text-xs rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+                    className="flex items-center justify-center gap-2 h-10 px-5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-bold text-xs rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0 w-full sm:w-auto"
                   >
                     {submitting ? (
                       <>
@@ -648,7 +648,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
             {loading ? (
               <div className="space-y-3.5 animate-pulse">
                 {Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/5 text-left">
+                  <div key={idx} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10 text-left">
                     {/* Avatar Circle skeleton */}
                     <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                     {/* Content Column skeleton */}
@@ -694,12 +694,15 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
 
                     return (
                       <motion.div
-                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                         key={rev.id}
                         className={`p-5 border rounded-2xl flex gap-4 transition-all text-left ${
                           reportedReviews[rev.id] || rev.reported
                             ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'
-                            : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/5'
+                            : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10'
                         }`}
                       >
                         {/* Avatar */}

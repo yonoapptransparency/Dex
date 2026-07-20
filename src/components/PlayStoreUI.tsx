@@ -3,11 +3,12 @@
  * Contains premium custom sliders, layout grids, rating bars, and mirror listing templates.
  */
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn, safeVibrate } from '../lib/utils';
-import { ShieldCheck, Star, AlertTriangle, ShieldAlert, ArrowRight, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Star, AlertTriangle, ShieldAlert, ArrowRight, Sparkles, ChevronLeft, ChevronRight, MoreVertical, Share2, Flag, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 interface BannerProps {
   items: any[];
@@ -272,6 +273,110 @@ export const PlayStoreTabs = React.memo(({ activeTab, onTabChange, hideOnSearch 
   );
 });
 
+const AppOptionsMenu = ({ app }: { app: any }) => {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const appUrl = `${window.location.origin}/${app.slug}`;
+    if (navigator.share) {
+      navigator.share({
+        title: app.name,
+        text: `Check out ${app.name}!`,
+        url: appUrl,
+      })
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {});
+    } else {
+      navigator.clipboard.writeText(appUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {});
+    }
+  };
+
+  const handleOpenReport = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen(false);
+    // Dispatch the custom event to trigger the lightweight global modal
+    window.dispatchEvent(new CustomEvent('open-report-modal', { detail: { app } }));
+  };
+
+  return (
+    <div 
+      className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20" 
+      ref={menuRef} 
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      onTouchStart={(e) => { e.stopPropagation(); }}
+      onPointerDown={(e) => { e.stopPropagation(); }}
+    >
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setMenuOpen(!menuOpen);
+        }}
+        onTouchStart={(e) => { e.stopPropagation(); }}
+        onPointerDown={(e) => { e.stopPropagation(); }}
+        className="p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-full transition-all cursor-pointer relative"
+        aria-label="More options"
+      >
+        <MoreVertical className="w-4 h-4" />
+      </button>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.12 }}
+            className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-xl border border-zinc-800/80 overflow-hidden py-1 z-35"
+          >
+            <button
+              onClick={handleShare}
+              onTouchStart={(e) => { e.stopPropagation(); }}
+              onPointerDown={(e) => { e.stopPropagation(); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left"
+            >
+              <Share2 className="w-3.5 h-3.5 text-zinc-400" />
+              <span>{copied ? 'Link Copied!' : 'Share app'}</span>
+            </button>
+            <button
+              onClick={handleOpenReport}
+              onTouchStart={(e) => { e.stopPropagation(); }}
+              onPointerDown={(e) => { e.stopPropagation(); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left border-t border-zinc-800/60 h-[44px] cursor-pointer"
+            >
+              <Flag className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Flag as inappropriate</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 interface TopChartItemProps {
   rank: number;
   app: any;
@@ -280,46 +385,37 @@ interface TopChartItemProps {
 
 export const AppListItem = React.memo(({ app, index }: { app: any; index?: number }) => {
   const displayIndex = index !== undefined ? index : (app.serial_number || 1);
-  const [isActuallyComingSoon, setIsActuallyComingSoon] = React.useState(() => {
+  const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
-    return new Date(app.publish_date).getTime() > new Date().getTime();
-  });
-  
-  React.useEffect(() => {
-    if (!app.is_coming_soon || !app.publish_date) return;
-    const interval = setInterval(() => {
-      setIsActuallyComingSoon(new Date(app.publish_date).getTime() > new Date().getTime());
-    }, 1000);
-    return () => clearInterval(interval);
+    return new Date(app.publish_date).getTime() > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-2px" }}
-      transition={{ duration: 0.1, delay: (index || 0) % 6 * 0.005 }}
-      className="will-change-[opacity,transform]"
+    <div
+      style={{
+        animationDelay: `${((index || 0) % 15) * 15}ms`,
+      }}
+      className="animate-list-item-fade relative group"
     >
       <Link 
         to={`/${app.slug}`}
         onClick={() => {
           safeVibrate(10);
         }}
-        className="flex items-center gap-4 p-4 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 group rounded-xl sm:rounded-2xl relative active:scale-[0.98]"
+        className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
-        <div className="w-6 sm:w-8 text-sm font-bold text-zinc-400 dark:text-zinc-500 text-center shrink-0">
+        <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
           {displayIndex}
         </div>
 
-        <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] shrink-0">
+        <div className="relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] shrink-0">
           <div className="w-full h-full rounded-[18px] overflow-hidden bg-white shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
             <img 
               src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
               alt={app.name} 
-              width={72}
-              height={72}
+              width={84}
+              height={84}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
@@ -336,18 +432,20 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
                 </div>
               </div>
             )}
-            {app.is_new && (
-              <div className="absolute top-1 left-1 pointer-events-none z-20">
-                <span className="flex h-4 items-center justify-center rounded-full bg-zinc-950/85 backdrop-blur-[4px] px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/40 shadow-[0_2px_10px_rgba(16,185,129,0.25)] gap-1">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
-                  </span>
-                  NEW
-                </span>
-              </div>
-            )}
           </div>
+          {app.is_hot ? (
+            <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
+              <span className="bg-[#ff3d00] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                HOT
+              </span>
+            </div>
+          ) : app.is_new ? (
+            <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
+              <span className="bg-[#00c853] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                NEW
+              </span>
+            </div>
+          ) : null}
         </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
@@ -370,59 +468,53 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
           </div>
         </div>
         
-        <div className="shrink-0 pr-1">
-          <div className="bg-black/5 dark:bg-white/10 text-zinc-900 dark:text-zinc-100 px-4 py-1 text-[11px] font-bold rounded-full transition-all duration-300 group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-zinc-900 shadow-sm border border-transparent group-hover:border-black/5 dark:group-hover:border-white/5">
-            {isActuallyComingSoon ? 'SOON' : 'MORE'}
+        {isActuallyComingSoon && (
+          <div className="shrink-0 pr-1">
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 text-[11px] font-black rounded-full tracking-wider">
+              SOON
+            </div>
           </div>
-        </div>
+        )}
         
-        <div className="absolute bottom-0 right-4 left-[104px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
+        <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
-    </motion.div>
+      <AppOptionsMenu app={app} />
+    </div>
   );
 });
 
 export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
-  const [isActuallyComingSoon, setIsActuallyComingSoon] = React.useState(() => {
+  const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
-    return new Date(app.publish_date).getTime() > new Date().getTime();
-  });
-  
-  React.useEffect(() => {
-    if (!app.is_coming_soon || !app.publish_date) return;
-    const interval = setInterval(() => {
-      setIsActuallyComingSoon(new Date(app.publish_date).getTime() > new Date().getTime());
-    }, 1000);
-    return () => clearInterval(interval);
+    return new Date(app.publish_date).getTime() > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -5 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.15, delay: (rank % 8) * 0.01 }}
-      className="will-change-[opacity,transform]"
+    <div
+      style={{
+        animationDelay: `${(rank % 15) * 15}ms`,
+      }}
+      className="animate-list-item-fade relative group"
     >
       <Link 
         to={`/${app.slug}`}
         onClick={() => {
           safeVibrate(10);
         }}
-        className="flex items-center gap-4 p-4 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 group rounded-xl sm:rounded-2xl relative active:scale-[0.98]"
+        className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
-        <div className="w-6 sm:w-8 text-sm font-bold text-zinc-400 dark:text-zinc-500 text-center shrink-0">
+        <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
           {rank}
         </div>
         
-        <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] shrink-0">
+        <div className="relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] shrink-0">
           <div className="w-full h-full rounded-[18px] overflow-hidden bg-white shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
             <img 
               src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
               alt={app.name} 
-              width={72}
-              height={72}
+              width={84}
+              height={84}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
@@ -439,18 +531,20 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
                 </div>
               </div>
             )}
-            {app.is_new && (
-              <div className="absolute top-1 left-1 pointer-events-none z-20">
-                <span className="flex h-4 items-center justify-center rounded-full bg-zinc-950/85 backdrop-blur-[4px] px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/40 shadow-[0_2px_10px_rgba(16,185,129,0.25)] gap-1">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
-                  </span>
-                  NEW
-                </span>
-              </div>
-            )}
           </div>
+          {app.is_hot ? (
+            <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
+              <span className="bg-[#ff3d00] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                HOT
+              </span>
+            </div>
+          ) : app.is_new ? (
+            <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
+              <span className="bg-[#00c853] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                NEW
+              </span>
+            </div>
+          ) : null}
         </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
@@ -469,26 +563,29 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
           </div>
         </div>
         
-        <div className="shrink-0 pr-1">
-          <div className="bg-black/5 dark:bg-white/10 text-zinc-900 dark:text-zinc-100 px-4 py-1 text-[11px] font-bold rounded-full transition-all duration-300 group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-zinc-900 shadow-sm border border-transparent group-hover:border-black/5 dark:group-hover:border-white/5">
-            {isActuallyComingSoon ? 'SOON' : 'MORE'}
+        {isActuallyComingSoon && (
+          <div className="shrink-0 pr-1">
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 text-[11px] font-black rounded-full tracking-wider">
+              SOON
+            </div>
           </div>
-        </div>
+        )}
         
-        <div className="absolute bottom-0 right-4 left-[104px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
+        <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
-    </motion.div>
+      <AppOptionsMenu app={app} />
+    </div>
   );
 });
 
 export const AppListItemSkeleton = () => {
   return (
-    <div className="flex items-center gap-4 p-4 mb-0 sm:mb-2 animate-pulse rounded-xl sm:rounded-2xl relative select-none">
-      <div className="w-6 sm:w-8 text-center shrink-0">
+    <div className="flex items-center gap-2.5 sm:gap-4 py-2.5 px-2 sm:px-4 sm:py-3.5 mb-0 sm:mb-2 animate-pulse rounded-xl sm:rounded-2xl relative select-none">
+      <div className="w-5 sm:w-7 text-center shrink-0">
         <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-4 mx-auto" />
       </div>
 
-      <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] shrink-0">
+      <div className="relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] shrink-0">
         <div className="w-full h-full rounded-[18px] bg-zinc-200 dark:bg-zinc-700" />
       </div>
       
@@ -504,23 +601,19 @@ export const AppListItemSkeleton = () => {
         </div>
       </div>
       
-      <div className="shrink-0 pr-1">
-        <div className="w-14 h-7 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
-      </div>
-      
-      <div className="absolute bottom-0 right-4 left-[104px] border-b border-black/5 dark:border-white/5 opacity-50" />
+      <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50" />
     </div>
   );
 };
 
 export const TopChartItemSkeleton = ({ rank }: { rank: number }) => {
   return (
-    <div className="flex items-center gap-4 p-4 mb-0 sm:mb-2 animate-pulse rounded-xl sm:rounded-2xl relative select-none">
-      <div className="w-6 sm:w-8 text-sm font-bold text-zinc-300 dark:text-zinc-700 text-center shrink-0">
+    <div className="flex items-center gap-2.5 sm:gap-4 py-2.5 px-2 sm:px-4 sm:py-3.5 mb-0 sm:mb-2 animate-pulse rounded-xl sm:rounded-2xl relative select-none">
+      <div className="w-5 sm:w-7 text-sm font-bold text-zinc-300 dark:text-zinc-700 text-center shrink-0">
         {rank}
       </div>
       
-      <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] shrink-0">
+      <div className="relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] shrink-0">
         <div className="w-full h-full rounded-[18px] bg-zinc-200 dark:bg-zinc-800" />
       </div>
       
@@ -534,11 +627,7 @@ export const TopChartItemSkeleton = ({ rank }: { rank: number }) => {
         </div>
       </div>
       
-      <div className="shrink-0 pr-1">
-        <div className="w-14 h-7 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
-      </div>
-      
-      <div className="absolute bottom-0 right-4 left-[104px] border-b border-black/5 dark:border-white/5 opacity-50 opacity-50" />
+      <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 opacity-50" />
     </div>
   );
 };
