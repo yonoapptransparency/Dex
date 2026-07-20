@@ -972,7 +972,7 @@ function AppContent() {
 
   useEffect(() => {
     // Dynamically synchronize favicon with firebase database changes live across all selectors!
-    let targetUrl = settings.favicon_url || settings.logo_url;
+    let targetUrl = null;
     const path = location.pathname;
 
     if (path.startsWith('/app/')) {
@@ -999,15 +999,20 @@ function AppContent() {
       }
     }
 
+    // Remove only dynamic icons to keep the static defaults from index.html
+    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => {
+      const href = el.getAttribute('href');
+      if (href !== '/favicon.png' && href !== '/apple-touch-icon.png') {
+        el.remove();
+      }
+    });
+
     if (targetUrl) {
       const icons = [
         { rel: 'icon' },
         { rel: 'shortcut icon' },
         { rel: 'apple-touch-icon' }
       ];
-      
-      // Remove old icons to prevent duplicates
-      document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
       
       icons.forEach(iconDef => {
         const newLink = document.createElement('link');

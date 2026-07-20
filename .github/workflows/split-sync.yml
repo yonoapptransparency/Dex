@@ -40,6 +40,7 @@ jobs:
             "src/lib/githubSync.ts"
             "src/lib/totp.ts"
             "src/lib/secureStorage.ts"
+            "src/lib/firebase.ts"
             "src/lib/secure_links_backup.json"
             "src/lib/public_backup.json"
             "api/"
@@ -183,6 +184,7 @@ jobs:
             "src/components/Ticker.tsx"
             "src/components/UserReviews.tsx"
             "src/components/WebsiteTitleHero.tsx"
+            "src/contexts/DataContextPublic.tsx"
             "public/"
           )
 
@@ -224,6 +226,42 @@ jobs:
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
+              
+              # Strip firebase from Dex package.json
+              node -e "
+              const fs = require('fs');
+              const path = 'package.json';
+              if (fs.existsSync(path)) {
+                const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+                if (pkg.dependencies && pkg.dependencies.firebase) {
+                  delete pkg.dependencies.firebase;
+                }
+                fs.writeFileSync(path, JSON.stringify(pkg, null, 2), 'utf8');
+              }
+              "
+              
+              # Swap to public DataContext
+              if [ -f src/contexts/DataContextPublic.tsx ]; then
+                mv src/contexts/DataContextPublic.tsx src/contexts/DataContext.tsx
+              fi
+              
+              # Inject dummy firebase stub
+              cat << 'DUMMY' > src/lib/firebase.ts
+export const db = null;
+export const auth = null;
+export const app = null;
+export const isFirebaseConfigured = false;
+export const isFirebaseReal = false;
+export const OperationType = { CREATE: 'CREATE', READ: 'READ', UPDATE: 'UPDATE', DELETE: 'DELETE' };
+export const handleFirestoreError = () => ({ message: 'Offline mode', code: 'offline' });
+DUMMY
+
+              # Inject dummy firestore stubs
+              mkdir -p node_modules/firebase/firestore node_modules/firebase/auth
+              echo "export const collection = () => null; export const addDoc = async () => null; export const getDocs = async () => []; export const query = () => null; export const where = () => null; export const orderBy = () => null; export const doc = () => null; export const updateDoc = async () => null;" > node_modules/firebase/firestore/index.js
+              echo "export const onAuthStateChanged = () => null; export const signOut = async () => null;" > node_modules/firebase/auth/index.js
+
+
 
               # Strip any residual maintenance, test, or config files from root of Dex
               find . -maxdepth 1 -name "*.js" ! -name "eslint.config.mjs" ! -name "eslint.config.cjs" ! -name "postcss.config.js" ! -name "tailwind.config.js" -exec rm -f {} +
