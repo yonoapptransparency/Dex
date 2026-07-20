@@ -313,6 +313,13 @@ jobs:
                 mv src/AppAdmin.tsx src/App.tsx
                 rm -f src/AppPublic.tsx
               fi
+
+              # 4. Strip local maintenance, test, and setup scripts from Masterworld root to keep it clean of clutter
+              find . -maxdepth 1 -name "*.js" ! -name "eslint.config.mjs" ! -name "eslint.config.cjs" ! -name "postcss.config.js" ! -name "tailwind.config.js" -exec rm -f {} +
+              find . -maxdepth 1 -name "*.patch" -exec rm -f {} +
+              find . -maxdepth 1 -name "test_browser*" -exec rm -f {} +
+              find . -maxdepth 1 -name "patch-*" -exec rm -f {} +
+              rm -f new-split-sync.yml
             fi
 
             git add .
