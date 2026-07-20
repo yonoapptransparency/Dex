@@ -283,7 +283,7 @@ export default function GatewayPage() {
       {/* Sleek Premium Back Button */}
       <div className="max-w-4xl mx-auto mb-8 pt-8 px-4 sm:px-6">
         <Link 
-          to={`/${app.slug}`} 
+          to={`/app/${app.slug}`} 
           className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 transition-colors bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-full border border-black/[0.05] dark:border-white/[0.05] shadow-sm hover:shadow-md transition-all group"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -440,7 +440,7 @@ export default function GatewayPage() {
           {similarApps.map(discoverApp => (
             <Link 
               key={discoverApp.id} 
-              to={`/${discoverApp.slug}`} 
+              to={`/app/${discoverApp.slug}`} 
               className="flex-none w-[150px] sm:w-[170px] bg-white dark:bg-zinc-900/40 p-4 flex flex-col items-center text-center border border-black/[0.05] dark:border-white/[0.05] rounded-[20px] hover-float shadow-sm group snap-start"
             >
               <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] overflow-hidden mb-3 bg-white dark:bg-zinc-900 shadow-inner border border-black/[0.05] dark:border-white/[0.05] group-hover:scale-105 transition-transform duration-300 shrink-0">

@@ -455,7 +455,7 @@ export default function AppDetails() {
         description={desc}
         keywords={app.seo_keywords}
         image={ogImage}
-        canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
+        canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
       />

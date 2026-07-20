@@ -399,7 +399,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
       className="animate-list-item-fade relative group"
     >
       <Link 
-        to={`/${app.slug}`}
+        to={`/app/${app.slug}`}
         onClick={() => {
           safeVibrate(10);
         }}
@@ -498,7 +498,7 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
       className="animate-list-item-fade relative group"
     >
       <Link 
-        to={`/${app.slug}`}
+        to={`/app/${app.slug}`}
         onClick={() => {
           safeVibrate(10);
         }}

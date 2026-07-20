@@ -265,7 +265,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
                     {results.length > 0 ? results.map((app) => (
                       <Link 
                         key={app.id} 
-                        to={`/${app.slug}`}
+                        to={`/app/${app.slug}`}
                         onClick={() => {
                           saveToHistory(query);
                           onClose();
