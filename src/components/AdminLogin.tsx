@@ -474,7 +474,7 @@ export default function AdminLogin({ onSuccess }: { onSuccess: (idToken: string,
               </div>
               
               <h1 className="text-2xl font-black tracking-tight text-zinc-950 dark:text-white mb-1.5 flex items-center justify-center gap-1.5">
-                <span>YONO</span>
+                <span>RUMMY DEX</span>
                 <span className="text-zinc-400 dark:text-zinc-500 font-medium">.portal</span>
               </h1>
               <p className="text-zinc-400 dark:text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-8">

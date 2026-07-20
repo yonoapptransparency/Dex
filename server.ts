@@ -578,7 +578,7 @@ async function startServer() {
       })();
       if (parsedUrl) {
         const hostname = parsedUrl.hostname;
-        const mainDomain = process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).hostname : "www.rummyapp.online";
+        const mainDomain = process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).hostname : "www.rummydex.com";
         if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".google.com") || hostname.endsWith(".studio") || hostname.endsWith(".run.app") || hostname.endsWith(".vercel.app") || hostname === mainDomain || hostname === mainDomain.replace(/^www\./, '')) {
           isAllowed = true;
         } else if (process.env.ALLOWED_ORIGINS) {
@@ -592,10 +592,10 @@ async function startServer() {
         allowedOrigin = origin;
         allowCredentials = true;
       } else {
-        allowedOrigin = process.env.PUBLIC_DOMAIN || "https://www.rummyapp.online";
+        allowedOrigin = process.env.PUBLIC_DOMAIN || "https://www.rummydex.com";
       }
     } else {
-      allowedOrigin = process.env.PUBLIC_DOMAIN || "https://www.rummyapp.online";
+      allowedOrigin = process.env.PUBLIC_DOMAIN || "https://www.rummydex.com";
     }
 
     if (allowedOrigin) {
@@ -786,7 +786,7 @@ async function startServer() {
       }
       const { apps = [], news = [], blogs = [], videos = [] } = data;
       
-      const baseUrlFallback = process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online'; // Canonical production domain fallback
+      const baseUrlFallback = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com'; // Canonical production domain fallback
       const host = req.headers.host ? `https://${req.headers.host}` : baseUrlFallback;
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -3403,7 +3403,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
         }).send('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="robots" content="noindex,nofollow"></head><body></body></html>');
       }
       const appSlug = req.originalUrl.split('/gateway/')[1]?.split('?')[0]?.replace(/\/$/, '') || '';
-      const publicDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online';
+      const publicDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
       let tPath = path.join(distPath, 'index.html');
       if (!fs.existsSync(tPath)) tPath = path.join(process.cwd(), 'index.html');
       if (fs.existsSync(tPath)) {
@@ -3438,7 +3438,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
           cachedIndexHtml = template;
         }
         const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https";
-        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummyapp.online");
+        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummydex.com");
         const hostUrl = `${String(protocol).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
         const userAgent = req.headers['user-agent'] || '';
         template = await injectSeoTags(template, req.originalUrl, hostUrl, userAgent);

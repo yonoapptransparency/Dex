@@ -82,7 +82,7 @@ const newCode = `  app.get("/api/v1/link-check", async (req, res) => {
         }
 
         const appSlug = req.originalUrl.split('/gateway/')[1]?.split('?')[0]?.replace(/\\/$/, '') || '';
-        const publicDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummyapp.online';
+        const publicDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
         
         let tPath = path.join(distPath, 'index.html');
         if (!fs.existsSync(tPath)) tPath = path.join(process.cwd(), 'index.html');
@@ -125,7 +125,7 @@ const newCode = `  app.get("/api/v1/link-check", async (req, res) => {
         }
 
         const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https";
-        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummyapp.online");
+        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummydex.com");
         const hostUrl = \`\${String(protocol).split(',')[0].trim()}://\${String(host).split(',')[0].trim()}\`;
         const userAgent = req.headers['user-agent'] || '';
 

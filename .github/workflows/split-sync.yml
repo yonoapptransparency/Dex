@@ -233,24 +233,24 @@ jobs:
               find . -maxdepth 1 -name "*.html" ! -name "index.html" -exec rm -f {} +
 
               cat << 'JS_EOF' > strip-admin.js
-const fs = require('fs');
-const viteConfigPath = 'vite.config.ts';
-if (fs.existsSync(viteConfigPath)) {
-  let viteContent = fs.readFileSync(viteConfigPath, 'utf8');
-  viteContent = viteContent.replace(/__ADMIN_ENABLED__:.*\n/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminDashboard\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/ClearanceButton\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/NewsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AppsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/BlogsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/SecurityTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/services\/adminAuthService\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  viteContent = viteContent.replace(/\{\s*find: \/.*\/lib\/secureStorage\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
-  fs.writeFileSync(viteConfigPath, viteContent, 'utf8');
-}
-JS_EOF
+              const fs = require('fs');
+              const viteConfigPath = 'vite.config.ts';
+              if (fs.existsSync(viteConfigPath)) {
+                let viteContent = fs.readFileSync(viteConfigPath, 'utf8');
+                viteContent = viteContent.replace(/__ADMIN_ENABLED__:.*\n/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminDashboard\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/pages\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AdminLogin\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/ClearanceButton\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/NewsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/AppsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/BlogsTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/components\/SecurityTab\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/services\/adminAuthService\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                viteContent = viteContent.replace(/\{\s*find: \/.*\/lib\/secureStorage\$[\s\S]*?dummyAdmin\.ts'\)\s*\},\s*/g, '');
+                fs.writeFileSync(viteConfigPath, viteContent, 'utf8');
+              }
+              JS_EOF
               node strip-admin.js
               rm -f strip-admin.js
               

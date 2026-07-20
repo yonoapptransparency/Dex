@@ -22,7 +22,7 @@ async function prerender() {
     const generateRoute = async (routePath: string) => {
       console.log(`Prerendering route: ${routePath}`);
       // Don't remove og:url for specific routes since we want the exact share URL
-      let template = await injectSeoTags(originalTemplate, routePath, 'https://rummyapp.online');
+      let template = await injectSeoTags(originalTemplate, routePath, 'https://rummydex.com');
       
       const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
       if (!fs.existsSync(targetDir)) {
@@ -32,7 +32,7 @@ async function prerender() {
     };
 
     // 1. Generate Home Route
-    let homeTemplate = await injectSeoTags(originalTemplate, '/', 'https://rummyapp.online');
+    let homeTemplate = await injectSeoTags(originalTemplate, '/', 'https://rummydex.com');
     homeTemplate = homeTemplate.replace(/<meta property=["']og:url["'] [^>]*\/>/gi, '');
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 

@@ -526,7 +526,7 @@ export default function AppDetails() {
           {/* Column 3: Type */}
           <div className="flex flex-col items-center justify-center px-2 text-center border-l border-zinc-200 dark:border-zinc-800/80">
             <div className="font-extrabold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-0.5 rounded-full leading-none truncate max-w-full">
-              {app.category ? app.category.split(',')[0].trim() : 'Yono'}
+              {app.category ? app.category.split(',')[0].trim() : 'Rummy Dex'}
             </div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1.5">Type</div>
           </div>

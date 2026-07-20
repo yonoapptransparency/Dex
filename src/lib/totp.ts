@@ -17,7 +17,7 @@ export function generateTOTPSecret(): string {
  */
 export function getTOTPURI(email: string, secret: string): string {
   const totp = new OTPAuth.TOTP({
-    issuer: 'rummyapp.online',
+    issuer: 'rummydex.com',
     label: email,
     algorithm: 'SHA1',
     digits: 6,
@@ -36,7 +36,7 @@ export function getTOTPURI(email: string, secret: string): string {
 export function verifyTOTPToken(token: string, secret: string): boolean {
   try {
     const totp = new OTPAuth.TOTP({
-      issuer: 'rummyapp.online',
+      issuer: 'rummydex.com',
       algorithm: 'SHA1',
       digits: 6,
       period: 30,
