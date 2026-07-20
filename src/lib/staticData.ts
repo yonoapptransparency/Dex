@@ -1340,63 +1340,53 @@ export const saveMockApps = (apps: AppConfig[]) => {
 };
 
 export const mockSettings: GlobalSettings = {
-  "important_notice": "<div ",
   "ticker_text": "LIVE: Unbiased words. Uncompromised truth. RummyApp Online  delivers pure transparency through independent reviews. ✒️",
   "support_email": "support@rummydex.com",
-  "terms_content": "<!-- ",
-  "helpline_telegram": "https://t.me/+d_B",
-  "banners": [
-    {
-      "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
-      "title": "New Banner",
-      "id": "mgg408of3",
-      "link": "/",
-      "subtitle": "Subtitle text"
-    }
-  ],
+  "important_notice": "<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; max-width: 100%; margin: 0 auto; padding: 24px 16px; color: #334155; line-height: 1.6; box-sizing: border-box; text-align: left;\">\n\n  <!-- Glowing Top Grid Tracker -->\n  <div style=\"display: flex; align-items: center; gap: 12px; margin-bottom: 24px;\">\n    <span style=\"background: linear-gradient(135deg, #e0f2fe, #e0e7ff); color: #0284c7; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 14px; border-radius: 20px; border: 1px solid #bae6fd; box-shadow: 0px 4px 15px rgba(14, 165, 233, 0.2);\">\n      ✦ ANALYTICAL GATEWAY // USER VERIFICATION\n    </span>\n    <div style=\"flex-grow: 1; height: 1px; background: linear-gradient(to right, #bae6fd, transparent);\"></div>\n  </div>\n\n  <!-- Intro Block with Subtle Radial Glow -->\n  <p style=\"font-size: 15.5px; line-height: 1.7; color: #334155; margin-bottom: 24px; background: linear-gradient(90deg, #f0f9ff 0%, #ffffff 100%); padding: 18px; border-left: 4px solid #0ea5e9; border-radius: 12px; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.06);\">\n    You have entered the <strong style=\"background: linear-gradient(to right, #0ea5e9, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);\">RummyApp Online</strong> analytical hub. To maintain a secure and engaging user ecosystem, our simulated application reviews undergo rigorous, independent auditing focused on graphical fidelity, AI responsiveness, and tactical user-interface mechanics.\n  </p>\n\n  <!-- Glowing Digital Alert Card (Full Mobile Size) -->\n  <div style=\"background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 1px solid #fde68a; border-left: 5px solid #d97706; padding: 18px; border-radius: 12px; margin: 24px 0; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.05);\">\n    <div style=\"display: flex; align-items: center; gap: 8px; margin-bottom: 6px;\">\n      <span style=\"font-size: 14px;\">⚠️</span>\n      <strong style=\"color: #78350f; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;\">Tactical Safety Advisory</strong>\n    </div>\n    <p style=\"margin: 0 0 12px 0; color: #92400e; font-size: 14px; line-height: 1.6;\">\n      We urge all visitors to conduct their own independent research regarding the simulated mechanics and publisher terms of any software evaluated here. While RummyApp Online supplies detailed layout analysis and logic guides, <span style=\"color: #b45309; font-weight: 600;\">monitoring your digital engagement habits and ensuring device security rests solely in your hands.</span>\n    </p>\n    <div style=\"background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1px dashed #f59e0b; font-size: 13px; color: #78350f; font-weight: 600;\">\n      ℹ️ Distribution Boundary: We operate exclusively as an educational wiki and interface guide. Our infrastructure does not host APK files or facilitate direct installation streams. We strongly advise users to source these simulated apps exclusively through officially authenticated platforms like the Google Play Store.\n    </div>\n  </div>\n\n  <!-- Technical Disclaimer Subtext -->\n  <div style=\"background: #ffffff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); border-left: 4px solid #94a3b8; margin-bottom: 24px;\">\n    <p style=\"margin: 0; font-size: 13.5px; color: #475569; line-height: 1.6;\">\n      By engaging with our tactical assessments, you acknowledge that our domain is built purely for recreational study, confirm that you meet the age of majority (18+) required for simulated card environments, and agree to adhere strictly to your regional digital compliance statutes.\n    </p>\n  </div>\n\n  <!-- Premium Bottom Guard Text -->\n  <div style=\"border-top: 1px solid #f1f5f9; padding-top: 20px; margin-top: 24px; text-align: center;\">\n    <p style=\"margin: 0; font-size: 12px; background: linear-gradient(to right, #0284c7, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1px;\">\n      ANALYTICAL GATEWAY SECURED // RUMMYAPP ONLINE ARCHIVE\n    </p>\n  </div>\n\n</div>\n",
+  "banners": [],
   "site_title": "RummyDex ",
-  "seo_keywords": "O",
+  "helpline_telegram": "https://t.me",
+  "terms_content": "<!-- ",
+  "animations_enabled": true,
+  "favicon_url": "https://y4q7avawns.ucarecd.net/b391a2fa-42f7-4b3a-a0d5-605cb22aead4/-/preview/1000x1000/",
+  "responsibility_content": "<!-- ",
+  "social_links": {
+    "youtube": "",
+    "instagram": "",
+    "linkedin": "",
+    "facebook": "",
+    "twitter": ""
+  },
+  "seo_keywords": "RummyApp Online, rummyapp.online, rummyapp, rummy app online review, official rummy app online, rummy store application reviews, online gaming facts 2026, gaming blogs india, safe platform gaming, top tier gaming experience, digital entertainment portal, guest play card games, anonymous gaming portal, no login card games, free practice gaming events, Rummy 91 review, Rummy 91 casual app, Rummy 91 game interface, Rummy 91 91k virtual bonus, play Rummy 91 online, Gogo Rummy app, Gogo Rummy game, Gogo Rummy online, Gogo Rummy review, Gogo Rummy features, Gogo Rummy interface, Gogo Rummy guest mode, Club INR app, Club INR game, Club INR online, Club INR play, Club INR review, Club INR features, Club INR guest mode, ABC Rummy app, ABC Rummy game, ABC Rummy online, ABC Rummy review, ABC Rummy features, ABC Rummy guest mode, 777 Rummy app, 777 Rummy online, 777 Rummy play, 777 Rummy review, 777 Rummy features, 777 Rummy guest mode, Ever 777 app, Ever 777 game, Ever 777 online, Ever 777 play, Ever 777 review, Ever 777 features, Game Rummy app, Game Rummy game, Game Rummy online, Game Rummy review, Game Rummy features, Hi Rummy app, Hi Rummy game, Hi Rummy online, Hi Rummy play, Hi Rummy review, Hi Rummy features, INR Rummy app, INR Rummy game, INR Rummy online, INR Rummy play, INR Rummy review, INR Rummy features, Jaiho Rummy app, Jaiho Rummy game, Jaiho Rummy online, Jaiho Rummy play, Jaiho Rummy review, Love Rummy app, Love Rummy game, Love Rummy online, Love Rummy play, Love Rummy review, Joy Rummy app, Joy Rummy game, Joy Rummy online, Joy Rummy play, Joy Rummy review, Maha Games app, Maha Games game, Maha Games online, Maha Games play, Maha Games review, Rummy Lodo app, Rummy Lodo game, Rummy Lodo online, Rummy Lodo play, Rummy Lodo review, Rummy 77 app, Rummy 77 game, Rummy 77 online, Rummy 77 play, Rummy 77 review, Share Slots app, Share Slots game, Share Slots online, Share Slots play, Share Slots review, 567 Slots app, 567 Slots game, 567 Slots online, 567 Slots play, 567 Slots review, 789 Jackpots app, 789 Jackpots game, 789 Jackpots online, 789 Jackpots play, 789 Jackpots review, Yono VIP app, Yono VIP game, Yono VIP online, Yono VIP play, Yono VIP review, yono games alternative, indian rummy variations, 13 card rummy strategy, pure sequence logic, pure sequence guide, joker card casual rules, points rummy logic rules, pool rummy strategy, deals rummy tips, drop point logic rules, advanced rummy tactics, beginner rummy tutorial, real skill rummy simulation, virtual skill rummy portal, smooth card sorting, lag free rummy gaming, digital rummy table, virtual gaming wallet, premium strategy rummy platform, drop rules in rummy, skill based gaming portal, lucky casual slot games, lucky casual spin games, virtual casino hub, video slots gaming, smooth reel animations, lag free slots, digital slot machine, virtual casino wallet, slot multipliers, scatter symbols slots, wild symbols gaming, daily spin reward app, progressive virtual jackpot, mega fortune wheel games, return to player percentage, high skill slot machines, high RTP slots, lucky 7 casino games, cascading reels simulation, expanding wilds interface",
   "contact_content": "<p>Have questions or feedback? We'd love to hear from you. Our team typically responds within 24-48 hours.</p>",
   "hero_title_color": "neon-sky",
-  "animations_enabled": true,
-  "responsibility_content": "<!-- ",
-  "favicon_url": "https://y4q7avawns.ucarecd.net/b391a2fa-42f7-4b3a-a0d5-605cb22aead4/-/preview/1000x1000/",
-  "social_links": {
-    "facebook": "",
-    "instagram": "",
-    "twitter": "",
-    "linkedin": "",
-    "youtube": ""
-  },
-  "disclaimer_text": "<div ",
-  "privacy_content": "<!-- ",
-  "logo_url": "https://y4q7avawns.ucarecd.net/b391a2fa-42f7-4b3a-a0d5-605cb22aead4/-/preview/1000x1000/",
   "portal_heading": "IMPORTANT NOTICE ",
-  "hero_title_style": "modern",
-  "secure_index_title": "RummyDex ",
-  "hero_title_subtitle": "Hello world welcome to you website ",
+  "logo_url": "https://y4q7avaws.ucarecd.net/b391a2fa-42f7-4b3a-a0d5-605cb22aead4/-/preview/1000x1000/",
+  "privacy_content": "<!-- SAFE ",
+  "disclaimer_text": "<div ",
+  "meta_description": "Step into the world of Rummy - compete, challenge friends, and rise to the top on RummyApp Online!",
+  "hero_title_subtitle": "COMPREHENSIVE SOCIAL CASUAL E-SPORTS METRICS & UNBIASED INTEGRITY REVIEWS",
   "disclaimer_heading": "DISCLAIMER ",
-  "meta_description": "Ok ",
-  "ethics_discrimination_text": "<div ",
+  "hero_title_style": "mono",
+  "secure_index_title": "RummyApp Online ",
+  "secure_index_subtitle": "The Ultimate Registry for Strategic Card Simulation, Arcade Logic, and Premium Virtual Gameplay Guides",
   "categories": [
     "Yono",
     "Card",
     "Slots"
   ],
-  "secure_index_subtitle": "The ",
-  "important_notice_heading": "VERY IMPORTANT NOTICE ",
+  "ethics_discrimination_text": "<div ",
+  "last_updated": "2026-07-18T12:16:42.370Z",
+  "helpline_whatsapp": "+918653034735",
   "hero_title_visible": true,
   "hero_title_animation": "slide-up",
-  "helpline_whatsapp": "+918653034735",
-  "last_updated": "2026-07-20T17:41:47.538Z",
-  "hero_title_text": "RummyApp Online ",
-  "about_content": "<!-- S",
-  "website_faqs": [],
-  "trending_searches": [
-    "Bingo 101"
-  ],
+  "important_notice_heading": "VERY IMPORTANT NOTICE ",
   "ethics_heading": "ETHNICS",
-  "quick_links": []
+  "quick_links": [],
+  "trending_searches": [],
+  "about_content": "<!-- ",
+  "website_faqs": [],
+  "hero_title_text": "RUMMY STORE GAMING DIRECTORY"
 };
 
 export const saveMockSettings = (settings: GlobalSettings) => {
@@ -1408,31 +1398,7 @@ export const saveMockSettings = (settings: GlobalSettings) => {
   Object.assign(mockSettings, settings);
 };
 
-export const mockNews: NewsItem[] = [
-  {
-    "ceo_name": "CEO Nameug",
-    "canonical_url": "",
-    "description_html": "<p>News HTML...</p>",
-    "logo_url": "",
-    "target_region": "Global",
-    "author": "Admin",
-    "ceo_description": "CEO Description",
-    "seo_keywords": "",
-    "og_image_url": "",
-    "read_time": "2 min",
-    "date": "2026-07-20T14:07:40.082Z",
-    "seo_description": "News SEO Meta Description",
-    "link": "Yirkgd",
-    "tags": [],
-    "category": "Ufuf",
-    "id": "876hijgbk",
-    "content": "Detailed markdown content hehfkgsjtstkdjtsnfsjfzjfsjfsfjsre...",
-    "seo_title": "News SEO Titlegdgd",
-    "description": "News description...ydyldkgsitsjfahdau",
-    "slug": "new-news",
-    "title": "Suhan"
-  }
-];
+export const mockNews: NewsItem[] = [];
 
 export const saveMockNews = (newsList: NewsItem[]) => {
   try {
