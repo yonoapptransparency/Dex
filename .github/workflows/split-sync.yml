@@ -171,8 +171,6 @@ jobs:
             "src/pages/VideoDetailPage.tsx"
             "src/pages/VideosPage.tsx"
             "src/components/AccordionItem.tsx"
-            "src/components/AppsTab.tsx"
-            "src/components/BlogsTab.tsx"
             "src/components/FallbackRouteMatcher.tsx"
             "src/components/GlobalSearch.tsx"
             "src/components/LanguageSelector.tsx"
@@ -308,7 +306,7 @@ jobs:
               find src/pages -type f ! -name "AdminDashboard.tsx" ! -name "AdminLogin.tsx" -delete
               
               echo "Purging non-admin components..."
-              find src/components -type f ! -name "AdminLogin.tsx" ! -name "ClearanceButton.tsx" ! -name "FirebaseStatusIndicator.tsx" ! -name "FirebaseStatusPanel.tsx" ! -name "NewsTab.tsx" ! -name "SecurityTab.tsx" ! -name "GlobalErrorBoundary.tsx" -delete
+              find src/components -type f ! -name "AdminLogin.tsx" ! -name "ClearanceButton.tsx" ! -name "FirebaseStatusIndicator.tsx" ! -name "FirebaseStatusPanel.tsx" ! -name "NewsTab.tsx" ! -name "SecurityTab.tsx" ! -name "AppsTab.tsx" ! -name "BlogsTab.tsx" ! -name "GlobalErrorBoundary.tsx" -delete
 
               # 3. Clean App.tsx routes
               if [ -f src/AppAdmin.tsx ]; then
