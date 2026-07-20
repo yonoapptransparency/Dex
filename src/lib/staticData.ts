@@ -1353,11 +1353,11 @@ export const mockSettings: GlobalSettings = {
   "quick_links": [],
   "helpline_telegram": "https://t.me",
   "social_links": {
-    "instagram": "",
-    "youtube": "",
-    "twitter": "",
     "facebook": "",
-    "linkedin": ""
+    "instagram": "",
+    "twitter": "",
+    "linkedin": "",
+    "youtube": ""
   },
   "hero_title_subtitle": "C",
   "helpline_whatsapp": "+918653034735",
@@ -1366,8 +1366,8 @@ export const mockSettings: GlobalSettings = {
   "secure_index_subtitle": "The Ultimate Registry for Strategic Card Simulation, Arcade Logic, and Premium Virtual Gameplay Guides",
   "meta_description": "Step into the world of Rummy - compete, challenge friends, and rise to the top on RummyApp Online!",
   "website_faqs": [],
-  "last_updated": "2026-07-20T17:44:29.680Z",
-  "seo_keywords": "RummyApp Online, rummyapp.online, rummyapp, rummy app online review, official rummy app online, rummy store application reviews, online gaming facts 2026, gaming blogs india, safe platform gaming, top tier gaming experience, digital entertainment portal, guest play card games, anonymous gaming portal, no login card games, free practice gaming events, Rummy 91 review, Rummy 91 casual app, Rummy 91 game interface, Rummy 91 91k virtual bonus, play Rummy 91 online, Gogo Rummy app, Gogo Rummy game, Gogo Rummy online, Gogo Rummy review, Gogo Rummy features, Gogo Rummy interface, Gogo Rummy guest mode, Club INR app, Club INR game, Club INR online, Club INR play, Club INR review, Club INR features, Club INR guest mode, ABC Rummy app, ABC Rummy game, ABC Rummy online, ABC Rummy review, ABC Rummy features, ABC Rummy guest mode, 777 Rummy app, 777 Rummy online, 777 Rummy play, 777 Rummy review, 777 Rummy features, 777 Rummy guest mode, Ever 777 app, Ever 777 game, Ever 777 online, Ever 777 play, Ever 777 review, Ever 777 features, Game Rummy app, Game Rummy game, Game Rummy online, Game Rummy review, Game Rummy features, Hi Rummy app, Hi Rummy game, Hi Rummy online, Hi Rummy play, Hi Rummy review, Hi Rummy features, INR Rummy app, INR Rummy game, INR Rummy online, INR Rummy play, INR Rummy review, INR Rummy features, Jaiho Rummy app, Jaiho Rummy game, Jaiho Rummy online, Jaiho Rummy play, Jaiho Rummy review, Love Rummy app, Love Rummy game, Love Rummy online, Love Rummy play, Love Rummy review, Joy Rummy app, Joy Rummy game, Joy Rummy online, Joy Rummy play, Joy Rummy review, Maha Games app, Maha Games game, Maha Games online, Maha Games play, Maha Games review, Rummy Lodo app, Rummy Lodo game, Rummy Lodo online, Rummy Lodo play, Rummy Lodo review, Rummy 77 app, Rummy 77 game, Rummy 77 online, Rummy 77 play, Rummy 77 review, Share Slots app, Share Slots game, Share Slots online, Share Slots play, Share Slots review, 567 Slots app, 567 Slots game, 567 Slots online, 567 Slots play, 567 Slots review, 789 Jackpots app, 789 Jackpots game, 789 Jackpots online, 789 Jackpots play, 789 Jackpots review, Yono VIP app, Yono VIP game, Yono VIP online, Yono VIP play, Yono VIP review, yono games alternative, indian rummy variations, 13 card rummy strategy, pure sequence logic, pure sequence guide, joker card casual rules, points rummy logic rules, pool rummy strategy, deals rummy tips, drop point logic rules, advanced rummy tactics, beginner rummy tutorial, real skill rummy simulation, virtual skill rummy portal, smooth card sorting, lag free rummy gaming, digital rummy table, virtual gaming wallet, premium strategy rummy platform, drop rules in rummy, skill based gaming portal, lucky casual slot games, lucky casual spin games, virtual casino hub, video slots gaming, smooth reel animations, lag free slots, digital slot machine, virtual casino wallet, slot multipliers, scatter symbols slots, wild symbols gaming, daily spin reward app, progressive virtual jackpot, mega fortune wheel games, return to player percentage, high skill slot machines, high RTP slots, lucky 7 casino games, cascading reels simulation, expanding wilds interface",
+  "last_updated": "2026-07-20T23:25:59.870Z",
+  "seo_keywords": "RummyDex ",
   "hero_title_visible": true,
   "about_content": "<!-- ",
   "site_title": "RummyDex ",
