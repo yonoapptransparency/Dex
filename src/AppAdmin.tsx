@@ -1,6 +1,7 @@
 /**
  * Main Application Core
  * Coordinates global routes, SEO head tag helpers, persistent layouts, and custom dynamic components.
+ * [Trigger Update]
  */
 
 import { DataProvider, useData } from './contexts/DataContext';
