@@ -15,6 +15,18 @@ interface DataContextType {
   appsSyncedWithServer: boolean;
   settingsSyncedWithServer: boolean;
   newsSyncedWithServer: boolean;
+  blogsSyncedWithServer?: boolean;
+  videosSyncedWithServer?: boolean;
+  serverAppsFetched?: boolean;
+  serverNewsFetched?: boolean;
+  serverBlogsFetched?: boolean;
+  serverVideosFetched?: boolean;
+  isConnected?: boolean;
+  isLive?: boolean;
+  quotaExceeded?: boolean;
+  lastSyncTime?: string;
+  refreshAll?: (silent?: boolean) => Promise<void>;
+  testCloudConnection?: () => Promise<boolean>;
 
   saveSettings: (s: GlobalSettings) => Promise<void>;
   saveApp: (a: AppConfig, n?: boolean) => Promise<void>;
