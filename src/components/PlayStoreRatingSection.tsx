@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, handleFirestoreError, OperationType, auth } from '../lib/firebase';
+import { db, isFirebaseConfigured, handleFirestoreError, OperationType, auth } from '../lib/firebasePublic';
 import { collection, addDoc } from 'firebase/firestore';
 
 interface PlayStoreRatingSectionProps {

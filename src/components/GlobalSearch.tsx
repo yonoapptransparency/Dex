@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, X, Loader2, ArrowRight, Zap, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

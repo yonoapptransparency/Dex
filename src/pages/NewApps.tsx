@@ -4,10 +4,10 @@
  */
 
 import { motion } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, Sparkles, Star, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { safeVibrate } from '../lib/utils';
+import { safeVibrate } from '../lib/utilsPublic';
 import Meta from '../components/Meta';
 
 export default function NewApps() {

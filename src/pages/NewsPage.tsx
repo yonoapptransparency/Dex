@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * NewsPage details listings
  * Publishes announcements, system patches, safe apk mirrors status changes, and general portal logs.
@@ -6,7 +6,7 @@ import { safeHtml } from '../lib/safeHtml';
 
 import { Newspaper, Search, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { motion } from 'framer-motion';

@@ -1,11 +1,11 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Responsibility safety awareness details layout
  * Advises users on secure gaming techniques and safety benchmarks.
  */
 
 import { motion } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, Info, ArrowLeft } from 'lucide-react';
 import Meta from '../components/Meta';
 import { Link } from 'react-router-dom';

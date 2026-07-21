@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { ArrowLeft, MessageSquare, Send, Calendar, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 

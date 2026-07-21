@@ -1,6 +1,6 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import { motion } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import Meta from '../components/Meta';

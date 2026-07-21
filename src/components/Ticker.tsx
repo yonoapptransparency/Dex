@@ -3,7 +3,7 @@
  * Infinite layout loops summarizing portal safety alerts and direct mirror update patches.
  */
 
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 
 export default function Ticker() {
   const { settings } = useData();

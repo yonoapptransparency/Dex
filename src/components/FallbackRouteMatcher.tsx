@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Navigate, Link } from 'react-router-dom';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();

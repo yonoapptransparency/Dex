@@ -3,18 +3,18 @@
  * Secure countdown and verification interface before serving high-priority mirror links.
  */
 
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Shield, ShieldAlert, ShieldCheck, MessageSquare, AlertTriangle, Info, CheckCircle2, ChevronRight, ChevronLeft, Fingerprint, Lock, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 import { useState, useEffect, FormEvent, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import AccordionItem from '../components/AccordionItem';
-import { auth } from '../lib/firebase';
+import { auth } from '../lib/firebasePublic';
 
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();

@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from 'react';
 import Meta from '../components/Meta';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Video, Search, ArrowLeft, Play, Calendar, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';

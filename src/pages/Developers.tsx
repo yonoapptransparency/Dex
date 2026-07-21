@@ -1,6 +1,6 @@
 import React from 'react';
 import Meta from '../components/Meta';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Github, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
 

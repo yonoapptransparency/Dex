@@ -1,11 +1,11 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Terms and Conditions page layout
  * Displays basic user agreement protocols, cookies consent directives, and listing responsibility guidelines.
  */
 
 import { motion } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import Meta from '../components/Meta';

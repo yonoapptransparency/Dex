@@ -3,11 +3,11 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, Sparkles, Info, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, Play, MoreVertical, Flag } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';

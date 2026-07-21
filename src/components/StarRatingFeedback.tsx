@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MessageSquare, Check, X, Chrome, ShieldAlert, Heart, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db, isFirebaseConfigured, handleFirestoreError, OperationType } from '../lib/firebasePublic';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function StarRatingFeedback() {

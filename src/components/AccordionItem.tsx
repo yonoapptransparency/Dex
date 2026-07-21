@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { safeHtml } from '../lib/safeHtml';
-import { cn } from '../lib/utils';
+import { safeHtml } from '../lib/safeHtmlPublic';
+import { cn } from '../lib/utilsPublic';
 
 interface AccordionItemProps {
   question: string;

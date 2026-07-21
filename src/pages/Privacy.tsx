@@ -1,11 +1,11 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Privacy Policy static layout
  * Explains device logs, storage obfuscation criteria, and cookie protection.
  */
 
 import { motion } from 'framer-motion';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import Meta from '../components/Meta';

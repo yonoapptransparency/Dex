@@ -4,7 +4,7 @@
  */
 
 import { useEffect } from 'react';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { FileText, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Meta from '../components/Meta';

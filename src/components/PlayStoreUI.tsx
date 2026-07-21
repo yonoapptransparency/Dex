@@ -4,7 +4,7 @@
  */
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn, safeVibrate } from '../lib/utils';
+import { cn, safeVibrate } from '../lib/utilsPublic';
 import { ShieldCheck, Star, AlertTriangle, ShieldAlert, ArrowRight, Sparkles, ChevronLeft, ChevronRight, MoreVertical, Share2, Flag, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import React from 'react';
@@ -230,7 +230,7 @@ export const PromotionSection = React.memo(() => {
   );
 });
 
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 
 interface TabProps {
   activeTab: string;

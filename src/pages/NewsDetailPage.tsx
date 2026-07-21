@@ -3,11 +3,11 @@
  * Shows layout announcements, system patches logs, and live interactive user commentaries.
  */
 
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { ArrowLeft, MessageSquare, Send, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 

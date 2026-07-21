@@ -4,11 +4,11 @@
  */
 
 import { useState, useEffect, useMemo, useDeferredValue } from 'react';
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 import { motion } from 'framer-motion';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';

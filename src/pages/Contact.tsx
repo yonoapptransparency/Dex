@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtml';
+import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Contact ticketing desk form
  * Integrates directly with Firestore db schemas to log customer inquiries, issues, or direct suggestions.
@@ -6,10 +6,10 @@ import { safeHtml } from '../lib/safeHtml';
 
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, MapPin, ArrowLeft, ShieldCheck, Loader2, Check, AlertCircle, Bot } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import { auth, db, isFirebaseConfigured } from '../lib/firebase';
+import { auth, db, isFirebaseConfigured } from '../lib/firebasePublic';
 import { collection, addDoc } from 'firebase/firestore';
 import Meta from '../components/Meta';
 

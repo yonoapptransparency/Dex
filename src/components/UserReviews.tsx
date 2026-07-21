@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, Check, Loader2, ThumbsUp, AlertCircle, Sparkles, MessageSquare, Plus, ChevronDown, ChevronUp, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, auth, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db, isFirebaseConfigured, auth, handleFirestoreError, OperationType } from '../lib/firebasePublic';
 import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 
 interface Review {
