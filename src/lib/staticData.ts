@@ -1376,7 +1376,7 @@ export const mockSettings: GlobalSettings = {
   "support_email": "support@rummydex.com",
   "portal_heading": "IMPORTANT NOTICE ",
   "favicon_url": "https://y4q7avawns.ucarecd.net/b391a2fa-42f7-4b3a-a0d5-605cb22aead4/-/preview/1000x1000/",
-  "last_updated": "2026-07-21T06:06:52.244Z",
+  "last_updated": "2026-07-21T06:06:57.084Z",
   "site_title": "RummyDex ",
   "disclaimer_heading": "DISCLAIMER ",
   "hero_title_color": "neon-sky",
