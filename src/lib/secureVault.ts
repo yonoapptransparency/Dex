@@ -1,1 +1,2 @@
-export const ENCRYPTED_LINKS = "U2FsdGVkX18X2P5Emggh564FX6plSC5V/g328sZ/lOk=";
+export const IS_SEALED = true;
+export const ENCRYPTED_LINKS = "U2FsdGVkX19O0X1zEwB1f7aV0qV4QZ+5aJc="; // Dummy encrypted empty array
