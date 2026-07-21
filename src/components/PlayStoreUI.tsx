@@ -252,7 +252,7 @@ export const PlayStoreTabs = React.memo(({ activeTab, onTabChange, hideOnSearch 
   }
   
   return (
-    <div className="mb-2 sticky top-[52px] sm:top-16 z-40 bg-[var(--bg-primary)]/80 backdrop-blur-md py-2 px-0">
+    <div className="mb-2 sticky top-[52px] sm:top-16 z-40 bg-[var(--bg-primary)] py-2 px-0">
       <div className="flex overflow-x-auto no-scrollbar gap-2">
         {tabs.map((tab) => (
           <button

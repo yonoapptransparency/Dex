@@ -12,17 +12,17 @@ import Meta from '../components/Meta';
 
 export default function Terms() {
   const { settings: mockSettings } = useData();
+  const termsContent = mockSettings.terms_content || '';
+  const hasHtml = /<[a-z][\s\S]*>/i.test(termsContent);
   
   return (
-    <div className="max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10 animate-fade-in pb-20">
-      <div className="mb-12 pt-4">
+    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
+      <div className="mb-10">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
+          className="inline-flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-blue-600 transition-colors"
         >
-          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
-            <ArrowLeft className="w-4 h-4" />
-          </div>
+          <ArrowLeft className="w-4 h-4" />
           Home
         </Link>
       </div>
@@ -32,16 +32,26 @@ export default function Terms() {
         canonical={window.location.origin + "/terms"}
       />
 
-      <motion.div>
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-12">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           Terms & Conditions
         </h1>
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-500 dark:text-zinc-400 mb-10">
+          <div><span className="font-semibold">Agreement Status:</span> Active & Binding</div>
+          <div><span className="font-semibold">Support Contact:</span> {mockSettings.support_email}</div>
+        </div>
         
-        <div className="bg-white dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 shadow-sm rounded-2xl p-5 sm:p-8 md:p-14 mb-16 max-w-none">
-          <div 
-            className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: safeHtml((mockSettings.terms_content || '').replace(/\n/g, '<br/>') ) }}
-          />
+        <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
+          {hasHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: safeHtml(termsContent) }} />
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: safeHtml(termsContent.replace(/\n/g, '<br/>')) }} />
+          )}
         </div>
         
       </motion.div>

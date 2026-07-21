@@ -9,15 +9,13 @@ export default function Notice() {
   const { settings: mockSettings } = useData();
   
   return (
-    <div className="max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10 animate-fade-in pb-20">
-      <div className="mb-12 pt-4">
+    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
+      <div className="mb-10">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
+          className="inline-flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-blue-600 transition-colors"
         >
-          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
-            <ArrowLeft className="w-4 h-4" />
-          </div>
+          <ArrowLeft className="w-4 h-4" />
           Home
         </Link>
       </div>
@@ -27,30 +25,22 @@ export default function Notice() {
         canonical={window.location.origin + "/notice"}
       />
 
-      <motion.div>
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           {mockSettings.important_notice_heading || 'Important Notice'}
         </h1>
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-500 dark:text-zinc-400 mb-10">
+          <div><span className="font-semibold">Notice Type:</span> Official Alert</div>
+          <div><span className="font-semibold">Support Desk:</span> {mockSettings.support_email}</div>
+        </div>
         
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-          <aside className="lg:col-span-3 space-y-6 lg:sticky lg:top-32 self-start">
-            <div className="p-5 sm:p-6 bg-zinc-50 dark:bg-zinc-800/30 border border-black/5 dark:border-white/5 rounded-2xl">
-              <FileText className="w-8 h-8 text-blue-500 mb-4" />
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 mb-1">Status</h3>
-              <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Notice</p>
-            </div>
-            <div className="p-5 sm:p-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">Support Email</h3>
-              <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-all">{mockSettings.support_email}</p>
-            </div>
-          </aside>
-          
-          <article className="lg:col-span-9 p-5 sm:p-8 md:p-14 bg-white dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-2xl shadow-sm">
-            <div 
-              className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: safeHtml(mockSettings.important_notice || '<p>No important notices at this time.</p>' ) }}
-            />
-          </article>
+        <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
+          <div dangerouslySetInnerHTML={{ __html: safeHtml(mockSettings.important_notice || '<p>No important notices at this time.</p>' ) }} />
         </div>
       </motion.div>
     </div>
