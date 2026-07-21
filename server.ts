@@ -18,13 +18,13 @@ import crypto from "crypto";
 import compression from "compression";
 import fs from "fs";
 import dns from "dns";
-import * as staticData from "../src/lib/staticData";
-import { injectSeoTags, fetchStoreData, getField, syncFromFirestore } from "../src/seoHelper";
+import * as staticData from "./src/lib/staticData";
+import { injectSeoTags, fetchStoreData, getField, syncFromFirestore } from "./src/seoHelper";
 
-import { generateStaticDataFileCode } from "../src/lib/githubSync";
+import { generateStaticDataFileCode } from "./src/lib/githubSync";
 import CryptoJS from "crypto-js";
 import { GoogleGenAI, Type } from "@google/genai";
-import { verifyTOTPToken, generateTOTPSecret, getTOTPURI } from "../src/lib/totp";
+import { verifyTOTPToken, generateTOTPSecret, getTOTPURI } from "./src/lib/totp";
 
 function safeDecrypt(ciphertext: string, secret: string): string {
     const keys = [secret, process.env.AES_SECRET].filter(Boolean);
@@ -503,7 +503,7 @@ if (!process.env.SESSION_SECRET) {
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "fallback_token_secret";
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
-
+async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
   const PORT = 3000;
@@ -2267,7 +2267,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
   // Database fix endpoint - run once to fix broken secure links
   app.get("/api/v1/debug-seo", async (req, res) => {
     try {
-      const { fetchStoreData } = require('../src/seoHelper');
+      const { fetchStoreData } = require('./src/seoHelper');
       const data = await fetchStoreData();
       res.json({
          hasData: !!data,
@@ -2606,7 +2606,7 @@ const rateLimitMap = new Map<string, number[]>();
       }
 
       // 2. Fetch public context
-      const { fetchStoreData } = require('../src/seoHelper');
+      const { fetchStoreData } = require('./src/seoHelper');
       const data = await fetchStoreData();
       
       const publicContext = {
@@ -2705,7 +2705,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
       const lowerMessage = message.trim().toLowerCase();
       
       try {
-        const { fetchStoreData } = require('../src/seoHelper');
+        const { fetchStoreData } = require('./src/seoHelper');
         const data = await fetchStoreData();
         const apps = data.apps || [];
         
@@ -3268,9 +3268,90 @@ ${JSON.stringify(publicContext, null, 2)}`;
   });
 
 
-  
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } catch (e) {
+      console.error("Failed to initialize Vite middleware:", e);
+    }
+  } else {
+    const getDistPath = (): string => {
+      const pathsToTry = [
+        path.join(process.cwd(), 'dist'),
+        path.resolve(__dirname, 'dist'),
+        path.resolve(__dirname, '..', 'dist'),
+        __dirname
+      ];
+      for (const p of pathsToTry) {
+        if (fs.existsSync(path.join(p, 'index.html'))) {
+          return p;
+        }
+      }
+      return path.join(process.cwd(), 'dist'); // failsafe fallback
+    };
 
-// Global Express Error Handler
+    const distPath = getDistPath();
+
+    // Specifically handle assets (JS, CSS, Images, Fonts) with long-term immutable caching FIRST
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+      fallthrough: true
+    }));
+
+    // Production static files with aggressive caching for dynamic views and elements
+    app.use(express.static(distPath, {
+      maxAge: '1d', // Cache for 1 day instead of 1 year for safety but performance
+      etag: true,
+      lastModified: true,
+      index: false
+    }));
+    
+    let cachedIndexHtml: string | null = null;
+
+    app.get('*', async (req, res) => {
+      // Basic WAF / Scanner Mitigation for SPA fallback
+      if (req.originalUrl.match(/\.(php|env|yml|yaml|ini|conf|log|sql|tar|gz|zip|bak|git|rsa)$/i) || req.originalUrl.includes('/etc/') || req.originalUrl.includes('/proc/') || req.originalUrl.includes('../') || req.originalUrl.includes('/.aws/')) {
+        return res.status(404).type('text/plain').send('Not found');
+      }
+      let templatePath = path.join(distPath, 'index.html');
+      if (!fs.existsSync(templatePath)) {
+        templatePath = path.join(process.cwd(), 'index.html');
+      }
+      try {
+        let template = cachedIndexHtml;
+        if (!template) {
+          template = fs.readFileSync(templatePath, 'utf-8');
+          cachedIndexHtml = template;
+        }
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https";
+        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummydex.com");
+        const hostUrl = `${String(protocol).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
+        const userAgent = req.headers['user-agent'] || '';
+        template = await injectSeoTags(template, req.originalUrl, hostUrl, userAgent);
+        res.status(200).set({ 
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }).send(template);
+      } catch (e) {
+        console.error("SEO fallback error in catch-all, serving file as-is:", e);
+        res.status(200).set({
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }).sendFile(templatePath);
+      }
+    });
+  }
+
+  // Global Express Error Handler
   app.use((err: any, req: any, res: any, next: any) => {
     console.error(`[EXPRESS GLOBAL ERROR] ${req.method} ${req.originalUrl}:`, err);
     try {
@@ -3289,6 +3370,17 @@ ${JSON.stringify(publicContext, null, 2)}`;
     res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
   });
 
-  module.exports = app;
+  app.listen(PORT as number, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+    // Warm up the local memory cache from the backup files (no Firestore dynamic connections on boot)
+    fetchStoreData()
+      .then(() => {
+        console.log("Local store cache warmed up successfully from backup files.");
+      })
+      .catch(e => {
+        console.warn("Local store cache warming failed:", e);
+      });
+  });
+}
 
-
+startServer();
