@@ -190,7 +190,7 @@ export const mockApps: AppConfig[] = [
     "created_at": "2026-05-19T12:43:59.040Z",
     "safety_status": "Verified",
     "id": "q82dbbwh4",
-    "is_new": true,
+    "is_new": false,
     "seo_keywords": "",
     "red_box_msg": "",
     "is_coming_soon": false,
