@@ -885,8 +885,11 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
       canonicalUrlOverride = getField(app, 'canonical_url') || `${cleanHostApp}/app/${getField(app, 'slug')}`;
       faviconUrl = getField(app, 'icon_url') || faviconUrl;
     }
-  } else if (urlPath.startsWith('/info/') || urlPath.startsWith('/moreinfo/') || urlPath.startsWith('/moredetail/')) {
-    const prefix = urlPath.startsWith('/info/') ? '/info/' : (urlPath.startsWith('/moreinfo/') ? '/moreinfo/' : '/moredetail/');
+  } else if (urlPath.startsWith('/info/') || urlPath.startsWith('/moreinfo/') || urlPath.startsWith('/moredetail/') || urlPath.startsWith('/gateway/')) {
+    let prefix = '/info/';
+    if (urlPath.startsWith('/moreinfo/')) prefix = '/moreinfo/';
+    else if (urlPath.startsWith('/moredetail/')) prefix = '/moredetail/';
+    else if (urlPath.startsWith('/gateway/')) prefix = '/gateway/';
     const slug = decodeURIComponent(urlPath.split(prefix)[1].split('/')[0].split('?')[0]);
     const app = apps.find((a: any) => {
       const aSlug = getField(a, 'slug');
@@ -901,7 +904,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
       keywords = getField(app, 'seo_keywords') || keywords;
       ogImage = getField(app, 'og_image_url') || getField(app, 'icon_url') || ogImage;
       const cleanHostApp = (hostUrl || process.env.VITE_PUBLIC_DOMAIN || process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com').replace(/\/+$/, '');
-      canonicalUrlOverride = getField(app, 'canonical_url') || `${cleanHostApp}/app/${getField(app, 'slug')}`;
+      canonicalUrlOverride = `${cleanHostApp}${prefix}${getField(app, 'slug')}`;
       faviconUrl = getField(app, 'icon_url') || faviconUrl;
     }
   } else if (urlPath.startsWith('/news/') && urlPath.length > 6) {
@@ -1036,7 +1039,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
   let schemaOrg: any = null;
   if (!isAdmin) {
     const isAppSlug = apps.some((a: any) => a.slug?.toLowerCase() === urlPath.split('?')[0].split('#')[0].replace(/^\/app\//, '/').replace(/^\/|\/$/g, '').toLowerCase());
-    if (isAppSlug || urlPath.startsWith('/gateway/') || urlPath.startsWith('/moredetail/')) {
+    if (isAppSlug || urlPath.startsWith('/gateway/') || urlPath.startsWith('/moredetail/') || urlPath.startsWith('/info/') || urlPath.startsWith('/moreinfo/')) {
        schemaOrg = {
          "@context": "https://schema.org",
          "@type": "SoftwareApplication",
@@ -1062,6 +1065,15 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
             "@type": "Person",
             "name": author
          }
+       };
+    } else if (urlPath.startsWith('/videos/')) {
+       schemaOrg = {
+         "@context": "https://schema.org",
+         "@type": "VideoObject",
+         "name": title,
+         "description": description,
+         "thumbnailUrl": absoluteOgImage || [],
+         "uploadDate": new Date().toISOString()
        };
     } else {
        schemaOrg = {
