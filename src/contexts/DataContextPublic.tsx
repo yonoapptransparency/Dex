@@ -111,59 +111,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchBackupData();
   }, [fetchBackupData]);
 
-  // Live Firestore subscriptions if client SDK is initialized
-  useEffect(() => {
-    if (!isFirebaseReal || !db) return;
-
-    const unsubs = [
-      onSnapshot(doc(db, 'store_data', 'apps_meta'), async (snap) => {
-        if (!snap.exists()) return;
-        try {
-          const numChunks = snap.data().numChunks || 1;
-          const chunkPromises = [];
-          for (let i = 0; i < numChunks; i++) {
-            chunkPromises.push(
-              getDoc(doc(db, 'store_data', `apps_chunk_${i}`))
-                .then(cSnap => cSnap.exists() && cSnap.data().items ? cSnap.data().items : [])
-                .catch(() => [])
-            );
-          }
-          const chunkResults = await Promise.all(chunkPromises);
-          const loadedApps: any[] = [];
-          chunkResults.forEach(items => loadedApps.push(...items));
-          if (loadedApps.length > 0) {
-            setApps(loadedApps);
-            setIsLive(true);
-          }
-        } catch (err) {
-          console.warn("Public apps snapshot error:", err);
-        }
-      }),
-      onSnapshot(doc(db, 'store_data', 'public_settings'), (snap) => {
-        if (snap.exists()) {
-          setSettings(snap.data() as GlobalSettings);
-        }
-      }),
-      onSnapshot(doc(db, 'store_data', 'news'), (snap) => {
-        if (snap.exists() && snap.data().items) {
-          setNews(snap.data().items);
-        }
-      }),
-      onSnapshot(doc(db, 'store_data', 'blogs'), (snap) => {
-        if (snap.exists() && snap.data().items) {
-          setBlogs(snap.data().items);
-        }
-      }),
-      onSnapshot(doc(db, 'store_data', 'videos'), (snap) => {
-        if (snap.exists() && snap.data().items) {
-          setVideos(snap.data().items);
-        }
-      })
-    ];
-
-    return () => unsubs.forEach(u => u());
-  }, []);
-
   const value: DataContextType = {
     apps,
     settings,
