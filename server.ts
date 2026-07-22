@@ -19,13 +19,13 @@ import crypto from "crypto";
 import compression from "compression";
 import fs from "fs";
 import dns from "dns";
-import * as staticData from "../src/lib/staticData";
-import { injectSeoTags, fetchStoreData, getField, syncFromFirestore } from "../src/seoHelper";
+import * as staticData from "./src/lib/staticData";
+import { injectSeoTags, fetchStoreData, getField, syncFromFirestore } from "./src/seoHelper";
 
-import { generateStaticDataFileCode } from "../src/lib/githubSync";
+import { generateStaticDataFileCode } from "./src/lib/githubSync";
 import CryptoJS from "crypto-js";
 import { GoogleGenAI, Type } from "@google/genai";
-import { verifyTOTPToken, generateTOTPSecret, getTOTPURI } from "../src/lib/totp";
+import { verifyTOTPToken, generateTOTPSecret, getTOTPURI } from "./src/lib/totp";
 
 function safeDecrypt(ciphertext: string, secret: string): string {
     const keys = [secret, process.env.AES_SECRET].filter(Boolean);
@@ -66,7 +66,7 @@ const isRealValue = (id: string | undefined): boolean => {
   return true;
 };
 
-const B64_FALLBACK = "eyJwcm9qZWN0SWQiOiJnZW4tbGFuZy1jbGllbnQtMDgyNTgzMjQ5MyIsImFwcElkIjoiMToxMDM5NzM5ODk4NzQ6d2ViOjczM2E2YWZkOGU4MzcyMjQ5MDBmNmIiLCJhcGlLZXkiOiIiLCJhdXRoRG9tYWluIjoiZ2VuLWxhbmctY2xpZW50LTA4MjU4MzI0OTMuZmlyZWJhc2VhcHAuY29tIiwiZmlyZXN0b3JlRGF0YWJhc2VJZCI6ImFpLXN0dWRpby15b25vc3RvcmUtODg2MzE1YTQtOGI5Zi00ZmY2LTg5ODYtYTkwYWQxNzIyMTBhIiwic3RvcmFnZUJ1Y2tldCI6Imdlbi1sYW5nLWNsaWVudC0wODI1ODMyNDkzLmFwcHNwb3QuY29tIiwibWVzc2FnaW5nU2VuZGVySWQiOiIxMDM5NzM5ODk4NzQifQ==";
+const B64_FALLBACK = "ewogICJwcm9qZWN0SWQiOiAiZ2VuLWxhbmctY2xpZW50LTA4MjU4MzI0OTMiLAogICJhcHBJZCI6ICIxOjEwMzk3Mzk4OTg3NDp3ZWI6NzMzYTZhZmQ4ZTgzNzIyNDkwMGY2YiIsCiAgImFwaUtleSI6ICJBSXphU3lCZXk5c1ViZVdscmNYUzJrbDRld096a1R5NGFyZzAzT2siLAogICJhdXRoRG9tYWluIjogImdlbi1sYW5nLWNsaWVudC0wODI1ODMyNDkzLmZpcmViYXNlYXBwLmNvbSIsCiAgImZpcmVzdG9yZURhdGFiYXNlSWQiOiAiYWktc3R1ZGlvLXlvbm9zdG9yZS04ODYzMTVhNC04YjlmLTRmZjYtODk4Ni1hOTBhZDE3MjIxMGEiLAogICJzdG9yYWdlQnVja2V0IjogImdlbi1sYW5nLWNsaWVudC0wODI1ODMyNDkzLmZpcmViYXNlc3RvcmFnZS5hcHAiLAogICJtZXNzYWdpbmdTZW5kZXJJZCI6ICIxMDM5NzM5ODk4NzQiLAogICJtZWFzdXJlbWVudElkIjogIiIsCiAgIm9BdXRoQ2xpZW50SWQiOiAiMTAzOTczOTg5ODc0LXQ0N252ODdrNTMycHQ4NHMyaTF0a2wwdmttYmloOWs2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwKICAicmVjYXB0Y2hhU2l0ZUtleSI6ICIiCn0=";
 
 let cachedRawFirebaseConfig: any = null;
 
@@ -92,7 +92,6 @@ function getRawFirebaseConfig(): any {
       const cleanB64 = B64_FALLBACK.replace(/[^A-Za-z0-9+/=]/g, "");
       const fallbackConfig = JSON.parse(Buffer.from(cleanB64, 'base64').toString('utf8'));
       if (fallbackConfig && fallbackConfig.projectId && isRealValue(fallbackConfig.projectId)) {
-        fallbackConfig.apiKey = fallbackConfig.apiKey || process.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY;
         cachedRawFirebaseConfig = fallbackConfig;
         return fallbackConfig;
       }
@@ -125,10 +124,16 @@ function getFirebaseAdminDb(): any {
   if (adminInitFailed) return null;
   try {
     const admin = require('firebase-admin');
-    if (admin.apps.length === 0) {
-      admin.initializeApp();
-    }
     const config = getRawFirebaseConfig();
+    if (admin.apps.length === 0) {
+      if (config && config.projectId) {
+        admin.initializeApp({
+          projectId: config.projectId
+        });
+      } else {
+        admin.initializeApp();
+      }
+    }
     const dbId = config?.firestoreDatabaseId || '(default)';
     if (dbId && dbId !== '(default)') {
       const { getFirestore } = require('firebase-admin/firestore');
@@ -139,7 +144,7 @@ function getFirebaseAdminDb(): any {
     console.log(`[INFO] Firebase Admin SDK successfully initialized for database: ${dbId}`);
     return cachedAdminDb;
   } catch (err: any) {
-    console.warn("[WARN] Firebase Admin SDK initialization failed (will fallback to REST API):", err.message || err);
+    console.warn("[WARN] Firebase Admin SDK initialization failed:", err.message || err);
     adminInitFailed = true;
     return null;
   }
@@ -506,7 +511,7 @@ const getFallbackToken = () => ["fallback", "token", "secret"].join("_");
 const TOKEN_SECRET = process.env.TOKEN_SECRET || getFallbackToken();
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
-
+async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
   const PORT = 3000;
@@ -2103,10 +2108,63 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
 
       // Local fallback writing removed for security compliance.
 
-      res.json({ success: true, message: "Local fallback components strictly synced." });
+      // 3. Cloud Firestore Server-side update via Admin SDK
+      try {
+        const adminDb = getFirebaseAdminDb();
+        if (adminDb) {
+          if (apps && Array.isArray(apps)) {
+            const CHUNK_SIZE = 25;
+            const numChunks = Math.ceil(apps.length / CHUNK_SIZE) || 1;
+            for (let i = 0; i < numChunks; i++) {
+              const chunk = JSON.parse(JSON.stringify(apps.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)));
+              chunk.forEach((app: any) => {
+                delete app.more_information_url;
+                delete app.encrypted_download_url;
+                delete app.download_url;
+              });
+              await adminDb.collection('store_data').doc(`apps_chunk_${i}`).set({ items: chunk });
+            }
+            await adminDb.collection('store_data').doc('apps_meta').set({ numChunks, last_updated: new Date().toISOString() });
+          }
+          if (settings) {
+            const sanitized = JSON.parse(JSON.stringify(settings));
+            await adminDb.collection('store_data').doc('public_settings').set(sanitized);
+          }
+          if (news && Array.isArray(news)) {
+            await adminDb.collection('store_data').doc('news').set({ items: JSON.parse(JSON.stringify(news)) });
+          }
+          if (blogs && Array.isArray(blogs)) {
+            await adminDb.collection('store_data').doc('blogs').set({ items: JSON.parse(JSON.stringify(blogs)) });
+          }
+          if (videos && Array.isArray(videos)) {
+            await adminDb.collection('store_data').doc('videos').set({ items: JSON.parse(JSON.stringify(videos)) });
+          }
+          console.log("[SERVER] Firestore documents successfully updated via Admin SDK in sync-local endpoint.");
+        }
+      } catch (fsErr: any) {
+        console.warn("[SERVER] Firestore update in sync-local endpoint warning:", fsErr.message);
+      }
+
+      // Write updated static backup file & clear in-memory cache
+      try {
+        const publicBackupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
+        const backupPayload = {
+          apps: apps || [],
+          settings: settings || {},
+          news: news || [],
+          blogs: blogs || [],
+          videos: videos || []
+        };
+        fs.writeFileSync(publicBackupPath, JSON.stringify(backupPayload, null, 2), 'utf8');
+      } catch (e) {
+        console.warn("[SERVER] Could not update public_backup.json:", e);
+      }
+      backupDataCache = null;
+
+      res.json({ success: true, message: "Cloud Firestore and backup components strictly synced." });
     } catch (err: any) {
       console.error("local file sync endpoint error:", err);
-      res.status(500).json({ error: "Failed to store local fallback: " + err.message });
+      res.status(500).json({ error: "Failed to store backup: " + err.message });
     }
   });
 
@@ -2222,16 +2280,151 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
      }
   });
 
+  // Helper functions to parse Firestore REST API document fields
+  function parseFirestoreValue(val: any): any {
+    if (!val) return null;
+    if ('stringValue' in val) return val.stringValue;
+    if ('booleanValue' in val) return val.booleanValue;
+    if ('integerValue' in val) return parseInt(val.integerValue, 10);
+    if ('doubleValue' in val) return parseFloat(val.doubleValue);
+    if ('timestampValue' in val) return val.timestampValue;
+    if ('nullValue' in val) return null;
+    if ('mapValue' in val) {
+      const fields = val.mapValue?.fields || {};
+      const res: any = {};
+      for (const key of Object.keys(fields)) {
+        res[key] = parseFirestoreValue(fields[key]);
+      }
+      return res;
+    }
+    if ('arrayValue' in val) {
+      const values = val.arrayValue?.values || [];
+      return values.map((v: any) => parseFirestoreValue(v));
+    }
+    return null;
+  }
+
+  function parseFirestoreFields(fields: any): any {
+    if (!fields) return {};
+    const res: any = {};
+    for (const key of Object.keys(fields)) {
+      res[key] = parseFirestoreValue(fields[key]);
+    }
+    return res;
+  }
+
   // Public API: Direct local filesystem backup endpoint with in-memory caching to load fast fallback instantly
   let backupDataCache: any = null;
   let backupDataCacheTime = 0;
   const BACKUP_DATA_CACHE_TTL = 30000; // 30 seconds memory cache
 
-  app.get("/api/v1/public/backup-data", (req, res) => {
+  app.get("/api/v1/public/backup-data", async (req, res) => {
     try {
       const now = Date.now();
       if (backupDataCache && (now - backupDataCacheTime < BACKUP_DATA_CACHE_TTL)) {
         return res.json(backupDataCache);
+      }
+
+      // 1. Live Firestore read via Admin SDK
+      try {
+        const adminDb = getFirebaseAdminDb();
+        if (adminDb) {
+          const metaSnap = await adminDb.collection('store_data').doc('apps_meta').get();
+          let apps: any[] = [];
+          if (metaSnap.exists) {
+            const numChunks = metaSnap.data()?.numChunks || 1;
+            for (let i = 0; i < numChunks; i++) {
+              const chunkSnap = await adminDb.collection('store_data').doc(`apps_chunk_${i}`).get();
+              if (chunkSnap.exists && chunkSnap.data()?.items) {
+                apps.push(...chunkSnap.data().items);
+              }
+            }
+          } else {
+            const legacySnap = await adminDb.collection('store_data').doc('apps').get();
+            if (legacySnap.exists && legacySnap.data()?.items) {
+              apps = legacySnap.data().items;
+            }
+          }
+
+          const settingsSnap = await adminDb.collection('store_data').doc('public_settings').get();
+          const newsSnap = await adminDb.collection('store_data').doc('news').get();
+          const blogsSnap = await adminDb.collection('store_data').doc('blogs').get();
+          const videosSnap = await adminDb.collection('store_data').doc('videos').get();
+
+          if (apps.length > 0 || settingsSnap.exists) {
+            const liveData = {
+              apps,
+              settings: settingsSnap.exists ? settingsSnap.data() : {},
+              news: newsSnap.exists ? newsSnap.data()?.items || [] : [],
+              blogs: blogsSnap.exists ? blogsSnap.data()?.items || [] : [],
+              videos: videosSnap.exists ? videosSnap.data()?.items || [] : []
+            };
+            backupDataCache = liveData;
+            backupDataCacheTime = now;
+            return res.json(liveData);
+          }
+        }
+      } catch (fsErr: any) {
+        // Silent fallback to REST API if Admin SDK lacks IAM permissions
+      }
+
+      // 2. REST API Fallback
+      try {
+        const config = getRawFirebaseConfig();
+        if (config && config.projectId) {
+          const apiSuffix = config.apiKey ? `?key=${config.apiKey}` : '';
+          const baseUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${config.firestoreDatabaseId || '(default)'}/documents/store_data`;
+
+          const metaRes = await fetch(`${baseUrl}/apps_meta${apiSuffix}`);
+          let apps: any[] = [];
+          if (metaRes.ok) {
+            const metaDoc = await metaRes.json() as any;
+            const numChunks = metaDoc.fields?.numChunks?.integerValue ? parseInt(metaDoc.fields.numChunks.integerValue, 10) : 1;
+            for (let i = 0; i < numChunks; i++) {
+              const chunkRes = await fetch(`${baseUrl}/apps_chunk_${i}${apiSuffix}`);
+              if (chunkRes.ok) {
+                const chunkDoc = await chunkRes.json() as any;
+                if (chunkDoc.fields?.items?.arrayValue?.values) {
+                  const parsedChunk = chunkDoc.fields.items.arrayValue.values.map((v: any) => parseFirestoreValue(v));
+                  apps.push(...parsedChunk);
+                }
+              }
+            }
+          } else {
+            const legacyRes = await fetch(`${baseUrl}/apps${apiSuffix}`);
+            if (legacyRes.ok) {
+              const legacyDoc = await legacyRes.json() as any;
+              if (legacyDoc.fields?.items?.arrayValue?.values) {
+                apps = legacyDoc.fields.items.arrayValue.values.map((v: any) => parseFirestoreValue(v));
+              }
+            }
+          }
+
+          const settingsRes = await fetch(`${baseUrl}/public_settings${apiSuffix}`);
+          const newsRes = await fetch(`${baseUrl}/news${apiSuffix}`);
+          const blogsRes = await fetch(`${baseUrl}/blogs${apiSuffix}`);
+          const videosRes = await fetch(`${baseUrl}/videos${apiSuffix}`);
+
+          const settingsObj = settingsRes.ok ? parseFirestoreFields((await settingsRes.json() as any).fields) : {};
+          const newsObj = newsRes.ok ? parseFirestoreFields((await newsRes.json() as any).fields) : {};
+          const blogsObj = blogsRes.ok ? parseFirestoreFields((await blogsRes.json() as any).fields) : {};
+          const videosObj = videosRes.ok ? parseFirestoreFields((await videosRes.json() as any).fields) : {};
+
+          if (apps.length > 0 || Object.keys(settingsObj).length > 0) {
+            const restLiveData = {
+              apps,
+              settings: settingsObj,
+              news: newsObj.items || [],
+              blogs: blogsObj.items || [],
+              videos: videosObj.items || []
+            };
+            backupDataCache = restLiveData;
+            backupDataCacheTime = now;
+            return res.json(restLiveData);
+          }
+        }
+      } catch (restErr) {
+        // Fallthrough to public_backup.json
       }
 
       const publicBackupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
@@ -2263,14 +2456,14 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
       return res.json(fallbackData);
     } catch (err: any) {
       console.error("public backup endpoint error:", err);
-      res.status(500).json({ error: "Failed to retrieve local file data backup." });
+      res.status(500).json({ error: "Failed to retrieve data." });
     }
   });
 
   // Database fix endpoint - run once to fix broken secure links
   app.get("/api/v1/debug-seo", async (req, res) => {
     try {
-      const { fetchStoreData } = require('../src/seoHelper');
+      const { fetchStoreData } = require('./src/seoHelper');
       const data = await fetchStoreData();
       res.json({
          hasData: !!data,
@@ -2609,7 +2802,7 @@ const rateLimitMap = new Map<string, number[]>();
       }
 
       // 2. Fetch public context
-      const { fetchStoreData } = require('../src/seoHelper');
+      const { fetchStoreData } = require('./src/seoHelper');
       const data = await fetchStoreData();
       
       const publicContext = {
@@ -2708,7 +2901,7 @@ ${JSON.stringify(publicContext, null, 2)}`;
       const lowerMessage = message.trim().toLowerCase();
       
       try {
-        const { fetchStoreData } = require('../src/seoHelper');
+        const { fetchStoreData } = require('./src/seoHelper');
         const data = await fetchStoreData();
         const apps = data.apps || [];
         
@@ -3271,9 +3464,90 @@ ${JSON.stringify(publicContext, null, 2)}`;
   });
 
 
-  
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } catch (e) {
+      console.error("Failed to initialize Vite middleware:", e);
+    }
+  } else {
+    const getDistPath = (): string => {
+      const pathsToTry = [
+        path.join(process.cwd(), 'dist'),
+        path.resolve(__dirname, 'dist'),
+        path.resolve(__dirname, '..', 'dist'),
+        __dirname
+      ];
+      for (const p of pathsToTry) {
+        if (fs.existsSync(path.join(p, 'index.html'))) {
+          return p;
+        }
+      }
+      return path.join(process.cwd(), 'dist'); // failsafe fallback
+    };
 
-// Global Express Error Handler
+    const distPath = getDistPath();
+
+    // Specifically handle assets (JS, CSS, Images, Fonts) with long-term immutable caching FIRST
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+      fallthrough: true
+    }));
+
+    // Production static files with aggressive caching for dynamic views and elements
+    app.use(express.static(distPath, {
+      maxAge: '1d', // Cache for 1 day instead of 1 year for safety but performance
+      etag: true,
+      lastModified: true,
+      index: false
+    }));
+    
+    let cachedIndexHtml: string | null = null;
+
+    app.get('*', async (req, res) => {
+      // Basic WAF / Scanner Mitigation for SPA fallback
+      if (req.originalUrl.match(/\.(php|env|yml|yaml|ini|conf|log|sql|tar|gz|zip|bak|git|rsa)$/i) || req.originalUrl.includes('/etc/') || req.originalUrl.includes('/proc/') || req.originalUrl.includes('../') || req.originalUrl.includes('/.aws/')) {
+        return res.status(404).type('text/plain').send('Not found');
+      }
+      let templatePath = path.join(distPath, 'index.html');
+      if (!fs.existsSync(templatePath)) {
+        templatePath = path.join(process.cwd(), 'index.html');
+      }
+      try {
+        let template = cachedIndexHtml;
+        if (!template) {
+          template = fs.readFileSync(templatePath, 'utf-8');
+          cachedIndexHtml = template;
+        }
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https";
+        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : "www.rummydex.com");
+        const hostUrl = `${String(protocol).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
+        const userAgent = req.headers['user-agent'] || '';
+        template = await injectSeoTags(template, req.originalUrl, hostUrl, userAgent);
+        res.status(200).set({ 
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }).send(template);
+      } catch (e) {
+        console.error("SEO fallback error in catch-all, serving file as-is:", e);
+        res.status(200).set({
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }).sendFile(templatePath);
+      }
+    });
+  }
+
+  // Global Express Error Handler
   app.use((err: any, req: any, res: any, next: any) => {
     console.error(`[EXPRESS GLOBAL ERROR] ${req.method} ${req.originalUrl}:`, err);
     try {
@@ -3292,6 +3566,17 @@ ${JSON.stringify(publicContext, null, 2)}`;
     res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
   });
 
-  module.exports = app;
+  app.listen(PORT as number, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+    // Warm up the local memory cache from the backup files (no Firestore dynamic connections on boot)
+    fetchStoreData()
+      .then(() => {
+        console.log("Local store cache warmed up successfully from backup files.");
+      })
+      .catch(e => {
+        console.warn("Local store cache warming failed:", e);
+      });
+  });
+}
 
-
+startServer();
