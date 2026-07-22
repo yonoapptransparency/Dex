@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MessageSquare, Check, X, Chrome, ShieldAlert, Heart, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, handleFirestoreError, OperationType } from '../lib/firebasePublic';
+import { db, isFirebaseConfigured, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function StarRatingFeedback() {
@@ -78,7 +78,7 @@ export default function StarRatingFeedback() {
       localStorage.setItem('user_feedback_rating', rating.toString());
 
       // 2. Try writing to Firestore inside a separate collections "website_feedback"
-      if (isFirebaseConfigured && typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'))) {
+      if (isFirebaseConfigured) {
         await addDoc(collection(db, 'website_feedback'), {
           username: cleanName,
           rating: rating,

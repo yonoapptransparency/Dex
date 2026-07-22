@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, Check, Loader2, ThumbsUp, AlertCircle, Sparkles, MessageSquare, Plus, ChevronDown, ChevronUp, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, auth, handleFirestoreError, OperationType } from '../lib/firebasePublic';
+import { db, isFirebaseConfigured, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 
 interface Review {
@@ -143,8 +143,8 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       let combinedReviews = [...localReviews, ...baseReviews];
 
       // Step 3: If Firebase is active, retrieve real-time community reviews from Firestore
-      const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'));
-      if (isFirebaseConfigured && isAdminRoute) {
+      
+      if (isFirebaseConfigured) {
         try {
           const q = query(
             collection(db, 'reviews'),
@@ -247,8 +247,8 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
     }
 
     // 3. If Firebase is active and it's a remote review (not mock), update in Firestore
-    const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'));
-    if (isFirebaseConfigured && isAdminRoute && !id.startsWith('mock')) {
+    
+    if (isFirebaseConfigured && !id.startsWith('mock')) {
       try {
         const reviewRef = doc(db, 'reviews', id);
         const targetReview = reviews.find(r => r.id === id);
@@ -331,8 +331,8 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
 
       // Step 3: Write in background to centralized Firestore collection (fully secured)
-      const isAdminRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'));
-      if (isFirebaseConfigured && isAdminRoute) {
+      
+      if (isFirebaseConfigured) {
         await addDoc(collection(db, 'reviews'), {
           app_id: appId,
           username: cleanUsername,

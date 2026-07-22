@@ -9,7 +9,7 @@ import { Mail, MessageSquare, MapPin, ArrowLeft, ShieldCheck, Loader2, Check, Al
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import { auth, db, isFirebaseConfigured } from '../lib/firebasePublic';
+import { auth, db, isFirebaseConfigured } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import Meta from '../components/Meta';
 
@@ -122,7 +122,7 @@ export default function Contact() {
               source: 'contact_page'
             };
 
-            if (isFirebaseConfigured && db && typeof window !== 'undefined' && (window.location.pathname.startsWith('/' + 'admin'))) {
+            if (isFirebaseConfigured && db) {
               const ticketsCol = collection(db, 'support_tickets');
               await addDoc(ticketsCol, payload);
             } else {
