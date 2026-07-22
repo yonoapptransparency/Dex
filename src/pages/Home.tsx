@@ -78,8 +78,8 @@ export default function Home() {
     const scored = baseApps
       .map(app => {
         let score = 0;
-        const name = app.name.toLowerCase();
-        const cat = app.category.toLowerCase();
+        const name = (app.name || "").toLowerCase();
+        const cat = (app.category || "").toLowerCase();
         const keywords = app.seo_keywords?.toLowerCase() || "";
 
         // Exact matches
