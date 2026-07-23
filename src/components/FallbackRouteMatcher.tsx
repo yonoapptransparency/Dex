@@ -101,7 +101,7 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'blog') {
-    return <Navigate to={`/blogs/${slug}`} replace />;
+    return <Navigate to={`/blog/${slug}`} replace />;
   }
 
   if (resolvedType === 'video') {
