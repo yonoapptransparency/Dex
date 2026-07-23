@@ -47,39 +47,42 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
+const getInitialCache = () => {
+  try {
+    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) return (window as any).__INITIAL_DATA__;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cached = localStorage.getItem('yd_public_data_cache');
+      if (cached) return JSON.parse(cached);
+    }
+  } catch (e) {}
+  return null;
+};
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const initialCache = React.useMemo(() => getInitialCache(), []);
+
   const [apps, setApps] = useState<AppConfig[]>(() => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps?.length > 0) return (window as any).__INITIAL_DATA__.apps;
-    } catch (e) {}
+    if (initialCache?.apps?.length > 0) return initialCache.apps;
     return mockApps;
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.settings?.site_title) return (window as any).__INITIAL_DATA__.settings;
-    } catch (e) {}
+    if (initialCache?.settings?.site_title) return initialCache.settings;
     return mockSettings;
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.news) return (window as any).__INITIAL_DATA__.news;
-    } catch (e) {}
+    if (initialCache?.news) return initialCache.news;
     return mockNews;
   });
   
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.blogs) return (window as any).__INITIAL_DATA__.blogs;
-    } catch (e) {}
+    if (initialCache?.blogs) return initialCache.blogs;
     return mockBlogs;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.videos) return (window as any).__INITIAL_DATA__.videos;
-    } catch (e) {}
+    if (initialCache?.videos) return initialCache.videos;
     return mockVideos;
   });
 
@@ -94,11 +97,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const backup = await res.json();
         if (backup) {
-          if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) setApps(backup.apps);
-          if (backup.settings && backup.settings.site_title) setSettings(backup.settings);
-          if (backup.news && Array.isArray(backup.news)) setNews(backup.news);
-          if (backup.blogs && Array.isArray(backup.blogs)) setBlogs(backup.blogs);
-          if (backup.videos && Array.isArray(backup.videos)) setVideos(backup.videos);
+          try {
+            localStorage.setItem('yd_public_data_cache', JSON.stringify(backup));
+          } catch (e) {}
+
+          if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
+            setApps(prev => JSON.stringify(prev) === JSON.stringify(backup.apps) ? prev : backup.apps);
+          }
+          if (backup.settings && backup.settings.site_title) {
+            setSettings(prev => JSON.stringify(prev) === JSON.stringify(backup.settings) ? prev : backup.settings);
+          }
+          if (backup.news && Array.isArray(backup.news)) {
+            setNews(prev => JSON.stringify(prev) === JSON.stringify(backup.news) ? prev : backup.news);
+          }
+          if (backup.blogs && Array.isArray(backup.blogs)) {
+            setBlogs(prev => JSON.stringify(prev) === JSON.stringify(backup.blogs) ? prev : backup.blogs);
+          }
+          if (backup.videos && Array.isArray(backup.videos)) {
+            setVideos(prev => JSON.stringify(prev) === JSON.stringify(backup.videos) ? prev : backup.videos);
+          }
           setLoadedFromServer(true);
         }
       }
