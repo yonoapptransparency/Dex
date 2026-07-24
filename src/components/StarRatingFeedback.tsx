@@ -6,8 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MessageSquare, Check, X, Chrome, ShieldAlert, Heart, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 
 export default function StarRatingFeedback() {
   const [rating, setRating] = useState<number | null>(null);
@@ -78,7 +76,9 @@ export default function StarRatingFeedback() {
       localStorage.setItem('user_feedback_rating', rating.toString());
 
       // 2. Try writing to Firestore inside a separate collections "website_feedback"
+      const { db, isFirebaseConfigured, handleFirestoreError, OperationType } = await import('../lib/firebase');
       if (isFirebaseConfigured) {
+        const { collection, addDoc } = await import('firebase/firestore');
         await addDoc(collection(db, 'website_feedback'), {
           username: cleanName,
           rating: rating,
@@ -91,8 +91,10 @@ export default function StarRatingFeedback() {
       setSubmitted(true);
       triggerHaptic();
     } catch (err) {
-      
-      handleFirestoreError(err, OperationType.CREATE, 'website_feedback');
+      try {
+        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
+        handleFirestoreError(err, OperationType.CREATE, 'website_feedback');
+      } catch (e) {}
     } finally {
       setSubmitting(false);
     }

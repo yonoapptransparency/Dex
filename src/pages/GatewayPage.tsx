@@ -14,7 +14,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import AccordionItem from '../components/AccordionItem';
-import { auth } from '../lib/firebase';
 
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();

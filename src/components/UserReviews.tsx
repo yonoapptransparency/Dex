@@ -6,8 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, Check, Loader2, ThumbsUp, AlertCircle, Sparkles, MessageSquare, Plus, ChevronDown, ChevronUp, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, auth, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 
 interface Review {
   id: string;
@@ -143,9 +141,10 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       let combinedReviews = [...localReviews, ...baseReviews];
 
       // Step 3: If Firebase is active, retrieve real-time community reviews from Firestore
-      
-      if (isFirebaseConfigured) {
-        try {
+      try {
+        const { isFirebaseConfigured, db, handleFirestoreError, OperationType } = await import('../lib/firebase');
+        if (isFirebaseConfigured && db) {
+          const { query, collection, where, getDocs } = await import('firebase/firestore');
           const q = query(
             collection(db, 'reviews'),
             where('app_id', '==', appId)
@@ -174,10 +173,12 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
           
           // Prepend firestore reviews (keep our static reviews as verified community base)
           combinedReviews = [...firestoreReviews, ...filteredLocal, ...baseReviews];
-        } catch (dbErr) {
-          
-          handleFirestoreError(dbErr, OperationType.LIST, 'reviews');
         }
+      } catch (dbErr) {
+        try {
+          const { handleFirestoreError, OperationType } = await import('../lib/firebase');
+          handleFirestoreError(dbErr, OperationType.LIST, 'reviews');
+        } catch (e) {}
       }
 
       // Sort by modern dates first
@@ -247,9 +248,10 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
     }
 
     // 3. If Firebase is active and it's a remote review (not mock), update in Firestore
-    
-    if (isFirebaseConfigured && !id.startsWith('mock')) {
-      try {
+    try {
+      const { isFirebaseConfigured, db } = await import('../lib/firebase');
+      if (isFirebaseConfigured && db && !id.startsWith('mock')) {
+        const { doc, updateDoc } = await import('firebase/firestore');
         const reviewRef = doc(db, 'reviews', id);
         const targetReview = reviews.find(r => r.id === id);
         const currentReportCount = targetReview ? (targetReview.report_count || 0) : 0;
@@ -257,10 +259,12 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
           reported: true,
           report_count: currentReportCount + 1
         });
-      } catch (firebaseErr: any) {
-        
-        handleFirestoreError(firebaseErr, OperationType.UPDATE, `reviews/${id}`);
       }
+    } catch (firebaseErr: any) {
+      try {
+        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
+        handleFirestoreError(firebaseErr, OperationType.UPDATE, `reviews/${id}`);
+      } catch (e) {}
     }
   };
 
@@ -331,8 +335,9 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
 
       // Step 3: Write in background to centralized Firestore collection (fully secured)
-      
-      if (isFirebaseConfigured) {
+      const { isFirebaseConfigured, db } = await import('../lib/firebase');
+      if (isFirebaseConfigured && db) {
+        const { collection, addDoc } = await import('firebase/firestore');
         await addDoc(collection(db, 'reviews'), {
           app_id: appId,
           username: cleanUsername,
@@ -353,7 +358,10 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       setTimeout(() => setSuccess(false), 5000);
     } catch (saveErr: any) {
       console.warn('Remote sync reviews failure (fallback storage active):', saveErr.message || saveErr);
-      handleFirestoreError(saveErr, OperationType.CREATE, 'reviews');
+      try {
+        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
+        handleFirestoreError(saveErr, OperationType.CREATE, 'reviews');
+      } catch (e) {}
     } finally {
       setSubmitting(false);
     }

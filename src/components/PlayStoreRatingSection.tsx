@@ -6,8 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db, isFirebaseConfigured, handleFirestoreError, OperationType, auth } from '../lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 
 interface PlayStoreRatingSectionProps {
   appId: string;
@@ -113,7 +111,9 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       localStorage.setItem(`playstore_rating_val_${appId}`, rating.toString());
 
       // 2. Transmit to Firebase for live synchronization
+      const { db, isFirebaseConfigured } = await import('../lib/firebase');
       if (isFirebaseConfigured) {
+        const { collection, addDoc } = await import('firebase/firestore');
         await addDoc(collection(db, 'reviews'), {
           app_id: appId,
           username: cleanName,
@@ -131,7 +131,10 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
         onReviewSubmitted();
       }
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, 'reviews');
+      try {
+        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
+        handleFirestoreError(err, OperationType.CREATE, 'reviews');
+      } catch (e) {}
     } finally {
       setSubmitting(false);
     }

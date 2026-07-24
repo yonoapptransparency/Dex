@@ -533,10 +533,18 @@ async function startServer() {
   }));
   app.use(cookieParser());
 
-  // Enforce HTTPS in production environments to prevent session hijacking and eavesdropping
+  // Enforce HTTPS and canonical www domain in production environments
   app.use((req, res, next) => {
-    if (process.env.NODE_ENV === "production" && req.headers["x-forwarded-proto"] === "http") {
-      return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+    if (process.env.NODE_ENV === "production") {
+      const rawHost = (req.headers["x-forwarded-host"] || req.headers.host || "").toString().toLowerCase().split(',')[0].trim();
+      const proto = (req.headers["x-forwarded-proto"] || req.protocol || "https").toString().toLowerCase().split(',')[0].trim();
+
+      if (rawHost === "rummydex.com") {
+        return res.redirect(301, `https://www.rummydex.com${req.originalUrl}`);
+      }
+      if (proto === "http" && rawHost.includes("rummydex.com")) {
+        return res.redirect(301, `https://${rawHost}${req.originalUrl}`);
+      }
     }
     next();
   });
@@ -2556,10 +2564,15 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
           const blogsRes = await fetch(`${baseUrl}/blogs${apiSuffix}`);
           const videosRes = await fetch(`${baseUrl}/videos${apiSuffix}`);
 
-          const settingsObj = settingsRes.ok ? parseFirestoreFields((await settingsRes.json() as any).fields) : {};
-          const newsObj = newsRes.ok ? parseFirestoreFields((await newsRes.json() as any).fields) : {};
-          const blogsObj = blogsRes.ok ? parseFirestoreFields((await blogsRes.json() as any).fields) : {};
-          const videosObj = videosRes.ok ? parseFirestoreFields((await videosRes.json() as any).fields) : {};
+          let settingsObj = {};
+          let newsObj: any = {};
+          let blogsObj: any = {};
+          let videosObj: any = {};
+
+          try { if (settingsRes.ok) settingsObj = parseFirestoreFields((await settingsRes.json() as any)?.fields); } catch (e) {}
+          try { if (newsRes.ok) newsObj = parseFirestoreFields((await newsRes.json() as any)?.fields); } catch (e) {}
+          try { if (blogsRes.ok) blogsObj = parseFirestoreFields((await blogsRes.json() as any)?.fields); } catch (e) {}
+          try { if (videosRes.ok) videosObj = parseFirestoreFields((await videosRes.json() as any)?.fields); } catch (e) {}
 
           if (apps.length > 0 || Object.keys(settingsObj).length > 0) {
             const restLiveData = {
@@ -2607,7 +2620,14 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
       return res.json(fallbackData);
     } catch (err: any) {
       console.error("public backup endpoint error:", err);
-      res.status(500).json({ error: "Failed to retrieve data." });
+      const { mockApps, mockSettings, mockNews, mockBlogs, mockVideos } = staticData;
+      return res.status(200).json({
+        apps: mockApps || [],
+        settings: mockSettings || {},
+        news: mockNews || [],
+        blogs: mockBlogs || [],
+        videos: mockVideos || []
+      });
     }
   });
 

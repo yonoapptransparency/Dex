@@ -33,17 +33,29 @@ const Meta: React.FC<MetaProps> = ({
   const metaKeywords = keywords || settings?.seo_keywords || '';
   const metaImage = image || settings?.logo_url || '';
   const getCleanCanonical = (rawUrl?: string): string => {
-    const input = rawUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.rummydex.com');
+    const defaultOrigin = 'https://www.rummydex.com';
+    const input = rawUrl || (typeof window !== 'undefined' ? window.location.href : defaultOrigin);
     try {
-      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.rummydex.com';
+      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : defaultOrigin;
       const parsed = new URL(input, baseOrigin);
+      
+      // Enforce primary canonical domain (https://www.rummydex.com) for any rummydex.com URL
+      if (parsed.hostname === 'rummydex.com' || parsed.hostname === 'www.rummydex.com') {
+        parsed.hostname = 'www.rummydex.com';
+        parsed.protocol = 'https:';
+      }
+      
       let pathname = parsed.pathname;
       if (pathname.length > 1 && pathname.endsWith('/')) {
         pathname = pathname.slice(0, -1);
       }
       return `${parsed.origin}${pathname}`;
     } catch {
-      return input.split('?')[0].split('#')[0];
+      let clean = input.split('?')[0].split('#')[0];
+      if (clean.includes('rummydex.com')) {
+        clean = clean.replace(/^http:\/\//i, 'https://').replace('https://rummydex.com', 'https://www.rummydex.com');
+      }
+      return clean;
     }
   };
 

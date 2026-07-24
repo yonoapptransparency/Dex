@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AppConfig, GlobalSettings, NewsItem, BlogPost, VideoItem } from '../typesPublic';
 import { mockApps, mockSettings, mockNews, mockBlogs, mockVideos } from '../lib/staticData';
-import { db, isFirebaseReal } from '../lib/firebase';
-import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 
 interface DataContextType {
   apps: AppConfig[];

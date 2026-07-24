@@ -9,8 +9,6 @@ import { Mail, MessageSquare, MapPin, ArrowLeft, ShieldCheck, Loader2, Check, Al
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import { auth, db, isFirebaseConfigured } from '../lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 import Meta from '../components/Meta';
 
 export default function Contact() {
@@ -122,11 +120,11 @@ export default function Contact() {
               source: 'contact_page'
             };
 
+            const { isFirebaseConfigured, db } = await import('../lib/firebase');
             if (isFirebaseConfigured && db) {
+              const { collection, addDoc } = await import('firebase/firestore');
               const ticketsCol = collection(db, 'support_tickets');
               await addDoc(ticketsCol, payload);
-            } else {
-               
             }
             setSuccess(true);
             setMsgText('');
