@@ -186,17 +186,17 @@ function Header() {
         variants={navVariants}
         className={`sticky top-0 z-50 transition-all duration-300 ease-out backdrop-blur-md ${
           scrolled 
-            ? 'bg-white/70 dark:bg-black/70 border-b border-black/10 dark:border-white/10 shadow-sm py-2.5' 
-            : 'bg-white/40 dark:bg-black/40 border-b border-white/20 dark:border-white/10 py-3.5'
+            ? 'bg-white/80 dark:bg-black/80 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
+            : 'bg-white/50 dark:bg-black/50 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
         }`}
       >
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
-          <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2 sm:gap-3 group">
-            <div className="p-0 transition-transform group-hover:scale-[1.02] duration-300">
-              {settings.logo_url ? <img src={settings.logo_url} width={48} height={48} className="w-10 h-10 sm:w-14 sm:h-14 object-contain" alt="Logo" /> : <div className="w-10 h-10 sm:w-14 sm:h-14 bg-blue-500 rounded-lg sm:rounded-2xl flex items-center justify-center text-white font-semibold">{settings.site_title?.substring(0, 1)}</div>}
+          <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2.5 sm:gap-3 group">
+            <div className="p-0 transition-transform group-hover:scale-[1.03] duration-300 shrink-0">
+              {settings.logo_url ? <img src={settings.logo_url} width={56} height={56} className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt="Logo" /> : <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-lg">{settings.site_title?.substring(0, 1)}</div>}
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-base sm:text-[22px] font-bold tracking-tight text-zinc-900 dark:text-white">{settings.site_title}</span>
+              <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{settings.site_title}</span>
             </div>
           </Link>
           
@@ -344,8 +344,8 @@ function Header() {
             className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98 backdrop-blur-2xl flex flex-col px-6 py-8 overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8 shrink-0">
-              <span className="text-xl font-bold flex items-center gap-2 tracking-tight text-zinc-900 dark:text-white">
-                {settings.logo_url ? <img src={settings.logo_url} width={24} height={24} className="w-6 h-6 object-contain" alt="Logo" /> : <Shield className="w-6 h-6 text-blue-500" />} {settings.site_title}
+              <span className="text-xl font-bold flex items-center gap-2.5 tracking-tight text-zinc-900 dark:text-white">
+                {settings.logo_url ? <img src={settings.logo_url} width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" /> : <Shield className="w-6 h-6 text-blue-500" />} {settings.site_title}
               </span>
               <button 
                 onClick={() => { triggerHaptic(); setMenuOpen(false); }}
@@ -425,7 +425,7 @@ function Footer() {
       <h3 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
         <div className="p-1 bg-white/10 rounded-xl">
           {settings.logo_url ? (
-            <img src={settings.logo_url} width={36} height={36} className="w-9 h-9 object-contain" alt="Logo" />
+            <img src={settings.logo_url} width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" />
           ) : (
             <Shield className="w-8 h-8 text-blue-400" />
           )}

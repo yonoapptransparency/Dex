@@ -650,7 +650,7 @@ async function startServer() {
   ], async (req, res, next) => {
     console.log('--- FAVICON/LOGO ROUTE HIT ---', req.originalUrl);
     try {
-      const imageUrl = 'https://res.cloudinary.com/diewalae4/image/upload/v1784859907/RUMMY_DEX_under10KB_pz1kym.webp';
+      const imageUrl = 'https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp';
       console.log('--- FAVICON/LOGO ROUTE RESOLVED TO HARDCODED CLOUDINARY ---', imageUrl);
 
       try {

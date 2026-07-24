@@ -3125,7 +3125,7 @@ export default function AdminDashboard() {
       <div className="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 py-3 shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
           {settings.logo_url ? (
-            <img src={settings.logo_url} className="w-9 h-9 object-contain drop-shadow-sm" alt="Logo" />
+            <img src={settings.logo_url} className="w-10 h-10 object-contain drop-shadow-sm" alt="Logo" />
           ) : (
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md">
               <Shield className="w-5 h-5" />
@@ -3154,7 +3154,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <div className="relative">
               {settings.logo_url ? (
-                <img src={settings.logo_url} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" />
+                <img src={settings.logo_url} className="w-14 h-14 object-contain drop-shadow-sm" alt="Logo" />
               ) : (
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
                   <Shield className="w-6 h-6" />
