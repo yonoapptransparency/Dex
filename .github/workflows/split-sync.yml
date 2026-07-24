@@ -276,6 +276,7 @@ EOF
                 mv public-api/index.ts api/index.ts
                 rm -rf public-api
               fi
+              rm -f api/index.js
               if [ -f "src/AppPublic.tsx" ]; then
                 mv src/AppPublic.tsx src/App.tsx
                                 rm -f src/AppAdmin.tsx
