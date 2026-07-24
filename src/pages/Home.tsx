@@ -3,7 +3,7 @@
  * Features the showcase carousel, real-time download tabs, and categorized app directories.
  */
 
-import { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import { useState, useEffect, useMemo, useDeferredValue, useRef, useCallback } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
@@ -15,6 +15,9 @@ import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSk
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
 import AccordionItem from '../components/AccordionItem';
 
+const ITEMS_PER_PAGE = 15;
+const STORAGE_KEY = 'rummy_home_feed_state';
+
 export default function Home() {
   const { apps: mockApps, settings: mockSettings, loading } = useData();
   const [searchParams] = useSearchParams();
@@ -25,10 +28,69 @@ export default function Home() {
   const [ratingFilter, setRatingFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('default');
 
+  // Pagination & Infinite Prefetch
+  const pageFromUrl = parseInt(searchParams.get('page') || '1', 10) || 1;
+  const [visibleCount, setVisibleCount] = useState<number>(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.visibleCount === 'number' && parsed.visibleCount > 0) {
+          return parsed.visibleCount;
+        }
+      }
+    } catch (e) {
+      // Fallback
+    }
+    return Math.max(ITEMS_PER_PAGE, pageFromUrl * ITEMS_PER_PAGE);
+  });
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const deferredActiveTab = useDeferredValue(activeTab);
   const deferredRatingFilter = useDeferredValue(ratingFilter);
   const deferredSortBy = useDeferredValue(sortBy);
+
+  // Restore Scroll Position on Mount if present in sessionStorage
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.scrollY === 'number' && parsed.scrollY > 0) {
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              window.scrollTo({ top: parsed.scrollY, behavior: 'instant' });
+            }, 50);
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }, []);
+
+  // Save scroll position & visible count to sessionStorage before navigating away
+  useEffect(() => {
+    const handleSaveState = () => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+          visibleCount,
+          scrollY: window.scrollY,
+          activeTab
+        }));
+      } catch (e) {
+        // Ignore storage errors
+      }
+    };
+
+    window.addEventListener('beforeunload', handleSaveState);
+    return () => {
+      handleSaveState();
+      window.removeEventListener('beforeunload', handleSaveState);
+    };
+  }, [visibleCount, activeTab]);
 
   useEffect(() => {
     const q = searchParams.get('q');
@@ -40,6 +102,11 @@ export default function Home() {
       setActiveTab(tab);
     }
   }, [searchParams, location, mockSettings.categories]);
+
+  // Reset pagination when filters or tab change
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [deferredSearchTerm, deferredActiveTab, deferredRatingFilter, deferredSortBy]);
 
   const filteredApps = useMemo(() => {
     const term = deferredSearchTerm.toLowerCase().trim();
@@ -133,6 +200,35 @@ export default function Home() {
 
     return resultingApps;
   }, [mockApps, deferredSearchTerm, deferredRatingFilter, deferredSortBy]);
+
+  const hasMore = visibleCount < filteredApps.length;
+
+  // Zero-lag IntersectionObserver prefetch trigger
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => {
+            const nextCount = prev + ITEMS_PER_PAGE;
+            const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', String(nextPage));
+            window.history.replaceState(null, '', url.toString());
+            return nextCount;
+          });
+        }
+      },
+      { rootMargin: '400px 0px 400px 0px', threshold: 0.01 }
+    );
+
+    observer.observe(sentinelRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasMore, loading, filteredApps.length]);
 
   const bannerItems = mockSettings.banners || [];
 
@@ -320,14 +416,13 @@ export default function Home() {
 
       {deferredSearchTerm && (
         <div className="px-0 sm:px-1">
-          
           <div className="space-y-2">
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <AppListItemSkeleton key={i} />
               ))
             ) : (
-              filteredApps.map((app, index) => (
+              filteredApps.slice(0, visibleCount).map((app, index) => (
                 <AppListItem key={app.id} app={app} index={index + 1} />
               ))
             )}
@@ -337,13 +432,12 @@ export default function Home() {
 
       {deferredActiveTab.toLowerCase() === 'top charts' && !deferredSearchTerm && (
         <div className="space-y-1 px-0 sm:px-1">
-          
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <TopChartItemSkeleton key={i} rank={i + 1} />
             ))
           ) : (
-            filteredApps.map((app, index) => (
+            filteredApps.slice(0, visibleCount).map((app, index) => (
               <TopChartItem key={app.id} rank={index + 1} app={app} />
             ))
           )}
@@ -370,14 +464,13 @@ export default function Home() {
                           activeTabLower === 'apps';
         return isHomeTab && (
           <div className="px-0 sm:px-1">
-            
             <div className="space-y-2">
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <AppListItemSkeleton key={i} />
                 ))
               ) : (
-                filteredApps.map((app, index) => (
+                filteredApps.slice(0, visibleCount).map((app, index) => (
                   <AppListItem key={app.id} app={app} index={index + 1} />
                 ))
               )}
@@ -433,7 +526,7 @@ export default function Home() {
               return appCategories.some(cat => cat === currentTabLower || cat.includes(currentTabLower) || currentTabLower.includes(cat));
             });
             return tabApps.length > 0 ? (
-              tabApps.map((app, index) => <AppListItem key={app.id} app={app} index={index + 1} />)
+              tabApps.slice(0, visibleCount).map((app, index) => <AppListItem key={app.id} app={app} index={index + 1} />)
             ) : (
               <div className="text-center py-20 text-slate-400">
                 <p className="text-lg">No apps found in {deferredActiveTab}</p>
@@ -447,6 +540,14 @@ export default function Home() {
       {!loading && filteredApps.length === 0 && deferredSearchTerm && (
         <div className="text-center py-20 text-slate-400">
           <p className="text-lg">No results found for "{searchTerm}"</p>
+        </div>
+      )}
+
+      {/* Infinite Scroll Prefetch Sentinel & Zero-CLS Skeletons */}
+      {hasMore && !loading && (
+        <div ref={sentinelRef} className="py-4 space-y-2 px-0 sm:px-1">
+          <AppListItemSkeleton />
+          <AppListItemSkeleton />
         </div>
       )}
 

@@ -482,9 +482,11 @@ html.lenis-scrolling * {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Isolate list layout reflows for smooth 120fps scrolling */
+/* Isolate list layout reflows & GPU composition for 120fps scrolling */
 .animate-list-item-fade {
-  contain: content;
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 88px;
 }
 
 /* Smartphone GPU & Performance Optimizations - Buttery Smooth Touch Physics */
