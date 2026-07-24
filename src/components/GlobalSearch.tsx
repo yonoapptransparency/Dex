@@ -155,6 +155,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
               <button 
                 type="button"
                 onClick={onClose}
+                aria-label="Close search overlay"
                 className="absolute inset-y-4 right-4 w-12 h-12 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 transition-all active:scale-95"
               >
                 <X className="w-5 h-5" />
@@ -205,6 +206,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
                             </button>
                             <button
                               onClick={() => removeFromHistory(item)}
+                              aria-label={`Remove search item ${item}`}
                               className="p-1 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 rounded-lg transition-colors cursor-pointer"
                             >
                               <X className="w-4 h-4" />

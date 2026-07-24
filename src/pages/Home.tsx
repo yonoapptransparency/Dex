@@ -298,28 +298,23 @@ export default function Home() {
                             src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                             alt={app.name} 
                             referrerPolicy="no-referrer"
-                            loading="lazy"
+                            loading={index < 8 ? "eager" : "lazy"}
+                            decoding="async"
+                            {...(index < 4 ? { fetchPriority: "high" as const } : {})}
                             width={128}
                             height={128}
                             className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
                           />
-                          {isActuallyComingSoon && (
-                            <div className="absolute top-1 right-1 pointer-events-none">
-                              <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[8px] font-black uppercase tracking-widest px-1.5 py-[1px] rounded shadow-sm border border-amber-400">
-                                Soon
-                              </div>
-                            </div>
-                          )}
                         </div>
                         {app.is_hot ? (
                           <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
-                            <span className="bg-[#ff3d00] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                            <span className="bg-[#d32f2f] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                               HOT
                             </span>
                           </div>
                         ) : app.is_new ? (
                           <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
-                            <span className="bg-[#00c853] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+                            <span className="bg-[#008738] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                               NEW
                             </span>
                           </div>
@@ -361,6 +356,7 @@ export default function Home() {
                 <select
                   value={ratingFilter}
                   onChange={(e) => setRatingFilter(e.target.value)}
+                  aria-label="Filter applications by rating"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                 >
                   <option value="all">All Ratings</option>
@@ -388,6 +384,7 @@ export default function Home() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
+                  aria-label="Sort applications"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                 >
                   <option value="default">Recommended</option>

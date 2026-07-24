@@ -273,10 +273,14 @@ export const PlayStoreTabs = React.memo(({ activeTab, onTabChange, hideOnSearch 
   );
 });
 
-const AppOptionsMenu = ({ app }: { app: any }) => {
+const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpen: boolean) => void }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    onMenuToggle?.(menuOpen);
+  }, [menuOpen, onMenuToggle]);
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -323,7 +327,7 @@ const AppOptionsMenu = ({ app }: { app: any }) => {
 
   return (
     <div 
-      className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20" 
+      className={`absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 ${menuOpen ? 'z-[100]' : 'z-20'}`} 
       ref={menuRef} 
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
       onTouchStart={(e) => { e.stopPropagation(); }}
@@ -350,13 +354,13 @@ const AppOptionsMenu = ({ app }: { app: any }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-xl border border-zinc-800/80 overflow-hidden py-1 z-35"
+            className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[120]"
           >
             <button
               onClick={handleShare}
               onTouchStart={(e) => { e.stopPropagation(); }}
               onPointerDown={(e) => { e.stopPropagation(); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5 text-zinc-400" />
               <span>{copied ? 'Link Copied!' : 'Share app'}</span>
@@ -384,6 +388,7 @@ interface TopChartItemProps {
 }
 
 export const AppListItem = React.memo(({ app, index }: { app: any; index?: number }) => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const displayIndex = index !== undefined ? index : (app.serial_number || 1);
   const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
@@ -396,7 +401,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
       style={{
         animationDelay: `${((index || 0) % 15) * 15}ms`,
       }}
-      className="animate-list-item-fade relative group"
+      className={`animate-list-item-fade relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}
     >
       <Link 
         to={`/app/${app.slug}`}
@@ -426,23 +431,16 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
                 e.currentTarget.src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
               }}
             />
-            {isActuallyComingSoon && (
-              <div className="absolute top-1 right-1 pointer-events-none">
-                <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[8px] font-black uppercase tracking-widest px-1.5 py-[1px] rounded shadow-sm border border-amber-400">
-                  Soon
-                </div>
-              </div>
-            )}
           </div>
           {app.is_hot ? (
             <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
-              <span className="bg-[#ff3d00] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+              <span className="bg-[#d32f2f] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                 HOT
               </span>
             </div>
           ) : app.is_new ? (
             <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
-              <span className="bg-[#00c853] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+              <span className="bg-[#008738] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                 NEW
               </span>
             </div>
@@ -479,12 +477,13 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
         
         <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
-      <AppOptionsMenu app={app} />
+      <AppOptionsMenu app={app} onMenuToggle={setIsMenuOpen} />
     </div>
   );
 });
 
 export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
@@ -496,7 +495,7 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
       style={{
         animationDelay: `${(rank % 15) * 15}ms`,
       }}
-      className="animate-list-item-fade relative group"
+      className={`animate-list-item-fade relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}
     >
       <Link 
         to={`/app/${app.slug}`}
@@ -525,23 +524,16 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
                 e.currentTarget.src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
               }}
             />
-            {isActuallyComingSoon && (
-              <div className="absolute top-1 right-1 pointer-events-none">
-                <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[8px] font-black uppercase tracking-widest px-1.5 py-[1px] rounded shadow-sm border border-amber-400">
-                  Soon
-                </div>
-              </div>
-            )}
           </div>
           {app.is_hot ? (
             <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
-              <span className="bg-[#ff3d00] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+              <span className="bg-[#d32f2f] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                 HOT
               </span>
             </div>
           ) : app.is_new ? (
             <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
-              <span className="bg-[#00c853] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
+              <span className="bg-[#008738] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                 NEW
               </span>
             </div>
@@ -574,7 +566,7 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
         
         <div className="absolute bottom-0 right-4 left-[110px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
-      <AppOptionsMenu app={app} />
+      <AppOptionsMenu app={app} onMenuToggle={setIsMenuOpen} />
     </div>
   );
 });

@@ -45,7 +45,7 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in"
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in"
       onClick={onClose}
     >
       <motion.div

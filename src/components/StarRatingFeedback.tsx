@@ -153,6 +153,7 @@ export default function StarRatingFeedback() {
                   key={s}
                   id={`feedback-star-${s}`}
                   type="button"
+                  aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.9 }}
                   onMouseEnter={() => setHoveredRating(s)}

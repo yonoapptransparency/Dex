@@ -32,8 +32,23 @@ const Meta: React.FC<MetaProps> = ({
   const metaDescription = description || settings?.meta_description || 'Access application details and specifications.';
   const metaKeywords = keywords || settings?.seo_keywords || '';
   const metaImage = image || settings?.logo_url || '';
-  const metaUrl = url || window.location.href;
-  const canonicalUrl = canonical || metaUrl;
+  const getCleanCanonical = (rawUrl?: string): string => {
+    const input = rawUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.rummydex.com');
+    try {
+      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.rummydex.com';
+      const parsed = new URL(input, baseOrigin);
+      let pathname = parsed.pathname;
+      if (pathname.length > 1 && pathname.endsWith('/')) {
+        pathname = pathname.slice(0, -1);
+      }
+      return `${parsed.origin}${pathname}`;
+    } catch {
+      return input.split('?')[0].split('#')[0];
+    }
+  };
+
+  const metaUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  const canonicalUrl = getCleanCanonical(canonical || metaUrl);
 
   return (
     <Helmet>

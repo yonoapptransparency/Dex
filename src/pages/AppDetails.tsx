@@ -478,13 +478,6 @@ export default function AppDetails() {
                 </div>
               )}
             </div>
-            {isActuallyComingSoon && (
-              <div className="absolute top-[-8px] right-[-8px] pointer-events-none">
-                <div className="bg-amber-500/95 backdrop-blur-[1px] text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-sm border border-amber-400">
-                  Soon
-                </div>
-              </div>
-            )}
           </div>
           
           <div className="flex flex-col justify-center flex-1">

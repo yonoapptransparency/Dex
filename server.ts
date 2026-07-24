@@ -2469,7 +2469,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
   let backupDataCacheTime = 0;
   const BACKUP_DATA_CACHE_TTL = 30000; // 30 seconds memory cache
 
-  app.get("/api/v1/public/backup-data", async (req, res) => {
+  app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backup-data", "/public/backup-data"], async (req, res) => {
     try {
       const now = Date.now();
       if (backupDataCache && (now - backupDataCacheTime < BACKUP_DATA_CACHE_TTL)) {
