@@ -582,7 +582,7 @@ const AppsTab = React.memo(({ appsList, editingAppId, setEditingAppId, handleDel
         </div>
 
         {/* Right Column - Inspector Panel or Editing Drawer Form */}
-        <div className={`${(editingAppId !== null || selectedAppId) ? 'fixed inset-0 z-[100] rounded-none h-[100dvh] w-full flex lg:relative lg:inset-auto lg:z-auto lg:rounded-2xl lg:h-[780px] lg:w-auto lg:col-span-12 xl:col-span-12' : 'hidden lg:flex lg:h-[780px] lg:col-span-7 xl:col-span-7 rounded-2xl h-[500px]'} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex-col overflow-hidden shadow-sm`}>
+        <div className={`${(editingAppId !== null || selectedAppId) ? 'fixed inset-0 z-[9999] rounded-none h-full h-[100dvh] max-h-[100dvh] w-full flex lg:relative lg:inset-auto lg:z-auto lg:rounded-2xl lg:min-h-[780px] lg:max-h-[85vh] lg:h-[780px] lg:w-auto lg:col-span-12 xl:col-span-12' : 'hidden lg:flex lg:min-h-[780px] lg:col-span-7 xl:col-span-7 rounded-2xl h-[500px]'} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex-col overflow-hidden shadow-2xl lg:shadow-sm`}>
           
           {editingAppId !== null ? (
             /* ========================================================= */
@@ -657,7 +657,7 @@ const AppsTab = React.memo(({ appsList, editingAppId, setEditingAppId, handleDel
               </div>
 
               {/* Form Scrollable Body content */}
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 custom-scrollbar bg-slate-50/30 dark:bg-slate-900/10">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-28 sm:pb-36 space-y-6 custom-scrollbar bg-slate-50/30 dark:bg-slate-900/10">
                 
                 <div className={activeFormTab === 'general' ? 'animate-fade-in space-y-5' : 'hidden'}>
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -1172,20 +1172,20 @@ const AppsTab = React.memo(({ appsList, editingAppId, setEditingAppId, handleDel
                 </div>
 
               {/* Form Sticky Action Footer */}
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+              <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800/80 flex justify-end items-center gap-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0 sticky bottom-0 z-20 pb-safe shadow-lg">
                 <button 
                   type="button"
                   onClick={() => setEditingAppId(null)}
-                  className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   disabled={saving} 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-50 cursor-pointer border-0"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md transition-all disabled:opacity-50 cursor-pointer border-0 active:scale-95"
                 >
-                  {saving ? 'Synchronizing...' : <><Save className="w-3.5 h-3.5"/> Publish App Configuration</>}
+                  {saving ? 'Synchronizing...' : <><Save className="w-4 h-4"/> Publish App Configuration</>}
                 </button>
               </div>
 
@@ -1253,7 +1253,7 @@ const AppsTab = React.memo(({ appsList, editingAppId, setEditingAppId, handleDel
                   </div>
 
                   {/* Selected App Body Panel (Previews & Detailed Metrics) */}
-                  <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 custom-scrollbar bg-white dark:bg-slate-900">
+                  <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-20 space-y-6 custom-scrollbar bg-white dark:bg-slate-900">
                     
                     {/* Google SERP Preview simulator */}
                     <div className="space-y-2">

@@ -3290,7 +3290,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 min-w-0 bg-white dark:bg-slate-900 md:border md:border-slate-200 dark:border-slate-800/80 md:rounded-2xl p-4 sm:p-6 md:p-8 min-h-[750px] shadow-sm relative overflow-hidden">
+        <div className="flex-1 min-w-0 bg-white dark:bg-slate-900 md:border md:border-slate-200 dark:border-slate-800/80 md:rounded-2xl p-4 sm:p-6 md:p-8 min-h-[750px] shadow-sm relative overflow-visible md:overflow-hidden">
             <div className="relative z-10">
               {activeTab === 'dashboard' && <DashboardTab apps={appsList} news={newsList} />}
               {activeTab === 'apps' && (
