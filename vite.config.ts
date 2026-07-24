@@ -137,9 +137,27 @@ export default defineConfig(({mode}) => {
 
     build: {
       chunkSizeWarningLimit: 1000,
+      target: 'es2020',
+      minify: 'esbuild',
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
-          manualChunks: undefined
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react-router') || id.includes('react-dom') || id.includes('react-helmet-async') || id.includes('i18next')) {
+                return 'vendor-core';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+              if (id.includes('framer-motion') || id.includes('motion')) {
+                return 'vendor-motion';
+              }
+              if (id.includes('firebase')) {
+                return 'vendor-firebase';
+              }
+            }
+          }
         }
       }
     },

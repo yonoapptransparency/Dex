@@ -1,9 +1,18 @@
 import express from 'express';
+import compression from 'compression';
 import crypto from 'crypto';
 import CryptoJS from 'crypto-js';
 import { ENCRYPTED_LINKS } from '../src/lib/secureVault';
 
 const app = express();
+app.use(compression({
+  level: 6,
+  threshold: 256,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
 app.use(express.json());
 
 const AES_SECRET = process.env.AES_SECRET || '';
