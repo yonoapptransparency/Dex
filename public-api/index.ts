@@ -2,7 +2,6 @@ import express from 'express';
 import compression from 'compression';
 import crypto from 'crypto';
 import CryptoJS from 'crypto-js';
-import { ENCRYPTED_LINKS } from '../src/lib/secureVault';
 
 const app = express();
 app.use(compression({
@@ -26,6 +25,36 @@ const safeDecrypt = (ciphertext: string, secret: string) => {
     return '';
   }
 };
+
+app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backup-data", "/public/backup-data"], async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const publicBackupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
+    if (fs.existsSync(publicBackupPath)) {
+      try {
+        const backup = JSON.parse(fs.readFileSync(publicBackupPath, 'utf8'));
+        return res.json({
+          apps: backup.apps || [],
+          settings: backup.settings || {},
+          news: backup.news || [],
+          blogs: backup.blogs || [],
+          videos: backup.videos || []
+        });
+      } catch (e) {}
+    }
+    const staticData = require('../src/lib/staticData');
+    return res.json({
+      apps: staticData.mockApps || [],
+      settings: staticData.mockSettings || {},
+      news: staticData.mockNews || [],
+      blogs: staticData.mockBlogs || [],
+      videos: staticData.mockVideos || []
+    });
+  } catch (err) {
+    return res.status(200).json({ apps: [], settings: {}, news: [], blogs: [], videos: [] });
+  }
+});
 
 app.get("/api/v1/moreinfo-resolve", async (req, res) => {
   try {
