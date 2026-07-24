@@ -9,7 +9,6 @@ import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-do
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
-import { motion } from 'framer-motion';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
@@ -284,12 +283,9 @@ export default function Home() {
                 filteredApps.filter(app => app.is_new).slice(0, 10).map((app, index) => {
                   const isActuallyComingSoon = app.is_coming_soon && (!app.publish_date || new Date(app.publish_date).getTime() > new Date().getTime());
                   return (
-                  <motion.div
+                  <div
                     key={app.id}
                     className="flex-none w-[80px] sm:w-[96px] snap-start"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2 }}
                   >
                     <Link to={`/app/${app.slug}`} className="flex flex-col gap-2 group active:scale-[0.98] transition-transform">
                       <div className="relative w-full aspect-square">
@@ -324,7 +320,7 @@ export default function Home() {
                         <h3 className="text-[10px] sm:text-xs font-medium text-zinc-800 dark:text-zinc-200 truncate">{app.name}</h3>
                       </div>
                     </Link>
-                  </motion.div>
+                  </div>
                   );
                 })
               )}

@@ -3,7 +3,6 @@
  * Contains premium custom sliders, layout grids, rating bars, and mirror listing templates.
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn, safeVibrate } from '../lib/utilsPublic';
 import { ShieldCheck, Star, AlertTriangle, ShieldAlert, ArrowRight, Sparkles, ChevronLeft, ChevronRight, MoreVertical, Share2, Flag, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -56,16 +55,9 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="w-full overflow-hidden rounded-2xl sm:rounded-[20px] shadow-sm sm:border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 relative h-[130px] sm:h-[160px] md:h-[185px]">
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.4}
-          onDragStart={() => setIsDragging(true)}
-          onDragEnd={handleDragEnd}
-          animate={{ x: `-${currentIndex * 100}%` }}
-          transition={{ type: "spring", stiffness: 280, damping: 28 }}
-          className="flex h-full w-full cursor-grab active:cursor-grabbing"
-          style={{ width: `${items.length * 100}%` }}
+        <div 
+          className="flex h-full w-full transition-transform duration-300 ease-out"
+          style={{ width: `${items.length * 100}%`, transform: `translateX(-${(currentIndex * 100) / items.length}%)` }}
         >
           {items.map((item, i) => {
             const isExternal = item.link && (item.link.startsWith('http://') || item.link.startsWith('https://') || item.link.startsWith('//'));
@@ -142,7 +134,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
               </Link>
             );
           })}
-        </motion.div>
+        </div>
       </div>
 
       {/* Prev / Next controls (only visible on hover, desktop only for touch screen friendly clean interface) */}
@@ -175,13 +167,11 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
               className="group/dot focus:outline-none cursor-pointer py-1"
               aria-label={`Go to slide ${i + 1}`}
             >
-              <motion.div 
+              <div 
                 className={cn(
-                  "h-1.5 rounded-full", 
-                  i === currentIndex ? "bg-white" : "bg-white/40 group-hover/dot:bg-white/60"
+                  "h-1.5 rounded-full transition-all duration-300", 
+                  i === currentIndex ? "w-[18px] bg-white" : "w-[6px] bg-white/40 group-hover/dot:bg-white/60"
                 )}
-                animate={{ width: i === currentIndex ? 18 : 6 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
               />
             </button>
           ))}
@@ -347,36 +337,30 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
         <MoreVertical className="w-4 h-4" />
       </button>
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[120]"
+      {menuOpen && (
+        <div
+          className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[120] transition-all duration-150 animate-in fade-in zoom-in-95"
+        >
+          <button
+            onClick={handleShare}
+            onTouchStart={(e) => { e.stopPropagation(); }}
+            onPointerDown={(e) => { e.stopPropagation(); }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left cursor-pointer"
           >
-            <button
-              onClick={handleShare}
-              onTouchStart={(e) => { e.stopPropagation(); }}
-              onPointerDown={(e) => { e.stopPropagation(); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5 text-zinc-400" />
-              <span>{copied ? 'Link Copied!' : 'Share app'}</span>
-            </button>
-            <button
-              onClick={handleOpenReport}
-              onTouchStart={(e) => { e.stopPropagation(); }}
-              onPointerDown={(e) => { e.stopPropagation(); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left border-t border-zinc-800/60 h-[44px] cursor-pointer"
-            >
-              <Flag className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Flag as inappropriate</span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <Share2 className="w-3.5 h-3.5 text-zinc-400" />
+            <span>{copied ? 'Link Copied!' : 'Share app'}</span>
+          </button>
+          <button
+            onClick={handleOpenReport}
+            onTouchStart={(e) => { e.stopPropagation(); }}
+            onPointerDown={(e) => { e.stopPropagation(); }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left border-t border-zinc-800/60 h-[44px] cursor-pointer"
+          >
+            <Flag className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Flag as inappropriate</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

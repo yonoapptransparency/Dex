@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { cn } from '../lib/utilsPublic';
@@ -38,30 +37,23 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
         </div>
       </button>
       
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className={cn(
-              "text-slate-600 dark:text-slate-400 leading-relaxed",
-              isWebsiteFaq ? "px-6 pb-6 pt-0 font-medium" : "px-4 pb-4 pt-0 text-sm"
-            )}>
-              <div className={cn("flex flex-col sm:flex-row items-start gap-3 w-full")}>
-                {isWebsiteFaq && <span className="text-indigo-500 font-black mt-px shrink-0">A.</span>}
-                <div 
-                  className="prose prose-zinc dark:prose-invert prose-sm max-w-none w-full break-words break-all sm:break-normal overflow-wrap-anywhere whitespace-normal"
-                  dangerouslySetInnerHTML={{ __html: safeHtml(answer) }}
-                />
-              </div>
+      {isOpen && (
+        <div className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className={cn(
+            "text-slate-600 dark:text-slate-400 leading-relaxed",
+            isWebsiteFaq ? "px-6 pb-6 pt-0 font-medium" : "px-4 pb-4 pt-0 text-sm"
+          )}>
+            <div className={cn("flex flex-col sm:flex-row items-start gap-3 w-full")}>
+              {isWebsiteFaq && <span className="text-indigo-500 font-black mt-px shrink-0">A.</span>}
+              <div 
+                className="prose prose-zinc dark:prose-invert prose-sm max-w-none w-full break-words break-all sm:break-normal overflow-wrap-anywhere whitespace-normal"
+                dangerouslySetInnerHTML={{ __html: safeHtml(answer) }}
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

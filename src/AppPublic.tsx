@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 
 import Home from './pages/Home';
 import React, { useState, useEffect, useMemo, Suspense, lazy, ComponentType, LazyExoticComponent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 
 // Error Boundary component for robust UI
@@ -161,29 +160,9 @@ function Header() {
     }
   };
 
-  const navVariants = settings.animations_enabled ? {
-    hidden: { y: -50, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1, 
-      transition: { 
-        type: "spring" as const,
-        stiffness: 280,
-        damping: 24,
-        mass: 0.8
-      } 
-    }
-  } : {
-    hidden: { y: 0, opacity: 1 },
-    visible: { y: 0, opacity: 1 }
-  };
-
   return (
     <>
-      <motion.header 
-        initial="hidden"
-        animate="visible"
-        variants={navVariants}
+      <header 
         className={`sticky top-0 z-50 transition-all duration-300 ease-out backdrop-blur-md ${
           scrolled 
             ? 'bg-white/80 dark:bg-black/80 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
@@ -203,15 +182,15 @@ function Header() {
           <nav className="hidden md:flex items-center gap-4 lg:gap-8 text-sm font-medium">
             <Link to="/" onClick={triggerHaptic} className={`transition-all p-2 tracking-wide relative ${pathname === '/' ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}>
               {t('Home')}
-              {pathname === '/' && <motion.div layoutId="header-active" className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full" />}
+              {pathname === '/' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
             </Link>
             <Link to="/new-apps" onClick={triggerHaptic} className={`transition-all p-2 tracking-wide flex items-center gap-1.5 relative ${pathname === '/new-apps' ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}>
               {t('New Releases')} <span className="flex w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              {pathname === '/new-apps' && <motion.div layoutId="header-active" className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full" />}
+              {pathname === '/new-apps' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
             </Link>
             <Link to="/news" onClick={triggerHaptic} className={`transition-all p-2 tracking-wide relative ${pathname === '/news' ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}>
               {t('News')}
-              {pathname === '/news' && <motion.div layoutId="header-active" className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full" />}
+              {pathname === '/news' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
             </Link>
             <div className="relative group/more" onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
               <button 
@@ -221,14 +200,10 @@ function Header() {
                 More <MoreHorizontal className="w-4 h-4 ml-1" />
               </button>
               
-              <AnimatePresence>
-                {moreOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    className="absolute top-full right-0 mt-1 w-48 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden py-2 z-50"
-                  >
+              {moreOpen && (
+                <div 
+                  className="absolute top-full right-0 mt-1 w-48 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden py-2 z-50 transition-all duration-200 animate-in fade-in slide-in-from-top-1"
+                >
                     {[
                       { action: () => window.dispatchEvent(new Event('open-public-chatbot')), label: 'AI Assistant', icon: Bot },
                       { to: '/videos', label: 'Videos', icon: Video },
@@ -265,9 +240,8 @@ function Header() {
                         </button>
                       )
                     ))}
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
             </div>
 
             <div className="flex items-center gap-3 ml-4 border-l border-zinc-200 dark:border-zinc-800 pl-4 h-6">
@@ -331,18 +305,13 @@ function Header() {
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98 backdrop-blur-2xl flex flex-col px-6 py-8 overflow-y-auto"
-          >
+      {menuOpen && (
+        <div 
+          className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98 backdrop-blur-2xl flex flex-col px-6 py-8 overflow-y-auto transition-all duration-200 animate-in fade-in slide-in-from-top-2"
+        >
             <div className="flex justify-between items-center mb-8 shrink-0">
               <span className="text-xl font-bold flex items-center gap-2.5 tracking-tight text-zinc-900 dark:text-white">
                 {settings.logo_url ? <img src={settings.logo_url} width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" /> : <Shield className="w-6 h-6 text-blue-500" />} {settings.site_title}
@@ -408,9 +377,8 @@ function Header() {
             <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 text-center shrink-0">
               <span className="text-xs text-zinc-400 font-medium">&copy; {new Date().getFullYear()} {settings.site_title}</span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
       <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
@@ -683,20 +651,15 @@ function BackToTop() {
   };
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          onClick={scrollToTop}
-          className="fixed bottom-24 md:bottom-8 right-6 z-50 p-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full shadow-lg border border-black/5 dark:border-white/10 transition-transform hover:scale-110 active:scale-95"
-          aria-label="Back to top"
-        >
-          <ArrowRight className="w-5 h-5 -rotate-90 opacity-70" />
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      onClick={scrollToTop}
+      className={`fixed bottom-24 md:bottom-8 right-6 z-50 p-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full shadow-lg border border-black/5 dark:border-white/10 transition-all duration-300 hover:scale-110 active:scale-95 ${
+        visible ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-5 scale-90 pointer-events-none'
+      }`}
+      aria-label="Back to top"
+    >
+      <ArrowRight className="w-5 h-5 -rotate-90 opacity-70" />
+    </button>
   );
 }
 
@@ -1122,11 +1085,9 @@ function AppContent() {
       {memoizedFooter}
       <BackToTop />
 
-      <AnimatePresence>
-        {reportApp && (
-          <ReportAppModal app={reportApp} onClose={() => setReportApp(null)} />
-        )}
-      </AnimatePresence>
+      {reportApp && (
+        <ReportAppModal app={reportApp} onClose={() => setReportApp(null)} />
+      )}
     </div>
   );
   // __PUBLIC_BLOCK_END__

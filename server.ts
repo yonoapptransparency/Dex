@@ -2441,7 +2441,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
   }
 
   function parseFirestoreValue(val: any): any {
-    if (!val) return null;
+    if (!val || typeof val !== 'object') return val ?? null;
     if ('stringValue' in val) return val.stringValue;
     if ('booleanValue' in val) return val.booleanValue;
     if ('integerValue' in val) return parseInt(val.integerValue, 10);
@@ -2464,7 +2464,7 @@ app.post("/api/v1/admin/2fa/resend", async (req: any, res: any) => {
   }
 
   function parseFirestoreFields(fields: any): any {
-    if (!fields) return {};
+    if (!fields || typeof fields !== 'object') return {};
     const res: any = {};
     for (const key of Object.keys(fields)) {
       res[key] = parseFirestoreValue(fields[key]);

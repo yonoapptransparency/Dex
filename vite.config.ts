@@ -151,8 +151,14 @@ export default defineConfig(({mode}) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('react-router') || id.includes('react-dom') || id.includes('react-helmet-async') || id.includes('i18next')) {
-                return 'vendor-core';
+              if (id.includes('i18next') || id.includes('react-i18next')) {
+                return 'vendor-i18n';
+              }
+              if (id.includes('react-router')) {
+                return 'vendor-router';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+                return 'vendor-react';
               }
               if (id.includes('lucide-react')) {
                 return 'vendor-icons';
