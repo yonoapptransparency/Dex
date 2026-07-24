@@ -2,6 +2,7 @@ import express from 'express';
 import compression from 'compression';
 import crypto from 'crypto';
 import CryptoJS from 'crypto-js';
+import { mockApps, mockSettings, mockNews, mockBlogs, mockVideos } from '../src/lib/staticData';
 
 const app = express();
 app.use(compression({
@@ -35,24 +36,23 @@ app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backu
       try {
         const backup = JSON.parse(fs.readFileSync(publicBackupPath, 'utf8'));
         return res.json({
-          apps: backup.apps || [],
-          settings: backup.settings || {},
-          news: backup.news || [],
-          blogs: backup.blogs || [],
-          videos: backup.videos || []
+          apps: backup.apps || mockApps || [],
+          settings: backup.settings || mockSettings || {},
+          news: backup.news || mockNews || [],
+          blogs: backup.blogs || mockBlogs || [],
+          videos: backup.videos || mockVideos || []
         });
       } catch (e) {}
     }
-    const staticData = require('../src/lib/staticData');
     return res.json({
-      apps: staticData.mockApps || [],
-      settings: staticData.mockSettings || {},
-      news: staticData.mockNews || [],
-      blogs: staticData.mockBlogs || [],
-      videos: staticData.mockVideos || []
+      apps: mockApps || [],
+      settings: mockSettings || {},
+      news: mockNews || [],
+      blogs: mockBlogs || [],
+      videos: mockVideos || []
     });
   } catch (err) {
-    return res.status(200).json({ apps: [], settings: {}, news: [], blogs: [], videos: [] });
+    return res.status(200).json({ apps: mockApps || [], settings: mockSettings || {}, news: mockNews || [], blogs: mockBlogs || [], videos: mockVideos || [] });
   }
 });
 

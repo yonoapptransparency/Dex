@@ -110,31 +110,29 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       localStorage.setItem(`playstore_rated_${appId}`, 'true');
       localStorage.setItem(`playstore_rating_val_${appId}`, rating.toString());
 
-      // 2. Transmit to Firebase for live synchronization
-      const { db, isFirebaseConfigured } = await import('../lib/firebase');
-      if (isFirebaseConfigured) {
-        const { collection, addDoc } = await import('firebase/firestore');
-        await addDoc(collection(db, 'reviews'), {
-          app_id: appId,
-          username: cleanName,
-          rating: rating,
-          comment: cleanComment,
-          created_at: newReview.created_at,
-          helpful_count: 0,
-          is_approved: false,
-          source: 'community'
-        });
-      }
+      try {
+        await fetch('/api/v1/public/rating', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_id: appId,
+            username: cleanName,
+            rating: rating,
+            comment: cleanComment,
+            created_at: newReview.created_at,
+            helpful_count: 0,
+            is_approved: false,
+            source: 'community'
+          })
+        }).catch(() => {});
+      } catch (e) {}
 
       setSubmitted(true);
       if (onReviewSubmitted) {
         onReviewSubmitted();
       }
     } catch (err) {
-      try {
-        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
-        handleFirestoreError(err, OperationType.CREATE, 'reviews');
-      } catch (e) {}
+      // Gracefully finish
     } finally {
       setSubmitting(false);
     }

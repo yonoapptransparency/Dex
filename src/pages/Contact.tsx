@@ -120,12 +120,13 @@ export default function Contact() {
               source: 'contact_page'
             };
 
-            const { isFirebaseConfigured, db } = await import('../lib/firebase');
-            if (isFirebaseConfigured && db) {
-              const { collection, addDoc } = await import('firebase/firestore');
-              const ticketsCol = collection(db, 'support_tickets');
-              await addDoc(ticketsCol, payload);
-            }
+            try {
+              await fetch('/api/v1/public/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              }).catch(() => {});
+            } catch (e) {}
             setSuccess(true);
             setMsgText('');
             setUsername('');

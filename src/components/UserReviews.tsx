@@ -140,45 +140,19 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
 
       let combinedReviews = [...localReviews, ...baseReviews];
 
-      // Step 3: If Firebase is active, retrieve real-time community reviews from Firestore
+      // Step 3: Fetch remote community reviews from public API if available
       try {
-        const { isFirebaseConfigured, db, handleFirestoreError, OperationType } = await import('../lib/firebase');
-        if (isFirebaseConfigured && db) {
-          const { query, collection, where, getDocs } = await import('firebase/firestore');
-          const q = query(
-            collection(db, 'reviews'),
-            where('app_id', '==', appId)
-          );
-          const snap = await getDocs(q);
-          const firestoreReviews: Review[] = snap.docs.map(doc => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              app_id: data.app_id,
-              username: data.username || 'Anonymous User',
-              rating: Number(data.rating) || 5,
-              comment: data.comment || '',
-              created_at: data.created_at || new Date().toISOString(),
-              helpful_count: data.helpful_count || 0,
-              source: data.source || 'community',
-              reported: data.reported || false,
-              report_count: data.report_count || 0,
-              is_approved: data.is_approved
-            };
-          }).filter(r => r.is_approved !== false);
-
-          // Prevent listing duplicates (e.g. if localstorage matches firestore ID)
-          const dbIds = new Set(firestoreReviews.map(r => r.id));
-          const filteredLocal = localReviews.filter(r => !dbIds.has(r.id));
-          
-          // Prepend firestore reviews (keep our static reviews as verified community base)
-          combinedReviews = [...firestoreReviews, ...filteredLocal, ...baseReviews];
+        const res = await fetch(`/api/v1/public/reviews?app_id=${appId}`).catch(() => null);
+        if (res && res.ok) {
+          const remoteData = await res.json().catch(() => []);
+          if (Array.isArray(remoteData) && remoteData.length > 0) {
+            const dbIds = new Set(remoteData.map((r: any) => r.id));
+            const filteredLocal = localReviews.filter(r => !dbIds.has(r.id));
+            combinedReviews = [...remoteData, ...filteredLocal, ...baseReviews];
+          }
         }
       } catch (dbErr) {
-        try {
-          const { handleFirestoreError, OperationType } = await import('../lib/firebase');
-          handleFirestoreError(dbErr, OperationType.LIST, 'reviews');
-        } catch (e) {}
+        // Graceful fallback
       }
 
       // Sort by modern dates first
@@ -247,25 +221,16 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       console.warn('Failed to update local storage review report status', e);
     }
 
-    // 3. If Firebase is active and it's a remote review (not mock), update in Firestore
+    // 3. Update report status via API
     try {
-      const { isFirebaseConfigured, db } = await import('../lib/firebase');
-      if (isFirebaseConfigured && db && !id.startsWith('mock')) {
-        const { doc, updateDoc } = await import('firebase/firestore');
-        const reviewRef = doc(db, 'reviews', id);
-        const targetReview = reviews.find(r => r.id === id);
-        const currentReportCount = targetReview ? (targetReview.report_count || 0) : 0;
-        await updateDoc(reviewRef, {
-          reported: true,
-          report_count: currentReportCount + 1
-        });
+      if (!id.startsWith('mock')) {
+        await fetch('/api/v1/public/report-review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ review_id: id })
+        }).catch(() => {});
       }
-    } catch (firebaseErr: any) {
-      try {
-        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
-        handleFirestoreError(firebaseErr, OperationType.UPDATE, `reviews/${id}`);
-      } catch (e) {}
-    }
+    } catch (e) {}
   };
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -334,21 +299,23 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       }
       localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
 
-      // Step 3: Write in background to centralized Firestore collection (fully secured)
-      const { isFirebaseConfigured, db } = await import('../lib/firebase');
-      if (isFirebaseConfigured && db) {
-        const { collection, addDoc } = await import('firebase/firestore');
-        await addDoc(collection(db, 'reviews'), {
-          app_id: appId,
-          username: cleanUsername,
-          rating: rating,
-          comment: cleanComment,
-          created_at: newSubmission.created_at,
-          helpful_count: 0,
-          is_approved: false,
-          source: newSubmission.source
-        });
-      }
+      // Step 3: Write in background to API
+      try {
+        await fetch('/api/v1/public/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_id: appId,
+            username: cleanUsername,
+            rating: rating,
+            comment: cleanComment,
+            created_at: newSubmission.created_at,
+            helpful_count: 0,
+            is_approved: false,
+            source: newSubmission.source
+          })
+        }).catch(() => {});
+      } catch (e) {}
 
       setSuccess(true);
       setUsername('');
@@ -357,11 +324,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
       
       setTimeout(() => setSuccess(false), 5000);
     } catch (saveErr: any) {
-      console.warn('Remote sync reviews failure (fallback storage active):', saveErr.message || saveErr);
-      try {
-        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
-        handleFirestoreError(saveErr, OperationType.CREATE, 'reviews');
-      } catch (e) {}
+      console.warn('Review submission handled with local fallback:', saveErr.message || saveErr);
     } finally {
       setSubmitting(false);
     }

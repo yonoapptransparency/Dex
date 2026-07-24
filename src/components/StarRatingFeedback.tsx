@@ -75,26 +75,24 @@ export default function StarRatingFeedback() {
       localStorage.setItem('user_feedback_submitted', 'true');
       localStorage.setItem('user_feedback_rating', rating.toString());
 
-      // 2. Try writing to Firestore inside a separate collections "website_feedback"
-      const { db, isFirebaseConfigured, handleFirestoreError, OperationType } = await import('../lib/firebase');
-      if (isFirebaseConfigured) {
-        const { collection, addDoc } = await import('firebase/firestore');
-        await addDoc(collection(db, 'website_feedback'), {
-          username: cleanName,
-          rating: rating,
-          comment: cleanComment,
-          created_at: new Date().toISOString(),
-          source: window.location.hostname
-        });
-      }
+      try {
+        await fetch('/api/v1/public/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: cleanName,
+            rating: rating,
+            comment: cleanComment,
+            created_at: new Date().toISOString(),
+            source: window.location.hostname
+          })
+        }).catch(() => {});
+      } catch (e) {}
 
       setSubmitted(true);
       triggerHaptic();
     } catch (err) {
-      try {
-        const { handleFirestoreError, OperationType } = await import('../lib/firebase');
-        handleFirestoreError(err, OperationType.CREATE, 'website_feedback');
-      } catch (e) {}
+      // Gracefully finish
     } finally {
       setSubmitting(false);
     }

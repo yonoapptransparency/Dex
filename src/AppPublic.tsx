@@ -744,15 +744,9 @@ function AppContent() {
 
     const isAdminPath = false;
 
-  // Prefetch other pages in the background after initial render so subsequent navigation is instant
+  // Prefetching removed from unconditional timer to prevent network congestion on initial page load
   useEffect(() => {
-    const timer = setTimeout(() => {
-      Object.values(pageFactories).forEach(factory => {
-        try { factory(); } catch (e) {}
-      });
-    }, 2500); // 2.5s delay to prioritize the first page's performance footprint
-    
-    return () => clearTimeout(timer);
+    // Pages load on-demand when user navigates or hovers over navigation links
   }, []);
 
   const triggerHaptic = () => {
