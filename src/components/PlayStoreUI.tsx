@@ -405,8 +405,8 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               alt={app.name} 
               width={84}
               height={84}
-              loading={index !== undefined && index < 5 ? "eager" : "lazy"}
-              fetchPriority={index !== undefined && index < 5 ? "high" : "low"}
+              loading={index !== undefined && index <= 4 ? "eager" : "lazy"}
+              fetchPriority={index !== undefined && index <= 4 ? "high" : "low"}
               decoding="async"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover"
@@ -499,7 +499,8 @@ export const TopChartItem = React.memo(({ rank, app }: TopChartItemProps) => {
               alt={app.name} 
               width={84}
               height={84}
-              loading="lazy"
+              loading={rank <= 4 ? "eager" : "lazy"}
+              fetchPriority={rank <= 4 ? "high" : "low"}
               decoding="async"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover"

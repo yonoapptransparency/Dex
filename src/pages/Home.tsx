@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useMemo, useDeferredValue, useRef, useCallback } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
-import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
@@ -26,6 +26,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'All Apps');
   const [ratingFilter, setRatingFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('default');
+
+  const navType = useNavigationType();
 
   // Pagination & Infinite Prefetch
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10) || 1;
@@ -51,24 +53,35 @@ export default function Home() {
   const deferredRatingFilter = useDeferredValue(ratingFilter);
   const deferredSortBy = useDeferredValue(sortBy);
 
-  // Restore Scroll Position on Mount if present in sessionStorage
+  // Handle scroll position on mount: restore ONLY on browser Back (POP navigation)
   useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed.scrollY === 'number' && parsed.scrollY > 0) {
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              window.scrollTo({ top: parsed.scrollY, behavior: 'instant' });
-            }, 50);
-          });
+    if (navType === 'POP') {
+      try {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.scrollY === 'number' && parsed.scrollY > 0) {
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                window.scrollTo({ top: parsed.scrollY, behavior: 'instant' });
+              }, 50);
+            });
+            return;
+          }
         }
+      } catch (e) {
+        // Ignore
       }
-    } catch (e) {
-      // Ignore
+    } else {
+      // Direct load, link click, or fresh entry: clear stale scroll and lock to top
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        // Ignore
+      }
+      window.scrollTo(0, 0);
     }
-  }, []);
+  }, [navType]);
 
   // Save scroll position & visible count to sessionStorage before navigating away
   useEffect(() => {
@@ -294,9 +307,9 @@ export default function Home() {
                             src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                             alt={app.name} 
                             referrerPolicy="no-referrer"
-                            loading={index < 8 ? "eager" : "lazy"}
+                            loading={index < 3 ? "eager" : "lazy"}
                             decoding="async"
-                            {...(index < 4 ? { fetchPriority: "high" as const } : {})}
+                            {...(index < 3 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
                             width={128}
                             height={128}
                             className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
