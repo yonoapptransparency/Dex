@@ -58,7 +58,7 @@ export default function Blogs() {
                className="group flex flex-col"
             >
               <Link to={`/blog/${encodeURIComponent(blog.slug || blog.id)}`} className="block h-64 sm:h-80 rounded-[24px] overflow-hidden mb-6 shadow-sm border border-black/5">
-                <img src={blog.cover_url || `https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=400&fit=crop`} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={blog.cover_url || `https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=400&fit=crop`} alt={blog.title} loading="lazy" width={800} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </Link>
               <div className="flex flex-col">
                 <div className="flex items-center gap-3 mb-3">

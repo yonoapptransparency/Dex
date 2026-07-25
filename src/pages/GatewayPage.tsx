@@ -360,6 +360,9 @@ export default function GatewayPage() {
                     <img 
                       src={app.icon_url} 
                       fetchPriority="high" 
+                      loading="eager"
+                      width={104}
+                      height={104}
                       alt={`${app.name} icon`} 
                       className="w-full h-full object-cover rounded-[20px] select-none pointer-events-none"
                     />
@@ -447,6 +450,8 @@ export default function GatewayPage() {
                    <img 
                      src={discoverApp.icon_url} 
                      loading="lazy" 
+                     width={64}
+                     height={64}
                      alt={`${discoverApp.name} icon`} 
                      className="w-full h-full object-cover select-none pointer-events-none"
                    />

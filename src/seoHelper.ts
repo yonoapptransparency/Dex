@@ -448,7 +448,7 @@ function renderHeader(settings: any) {
     <header class="py-3 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 flex justify-between items-center">
         <a href="/" class="flex items-center gap-3 font-bold text-lg text-zinc-900 dark:text-white">
-          ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" class="w-10 h-10 object-contain" alt="Logo"/>` : ''}
+          ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" loading="eager" width="40" height="40" class="w-10 h-10 object-contain" alt="Logo"/>` : ''}
           <span>${escapeHtml(siteTitle)}</span>
         </a>
         <nav class="hidden md:flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-300">
@@ -477,7 +477,7 @@ function renderFooter(settings: any) {
     <footer class="pt-12 pb-8 border-t border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-950 mt-12 text-center text-zinc-500 dark:text-zinc-400">
       <div class="max-w-7xl mx-auto px-6">
         <h3 class="text-xl font-bold flex items-center justify-center gap-2 text-zinc-900 dark:text-white mb-2">
-          ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" class="w-8 h-8 object-contain" alt="Logo" />` : ''}
+          ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" loading="eager" width="32" height="32" class="w-8 h-8 object-contain" alt="Logo" />` : ''}
           <span>${escapeHtml(siteTitle)}</span>
         </h3>
         <p class="text-sm max-w-xl mx-auto mb-6 leading-relaxed">${escapeHtml(metaDescription)}</p>
@@ -518,7 +518,7 @@ function renderHome(apps: any[], settings: any, news: any[], blogs: any[], video
     appsHtml += `
       <a href="/${encodeURIComponent(slug)}" class="flex items-center gap-4 p-4 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition border-b border-black/5 dark:border-white/5">
         <span class="text-sm font-bold text-zinc-400 shrink-0 w-8 text-center">${i + 1}</span>
-        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" class="w-16 h-16 rounded-[18px] object-cover bg-white shadow-sm shrink-0" alt="${escapeHtml(name)}"/>
+        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" loading="lazy" width="64" height="64" class="w-16 h-16 rounded-[18px] object-cover bg-white shadow-sm shrink-0" alt="${escapeHtml(name)}"/>
         <div class="flex-1 min-w-0 text-left">
           <h3 class="font-bold text-base text-zinc-900 dark:text-zinc-100 truncate">${escapeHtml(name)}</h3>
           <p class="text-xs text-zinc-500 truncate">${escapeHtml(category)}</p>
@@ -579,7 +579,7 @@ function renderNewApps(apps: any[], settings: any) {
     
     grid += `
       <a href="/${encodeURIComponent(slug)}" class="p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-black/5 text-center flex flex-col items-center">
-        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" class="w-20 h-20 rounded-2xl object-cover mb-3 shadow-sm bg-white" alt="icon"/>
+        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" loading="lazy" width="80" height="80" class="w-20 h-20 rounded-2xl object-cover mb-3 shadow-sm bg-white" alt="icon"/>
         <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate w-full">${escapeHtml(name)}</h3>
         <p class="text-xs text-zinc-500 mt-1 truncate w-full">${escapeHtml(cat)}</p>
         <span class="text-xs text-zinc-650 dark:text-zinc-400 mt-2 font-bold">${rating} ★</span>
@@ -615,7 +615,7 @@ function renderAppDetails(slug: string, apps: any[], settings: any) {
   return `
     <div class="py-6">
       <div class="flex flex-col items-center text-center pb-8 border-b border-black/5 mb-8">
-        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-[22px] object-cover mb-4 shadow" alt="icon"/>
+        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" loading="lazy" width="96" height="96" class="w-24 h-24 sm:w-32 sm:h-32 rounded-[22px] object-cover mb-4 shadow" alt="icon"/>
         <h1 class="text-3xl sm:text-5xl font-extrabold text-zinc-900 dark:text-white leading-tight mb-2">${escapeHtml(name)}</h1>
         <div class="flex gap-2 text-xs font-semibold mb-6">
           <span class="bg-blue-50 px-2.5 py-1 rounded-full text-blue-600">${escapeHtml(cat)}</span>
@@ -663,7 +663,7 @@ function renderGateway(slug: string, apps: any[], settings: any) {
   return `
     <div class="max-w-xl mx-auto py-12 px-4 shadow-sm bg-white dark:bg-zinc-900 rounded-3xl border border-black/5">
       <div class="text-center">
-        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border" alt="icon"/>
+        <img src="${icon || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop'}" loading="lazy" width="80" height="80" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border" alt="icon"/>
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-white leading-snug mb-1">${escapeHtml(name)}</h1>
         <p class="text-xs text-zinc-400 uppercase tracking-widest font-black mb-6">Information Hub</p>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-semibold mb-8">Access the application details and specifications below.</p>

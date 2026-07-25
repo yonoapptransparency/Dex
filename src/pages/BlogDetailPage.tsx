@@ -144,7 +144,7 @@ export default function BlogDetailPage() {
 
         {blog.cover_url && (
             <div className="w-full aspect-video mb-12 rounded-[24px] overflow-hidden shadow-sm border border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900">
-                <img src={blog.cover_url} alt={blog.title} className="w-full h-full object-cover" />
+                <img src={blog.cover_url} alt={blog.title} loading="eager" fetchPriority="high" width={800} height={450} className="w-full h-full object-cover" />
             </div>
         )}
         

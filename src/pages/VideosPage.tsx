@@ -117,7 +117,9 @@ export default function VideosPage() {
                     alt={video.title}
                     referrerPolicy="no-referrer"
                     decoding="async"
-                    loading="eager"
+                    loading="lazy"
+                    width={400}
+                    height={225}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   {/* Subtle elegant gradient overlay */}

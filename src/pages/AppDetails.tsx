@@ -135,6 +135,9 @@ const YouTubePlayer = ({ videoUrl }: { videoUrl: string }) => {
       <img 
         src={thumbnailUrl} 
         alt="Video thumbnail" 
+        loading="lazy"
+        width={250}
+        height={140}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
       />
       {/* Play Overlay */}
@@ -471,7 +474,7 @@ export default function AppDetails() {
               <div className="premium-logo-shine-overlay"></div>
               
               {app.icon_url ? (
-                <img src={app.icon_url || undefined} alt={app.name} width={128} height={128} className="w-full h-full object-cover" />
+                <img src={app.icon_url || undefined} alt={app.name} loading="eager" fetchPriority="high" width={128} height={128} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-3xl font-bold bg-zinc-800 text-zinc-500">
                   {(app.name || 'A').substring(0, 1)}
@@ -624,7 +627,7 @@ export default function AppDetails() {
                       key={i} 
                       className="flex-none w-[90px] sm:w-[125px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 select-none"
                     >
-                      <img src={imgUrl} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover select-none pointer-events-none" />
+                      <img src={imgUrl} alt={`Screenshot ${i + 1}`} loading="lazy" width={125} height={222} className="w-full h-full object-cover select-none pointer-events-none" />
                     </div>
                   ))}
                 </div>
