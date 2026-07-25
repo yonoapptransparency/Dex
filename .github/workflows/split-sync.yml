@@ -221,42 +221,7 @@ jobs:
 
             if [ "$TYPE" = "public" ]; then
               echo "Enforcing Public-Only Dex Isolation..."
-              cat << 'EOF' > vercel.json
-{
-  "version": 2,
-  "outputDirectory": "dist",
-  "buildCommand": "npm run build",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "Vary", "value": "Accept-Encoding" }
-      ]
-    },
-    {
-      "source": "/(.*)\\.(jpg|jpeg|png|webp|svg|gif|ico|woff|woff2|ttf|otf|css|js|json|xml|wasm|webmanifest)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Expires", "value": "Thu, 31 Dec 2037 23:59:59 GMT" },
-        { "key": "Vary", "value": "Accept-Encoding" }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Expires", "value": "Thu, 31 Dec 2037 23:59:59 GMT" },
-        { "key": "Vary", "value": "Accept-Encoding" }
-      ]
-    }
-  ]
-}
-EOF
+              echo 'ewogICJ2ZXJzaW9uIjogMiwKICAib3V0cHV0RGlyZWN0b3J5IjogImRpc3QiLAogICJidWlsZENvbW1hbmQiOiAibnBtIHJ1biBidWlsZCIsCiAgInJld3JpdGVzIjogWwogICAgeyAic291cmNlIjogIi9hcGkvKC4qKSIsICJkZXN0aW5hdGlvbiI6ICIvYXBpL2luZGV4IiB9LAogICAgeyAic291cmNlIjogIi8oLiopIiwgImRlc3RpbmF0aW9uIjogIi9pbmRleC5odG1sIiB9CiAgXSwKICAiaGVhZGVycyI6IFsKICAgIHsKICAgICAgInNvdXJjZSI6ICIvKC4qKSIsCiAgICAgICJoZWFkZXJzIjogWwogICAgICAgIHsgImtleSI6ICJDYWNoZS1Db250cm9sIiwgInZhbHVlIjogInB1YmxpYywgbWF4LWFnZT0wLCBtdXN0LXJldmFsaWRhdGUiIH0sCiAgICAgICAgeyAia2V5IjogIlZhcnkiLCAidmFsdWUiOiAiQWNjZXB0LUVuY29kaW5nIiB9CiAgICAgIF0KICAgIH0sCiAgICB7CiAgICAgICJzb3VyY2UiOiAiLyguKilcXC4oanBnfGpwZWd8cG5nfHdlYnB8c3ZnfGdpZnxpY298d29mZnx3b2ZmMnx0dGZ8b3RmfGNzc3xqc3xqc29ufHhtbHx3YXNtfHdlYm1hbmlmZXN0KSIsCiAgICAgICJoZWFkZXJzIjogWwogICAgICAgIHsgImtleSI6ICJDYWNoZS1Db250cm9sIiwgInZhbHVlIjogInB1YmxpYywgbWF4LWFnZT0zMTUzNjAwMCwgaW1tdXRhYmxlIiB9LAogICAgICAgIHsgImtleSI6ICJFeHBpcmVzIiwgInZhbHVlIjogIlRodSwgMzEgRGVjIDIwMzcgMjM6NTk6NTkgR01UIiB9LAogICAgICAgIHsgImtleSI6ICJWYXJ5IiwgInZhbHVlIjogIkFjY2VwdC1FbmNvZGluZyIgfQogICAgICBdCiAgICB9LAogICAgewogICAgICAic291cmNlIjogIi9hc3NldHMvKC4qKSIsCiAgICAgICJoZWFkZXJzIjogWwogICAgICAgIHsgImtleSI6ICJDYWNoZS1Db250cm9sIiwgInZhbHVlIjogInB1YmxpYywgbWF4LWFnZT0zMTUzNjAwMCwgaW1tdXRhYmxlIiB9LAogICAgICAgIHsgImtleSI6ICJFeHBpcmVzIiwgInZhbHVlIjogIlRodSwgMzEgRGVjIDIwMzcgMjM6NTk6NTkgR01UIiB9LAogICAgICAgIHsgImtleSI6ICJWYXJ5IiwgInZhbHVlIjogIkFjY2VwdC1FbmNvZGluZyIgfQogICAgICBdCiAgICB9CiAgXQp9' | base64 -d > vercel.json
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
