@@ -6,7 +6,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Navigate, Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { Helmet } from 'react-helmet-async';
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
@@ -109,15 +108,9 @@ export default function FallbackRouteMatcher() {
     return <Navigate to={`/videos/${slug}`} replace />;
   }
 
-
   return (
     <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
-      <Helmet>
-        <title>404 - Page Not Found</title>
-        <meta name="robots" content="noindex, follow" />
-      </Helmet>
       <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
-
         <span className="text-2xl font-bold">404</span>
       </div>
       <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Page Not Found</h1>
