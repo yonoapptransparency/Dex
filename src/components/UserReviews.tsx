@@ -6,19 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, Check, Loader2, ThumbsUp, AlertCircle, Sparkles, MessageSquare, Plus, ChevronDown, ChevronUp, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface Review {
-  id: string;
-  app_id: string;
-  username: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  helpful_count: number;
-  source?: 'google' | 'community' | string;
-  reported?: boolean;
-  report_count?: number;
-}
+import ReviewScoreSummary from './public/ReviewScoreSummary';
+import ReviewItem, { Review } from './public/ReviewItem';
 
 interface UserReviewsProps {
   appId: string;
@@ -316,61 +305,11 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
     <div id="ratings-and-reviews-section" className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
       <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 lg:gap-6 lg:gap-12">
         
-        {/* Left Side: Score summary */}
-        <div className="w-full lg:w-1/3">
-          <h2 className="text-xl font-bold mb-6 text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-500" />
-            <span>Ratings and reviews</span>
-          </h2>
-
-          <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/10">
-            <div className="text-center">
-              <div className="text-5xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none mb-1">
-                {averageValue}
-              </div>
-              <div className="flex justify-center gap-0.5 mb-1 text-amber-500">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star 
-                    key={s} 
-                    className={`w-3.5 h-3.5 ${s <= Math.round(overallRating) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
-                  />
-                ))}
-              </div>
-              <div className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500">
-                {totalCount.toLocaleString()} ratings
-              </div>
-            </div>
-
-            {/* Distribution bars */}
-            <div className="flex-1 space-y-1 text-xs">
-              {[
-                { star: 5, fill: '82%' },
-                { star: 4, fill: '12%' },
-                { star: 3, fill: '4%' },
-                { star: 2, fill: '1%' },
-                { star: 1, fill: '1%' },
-              ].map((item) => (
-                <div key={item.star} className="flex items-center gap-2">
-                  <span className="w-2.5 font-bold text-zinc-500 text-right">{item.star}</span>
-                  <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-blue-500 rounded-full" 
-                      style={{ width: item.fill }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Verification Guard info badge */}
-          <div className="mt-4 p-3 bg-green-500/5 border border-green-500/10 rounded-xl flex items-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-            <span className="text-[11px] font-semibold text-green-700 dark:text-green-400 leading-relaxed">
-              Ratings and reviews are fully verified. All strategies and gameplay logs are processed by authorized community members only.
-            </span>
-          </div>
-        </div>
+        <ReviewScoreSummary 
+          overallRating={overallRating} 
+          totalCount={totalCount} 
+          averageValue={averageValue} 
+        />
 
         {/* Right Side: Reviews Feed and submission form */}
         <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
@@ -619,122 +558,18 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                     if (activeFilter === 'critical') return rev.rating <= 3;
                     return true;
                   })
-                  .map((rev) => {
-                    const isLong = rev.comment.length > 150;
-                    const isExpanded = expandedReviews[rev.id];
-                    const displayedComment = isLong && !isExpanded 
-                      ? `${rev.comment.substring(0, 150)}...` 
-                      : rev.comment;
-
-                    return (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        key={rev.id}
-                        className={`p-5 border rounded-2xl flex gap-4 transition-all text-left ${
-                          reportedReviews[rev.id] || rev.reported
-                            ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'
-                            : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10'
-                        }`}
-                      >
-                        {/* Avatar */}
-                        <div className={`w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(rev.username)}`}>
-                          {rev.username ? rev.username.charAt(0) : 'G'}
-                        </div>
-
-                        {/* Content column */}
-                        <div className="flex-1 flex flex-col min-w-0">
-                          {/* Header */}
-                          <div className="flex items-center justify-between gap-4 mb-1">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate">
-                                {rev.username}
-                              </span>
-                              <span className="inline-flex items-center gap-1 bg-[#01875f]/10 text-[#01875f] dark:text-[#00a170] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#01875f]/10 shrink-0 select-none">
-                                <ShieldCheck className="w-2.5 h-2.5 text-[#01875f]" />
-                                <span>Verified Player</span>
-                              </span>
-                              {(reportedReviews[rev.id] || rev.reported) && (
-                                <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-600 dark:text-rose-450 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/10 shrink-0 select-none uppercase tracking-wide animate-pulse">
-                                  Flagged
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase shrink-0">
-                              {new Date(rev.created_at).toLocaleDateString(undefined, {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric'
-                              })}
-                            </span>
-                          </div>
-
-                          {/* Stars */}
-                          <div className="flex items-center gap-0.5 mb-2.5 text-amber-500">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star 
-                                key={s} 
-                                className={`w-3 h-3 ${s <= rev.rating ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
-                              />
-                            ))}
-                          </div>
-
-                          {/* Expandable Review Text using Framer Motion */}
-                          <motion.div 
-                            layout="position"
-                            className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed break-words whitespace-pre-wrap flex flex-col relative select-text"
-                          >
-                            <p>{displayedComment}</p>
-                            
-                            {isLong && (
-                              <button
-                                onClick={() => toggleExpandReview(rev.id)}
-                                className="self-start inline-flex items-center gap-0.5 text-[11px] font-black text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-2 cursor-pointer transition-all uppercase tracking-wide select-none outline-none"
-                              >
-                                <span>{isExpanded ? 'Show less' : 'Read more'}</span>
-                                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                              </button>
-                            )}
-                          </motion.div>
-
-                          {/* Footer Help voting Panel */}
-                          <div className="flex items-center gap-4 mt-4 pt-3.5 border-t border-black/[0.03] dark:border-white/[0.03]">
-                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
-                              Was this review helpful?
-                            </span>
-                            <button
-                              onClick={() => handleHelpfulVote(rev.id)}
-                              disabled={votedReviews[rev.id]}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${
-                                votedReviews[rev.id]
-                                  ? 'bg-blue-500/10 text-blue-500 cursor-default'
-                                  : 'bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400 active:scale-95 cursor-pointer'
-                              }`}
-                            >
-                              <ThumbsUp className="w-3 h-3" />
-                              <span>Helpful {rev.helpful_count > 0 && `(${rev.helpful_count})`}</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleReportReview(rev.id)}
-                              disabled={reportedReviews[rev.id] || rev.reported}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ml-auto ${
-                                reportedReviews[rev.id] || rev.reported
-                                  ? 'bg-rose-500/10 text-rose-650 dark:text-rose-400 cursor-default font-black'
-                                  : 'bg-black/5 hover:bg-rose-500/10 hover:text-rose-600 dark:bg-white/5 dark:hover:bg-rose-500/15 text-zinc-500 dark:text-zinc-400 active:scale-95 cursor-pointer'
-                              }`}
-                            >
-                              <Flag className="w-3 h-3" />
-                              <span>{reportedReviews[rev.id] || rev.reported ? 'Reported' : 'Report'}</span>
-                            </button>
-                          </div>
-
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                  .map((rev) => (
+                    <ReviewItem
+                      key={rev.id}
+                      rev={rev}
+                      isReported={!!reportedReviews[rev.id]}
+                      isExpanded={!!expandedReviews[rev.id]}
+                      isVoted={!!votedReviews[rev.id]}
+                      onToggleExpand={toggleExpandReview}
+                      onHelpfulVote={handleHelpfulVote}
+                      onReport={handleReportReview}
+                    />
+                  ))}
               </div>
             )}
           </div>

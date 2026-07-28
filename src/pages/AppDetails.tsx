@@ -6,7 +6,7 @@
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, Sparkles, Info, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, Play, MoreVertical, Flag } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
@@ -16,139 +16,12 @@ import UserReviews from '../components/UserReviews';
 import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
 
-export function AppDetailsSkeleton() {
-  return (
-    <div className="w-full select-none px-2 py-6 animate-fade-in">
-      {/* Back button skeleton */}
-      <div className="mb-6 flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
-        <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-      </div>
+import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
+import YouTubePlayer from '../components/public/YouTubePlayer';
+import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
+import AppSpecsBar from '../components/public/AppSpecsBar';
 
-      <div className="w-full">
-        {/* App Main Header Info Loader */}
-        <div className="pt-0.5 pb-6 mb-6 flex flex-col items-center text-center border-b border-black/5 dark:border-white/5">
-          {/* App Icon rounded box skeleton */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[16px] bg-zinc-200 dark:bg-zinc-800 animate-pulse mb-4 shadow-sm" />
-          
-          {/* Title and Subtitles */}
-          <div className="h-7 w-52 sm:w-64 bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse mb-3" />
-          <div className="flex gap-2 mb-4">
-            <div className="h-5 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
-            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
-          </div>
-
-          {/* Key metrics grid (4 specs columns) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full max-w-[320px] mb-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="py-2.5 px-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 animate-pulse">
-                <div className="h-2 w-8 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto mb-1.5" />
-                <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto" />
-              </div>
-            ))}
-          </div>
-
-
-          {/* Action buttons skeleton */}
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto justify-center mt-1">
-            <div className="h-10 w-full sm:w-[150px] bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
-            <div className="h-10 w-full sm:w-[150px] bg-zinc-100 dark:bg-zinc-850 rounded-xl animate-pulse" />
-          </div>
-        </div>
-
-        {/* Long description / About this app skeleton loader */}
-        <div className="py-8 border-b border-black/5 dark:border-white/5">
-          <div className="h-5 w-32 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-5" />
-          <div className="space-y-3">
-            <div className="h-3.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-            <div className="h-3.5 w-[94%] bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-            <div className="h-3.5 w-[85%] bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-            <div className="h-3.5 w-[91%] bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-            <div className="h-3.5 w-[70%] bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          </div>
-          
-          {/* Release Notes subsection skeleton */}
-          <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5">
-            <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-3" />
-            <div className="h-20 w-full bg-zinc-50 dark:bg-zinc-850 border border-black/5 dark:border-white/5 rounded-2xl animate-pulse" />
-          </div>
-        </div>
-
-        {/* Related items list skeleton */}
-        <div className="mb-8">
-          <div className="h-5 w-40 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-4" />
-          <div className="space-y-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="p-3.5 border border-black/5 dark:border-white/5 bg-zinc-55/50 dark:bg-zinc-900/30 rounded-2xl flex items-center justify-between gap-3 animate-pulse">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-zinc-250 dark:bg-zinc-800" />
-                  <div className="space-y-1.5">
-                    <div className="h-3.5 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-2.5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                  </div>
-                </div>
-                <div className="h-8 w-12 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function getYouTubeId(url: string): string | null {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-}
-
-const YouTubePlayer = ({ videoUrl }: { videoUrl: string }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoId = getYouTubeId(videoUrl);
-
-  if (!videoId) return null;
-
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-  if (isPlaying) {
-    return (
-      <div className="flex-none w-[180px] sm:w-[250px] aspect-[16/9] rounded-xl overflow-hidden snap-center bg-black shadow-sm border border-black/5 dark:border-white/10">
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-          className="w-full h-full"
-        ></iframe>
-      </div>
-    );
-  }
-
-  return (
-    <div 
-      onClick={() => setIsPlaying(true)}
-      className="flex-none w-[180px] sm:w-[250px] aspect-[16/9] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 cursor-pointer relative group flex items-center justify-center"
-    >
-      <img 
-        src={thumbnailUrl} 
-        alt="Video thumbnail" 
-        loading="lazy"
-        width={250}
-        height={140}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-      />
-      {/* Play Overlay */}
-      <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/45 transition-colors">
-        <div className="w-12 h-12 rounded-full bg-white/95 text-zinc-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
-          <Play className="w-5 h-5 fill-current ml-0.5" />
-        </div>
-      </div>
-    </div>
-  );
-};
+export { AppDetailsSkeleton };
 
 export default function AppDetails() {
   const { apps: mockApps, settings: mockSettings, blogs: mockBlogs, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();
@@ -501,40 +374,12 @@ export default function AppDetails() {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-4 py-4 mb-6 border-y border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/10 dark:bg-zinc-900/10">
-          {/* Column 1: Rating */}
-          <div className="flex flex-col items-center justify-center px-2 text-center">
-            <div className="flex items-center gap-0.5 font-extrabold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-              <span>{app.rating ? app.rating.toFixed(1) : '5.0'}</span>
-              <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current text-orange-500" />
-            </div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1">Rating</div>
-          </div>
-
-          {/* Column 2: Size */}
-          <div className="flex flex-col items-center justify-center px-2 text-center border-l border-zinc-200 dark:border-zinc-800/80">
-            <div className="font-extrabold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-              {app.file_size || '45 MB'}
-            </div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1">Size</div>
-          </div>
-
-          {/* Column 3: Type */}
-          <div className="flex flex-col items-center justify-center px-2 text-center border-l border-zinc-200 dark:border-zinc-800/80">
-            <div className="font-extrabold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-0.5 rounded-full leading-none truncate max-w-full">
-              {app.category ? app.category.split(',')[0].trim() : 'General'}
-            </div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1.5">Type</div>
-          </div>
-
-          {/* Column 4: Version */}
-          <div className="flex flex-col items-center justify-center px-2 text-center border-l border-zinc-200 dark:border-zinc-800/80">
-            <div className="font-extrabold text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate max-w-full">
-              {app.version || '2.0.6'}
-            </div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1">Version</div>
-          </div>
-        </div>
+        <AppSpecsBar 
+          rating={app.rating} 
+          file_size={app.file_size} 
+          category={app.category} 
+          version={app.version} 
+        />
 
         <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-6 px-3 sm:px-6">
           <motion.div
@@ -650,42 +495,7 @@ export default function AppDetails() {
         )}
       </div>
 
-      {/* RESTORED SAFETY & INFO BOXES */}
-      <div className="px-3 sm:px-6 space-y-3 mb-8 w-full">
-
-        {app.red_box_msg && app.red_box_msg.trim() !== '.' && app.red_box_msg.trim() !== '' && (
-          <div className="bg-rose-50/50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 p-4 rounded-2xl flex items-start gap-4 shadow-sm group">
-            <div className="p-2 bg-rose-100 dark:bg-rose-500/20 rounded-xl text-rose-600 shrink-0">
-              <ShieldAlert className="w-5 h-5" />
-            </div>
-            <div className="text-sm font-medium text-rose-800 dark:text-rose-200 leading-relaxed pt-0.5">
-              {app.red_box_msg}
-            </div>
-          </div>
-        )}
-        
-        {app.yellow_box_msg && app.yellow_box_msg.trim() !== '.' && app.yellow_box_msg.trim() !== '' && (
-          <div className="bg-orange-50/50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 p-4 rounded-2xl flex items-start gap-4 shadow-sm group">
-             <div className="p-2 bg-orange-100 dark:bg-orange-500/20 rounded-xl text-orange-600 shrink-0">
-              <Info className="w-5 h-5" />
-            </div>
-            <div className="text-sm font-medium text-orange-800 dark:text-orange-200 leading-relaxed pt-0.5">
-              {app.yellow_box_msg}
-            </div>
-          </div>
-        )}
-
-        {app.idea_box_msg && app.idea_box_msg.trim() !== '.' && app.idea_box_msg.trim() !== '' && (
-          <div className="bg-blue-50/50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 p-4 rounded-2xl flex items-start gap-4 shadow-sm group">
-             <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-xl text-blue-600 shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="text-sm font-medium text-blue-800 dark:text-blue-200 leading-relaxed pt-0.5">
-              {app.idea_box_msg}
-            </div>
-          </div>
-        )}
-      </div>
+      <AppSafetyBoxes app={app} />
 
       <div className="w-full mb-8 space-y-12">
         {app.custom_admin_box_html && (
