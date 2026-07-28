@@ -74,45 +74,8 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
   // Reported list (to prevent double reporting in the current session)
   const [reportedReviews, setReportedReviews] = useState<Record<string, boolean>>({});
 
-  // Base list of premium, highly authentic mock reviews to guarantee beautiful content immediately
-  const getMockReviews = (): Review[] => [
-    {
-      id: `mock-1-${appId}`,
-      app_id: appId,
-      username: 'Amit Verma',
-      rating: 5,
-      comment: `The absolute best e-sports portal I have ever used for researching ${appTitle}. All specs are thoroughly verified, and the interface responsiveness metrics provided are extremely accurate. I highly recommend checking out their detailed tutorials before you play!`,
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1050).toISOString(),
-      helpful_count: 32,
-      source: 'community',
-      reported: false,
-      report_count: 0
-    },
-    {
-      id: `mock-2-${appId}`,
-      app_id: appId,
-      username: 'Priyanka Sen',
-      rating: 4,
-      comment: `Great UI analysis. The touch lag test reports and detailed screenshots helped me decide whether to use this app on my device. The strict ethics and zero-trace validation protocols keep players fully safe. Submitting my 4-star rating gladly.`,
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1050).toISOString(),
-      helpful_count: 14,
-      source: 'community',
-      reported: false,
-      report_count: 0
-    },
-    {
-      id: `mock-3-${appId}`,
-      app_id: appId,
-      username: 'Karan Malhotra',
-      rating: 5,
-      comment: `Very clean and highly optimized layout. I love the eye-safe dark mode features and visual layouts detailed in the reviews. The FAQ section answered all my minor questions about virtual chips and age guidelines. Written with complete pleasure.`,
-      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      helpful_count: 8,
-      source: 'community',
-      reported: false,
-      report_count: 0
-    },
-  ];
+  // Base list of reviews (empty by default)
+  const getMockReviews = (): Review[] => [];
 
   useEffect(() => {
     const loadReviews = async () => {

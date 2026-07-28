@@ -1,6 +1,6 @@
 {
-  "name": "RummyDex",
-  "short_name": "RummyDex",
+  "name": "Application Hub",
+  "short_name": "App Hub",
   "icons": [
     {
       "src": "/favicon.png",

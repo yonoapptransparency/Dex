@@ -13,7 +13,7 @@ import Meta from '../components/Meta';
 export default function About() {
   const { settings: mockSettings } = useData();
   const defaultAboutContent = `
-    <p>Welcome to <strong>${mockSettings?.site_title || 'Yono Store'}</strong>. We are dedicated to providing a transparent, verified, and secure index of digital tools, gaming utilities, and applications.</p>
+    <p>Welcome to <strong>${mockSettings?.site_title || 'Application Store'}</strong>. We are dedicated to providing a transparent, verified, and secure index of digital tools, gaming utilities, and applications.</p>
     <p>Our platform strictly evaluates applications through safe verification frameworks, threat monitoring standards, and stable node guidelines to ensure complete user privacy and safety.</p>
     <h3>Our Core Mission</h3>
     <p>We aim to empower users by delivering reliable application specifications, direct download node references, comprehensive gameplay insights, and real-time security status checks.</p>
