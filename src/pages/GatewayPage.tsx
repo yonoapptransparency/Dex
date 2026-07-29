@@ -300,115 +300,72 @@ export default function GatewayPage() {
         faqSchema={faqSchema}
       />
       
-      {/* Header section with Soft Eye-Easy Design */}
-      <div className="text-center mb-10 max-w-2xl mx-auto px-4">
-        <div className={cn(
-          "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full mb-5 font-bold text-[11px] uppercase tracking-wider shadow-sm border",
-          app.safety_status === 'Verified' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" :
-          app.safety_status === 'Caution' ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" :
-          "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-        )}>
-          <span className="relative flex h-2 w-2">
-            <span className={cn(
-              "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-              app.safety_status === 'Verified' ? "bg-emerald-400" :
-              app.safety_status === 'Caution' ? "bg-amber-400" :
-              "bg-rose-400"
-            )}></span>
-            <span className={cn(
-              "relative inline-flex rounded-full h-2 w-2",
-              app.safety_status === 'Verified' ? "bg-emerald-500" :
-              app.safety_status === 'Caution' ? "bg-amber-500" :
-              "bg-rose-500"
-            )}></span>
-          </span>
-          Status: {app.safety_status}
-        </div>
-
-        <h1 className="text-3xl sm:text-4.5xl font-black mb-4 tracking-tight text-zinc-800 dark:text-zinc-100 flex flex-wrap items-center justify-center gap-2.5">
-          <Sparkles className="w-6.5 h-6.5 text-emerald-500 animate-pulse" />
-          <span>More Details</span>
-        </h1>
-        <p className="font-medium text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
-          Specifications and verified details for <span className="font-semibold text-zinc-800 dark:text-zinc-200">{app.name}</span>.
-        </p>
-      </div>
-
-      {/* Main Specs and Symmetrical Premium Card */}
-      <div className="max-w-4xl mx-auto w-full mb-12 px-4 sm:px-6">
-        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/60 border border-black/[0.06] dark:border-white/[0.06] rounded-[28px] p-6 sm:p-10 shadow-xl backdrop-blur-md">
-          {/* Subtle elegant card background glow */}
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-emerald-500/5 rounded-full filter blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-teal-500/5 rounded-full filter blur-3xl pointer-events-none"></div>
-
-          <div className="relative z-10 flex flex-col items-center gap-10">
-            {/* Top: Balanced App Presentation & Slow-Vibration App Icon */}
-            <div className="flex flex-col items-center text-center gap-6 w-full">
-              <div className="relative group shrink-0 premium-logo-container">
-                {/* Dynamic premium glowing aura background */}
-                <div className="premium-logo-aura"></div>
-                
-                {/* Outer dynamic premium soft shadow ring */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-[24px] opacity-20 blur-md group-hover:opacity-35 transition-opacity duration-500"></div>
-                
-                {/* Image Frame featuring high-performance floating heartbeat & metallic sweep gloss */}
-                <div className="relative w-28 h-28 bg-white dark:bg-zinc-800 rounded-[24px] p-1 overflow-hidden shadow-md border border-black/[0.08] dark:border-white/[0.08] premium-logo-image-frame flex items-center justify-center">
-                  {/* Dynamic glossy light sweep reflection */}
-                  <div className="premium-logo-shine-overlay"></div>
-                  
-                  {app.icon_url ? (
-                    <img 
-                      src={app.icon_url} 
-                      fetchPriority="high" 
-                      loading="eager"
-                      width={104}
-                      height={104}
-                      alt={`${app.name} icon`} 
-                      className="w-full h-full object-cover rounded-[20px] select-none pointer-events-none"
-                    />
-                  ) : (
-                    <ShieldCheck className="w-12 h-12 text-emerald-500 animate-pulse" />
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
-                <div className="flex flex-wrap justify-center items-center gap-2">
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
-                    ID: {app.serial_number}
-                  </span>
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
-                    Size: {app.file_size}
-                  </span>
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/10">
-                    Ver: {app.version}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom: Dynamic Verified Action Button */}
-            <div className="flex flex-col items-center gap-6 w-full">
-              {isActuallyComingSoon ? (
-                <div className="w-full sm:w-80 flex flex-col items-center">
-                  <button disabled className="w-full py-4 px-10 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                    Coming Soon
-                  </button>
-                </div>
-              ) : (
-                 <div className="w-full sm:w-[480px]">
-                   <ClearanceButton appId={app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
-                 </div>
-              )}
+      {/* Main App Presentation & Action */}
+      <div className="max-w-4xl mx-auto w-full mb-16 px-4 sm:px-6">
+        <div className="flex flex-col items-center gap-12">
+          {/* App Logo & Details */}
+          <div className="flex flex-col items-center text-center gap-6 w-full">
+            <div className="relative group shrink-0 premium-logo-container">
+              {/* Dynamic premium glowing aura background */}
+              <div className="premium-logo-aura"></div>
               
-              <div className="flex items-center gap-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-full border border-zinc-200/50 dark:border-zinc-700/30">
-                <Lock size={12} className="text-zinc-400" />
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-                  Secure Node Verification
-                </p>
+              <motion.div 
+                className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 rounded-[2.5rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
+                whileHover={{ scale: 1.05 }}
+              >
+                {app.icon_url ? (
+                  <img 
+                    src={app.icon_url} 
+                    alt={app.name} 
+                    className="w-full h-full object-cover rounded-[2.2rem]"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <ShieldCheck className="w-16 h-16 text-emerald-500 animate-pulse" />
+                )}
+                
+                {/* Glossy overlay effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"></div>
+              </motion.div>
+
+              {/* Status Badge Over Icon */}
+              <div className="absolute -top-2 -right-2 z-20">
+                <div className="flex items-center gap-1 px-3 py-1 bg-white dark:bg-zinc-900 rounded-full shadow-lg border border-black/[0.05] dark:border-white/[0.05]">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Active</span>
+                </div>
               </div>
             </div>
+
+            <div className="flex flex-col items-center">
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
+              <div className="flex flex-wrap justify-center items-center gap-2">
+                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
+                  ID: {app.serial_number}
+                </span>
+                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
+                  Size: {app.file_size}
+                </span>
+                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/10">
+                  Ver: {app.version}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dynamic Verified Action Button */}
+          <div className="flex flex-col items-center gap-6 w-full">
+            {isActuallyComingSoon ? (
+              <div className="w-full sm:w-80 flex flex-col items-center">
+                <button disabled className="w-full py-4 px-10 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  Coming Soon
+                </button>
+              </div>
+            ) : (
+               <div className="w-full sm:w-80">
+                 <ClearanceButton appId={app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
+               </div>
+            )}
           </div>
         </div>
       </div>
