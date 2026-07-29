@@ -21,7 +21,7 @@ export default function NewAdditions({ loading, apps }: NewAdditionsProps) {
       <div className="flex overflow-x-auto gap-3.5 sm:gap-4 px-4 sm:px-1 pt-2.5 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="flex-none w-[80px] sm:w-[96px] snap-start">
+            <div key={`skeleton-new-${i}`} className="flex-none w-[80px] sm:w-[96px] snap-start">
               <NewAdditionItemSkeleton />
             </div>
           ))

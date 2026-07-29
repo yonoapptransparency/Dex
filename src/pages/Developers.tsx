@@ -55,7 +55,7 @@ export default function Developers() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {settings.developers.map((dev, index) => (
               <div 
-                key={index} 
+                key={`dev-card-${dev.id || dev.name || index}`} 
                 className="bg-white/70 dark:bg-zinc-900/70 border border-black/5 dark:border-white/5 rounded-[2rem] p-8 backdrop-blur-md shadow-lg transition-all hover:shadow-xl hover:-translate-y-2 flex flex-col items-center text-center group animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >

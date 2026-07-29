@@ -62,7 +62,7 @@ export default function NewApps() {
       >
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white dark:bg-zinc-900 p-4 rounded-[20px] border border-black/5 dark:border-white/5 flex gap-4 items-center h-[100px] select-none">
+            <div key={`new-app-skeleton-${i}`} className="animate-pulse bg-white dark:bg-zinc-900 p-4 rounded-[20px] border border-black/5 dark:border-white/5 flex gap-4 items-center h-[100px] select-none">
               <div className="w-16 h-16 shrink-0 rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
               <div className="flex-1 min-w-0">
                 <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2 mb-2" />
@@ -95,7 +95,7 @@ export default function NewApps() {
                   <div className="flex items-center gap-2">
                      <div className="flex items-center">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-3 h-3 ${i < Math.floor(app.rating || 0) ? 'fill-orange-400 text-orange-400' : 'text-zinc-200 dark:text-zinc-700 fill-zinc-200 dark:fill-zinc-700'}`} />
+                        <Star key={`star-new-${app.id}-${i}`} className={`w-3 h-3 ${i < Math.floor(app.rating || 0) ? 'fill-orange-400 text-orange-400' : 'text-zinc-200 dark:text-zinc-700 fill-zinc-200 dark:fill-zinc-700'}`} />
                       ))}
                     </div>
                     <span className="text-xs font-medium text-zinc-400">{app.file_size}</span>

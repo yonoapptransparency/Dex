@@ -61,7 +61,7 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
             </h2>
             <div className="space-y-4">
               {relatedUpdates.map((update, idx) => (
-                <Link key={idx} to={`/blog/${update.slug || update.id}`} className="block p-4 sm:p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
+                <Link key={`update-${update.id || idx}`} to={`/blog/${update.slug || update.id}`} className="block p-4 sm:p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 mb-2">
                     <span>Update</span>
                     <span className="text-zinc-300">•</span>

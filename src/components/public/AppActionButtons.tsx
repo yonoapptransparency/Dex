@@ -45,7 +45,7 @@ export default function AppActionButtons({
                     { label: 'M', value: m.toString().padStart(2, '0') },
                     { label: 'S', value: sec.toString().padStart(2, '0') }
                   ].map((unit, i) => (
-                    <div key={i} className="flex flex-col items-center bg-zinc-100 dark:bg-zinc-800 rounded px-1.5 py-1 border border-black/5 dark:border-white/5">
+                    <div key={`timer-${unit.label}-${i}`} className="flex flex-col items-center bg-zinc-100 dark:bg-zinc-800 rounded px-1.5 py-1 border border-black/5 dark:border-white/5">
                       <span className="text-xs font-mono font-bold text-zinc-800 dark:text-zinc-200">{unit.value}</span>
                       <span className="text-[8px] uppercase tracking-widest text-zinc-500">{unit.label}</span>
                     </div>

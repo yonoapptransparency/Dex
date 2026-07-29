@@ -25,7 +25,7 @@ export function AppDetailsSkeleton() {
           {/* Key metrics grid (4 specs columns) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full max-w-[320px] mb-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="py-2.5 px-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 animate-pulse">
+              <div key={`skeleton-metric-v2-${i}`} className="py-2.5 px-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 animate-pulse">
                 <div className="h-2 w-8 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto mb-1.5" />
                 <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto" />
               </div>
@@ -62,7 +62,7 @@ export function AppDetailsSkeleton() {
           <div className="h-5 w-40 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-4" />
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="p-3.5 border border-black/5 dark:border-white/5 bg-zinc-55/50 dark:bg-zinc-900/30 rounded-2xl flex items-center justify-between gap-3 animate-pulse">
+              <div key={`skeleton-related-v2-${i}`} className="p-3.5 border border-black/5 dark:border-white/5 bg-zinc-55/50 dark:bg-zinc-900/30 rounded-2xl flex items-center justify-between gap-3 animate-pulse">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-zinc-250 dark:bg-zinc-800" />
                   <div className="space-y-1.5">

@@ -162,7 +162,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
         <div className="absolute bottom-1.5 left-0 right-0 flex justify-center gap-1.5 py-1 z-10">
           {items.map((_, i) => (
             <button
-              key={i}
+              key={`dot-${i}`}
               onClick={() => setCurrentIndex(i)}
               className="group/dot focus:outline-none cursor-pointer py-1"
               aria-label={`Go to slide ${i + 1}`}

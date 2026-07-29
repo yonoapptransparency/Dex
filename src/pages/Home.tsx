@@ -357,14 +357,24 @@ export default function Home() {
 
       {deferredActiveTab.toLowerCase() === 'categories' && (
         <div className="grid grid-cols-2 gap-4 animate-fade-in px-0">
-           {mockSettings.categories?.filter(c => c.toLowerCase() !== (mockSettings.categories?.[0]?.toLowerCase() || 'all apps') && c.toLowerCase() !== 'top charts' && c.toLowerCase() !== 'categories').map((cat) => (
-             <button key={cat} onClick={() => setActiveTab(cat)} className="flex items-center gap-4 p-5 glass-panel text-left active:scale-[0.98] transition-all duration-300">
-                <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 shrink-0">
-                   <ShieldCheck className="w-6 h-6" />
-                </div>
-                <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{cat}</span>
-             </button>
-           ))}
+           {(() => {
+             const cats = mockSettings.categories || [];
+             const seen = new Set();
+             const uniqueCats = cats.filter(c => {
+               const l = c.toLowerCase();
+               if (seen.has(l)) return false;
+               seen.add(l);
+               return l !== (cats[0]?.toLowerCase() || 'all apps') && l !== 'top charts' && l !== 'categories';
+             });
+             return uniqueCats.map((cat, idx) => (
+               <button key={`cat-grid-${cat}-${idx}`} onClick={() => setActiveTab(cat)} className="flex items-center gap-4 p-5 glass-panel text-left active:scale-[0.98] transition-all duration-300">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 shrink-0">
+                     <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{cat}</span>
+               </button>
+             ));
+           })()}
         </div>
       )}
 
@@ -381,7 +391,7 @@ export default function Home() {
           {(() => {
             if (loading) {
               return Array.from({ length: 6 }).map((_, i) => (
-                <AppListItemSkeleton key={i} />
+                <AppListItemSkeleton key={`skeleton-tab-apps-${i}`} />
               ));
             }
             const currentTabLower = deferredActiveTab.toLowerCase().trim();

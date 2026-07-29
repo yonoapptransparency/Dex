@@ -521,7 +521,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
             {loading ? (
               <div className="space-y-3.5 animate-pulse">
                 {Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10 text-left">
+                  <div key={`review-skeleton-${idx}`} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10 text-left">
                     {/* Avatar Circle skeleton */}
                     <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                     {/* Content Column skeleton */}
@@ -533,7 +533,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                       {/* Rating stars row skeleton */}
                       <div className="flex items-center gap-0.5 mt-0.5 select-none">
                         {Array.from({ length: 5 }).map((_, s) => (
-                          <div key={s} className="w-3 h-3 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                          <div key={`star-skeleton-${idx}-${s}`} className="w-3 h-3 rounded-full bg-zinc-200 dark:bg-zinc-800" />
                         ))}
                       </div>
                       {/* Lines of text skeleton */}
