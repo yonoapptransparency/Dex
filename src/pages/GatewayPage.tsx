@@ -278,7 +278,7 @@ export default function GatewayPage() {
   };
 
   return (
-    <div className="animate-fade-in select-none pb-24 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
+    <div className="animate-fade-in select-none pb-40 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
       {/* Sleek Premium Back Button */}
       <div className="max-w-4xl mx-auto mb-8 pt-8 px-4 sm:px-6">
         <Link 
@@ -291,8 +291,8 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Download`}
-        description={`${app.name} download page. Complete verification to access the download link.`}
+        title={`${app.name} - Details`}
+        description={`${app.name} detail page. Complete verification to access the requested information.`}
         keywords={app.seo_keywords ? `${app.seo_keywords}, info ${app.name}, ${app.name} technical info` : undefined}
         image={app.og_image_url || app.icon_url}
         canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
@@ -341,9 +341,9 @@ export default function GatewayPage() {
           <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-emerald-500/5 rounded-full filter blur-3xl pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-teal-500/5 rounded-full filter blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-10">
-            {/* Left side: Balanced App Presentation & Slow-Vibration App Icon */}
-            <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 w-full lg:w-auto">
+          <div className="relative z-10 flex flex-col items-center gap-10">
+            {/* Top: Balanced App Presentation & Slow-Vibration App Icon */}
+            <div className="flex flex-col items-center text-center gap-6 w-full">
               <div className="relative group shrink-0 premium-logo-container">
                 {/* Dynamic premium glowing aura background */}
                 <div className="premium-logo-aura"></div>
@@ -372,35 +372,42 @@ export default function GatewayPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-center">
-                <h2 className="text-2xl sm:text-3.5xl font-extrabold tracking-tight mb-3 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
-                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
+              <div className="flex flex-col items-center">
+                <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
+                <div className="flex flex-wrap justify-center items-center gap-2">
+                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
                     ID: {app.serial_number}
                   </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
+                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
                     Size: {app.file_size}
                   </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/10">
+                  <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/10">
                     Ver: {app.version}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Right side: Dynamic Verified Action Button */}
-            <div className="flex flex-col items-center gap-3 w-full lg:w-auto shrink-0">
+            {/* Bottom: Dynamic Verified Action Button */}
+            <div className="flex flex-col items-center gap-6 w-full">
               {isActuallyComingSoon ? (
                 <div className="w-full sm:w-80 flex flex-col items-center">
-                  <button disabled className="w-full py-3.5 px-10 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  <button disabled className="w-full py-4 px-10 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
                     Coming Soon
                   </button>
                 </div>
               ) : (
-                 <div className="w-full sm:w-80">
+                 <div className="w-full sm:w-[480px]">
                    <ClearanceButton appId={app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
                  </div>
               )}
+              
+              <div className="flex items-center gap-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-full border border-zinc-200/50 dark:border-zinc-700/30">
+                <Lock size={12} className="text-zinc-400" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                  Secure Node Verification
+                </p>
+              </div>
             </div>
           </div>
         </div>
