@@ -17,9 +17,13 @@ import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
 
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
-import YouTubePlayer from '../components/public/YouTubePlayer';
-import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
+import AppHeader from '../components/public/AppHeader';
+import AppActionButtons from '../components/public/AppActionButtons';
+import AppScreenshots from '../components/public/AppScreenshots';
+import AppAboutSection from '../components/public/AppAboutSection';
+import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
+import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
 
 export { AppDetailsSkeleton };
 
@@ -36,60 +40,6 @@ export default function AppDetails() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
   const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
-
-  const [selectedScreenshotIndex, setSelectedScreenshotIndex] = useState<number | null>(null);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-  // Lock background scrolling when modal is open
-  useEffect(() => {
-    if (selectedScreenshotIndex !== null) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [selectedScreenshotIndex]);
-
-  useEffect(() => {
-    if (selectedScreenshotIndex === null || !app?.screenshots) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') {
-        setSelectedScreenshotIndex(prev => (prev! + 1) % app.screenshots.length);
-      } else if (e.key === 'ArrowLeft') {
-        setSelectedScreenshotIndex(prev => (prev! - 1 + app.screenshots.length) % app.screenshots.length);
-      } else if (e.key === 'Escape') {
-        setSelectedScreenshotIndex(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedScreenshotIndex, app?.screenshots]);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd || !app?.screenshots) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      setSelectedScreenshotIndex(prev => (prev! + 1) % app.screenshots.length);
-    } else if (isRightSwipe) {
-      setSelectedScreenshotIndex(prev => (prev! - 1 + app.screenshots.length) % app.screenshots.length);
-    }
-    setTouchStart(null);
-    setTouchEnd(null);
-  };
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
@@ -331,48 +281,14 @@ export default function AppDetails() {
         description={desc}
         keywords={app.seo_keywords}
         image={ogImage}
-        canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
+        canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
       />
       <div className="w-full">
         
-        <div className="flex w-full items-center gap-4 sm:gap-6 mb-6 px-3 sm:px-6 mt-2">
-          <div className="relative w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] shrink-0 premium-logo-container">
-            {/* Dynamic glowing colorful aura background */}
-            <div className="premium-logo-aura"></div>
-            
-            <div className="w-full h-full rounded-[20px] overflow-hidden shadow-sm bg-white border border-black/5 dark:border-white/10 premium-logo-image-frame">
-              {/* Dynamic glossy sweep light overlay */}
-              <div className="premium-logo-shine-overlay"></div>
-              
-              {app.icon_url ? (
-                <img src={app.icon_url || undefined} alt={app.name} loading="eager" fetchPriority="high" width={128} height={128} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-3xl font-bold bg-zinc-800 text-zinc-500">
-                  {(app.name || 'A').substring(0, 1)}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex flex-col justify-center flex-1">
-            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight mb-0.5 break-words">
-              {app.name}
-            </h1>
-            <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
-              {app.developer || "Developer"}
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
-              {app.is_new && <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-sm uppercase font-bold tracking-wider">New</span>}
-              {app.safety_status === 'Verified' ? (
-                <span className="flex items-center text-green-600 gap-0.5 font-medium"><ShieldCheck className="w-3.5 h-3.5" /> Verified</span>
-              ) : (
-                <span className="flex items-center text-orange-500 gap-0.5 font-medium"><ShieldAlert className="w-3.5 h-3.5" /> {app.safety_status}</span>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* Modular Header */}
+        <AppHeader app={app} />
 
         <AppSpecsBar 
           rating={app.rating} 
@@ -381,103 +297,16 @@ export default function AppDetails() {
           version={app.version} 
         />
 
-        <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-6 px-3 sm:px-6">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full sm:flex-1"
-          >
-            {isActuallyComingSoon ? (
-                  <div className="flex flex-col items-center">
-                    <button 
-                      disabled
-                      className="w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 font-bold py-2.5 px-5 rounded-xl flex items-center justify-center gap-1.5 cursor-not-allowed text-sm shadow-sm"
-                    >
-                      Coming Soon
-                    </button>
-                    {timeRemaining !== null && timeRemaining > 0 && (
-                      <div className="mt-2 flex gap-1 justify-center">
-                        {(() => {
-                          const s = Math.floor(timeRemaining / 1000);
-                          const d = Math.floor(s / 86400);
-                          const h = Math.floor((s % 86400) / 3600);
-                          const m = Math.floor((s % 3600) / 60);
-                          const sec = s % 60;
-                          return [
-                            { label: 'D', value: d.toString().padStart(2, '0') },
-                            { label: 'H', value: h.toString().padStart(2, '0') },
-                            { label: 'M', value: m.toString().padStart(2, '0') },
-                            { label: 'S', value: sec.toString().padStart(2, '0') }
-                          ].map((unit, i) => (
-                            <div key={i} className="flex flex-col items-center bg-zinc-100 dark:bg-zinc-800 rounded px-1.5 py-1 border border-black/5 dark:border-white/5">
-                              <span className="text-xs font-mono font-bold text-zinc-800 dark:text-zinc-200">{unit.value}</span>
-                              <span className="text-[8px] uppercase tracking-widest text-zinc-500">{unit.label}</span>
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link 
-                    to={`/moredetail/${app.slug}`}
-                    className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]"
-                  >
-                    <span className="flex items-center gap-1.5 font-bold text-white !text-white">More Details <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" /></span>
-                  </Link>
-                )}
-              </motion.div>
- 
-              <div className="flex w-full gap-3 sm:w-auto shrink-0">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
-                >
-                  <button 
-                    onClick={handleShare}
-                    className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm h-[44px] truncate"
-                  >
-                    <Share2 className="w-4 h-4 text-blue-500 shrink-0" /> <span className="truncate">Share app</span>
-                  </button>
-                </motion.div>
+        {/* Modular Action Buttons */}
+        <AppActionButtons 
+          app={app} 
+          isActuallyComingSoon={isActuallyComingSoon} 
+          timeRemaining={timeRemaining} 
+          handleShare={handleShare} 
+        />
 
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
-                >
-                  <button 
-                    onClick={() => {
-                      window.dispatchEvent(new CustomEvent('open-report-modal', { detail: { app } }));
-                    }}
-                    className="w-full bg-rose-50 hover:bg-rose-100/80 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-rose-200/40 dark:border-rose-900/40 shadow-xs h-[44px] truncate"
-                  >
-                    <Flag className="w-4 h-4 text-rose-500 shrink-0" /> <span className="truncate">Flag app</span>
-                  </button>
-                </motion.div>
-              </div>
-            </div>
-
-            
-
-            {((app.screenshots && app.screenshots.length > 0) || app.video_url) && (
-              <div className="w-full mb-6">
-                <div className="flex overflow-x-auto hide-scrollbar gap-2.5 px-4 sm:px-0 pb-2 snap-x items-center -mx-4 sm:-mx-0">
-                  {app.video_url && (
-                    <YouTubePlayer videoUrl={app.video_url} />
-                  )}
-                  {app.screenshots && app.screenshots.map((imgUrl, i) => (
-                    <div 
-                      key={i} 
-                      className="flex-none w-[90px] sm:w-[125px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 select-none"
-                    >
-                      <img src={imgUrl} alt={`Screenshot ${i + 1}`} loading="lazy" width={125} height={222} className="w-full h-full object-cover select-none pointer-events-none" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* Modular Screenshots Gallery */}
+        <AppScreenshots app={app} />
 
         {relatedApps.length > 0 && (
           <div className="mb-6 px-0">
@@ -497,96 +326,15 @@ export default function AppDetails() {
 
       <AppSafetyBoxes app={app} />
 
-      <div className="w-full mb-8 space-y-12">
-        {app.custom_admin_box_html && (
-           <div className="py-8 border-b border-black/5 dark:border-white/5 relative overflow-hidden w-full px-4 sm:px-6 md:px-10 transition-all duration-300">
-             {app.custom_admin_box_heading && (
-               <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 px-1 sm:px-0">
-                  {app.custom_admin_box_heading}
-               </h2>
-             )}
-             <div 
-               className="w-full text-zinc-800 dark:text-zinc-200"
-               dangerouslySetInnerHTML={{ __html: safeHtml(app.custom_admin_box_html) }}
-             />
-           </div>
-        )}
-
-        <div className="py-8 w-full px-4 sm:px-6 md:px-10">
-           <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 px-1 sm:px-0">
-             About this app
-           </h2>
-          <div 
-             className="w-full text-base text-zinc-700 dark:text-zinc-300 [&_strong]:font-semibold [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-blue-500 [&_a]:hover:underline [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
-            dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, '<p>No details available.</p>') }}
-          />
-
-          {app.features_html && (
-            <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5">
-               <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 px-1 sm:px-0">
-                 App Features
-               </h2>
-               <div 
-                 className="w-full text-base text-zinc-700 dark:text-zinc-300 [&_strong]:font-semibold [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-blue-500 [&_a]:hover:underline [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-2"
-                 dangerouslySetInnerHTML={{ __html: safeHtml(app.features_html) }}
-               />
-            </div>
-          )}
-          
-          {app.release_notes && (
-             <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5">
-               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">What's New</h3>
-               <div className="bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-6 text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap border border-black/5 dark:border-white/5 line-clamp-4 hover:line-clamp-none transition-all">
-                {app.release_notes}
-              </div>
-            </div>
-          )}
-          
-          {relatedUpdates && relatedUpdates.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5">
-               <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 px-1 sm:px-0">
-                 Latest App Updates
-               </h2>
-               <div className="space-y-4">
-                 {relatedUpdates.map((update, idx) => (
-                   <Link key={idx} to={`/blog/${update.slug || update.id}`} className="block p-4 sm:p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
-                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 mb-2">
-                       <span>Update</span>
-                       <span className="text-zinc-300">•</span>
-                       <span className="text-zinc-500 dark:text-zinc-400">{new Date(update.published_at).toLocaleDateString()}</span>
-                     </div>
-                     <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2 group-hover:text-blue-600 transition-colors">
-                       {update.title}
-                     </h3>
-                     <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
-                       {update.content.replace(/<[^>]+>/g, '').substring(0, 150)}...
-                     </p>
-                   </Link>
-                 ))}
-               </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Modular About Content Section */}
+      <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
 
       <div className="px-3 sm:px-6 mb-8">
         <UserReviews key={reviewsRefreshKey} appId={app.id} appTitle={app.name} overallRating={app.rating} />
       </div>
       
-      {app.faqs && app.faqs.length > 0 && (
-         <div className="mb-20 px-3 sm:px-6">
-           <div className="py-8 border-t border-black/5 dark:border-white/5">
-            <h2 className="text-xl font-bold mb-6 text-zinc-900 dark:text-zinc-100">
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-4">
-              {app.faqs.map((faq, idx) => (
-                 <AccordionItem key={idx} question={faq.question} answer={faq.answer} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modular FAQ Section */}
+      <AppFaqSection faqs={app.faqs} />
 
     </div>
   );

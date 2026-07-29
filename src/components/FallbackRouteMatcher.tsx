@@ -3,10 +3,25 @@
  * Directs dynamic routes to target dynamic content without hardcoded router tables.
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { useLocation, Navigate, Link } from 'react-router-dom';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
+
+// Lazy load pages directly to avoid redirects
+const AppDetails = lazy(() => import('../pages/AppDetails'));
+const NewsDetailPage = lazy(() => import('../pages/NewsDetailPage'));
+const BlogDetailPage = lazy(() => import('../pages/BlogDetailPage'));
+const VideoDetailPage = lazy(() => import('../pages/VideoDetailPage'));
+
+function InlineLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
+      <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+      <p className="text-sm font-medium tracking-wide text-zinc-500">Loading Content...</p>
+    </div>
+  );
+}
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
@@ -94,19 +109,35 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'app') {
-    return <Navigate to={`/app/${slug}`} replace />;
+    return (
+      <Suspense fallback={<InlineLoading />}>
+        <AppDetails />
+      </Suspense>
+    );
   }
 
   if (resolvedType === 'news') {
-    return <Navigate to={`/news/${slug}`} replace />;
+    return (
+      <Suspense fallback={<InlineLoading />}>
+        <NewsDetailPage />
+      </Suspense>
+    );
   }
 
   if (resolvedType === 'blog') {
-    return <Navigate to={`/blog/${slug}`} replace />;
+    return (
+      <Suspense fallback={<InlineLoading />}>
+        <BlogDetailPage />
+      </Suspense>
+    );
   }
 
   if (resolvedType === 'video') {
-    return <Navigate to={`/videos/${slug}`} replace />;
+    return (
+      <Suspense fallback={<InlineLoading />}>
+        <VideoDetailPage />
+      </Suspense>
+    );
   }
 
 

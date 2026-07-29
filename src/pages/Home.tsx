@@ -12,7 +12,9 @@ import { cn } from '../lib/utilsPublic';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
-import AccordionItem from '../components/AccordionItem';
+import NewAdditions from '../components/public/NewAdditions';
+import HomeFilterBar from '../components/public/HomeFilterBar';
+import HomeFaqSection from '../components/public/HomeFaqSection';
 
 const ITEMS_PER_PAGE = 15;
 const STORAGE_KEY = 'rummy_home_feed_state';
@@ -271,154 +273,22 @@ export default function Home() {
         <FeaturedBanner items={bannerItems} />
       )}
 
-      {/* Grid of New Apps - Compact & Glossy (Hidden if searching) */}
-      {(() => {
-        if (deferredSearchTerm) return null;
-        const activeTabLower = deferredActiveTab.toLowerCase();
-        const isHomeTab = activeTabLower === 'all apps' || 
-                          activeTabLower === 'all' || 
-                          activeTabLower === 'home' || 
-                          activeTabLower === 'apps';
-        const hasNewApps = loading ? true : filteredApps.some(app => app.is_new);
-        return isHomeTab && hasNewApps && (
-          <div className="px-0 animate-fade-in">
-            <h2 className="text-xl font-bold mb-4 mt-6 text-zinc-900 dark:text-zinc-100 flex items-center px-0">
-              New Additions <BadgeCheck className="w-5 h-5 text-blue-500 fill-blue-500/20 ml-1.5" />
-            </h2>
-            <div className="flex overflow-x-auto gap-3.5 sm:gap-4 px-4 sm:px-1 pt-2.5 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {loading ? (
-                Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="flex-none w-[80px] sm:w-[96px] snap-start">
-                    <NewAdditionItemSkeleton />
-                  </div>
-                ))
-              ) : (
-                filteredApps.filter(app => app.is_new).slice(0, 10).map((app, index) => {
-                  const isActuallyComingSoon = app.is_coming_soon && (!app.publish_date || new Date(app.publish_date).getTime() > new Date().getTime());
-                  return (
-                  <div
-                    key={app.id}
-                    className="flex-none w-[80px] sm:w-[96px] snap-start"
-                  >
-                    <Link to={`/app/${app.slug}`} className="flex flex-col gap-2 group active:scale-[0.98] transition-transform">
-                      <div className="relative w-full aspect-square">
-                        <div className="w-full h-full rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
-                          <img 
-                            src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
-                            alt={app.name} 
-                            referrerPolicy="no-referrer"
-                            loading={index < 3 ? "eager" : "lazy"}
-                            decoding="async"
-                            {...(index < 3 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
-                            width={128}
-                            height={128}
-                            className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
-                          />
-                        </div>
-                        {app.is_hot ? (
-                          <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
-                            <span className="bg-[#d32f2f] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
-                              HOT
-                            </span>
-                          </div>
-                        ) : app.is_new ? (
-                          <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
-                            <span className="bg-[#008738] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
-                              NEW
-                            </span>
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className="px-1 text-center">
-                        <h3 className="text-[10px] sm:text-xs font-medium text-zinc-800 dark:text-zinc-200 truncate">{app.name}</h3>
-                      </div>
-                    </Link>
-                  </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        );
-      })()}
-
-            <PlayStoreTabs activeTab={activeTab} onTabChange={setActiveTab} hideOnSearch={!!deferredSearchTerm} />
-
-      {deferredActiveTab.toLowerCase() !== 'categories' && (
-        <div className={`px-0 mb-4 mt-2 flex flex-wrap items-center gap-4 ${(!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps')) ? 'justify-end' : 'justify-between'}`}>
-          {(!(!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps'))) && (
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 m-0">
-              {deferredSearchTerm ? 'Search Results' : 
-               deferredActiveTab.toLowerCase() === 'top charts' ? 'Top Charts' : 
-               deferredActiveTab}
-            </h2>
-          )}
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Star Rating Dropdown */}
-            <div className="relative">
-              <label className="sr-only">Filter by Rating</label>
-              <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-3 py-1.5 shadow-sm text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none">
-                <span className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
-                  <span>Rating: {ratingFilter === 'all' ? 'All' : `${ratingFilter}+ Stars`}</span>
-                </span>
-                <select
-                  value={ratingFilter}
-                  onChange={(e) => setRatingFilter(e.target.value)}
-                  aria-label="Filter applications by rating"
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                >
-                  <option value="all">All Ratings</option>
-                  <option value="4.5">4.5+ ★ Superior</option>
-                  <option value="4.0">4.0+ ★ Top Rated</option>
-                  <option value="3.5">3.5+ ★ Premium</option>
-                  <option value="3.0">3.0+ ★ Standard</option>
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              </div>
-            </div>
-
-            {/* Sort By Dropdown */}
-            <div className="relative">
-              <label className="sr-only">Sort by Order</label>
-              <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-3 py-1.5 shadow-sm text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none">
-                <span className="flex items-center gap-1">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                  <span>Sort: {
-                    sortBy === 'default' ? 'Recommended' : 
-                    sortBy === 'rating_desc' ? 'Rating: High to Low' : 
-                    'Rating: Low to High'
-                  }</span>
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  aria-label="Sort applications"
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                >
-                  <option value="default">Recommended</option>
-                  <option value="rating_desc">Rating (Highest First)</option>
-                  <option value="rating_asc">Rating (Lowest First)</option>
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              </div>
-            </div>
-
-            {/* Clear filters if active */}
-            {(ratingFilter !== 'all' || sortBy !== 'default') && (
-              <button
-                onClick={() => {
-                  setRatingFilter('all');
-                  setSortBy('default');
-                }}
-                className="text-xs font-bold text-red-500 hover:text-red-650 transition-colors px-2 py-1 cursor-pointer"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-        </div>
+      {/* Modular New Additions Component */}
+      {!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps') && (
+        <NewAdditions loading={loading} apps={filteredApps} />
       )}
+
+      <PlayStoreTabs activeTab={activeTab} onTabChange={setActiveTab} hideOnSearch={!!deferredSearchTerm} />
+
+      {/* Modular Filter Bar */}
+      <HomeFilterBar 
+        ratingFilter={ratingFilter}
+        setRatingFilter={setRatingFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        searchTerm={deferredSearchTerm}
+        activeTab={deferredActiveTab}
+      />
 
       {deferredSearchTerm && (
         <div className="px-0 sm:px-1">
@@ -454,7 +324,7 @@ export default function Home() {
               </svg>
               <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">No apps available</h3>
               <p className="text-sm text-zinc-500">
-                The database might be temporarily unavailable or the daily free tier read quota has been exceeded. Please check back later.
+                The database might be temporarily unavailable. Please check back later.
               </p>
             </div>
           )}
@@ -479,17 +349,6 @@ export default function Home() {
                 filteredApps.slice(0, visibleCount).map((app, index) => (
                   <AppListItem key={app.id} app={app} index={index + 1} />
                 ))
-              )}
-              {!loading && mockApps.length === 0 && (
-                <div className="p-8 text-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl mx-4 mt-8 border border-zinc-200 dark:border-zinc-800">
-                  <svg className="w-12 h-12 text-zinc-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                  </svg>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">No apps available</h3>
-                  <p className="text-sm text-zinc-500">
-                    The database might be temporarily unavailable or the daily free tier read quota has been exceeded. Please check back later.
-                  </p>
-                </div>
               )}
             </div>
           </div>
@@ -557,21 +416,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* Website FAQs Section */}
-      {!deferredSearchTerm && mockSettings.website_faqs && mockSettings.website_faqs.length > 0 && (
-        <div className="mt-16 mb-8 px-0 animate-fade-in relative z-10 w-full">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-black mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-4">
-              {mockSettings.website_faqs.map((faq, index) => (
-                <AccordionItem key={index} question={faq.question} answer={faq.answer} isWebsiteFaq={true} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modular Website FAQs Section */}
+      <HomeFaqSection faqs={mockSettings.website_faqs} searchTerm={deferredSearchTerm} />
 
     </div>
   );
