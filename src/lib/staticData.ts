@@ -173,7 +173,117 @@ export interface VideoItem {
   created_at: string;
 }
 
-export const mockApps: AppConfig[] = [] as any[];
+export const mockApps: AppConfig[] = [
+  {
+    "is_new": false,
+    "icon_url": null,
+    "faqs": [],
+    "og_image_url": "",
+    "safety_status": "Verified",
+    "file_size": "Unknown",
+    "features_html": "",
+    "yellow_box_msg": "",
+    "name": "New App",
+    "is_coming_soon": false,
+    "serial_number": 5,
+    "seo_description": "",
+    "screenshots": [],
+    "developer": "Admin",
+    "seo_title": "",
+    "category": "General",
+    "created_at": "2026-07-29T13:51:47.813Z",
+    "red_box_msg": "",
+    "encrypted_link": "U2FsdGVkX192MCTBDkuFSNjZQlPu1VtFNVdI24IrMARhidzgxEsVjQ7OTki88KQ3",
+    "idea_box_msg": "",
+    "description_html": "",
+    "rating": 5,
+    "version": "1.0",
+    "id": "6hde7hi50",
+    "slug": "new-app",
+    "seo_keywords": ""
+  },
+  {
+    "seo_keywords": "",
+    "idea_box_msg": "",
+    "file_size": "Unknown",
+    "screenshots": [],
+    "serial_number": 2,
+    "slug": "new-app",
+    "category": "General",
+    "version": "1.0",
+    "features_html": "",
+    "safety_status": "Verified",
+    "is_new": false,
+    "developer": "Admin",
+    "seo_description": "",
+    "name": "New App",
+    "red_box_msg": "",
+    "is_coming_soon": false,
+    "seo_title": "",
+    "id": "m717etjdf",
+    "rating": 5,
+    "yellow_box_msg": "",
+    "icon_url": null,
+    "created_at": "2026-07-29T11:14:27.583Z",
+    "og_image_url": "",
+    "faqs": [],
+    "description_html": ""
+  },
+  {
+    "icon_url": null,
+    "created_at": "2026-07-29T11:14:42.214Z",
+    "faqs": [],
+    "developer": "Admin",
+    "version": "1.0",
+    "seo_title": "",
+    "safety_status": "Verified",
+    "features_html": "",
+    "rating": 5,
+    "og_image_url": "",
+    "is_coming_soon": false,
+    "serial_number": 3,
+    "yellow_box_msg": "",
+    "screenshots": [],
+    "name": "New App",
+    "category": "General",
+    "id": "d5pcrs7xt",
+    "description_html": "",
+    "seo_keywords": "",
+    "file_size": "Unknown",
+    "idea_box_msg": "",
+    "seo_description": "",
+    "red_box_msg": "",
+    "slug": "new-app",
+    "is_new": false
+  },
+  {
+    "idea_box_msg": "",
+    "is_new": true,
+    "description_html": "",
+    "seo_keywords": "",
+    "file_size": "Unknown",
+    "screenshots": [],
+    "slug": "new-app",
+    "category": "All Apps, Yono",
+    "seo_title": "",
+    "faqs": [],
+    "yellow_box_msg": "",
+    "developer": "Admin",
+    "is_coming_soon": false,
+    "safety_status": "Verified",
+    "features_html": "",
+    "rating": 5,
+    "serial_number": 4,
+    "red_box_msg": "",
+    "version": "1.0",
+    "og_image_url": "",
+    "seo_description": "",
+    "created_at": "2026-07-29T12:12:21.021Z",
+    "name": "New App",
+    "id": "ukpnlxehc",
+    "icon_url": ""
+  }
+] as any[];
 
 export const saveMockApps = (apps: AppConfig[]) => {
   try {
@@ -185,10 +295,10 @@ export const saveMockApps = (apps: AppConfig[]) => {
 };
 
 export const mockSettings: GlobalSettings = {
-  "site_title": "Yono Store",
+  "site_title": "RummyDex",
   "meta_description": "",
-  "logo_url": "",
-  "favicon_url": "",
+  "logo_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp",
+  "favicon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp",
   "helpline_whatsapp": "",
   "helpline_telegram": "",
   "support_email": "",
@@ -196,11 +306,32 @@ export const mockSettings: GlobalSettings = {
   "ethics_discrimination_text": "",
   "ticker_text": "",
   "animations_enabled": true,
-  "categories": [],
+  "categories": [
+    "All Apps",
+    "Yono",
+    "Card"
+  ],
   "banners": [],
   "quick_links": [],
   "website_faqs": [],
-  "developers": []
+  "developers": [],
+  "hero_title_style": "modern",
+  "hero_title_animation": "fade-in",
+  "social_links": {
+    "facebook": "",
+    "youtube": "",
+    "instagram": "",
+    "linkedin": "",
+    "twitter": ""
+  },
+  "last_updated": "2026-07-29T13:00:56.525Z",
+  "hero_title_subtitle": "COMPREHENSIVE SOCIAL CASUAL E-SPORTS METRICS & UNBIASED INTEGRITY REVIEWS",
+  "hero_title_color": "classic-dark",
+  "hero_title_visible": false,
+  "hero_title_text": "",
+  "trending_searches": [],
+  "secure_index_title": "Secure Index",
+  "secure_index_subtitle": "Verified & Transparent App Marketplace"
 } as any;
 
 export const saveMockSettings = (settings: GlobalSettings) => {
