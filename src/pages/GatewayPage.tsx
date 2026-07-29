@@ -301,52 +301,38 @@ export default function GatewayPage() {
       />
       
       {/* Main App Presentation & Action */}
-      <div className="max-w-4xl mx-auto w-full mb-16 px-4 sm:px-6">
-        <div className="flex flex-col items-center gap-12">
+      <div className="max-w-4xl mx-auto w-full mb-12 px-4 sm:px-6">
+        <div className="flex flex-col items-center gap-8">
           {/* App Logo & Details */}
-          <div className="flex flex-col items-center text-center gap-6 w-full">
+          <div className="flex flex-col items-center text-center gap-4 w-full">
             <div className="relative group shrink-0 premium-logo-container">
               {/* Dynamic premium glowing aura background */}
               <div className="premium-logo-aura"></div>
               
               <motion.div 
-                className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 rounded-[2.5rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
+                className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-[2rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
                 whileHover={{ scale: 1.05 }}
               >
                 {app.icon_url ? (
                   <img 
                     src={app.icon_url} 
                     alt={app.name} 
-                    className="w-full h-full object-cover rounded-[2.2rem]"
+                    className="w-full h-full object-cover rounded-[1.8rem]"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <ShieldCheck className="w-16 h-16 text-emerald-500 animate-pulse" />
+                  <ShieldCheck className="w-12 h-12 text-emerald-500 animate-pulse" />
                 )}
-                
-                {/* Glossy overlay effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"></div>
               </motion.div>
-
-              {/* Status Badge Over Icon */}
-              <div className="absolute -top-2 -right-2 z-20">
-                <div className="flex items-center gap-1 px-3 py-1 bg-white dark:bg-zinc-900 rounded-full shadow-lg border border-black/[0.05] dark:border-white/[0.05]">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Active</span>
-                </div>
-              </div>
             </div>
 
             <div className="flex flex-col items-center">
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
-              <div className="flex flex-wrap justify-center items-center gap-2">
-                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
+              <div className="flex flex-wrap justify-center items-center gap-1.5">
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   ID: {app.serial_number}
                 </span>
-                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
-                  Size: {app.file_size}
-                </span>
-                <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/10">
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   Ver: {app.version}
                 </span>
               </div>
@@ -354,129 +340,21 @@ export default function GatewayPage() {
           </div>
 
           {/* Dynamic Verified Action Button */}
-          <div className="flex flex-col items-center gap-6 w-full">
+          <div className="flex flex-col items-center gap-4 w-full">
             {isActuallyComingSoon ? (
-              <div className="w-full sm:w-80 flex flex-col items-center">
+              <div className="w-full sm:w-72 flex flex-col items-center">
                 <button disabled className="w-full py-4 px-10 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
                   Coming Soon
                 </button>
               </div>
             ) : (
-               <div className="w-full sm:w-80">
+               <div className="w-full sm:w-72">
                  <ClearanceButton appId={app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
                </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Similar Apps Slider (Positioned right below the Main Spec Card / Clearance Handshake Button) */}
-      <div className="max-w-4xl mx-auto w-full mb-12 px-4 sm:px-6">
-        <div className="flex items-center justify-between border-b border-black/[0.05] dark:border-white/[0.05] pb-4 mb-6">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-lg font-black text-zinc-850 dark:text-zinc-100 flex items-center gap-2">
-              <Sparkles className="w-4.5 h-4.5 text-emerald-500 animate-pulse" /> Similar Apps
-            </h2>
-            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 font-semibold">Recommended alternatives you can also try</p>
-          </div>
-          <div className="flex gap-1.5">
-             <button 
-               onClick={scrollPrev}
-               className="p-2 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900 border border-black/[0.05] dark:border-white/[0.05] text-zinc-500 hover:text-emerald-500 dark:text-zinc-400 dark:hover:text-emerald-400 transition-colors shadow-sm active:scale-95"
-               aria-label="Previous apps"
-             >
-               <ChevronLeft className="w-4 h-4" />
-             </button>
-             <button 
-               onClick={scrollNext}
-               className="p-2 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900 border border-black/[0.05] dark:border-white/[0.05] text-zinc-500 hover:text-emerald-500 dark:text-zinc-400 dark:hover:text-emerald-400 transition-colors shadow-sm active:scale-95"
-               aria-label="Next apps"
-             >
-               <ChevronRight className="w-4 h-4" />
-             </button>
-          </div>
-        </div>
-        
-        {/* Horizontal Scroll Area */}
-        <div 
-          ref={sliderRef}
-          className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-2 scroll-smooth"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          {similarApps.map(discoverApp => (
-            <Link 
-              key={discoverApp.id} 
-              to={`/app/${discoverApp.slug}`} 
-              className="flex-none w-[150px] sm:w-[170px] bg-white dark:bg-zinc-900/40 p-4 flex flex-col items-center text-center border border-black/[0.05] dark:border-white/[0.05] rounded-[20px] hover-float shadow-sm group snap-start"
-            >
-              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] overflow-hidden mb-3 bg-white dark:bg-zinc-900 shadow-inner border border-black/[0.05] dark:border-white/[0.05] group-hover:scale-105 transition-transform duration-300 shrink-0">
-                 {discoverApp.icon_url ? (
-                   <img 
-                     src={discoverApp.icon_url} 
-                     loading="lazy" 
-                     width={64}
-                     height={64}
-                     alt={`${discoverApp.name} icon`} 
-                     className="w-full h-full object-cover select-none pointer-events-none"
-                   />
-                 ) : (
-                   <div className="w-full h-full flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 text-zinc-400">
-                     <ShieldCheck className="w-6 h-6 text-emerald-500" />
-                   </div>
-                 )}
-              </div>
-              <h4 className="font-bold text-[11px] sm:text-xs tracking-tight w-full text-zinc-800 dark:text-zinc-100 truncate mb-0.5">{discoverApp.name}</h4>
-              <div className="text-[9px] sm:text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate w-full mb-2">
-                {discoverApp.developer || 'Official Game'}
-              </div>
-              <span className="mt-auto px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                View Info
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Strict Section Order 3: Peer Reviews */}
-      <div className="max-w-4xl mx-auto w-full mb-16 px-4 sm:px-6">
-        <h2 className="text-2xl font-black mb-6 flex items-center gap-2 tracking-tight text-zinc-850 dark:text-zinc-100">
-          <MessageSquare className="w-5.5 h-5.5 text-emerald-500" /> User Reviews
-        </h2>
-
-        <form onSubmit={handleReviewSubmit} className="bg-white dark:bg-zinc-900/60 border border-black/[0.05] dark:border-white/[0.05] p-6 sm:p-10 rounded-[24px] shadow-md">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-zinc-800 dark:text-zinc-100 text-base">Leave a Review</h3>
-          </div>
-          
-          <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
-          
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Name</label>
-              <input required type="text" onChange={(e) => setUsername(e.target.value)} value={username} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-3 outline-none font-medium text-sm text-zinc-800 dark:text-zinc-100 focus:border-emerald-500 transition-all" placeholder="Your name" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Rating</label>
-              <select required value={rating} onChange={(e) => setRating(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-3 focus:border-emerald-500 transition-all outline-none font-medium text-sm text-zinc-800 dark:text-zinc-100 appearance-none">
-                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
-                <option value="4">⭐⭐⭐⭐ Good</option>
-                <option value="3">⭐⭐⭐ Average</option>
-                <option value="2">⭐⭐ Poor</option>
-                <option value="1">⭐ Critical</option>
-              </select>
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Review</label>
-              <textarea required value={review} onChange={(e) => setReview(e.target.value)} rows={4} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-3 outline-none font-medium text-sm text-zinc-800 dark:text-zinc-100 focus:border-emerald-500 transition-all resize-y" placeholder="Write your honest feedback..."></textarea>
-            </div>
-          </div>
-          <button type="submit" className="mt-6 bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm hover:shadow-md">
-            Submit Review
-          </button>
-        </form>
-      </div>
-
-
 
       {/* Strict Section Order 4: Helpline Block */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6 max-w-4xl mx-auto w-full mt-12 mb-20 px-4 sm:px-6">
