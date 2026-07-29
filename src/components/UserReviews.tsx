@@ -3,11 +3,12 @@
  * Displays peer reviews, supports upvotes and helpful counters, and is fully synchronized with DB.
  */
 
-import React, { useState, useEffect } from 'react';
-import { Star, ShieldCheck, Check, Loader2, ThumbsUp, AlertCircle, Sparkles, MessageSquare, Plus, ChevronDown, ChevronUp, Flag } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { Star, ThumbsUp, AlertCircle, Sparkles } from 'lucide-react';
 import ReviewScoreSummary from './public/ReviewScoreSummary';
-import ReviewItem, { Review } from './public/ReviewItem';
+import ReviewItem from './public/ReviewItem';
+import { ReviewForm } from './public/ReviewForm';
+import { useReviews } from '../hooks/useReviews';
 
 interface UserReviewsProps {
   appId: string;
@@ -15,289 +16,24 @@ interface UserReviewsProps {
   overallRating?: number;
 }
 
-// Visual avatar background colors mapped based on the first letter of username
-const AVATAR_COLORS = [
-  'bg-emerald-500 text-emerald-100',
-  'bg-sky-500 text-sky-100',
-  'bg-violet-500 text-violet-100',
-  'bg-amber-500 text-amber-100',
-  'bg-rose-500 text-rose-100',
-  'bg-indigo-500 text-indigo-100',
-  'bg-teal-500 text-teal-100',
-];
-
-const getAvatarStyle = (name: string): string => {
-  const index = name ? name.toLowerCase().charCodeAt(0) % AVATAR_COLORS.length : 0;
-  return AVATAR_COLORS[index];
-};
-
 export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: UserReviewsProps) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [sortBy, setSortBy] = useState<'recent' | 'helpful'>('recent');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'positive' | 'critical'>('all');
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [errorText, setErrorText] = useState('');
+  const {
+    reviews,
+    setReviews,
+    loading,
+    sortBy,
+    setSortBy,
+    activeFilter,
+    setActiveFilter,
+    votedReviews,
+    reportedReviews,
+    expandedReviews,
+    toggleExpandReview,
+    handleHelpfulVote,
+    handleReportReview,
+    filteredReviews
+  } = useReviews(appId, appTitle);
 
-  // Local state
-  const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(false);
-
-  // Form states
-  const [username, setUsername] = useState('');
-  const [rating, setRating] = useState(5);
-  const [hoveredRating, setHoveredRating] = useState<number | null>(null);
-  const [comment, setComment] = useState('');
-
-  useEffect(() => {
-    // Auth check removed to reduce Firebase client quotas. User explicitly types name.
-  }, []);
-
-  // Expand states for long comments
-  const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
-
-  // Help voted list (to prevent double voting in the current session)
-  const [votedReviews, setVotedReviews] = useState<Record<string, boolean>>({});
-
-  // Reported list (to prevent double reporting in the current session)
-  const [reportedReviews, setReportedReviews] = useState<Record<string, boolean>>({});
-
-  // Base list of reviews (empty by default)
-  const getMockReviews = (): Review[] => [];
-
-  useEffect(() => {
-    const loadReviews = async () => {
-      setLoading(true);
-      setErrorText('');
-      
-      // Step 1: Load static mock reviews
-      const baseReviews = getMockReviews();
-
-      // Step 2: Try fetching any userreviews saved in localStorage
-      let localReviews: Review[] = [];
-      try {
-        const stored = localStorage.getItem(`local_user_reviews_${appId}`);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          localReviews = parsed.map((r: any) => ({
-            ...r,
-            reported: r.reported || false,
-            report_count: r.report_count || 0
-          }));
-        }
-      } catch (err) {
-        console.error('Failed to parse local cached reviews', err);
-      }
-
-      let combinedReviews = [...localReviews, ...baseReviews];
-
-      // Step 3: Fetch remote community reviews from public API if available
-      try {
-        const res = await fetch(`/api/v1/public/reviews?app_id=${appId}`).catch(() => null);
-        if (res && res.ok) {
-          const remoteData = await res.json().catch(() => []);
-          if (Array.isArray(remoteData) && remoteData.length > 0) {
-            const dbIds = new Set(remoteData.map((r: any) => r.id));
-            const filteredLocal = localReviews.filter(r => !dbIds.has(r.id));
-            combinedReviews = [...remoteData, ...filteredLocal, ...baseReviews];
-          }
-        }
-      } catch (dbErr) {
-        // Graceful fallback
-      }
-
-      // Sort by modern dates first
-      combinedReviews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      setReviews(combinedReviews);
-      setLoading(false);
-    };
-
-    loadReviews();
-  }, [appId, appTitle]);
-
-  const toggleExpandReview = (id: string) => {
-    setExpandedReviews(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleHelpfulVote = (id: string) => {
-    if (votedReviews[id]) return; // Limit to one vote per session for robustness
-
-    setReviews(prev =>
-      prev.map(r => {
-        if (r.id === id) {
-          return { ...r, helpful_count: r.helpful_count + 1 };
-        }
-        return r;
-      })
-    );
-    setVotedReviews(prev => ({ ...prev, [id]: true }));
-  };
-
-  const handleReportReview = async (id: string) => {
-    if (reportedReviews[id]) return;
-
-    // 1. Update component local state immediately
-    setReportedReviews(prev => ({ ...prev, [id]: true }));
-    setReviews(prev =>
-      prev.map(r => {
-        if (r.id === id) {
-          return { 
-            ...r, 
-            reported: true, 
-            report_count: (r.report_count || 0) + 1 
-          };
-        }
-        return r;
-      })
-    );
-
-    // 2. If review is from local storage cache, update local storage cache too
-    try {
-      const stored = localStorage.getItem(`local_user_reviews_${appId}`);
-      if (stored) {
-        const parsed: Review[] = JSON.parse(stored);
-        const updated = parsed.map(r => {
-          if (r.id === id) {
-            return {
-              ...r,
-              reported: true,
-              report_count: (r.report_count || 0) + 1
-            };
-          }
-          return r;
-        });
-        localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify(updated));
-      }
-    } catch (e) {
-      console.warn('Failed to update local storage review report status', e);
-    }
-
-    // 3. Update report status via API
-    try {
-      if (!id.startsWith('mock')) {
-        await fetch('/api/v1/public/report-review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ review_id: id })
-        }).catch(() => {});
-      }
-    } catch (e) {}
-  };
-
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorText('');
-    
-    // Validations with absolute strictness
-    const cleanUsername = username.trim().replace(/<[^>]*>?/gm, '');
-    const cleanComment = comment.trim().replace(/<[^>]*>?/gm, '');
-
-    if (!cleanUsername) {
-      setErrorText('Please specify a valid display name.');
-      return;
-    }
-    if (cleanUsername.length < 2) {
-      setErrorText('Your name must be at least 2 characters.');
-      return;
-    }
-
-    // Validate that the username contains no special characters (only letters, numbers, and spaces)
-    const usernameRegex = /^[a-zA-Z0-9 ]+$/;
-    if (!usernameRegex.test(cleanUsername)) {
-      setErrorText('Username can only contain letters, numbers, and spaces.');
-      return;
-    }
-
-    if (!cleanComment) {
-      setErrorText('Please write a review comment.');
-      return;
-    }
-    if (cleanComment.length < 10) {
-      setErrorText('Your review must contain at least 10 characters.');
-      return;
-    }
-
-    // Enforce a minimum word count of 5 words
-    const wordCount = cleanComment.split(/\s+/).filter(w => w.trim().length > 0).length;
-    if (wordCount < 5) {
-      setErrorText('Your review must contain at least 5 words to ensure higher quality.');
-      return;
-    }
-
-    setSubmitting(true);
-
-    const generatedId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const newSubmission: Review = {
-      id: generatedId,
-      app_id: appId,
-      username: cleanUsername,
-      rating: rating,
-      comment: cleanComment,
-      created_at: new Date().toISOString(),
-      helpful_count: 0,
-      source: 'community'
-    };
-
-    try {
-      // Step 1: Optimistically save review in state
-      setReviews(prev => [newSubmission, ...prev]);
-
-      // Step 2: Cache it under user's local directory to prevent loss
-      let storedReviews: Review[] = [];
-      const stored = localStorage.getItem(`local_user_reviews_${appId}`);
-      if (stored) {
-        storedReviews = JSON.parse(stored);
-      }
-      localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
-
-      // Step 3: Write in background to API
-      try {
-        await fetch('/api/v1/public/review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            app_id: appId,
-            username: cleanUsername,
-            rating: rating,
-            comment: cleanComment,
-            created_at: newSubmission.created_at,
-            helpful_count: 0,
-            is_approved: false,
-            source: newSubmission.source
-          })
-        }).catch(() => {});
-      } catch (e) {}
-
-      setSuccess(true);
-      setUsername('');
-      setComment('');
-      setRating(5);
-      
-      setTimeout(() => setSuccess(false), 5000);
-    } catch (saveErr: any) {
-      console.warn('Review submission handled with local fallback:', saveErr.message || saveErr);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Memoized sorted reviews based on selected sort option
-  const sortedReviews = React.useMemo(() => {
-    const list = [...reviews];
-    if (sortBy === 'helpful') {
-      return list.sort((a, b) => {
-        if (b.helpful_count !== a.helpful_count) {
-          return b.helpful_count - a.helpful_count;
-        }
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-    } else {
-      return list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    }
-  }, [reviews, sortBy]);
-
-  // Mock score statistics calculations to create immersive dashboard look
   const totalCount = reviews.length ? reviews.length * 9 + 42 : 124;
   const averageValue = overallRating ? overallRating.toFixed(1) : '4.8';
 
@@ -311,138 +47,17 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
           averageValue={averageValue} 
         />
 
-        {/* Right Side: Reviews Feed and submission form */}
         <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
-          
-          {/* Form to submit review */}
-          <div className="p-4 sm:p-6 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl shadow-sm">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Share your gameplay review</span>
-            </h3>
+          <ReviewForm appId={appId} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
 
-              <form onSubmit={handleReviewSubmit} className="space-y-4">
-                {/* Star Selection Row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <motion.button
-                          key={s}
-                          type="button"
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.9 }}
-                          onMouseEnter={() => setHoveredRating(s)}
-                          onMouseLeave={() => setHoveredRating(null)}
-                          onClick={() => setRating(s)}
-                          className="p-1 focus:outline-none cursor-pointer"
-                        >
-                          <Star 
-                            className={`w-6 h-6 transition-colors duration-200 ${
-                              s <= (hoveredRating !== null ? hoveredRating : rating)
-                                ? 'fill-amber-400 text-amber-400' 
-                                : 'text-zinc-300 dark:text-zinc-700'
-                            }`} 
-                          />
-                        </motion.button>
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold text-amber-500 ml-1">
-                      {rating === 5 ? 'Excellent!' : rating === 4 ? 'Very Good' : rating === 3 ? 'Good' : rating === 2 ? 'Fair' : 'Poor'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Grid Inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-1">
-                    <span className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Your Name</span>
-                        <input
-                          type="text"
-                          required
-                          maxLength={30}
-                          placeholder="Name"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          className="w-full text-xs font-semibold p-2.5 bg-white dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] text-zinc-900 dark:text-zinc-100 transition-all h-[46px]"
-                        />
-                  </div>
-                  
-                  <div className="sm:col-span-2">
-                    <label htmlFor="comment" className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
-                    <textarea
-                      id="comment"
-                      required
-                      maxLength={500}
-                      placeholder="Write a constructive, honest review of the gameplay experience..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      rows={2}
-                      className="w-full bg-zinc-50 focus:bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs font-medium text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none min-h-[46px]"
-                    />
-                    <div className="flex justify-end text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">
-                      {comment.length}/500 characters
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action and notifications */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                  <div className="flex-1">
-                    {errorText && (
-                      <div className="flex items-center gap-1 text-xs font-semibold text-rose-500">
-                        <AlertCircle className="w-4 h-4 shrink-0" />
-                        <span>{errorText}</span>
-                      </div>
-                    )}
-
-                    <AnimatePresence>
-                      {success && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-center gap-1.5 text-xs font-bold text-emerald-500"
-                        >
-                          <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                          <span>Review submitted! Thank you for helping the community.</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex items-center justify-center gap-2 h-10 px-5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-bold text-xs rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0 w-full sm:w-auto"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Submitting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Post Review</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-          </div>
-
-          {/* Feedback list with beautiful sort control bar */}
           <div className="space-y-4">
             {!loading && reviews.length > 0 && (
               <div className="flex flex-col gap-3 pb-3 border-b border-black/5 dark:border-white/5">
-                {/* Search / Explanation alert addressing user's Google reviews concern */}
                 <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-3.5 mb-2">
                   <div className="flex gap-2 items-start">
                     <Sparkles className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                     <p className="text-[11px] text-zinc-600 dark:text-zinc-450 leading-normal font-semibold">
-                      <strong>Google Review Integration Info:</strong> Officially submitted Google Business & Play Store reviews are hosted in Google\'s closed database sandbox and do not sync automatically with third-party sites. To see your feedback directly on this portal immediately, please write/post user reviews in this designated community panel!
+                      <strong>Google Review Integration Info:</strong> Officially submitted Google Business & Play Store reviews are hosted in Google's closed database sandbox and do not sync automatically with third-party sites. To see your feedback directly on this portal immediately, please write/post user reviews in this designated community panel!
                     </p>
                   </div>
                 </div>
@@ -522,21 +137,17 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
               <div className="space-y-3.5 animate-pulse">
                 {Array.from({ length: 3 }).map((_, idx) => (
                   <div key={`review-skeleton-${idx}`} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10 text-left">
-                    {/* Avatar Circle skeleton */}
                     <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
-                    {/* Content Column skeleton */}
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between gap-4">
                         <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
                         <div className="h-2 w-16 bg-zinc-200 dark:bg-zinc-805 rounded" />
                       </div>
-                      {/* Rating stars row skeleton */}
                       <div className="flex items-center gap-0.5 mt-0.5 select-none">
                         {Array.from({ length: 5 }).map((_, s) => (
                           <div key={`star-skeleton-${idx}-${s}`} className="w-3 h-3 rounded-full bg-zinc-200 dark:bg-zinc-800" />
                         ))}
                       </div>
-                      {/* Lines of text skeleton */}
                       <div className="space-y-1.5 pt-1.5">
                         <div className="h-2.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
                         <div className="h-2.5 w-[92%] bg-zinc-200 dark:bg-zinc-800 rounded" />
@@ -552,31 +163,24 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
               </div>
             ) : (
               <div className="space-y-3">
-                {sortedReviews
-                  .filter(rev => {
-                    if (activeFilter === 'positive') return rev.rating >= 4;
-                    if (activeFilter === 'critical') return rev.rating <= 3;
-                    return true;
-                  })
-                  .map((rev) => (
-                    <ReviewItem
-                      key={rev.id}
-                      rev={rev}
-                      isReported={!!reportedReviews[rev.id]}
-                      isExpanded={!!expandedReviews[rev.id]}
-                      isVoted={!!votedReviews[rev.id]}
-                      onToggleExpand={toggleExpandReview}
-                      onHelpfulVote={handleHelpfulVote}
-                      onReport={handleReportReview}
-                    />
-                  ))}
+                {filteredReviews.map((rev) => (
+                  <ReviewItem
+                    key={rev.id}
+                    rev={rev}
+                    isReported={!!reportedReviews[rev.id]}
+                    isExpanded={!!expandedReviews[rev.id]}
+                    isVoted={!!votedReviews[rev.id]}
+                    onToggleExpand={toggleExpandReview}
+                    onHelpfulVote={handleHelpfulVote}
+                    onReport={handleReportReview}
+                  />
+                ))}
               </div>
             )}
           </div>
-
         </div>
-
       </div>
     </div>
   );
 }
+
