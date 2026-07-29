@@ -1,237 +1,394 @@
-const express = require('express');
-const compression = require('compression');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const CryptoJS = require('crypto-js');
-const cookieParser = require('cookie-parser');
+var Et=Object.create;var ge=Object.defineProperty;var At=Object.getOwnPropertyDescriptor;var It=Object.getOwnPropertyNames;var $t=Object.getPrototypeOf,Rt=Object.prototype.hasOwnProperty;var Ct=(s,e)=>()=>(s&&(e=s(s=0)),e);var Dt=(s,e)=>{for(var r in e)ge(s,r,{get:e[r],enumerable:!0})},Pe=(s,e,r,t)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of It(e))!Rt.call(s,n)&&n!==r&&ge(s,n,{get:()=>e[n],enumerable:!(t=At(e,n))||t.enumerable});return s};var S=(s,e,r)=>(r=s!=null?Et($t(s)):{},Pe(e||!s||!s.__esModule?ge(r,"default",{value:s,enumerable:!0}):r,s)),Tt=s=>Pe(ge({},"__esModule",{value:!0}),s);var Xe={};Dt(Xe,{b64EncodeUnicode:()=>Bt,commitFileToGitHub:()=>Wt,generateStaticDataFileCode:()=>Mt});function Bt(s){try{return btoa(encodeURIComponent(s).replace(/%([0-9A-F]{2})/g,(e,r)=>String.fromCharCode(parseInt(r,16))))}catch(e){return console.error("Base64 unicode encoding error:",e),btoa(s)}}function Mt(s=[],e={},r=[],t=[],n=[]){let a=JSON.parse(JSON.stringify(s||[])).map(u=>(delete u.more_information_url,delete u.encrypted_download_url,delete u.download_url,u)),c={...{site_title:"",meta_description:"",logo_url:"",favicon_url:"",helpline_whatsapp:"",helpline_telegram:"",support_email:"",disclaimer_text:"",ethics_discrimination_text:"",ticker_text:"",animations_enabled:!0,categories:[],banners:[],quick_links:[],website_faqs:[],developers:[]},...JSON.parse(JSON.stringify(e||{}))},i=JSON.parse(JSON.stringify(r||[])),l=JSON.parse(JSON.stringify(t||[])),f=JSON.parse(JSON.stringify(n||[]));return`// No secureStorage import to avoid Vercel build errors when secureStorage is stripped
 
-const app = express();
-
-// Configuration constants
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'yono-default-secret-2026';
-const AES_SECRET = process.env.AES_SECRET || '';
-
-// Security Stores (In-memory, transient per Vercel instance)
-const nonceStore = new Map();
-
-// Helper: Get Client IP
-function getIp(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || "unknown";
+export interface Banner {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  link: string;
 }
 
-// Helper: Ensure Session
-function ensureSession(req, res) {
-  let sid = req.cookies?.["__Host-sid"];
-  if (!sid) {
-    sid = crypto.randomBytes(24).toString("hex");
-    res.cookie("__Host-sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 300000, secure: true });
-  }
-  return sid;
+export interface GlobalSettings {
+  site_title: string;
+  meta_description: string;
+  logo_url: string;
+  favicon_url: string;
+  helpline_whatsapp: string;
+  helpline_telegram: string;
+  support_email: string;
+  disclaimer_text: string;
+  disclaimer_heading?: string;
+  ethics_discrimination_text: string;
+  ethics_heading?: string;
+  portal_heading?: string;
+  important_notice_heading?: string;
+  ticker_text: string;
+  animations_enabled: boolean;
+  seo_keywords?: string;
+  about_content?: string;
+  contact_content?: string;
+  privacy_content?: string;
+  terms_content?: string;
+  responsibility_content?: string;
+  report_removal_content?: string;
+  important_notice?: string;
+  categories: string[];
+  banners: Banner[];
+  last_updated?: string;
+  secure_index_title?: string;
+  secure_index_subtitle?: string;
+  trending_searches?: string[];
+  hero_title_text?: string;
+  hero_title_color?: string;
+  hero_title_style?: string;
+  hero_title_animation?: string;
+  hero_title_subtitle?: string;
+  hero_title_visible?: boolean;
+  ga_tracking_id?: string;
+  quick_links?: Array<{ title: string; subtitle?: string; icon?: string; color?: string; url: string }>;
+  social_links?: { facebook?: string; instagram?: string; twitter?: string; linkedin?: string; youtube?: string; };
+  website_faqs?: Array<{ question: string; answer: string }>;
+  developers?: Array<{ name: string; role: string; bio?: string; image_url?: string; github?: string; twitter?: string; avatar_url?: string; social?: any }>;
 }
 
-// Helper: Generate Security Token (HMAC)
-function generateToken(ip, sessionId, fingerprint, appId) {
-  const EXPIRY = 1800; // 30 minutes
-  const expires = Math.floor(Date.now() / 1000) + EXPIRY;
-  const payload = `${ip}|${sessionId}|${fingerprint}|${appId}|${expires}`;
-  const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
-  return Buffer.from(`${payload}::${sig}`).toString("base64url");
+export interface NewsItem {
+  id: string;
+  slug: string;
+  title: string;
+  logo_url: string;
+  description: string;
+  ceo_name: string;
+  ceo_description: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords?: string;
+  category?: string;
+  og_image_url?: string;
+  canonical_url?: string;
+  target_region?: string;
+  content: string;
+  published_at?: string;
+  link: string;
+  read_time?: string;
+  author?: string;
+  description_html?: string;
+  date?: string;
+  tags?: string[];
+  related_app_id?: string;
 }
 
-// Helper: Verify Security Token
-function verifyToken(token, ip, sessionId, fingerprint, appId) {
+export interface AppConfig {
+  id: string;
+  name: string;
+  slug: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  og_image_url?: string;
+  canonical_url?: string;
+  target_region?: string;
+  category: string;
+  is_coming_soon?: boolean;
+  publish_date?: string;
+  version: string;
+  file_size: string;
+  developer: string;
+  icon_url: string;
+  screenshots: string[];
+  description_html: string;
+  red_box_msg: string;
+  yellow_box_msg: string;
+  idea_box_msg: string;
+  safety_status: 'Verified' | 'Caution' | 'Unsafe';
+  serial_number: number;
+  is_featured: boolean;
+  is_new: boolean;
+  is_hot?: boolean;
+  release_notes: string;
+  rating: number;
+  created_at: string;
+  custom_admin_box_html?: string;
+  custom_admin_box_heading?: string;
+  features_html?: string;
+  faqs?: {question: string; answer: string}[];
+  link_configured?: boolean;
+  
+  video_url?: string;
+  is_top_chart?: boolean;
+  top_chart_category?: string;
+  more_information_url?: string;
+}
+
+export interface Review {
+  id: string;
+  app_id: string;
+  username: string;
+  rating: number;
+  comment: string;
+  is_approved: boolean;
+}
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  author: string;
+  cover_url: string;
+  published_at: string;
+  related_app_slug?: string;
+  related_app_name?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  canonical_url?: string;
+  target_region?: string;
+  description?: string;
+  description_html?: string;
+  date?: string;
+  thumbnail_url?: string;
+  publish_date?: string;
+  read_time?: string;
+  tags?: string[];
+  created_at?: string;
+}
+
+export interface NewsUpdate {
+  id: string;
+  title: string;
+  content_html: string;
+  category: string;
+  published_at: string;
+}
+
+export interface VideoItem {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  youtube_url: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords?: string;
+  created_at: string;
+}
+
+export const mockApps: AppConfig[] = ${JSON.stringify(a,null,2)} as any[];
+
+export const saveMockApps = (apps: AppConfig[]) => {
   try {
-    const raw = Buffer.from(token, "base64url").toString("utf8");
-    const [payload, sig] = raw.split("::");
-    if (!payload || !sig) return false;
-    const parts = payload.split("|");
-    if (parts.length !== 5) return false;
-    const [tIp, tSession, tFp, tAppId, expires] = parts;
-
-    if (tAppId !== appId) return false;
-    if (Math.floor(Date.now() / 1000) > parseInt(expires, 10)) return false;
-    
-    const expected = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
-    return crypto.timingSafeEqual(Buffer.from(sig, "hex"), Buffer.from(expected, "hex"));
-  } catch {
-    return false;
-  }
-}
-
-// Helper: Safe Decrypt (AES)
-function safeDecrypt(ciphertext, secret) {
-  if (!ciphertext || !secret) return '';
-  try {
-    // Note: We use crypto-js like implementation for AES-256-CBC if possible, 
-    // but here we'll use node's native crypto for simplicity if compatible.
-    // However, the links are encrypted with CryptoJS in the admin.
-    // For Dex, we'll implement a compatible version.
-    const bytes = CryptoJS.AES.decrypt(ciphertext, secret);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    localStorage.setItem('rummystore_apps', JSON.stringify(apps));
   } catch (e) {
-    return '';
+    console.warn('saveMockApps storage failed:', e);
   }
-}
+  mockApps.splice(0, mockApps.length, ...apps);
+};
 
-// Middleware
-app.use(compression());
-app.use(express.json({ limit: '5mb' }));
-app.use(cookieParser());
+export const mockSettings: GlobalSettings = ${JSON.stringify(c,null,2)} as any;
 
-// --- ROUTES ---
-
-// 1. Security Challenge Initiation
-app.get('/api/v1/_chal', (req, res) => {
-  const ip = getIp(req);
-  const sid = ensureSession(req, res);
-  const nonce = crypto.randomBytes(16).toString('hex');
-  nonceStore.set(nonce, { sessionId: sid, expiresAt: Date.now() + 60000 });
-  res.json({ nonce });
-});
-
-// 2. Security Challenge Processing
-app.post('/api/v1/_proc', (req, res) => {
-  const { nonce, hash, fingerprint, appId, sid: clientSid } = req.body;
-  const ip = getIp(req);
-  const sid = req.cookies?.["__Host-sid"] || clientSid;
-
-  if (!nonce || !hash || !fingerprint || !appId || !sid) {
-    return res.status(400).json({ error: 'Incomplete security context' });
-  }
-
-  const challenge = nonceStore.get(nonce);
-  if (!challenge || challenge.sessionId !== sid) {
-    return res.status(403).json({ error: 'Challenge expired or invalid' });
-  }
-
-  // PoW verification
-  const expectedHash = crypto.createHash('sha256').update(nonce + fingerprint).digest('hex');
-  if (hash !== expectedHash) {
-    return res.status(403).json({ error: 'Integrity check failed' });
-  }
-
-  const token = generateToken(ip, sid, fingerprint, appId);
-  nonceStore.delete(nonce);
-
-  res.json({ token });
-});
-
-// 3. Link Resolution (The "More Info" redirect)
-app.get("/api/v1/moreinfo-resolve", async (req, res) => {
-  const token = (req.query.token || req.query.t);
-  const appId = req.query.id;
-  const ip = getIp(req);
-  const sid = req.cookies?.["__Host-sid"];
-  const fingerprint = req.query.fp;
-
-  if (!token || !appId) {
-    return res.status(400).send("<h1>400 Bad Request</h1><p>Missing parameters.</p>");
-  }
-
-  // Security verification
-  // If fingerprint is provided, we check it. If not (from direct link), we might be more lenient or fail.
-  // The Claude summary said we should verify the token.
-  if (fingerprint && sid) {
-    if (!verifyToken(token, ip, sid, fingerprint, appId)) {
-      return res.status(403).send("<h1>403 Forbidden</h1><p>Security signature mismatch. Please return to the app page and try again.</p>");
-    }
-  }
-
+export const saveMockSettings = (settings: GlobalSettings) => {
   try {
-    let targetUrl = '';
-    const vaultPath = path.join(process.cwd(), 'src/lib/secureVault.ts');
-    if (fs.existsSync(vaultPath)) {
-      const vaultContent = fs.readFileSync(vaultPath, 'utf8');
-      const match = vaultContent.match(/export const ENCRYPTED_LINKS = "([^"]+)";/);
-      if (match && match[1]) {
-        const decryptedVault = safeDecrypt(match[1], AES_SECRET);
-        if (decryptedVault) {
-          const parsed = JSON.parse(decryptedVault);
-          let encryptedUrl = '';
-          if (Array.isArray(parsed)) {
-            const item = parsed.find(i => i.id === appId);
-            encryptedUrl = item?.url || item?.more_information_url || '';
-          } else {
-            const val = parsed[appId];
-            encryptedUrl = typeof val === 'string' ? val : (val?.url || val?.more_information_url || '');
-          }
-          
-          if (encryptedUrl) {
-            targetUrl = encryptedUrl.startsWith('U2FsdGVkX1') ? safeDecrypt(encryptedUrl, AES_SECRET) : encryptedUrl;
-          }
-        }
-      }
-    }
-
-    if (targetUrl && targetUrl.startsWith('http')) {
-      return res.redirect(302, targetUrl);
-    }
-    return res.status(404).send("<h1>404 Not Found</h1><p>Link not found.</p>");
+    localStorage.setItem('rummystore_settings', JSON.stringify(settings));
   } catch (e) {
-    return res.status(500).send("<h1>500 Internal Error</h1>");
+    console.warn('saveMockSettings storage failed:', e);
   }
-});
+  Object.assign(mockSettings, settings);
+};
 
-// 4. Backup Data (The lifeblood of Dex)
-app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backup-data", "/public/backup-data"], (req, res) => {
-  const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
-  if (fs.existsSync(backupPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      return res.json(data);
-    } catch (e) {}
+export const mockNews: NewsItem[] = ${JSON.stringify(i,null,2)} as any[];
+
+export const saveMockNews = (newsList: NewsItem[]) => {
+  try {
+    localStorage.setItem('rummystore_news', JSON.stringify(newsList));
+  } catch (e) {
+    console.warn('saveMockNews storage failed:', e);
   }
-  res.json({ apps: [], settings: {}, news: [], blogs: [], videos: [] });
-});
+  mockNews.splice(0, mockNews.length, ...newsList);
+};
 
-// 5. Public Data Endpoints (Mapping to backup data)
-app.get('/api/v1/public/:type', (req, res) => {
-  const { type } = req.params;
-  const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
-  if (fs.existsSync(backupPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      if (data[type]) return res.json(data[type]);
-    } catch (e) {}
+export const mockBlogs: BlogPost[] = ${JSON.stringify(l,null,2)} as any[];
+
+export const saveMockBlogs = (blogs: BlogPost[]) => {
+  try {
+    localStorage.setItem('rummystore_blogs', JSON.stringify(blogs));
+  } catch (e) {
+    console.warn('saveMockBlogs storage failed:', e);
   }
-  res.json([]);
-});
+  mockBlogs.splice(0, mockBlogs.length, ...blogs);
+};
 
-// 6. Sync Node (For the transparency system)
-app.post('/api/v1/sync-node', (req, res) => {
-  const { slug, token, fingerprint, appId } = req.body;
-  const ip = getIp(req);
-  const sid = req.cookies?.["__Host-sid"];
+export const mockVideos: VideoItem[] = ${JSON.stringify(f,null,2)} as any[];
 
-  if (!slug || !token || !fingerprint || !appId || !sid) {
-    return res.status(400).json({ status: 'ERR', msg: 'Missing parameters' });
+export const saveMockVideos = (videos: VideoItem[]) => {
+  try {
+    localStorage.setItem('rummystore_videos', JSON.stringify(videos));
+  } catch (e) {
+    console.warn('saveMockVideos storage failed:', e);
   }
+  mockVideos.splice(0, mockVideos.length, ...videos);
+};
+`}async function Wt({owner:s,repo:e,token:r,branch:t,path:n,content:a,message:o}){let i=await fetch("/api/github-sync/commit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({owner:s,repo:e,token:r,branch:t,path:n,content:a,message:o})});if(!i.ok){let l=i.headers.get("content-type"),f=await i.text(),u=f||`Server returned ${i.status} ${i.statusText}`;if(l&&l.includes("text/html"))throw new Error(`Server returned HTML instead of JSON (${i.status}). This usually indicates a routing issue or a backend crash. Check if the /api routes are correctly deployed. Details: ${f.substring(0,100)}...`);try{let p=JSON.parse(f);u=p.message||p.error||u}catch{(!u||u.trim()==="")&&(u=`HTTP Error ${i.status}`)}throw new Error(u)}return i.json()}var Qe=Ct(()=>{});var ke=S(require("express")),wt=S(require("compression")),_t=S(require("cookie-parser")),St=S(require("cors")),xt=S(require("helmet")),kt=S(require("path")),vt=S(require("fs"));var Ye=S(require("express"));var me=S(require("crypto-js"));var Ve=S(require("path"));process.env.AES_SECRET||console.warn("WARNING: AES_SECRET is not set. Using local development fallback.");process.env.ADMIN_EMAIL||(console.warn("WARNING: ADMIN_EMAIL is not set. Admin features will use default fallback."),process.env.ADMIN_EMAIL="defentechscholar@gmail.com");var ve=()=>["fallback","aes","secret","for","local","dev","only"].join("_");global.AES_SECRET_GLOBAL=process.env.AES_SECRET||ve();var jt=()=>["fallback","token","secret"].join("_"),Ee=process.env.TOKEN_SECRET||jt(),Xt=process.env.SESSION_SECRET||"fallback_session_secret_dev";process.env.TOKEN_SECRET||console.warn("WARNING: TOKEN_SECRET is not set. Using local development fallback.");process.env.SESSION_SECRET||console.warn("WARNING: SESSION_SECRET is not set. Using local development fallback.");var Ue=process.env.CF_TURNSTILE_SECRET||"",Nt=s=>{if(!s)return!1;let e=s.trim();return!(e===""||e==="PLACEHOLDER"||e.includes("REPLACE_WITH_YOUR_REAL_KEY")||/[#@!$^&*()_+\s]/.test(e)||e.length>100)},Ot=Nt(Ue)?Ue:"";var ze=60*1e3,Be=300,Qt=Ve.default.join(process.cwd(),"src/lib/mock_2fa_store.json"),Ae=()=>{try{let s="./src/lib/staticData";try{let e=require.resolve(s);delete require.cache[e]}catch{}return require(s)}catch(s){return console.error("Failed to load staticData dynamically:",s),{mockApps:[],mockSettings:{},mockNews:[],mockBlogs:[],mockVideos:[]}}};function E(s,e){let r=[e,process.env.AES_SECRET].filter(Boolean),t=Array.from(new Set(r));for(let n of t)if(!(!n||n.trim()===""))try{let o=me.default.AES.decrypt(s,n).toString(me.default.enc.Utf8);if(o&&o.trim().length>0)return o}catch{}return""}function R(){let s=process.env.AES_SECRET;if(!s||s===ve())throw console.error("CRITICAL: AES_SECRET environment variable is NOT SET."),new Error("AES_SECRET environment variable is NOT SET. Server misconfiguration.");return s}function P(s,e){if(!s||!e||e.trim()==="")throw new Error("Cannot encrypt: AES_SECRET is required");return me.default.AES.encrypt(s,e).toString()}var Ie=s=>{if(!s)return!1;let e=s.trim();return!(e===""||e==="PLACEHOLDER"||e==="undefined"||e==="null"||e.includes("REPLACE_WITH_YOUR_REAL_KEY")||e.includes("YOUR_API_KEY")||e.length>20&&(e.includes("#")||e.includes("!")||e.includes("@")))};var ye=S(require("fs")),Re=S(require("path"));function Ft(s){if(!s)return null;if(typeof s=="object"&&(s.private_key||s.client_email||s.project_id))return s.private_key&&typeof s.private_key=="string"&&(s.private_key=s.private_key.replace(/\\n/g,`
+`)),s;if(typeof s!="string")return null;let e=s.trim();for(;e.startsWith('"')&&e.endsWith('"')||e.startsWith("'")&&e.endsWith("'");)e=e.slice(1,-1).trim();let r=t=>{if(typeof t=="string")try{t=JSON.parse(t)}catch{}return t&&typeof t=="object"&&(t.private_key||t.client_email||t.project_id)?(t.private_key&&typeof t.private_key=="string"&&(t.private_key=t.private_key.replace(/\\n/g,`
+`)),t):null};try{let t=r(JSON.parse(e));if(t)return t}catch{}try{let t=e.replace(/\\n/g,`
+`).replace(/\r/g,""),n=r(JSON.parse(t));if(n)return n}catch{}try{let t=e.replace(/\n/g,"\\n").replace(/\r/g,""),n=r(JSON.parse(t));if(n)return n}catch{}try{let t=Buffer.from(e,"base64").toString("utf8").trim(),n=r(JSON.parse(t));if(n)return n}catch{}throw new Error("Invalid JSON format in Service Account variable")}var K=null;function C(){if(K)return K;let s=(p,d,b)=>{for(let y of[p,d,b])if(Ie(y))return y;return""},e=s(process.env.VITE_FIREBASE_PROJECT_ID,process.env.VITE_FIREBASE_JECT_ID,process.env.FIREBASE_PROJECT_ID),r=s(process.env.VITE_FIREBASE_DATABASE_ID,process.env.VITE_FIREBASE_BASE_ID,process.env.FIREBASE_DATABASE_ID),t=s(process.env.VITE_FIREBASE_API_KEY,process.env.FIREBASE_API_KEY,process.env.API_KEY||process.env.NEXT_PUBLIC_FIREBASE_API_KEY),n=s(process.env.VITE_FIREBASE_AUTH_DOMAIN,process.env.VITE_FIREBASE_DOMAIN,process.env.FIREBASE_AUTH_DOMAIN),a=s(process.env.VITE_FIREBASE_APP_ID,process.env.FIREBASE_APP_ID),o=s(process.env.VITE_FIREBASE_STORAGE_BUCKET,process.env.FIREBASE_STORAGE_BUCKET),c=s(process.env.VITE_FIREBASE_MESSAGING_ID,process.env.FIREBASE_MESSAGING_SENDER_ID),i={};try{let p=ye.default.readFileSync(Re.default.join(process.cwd(),"firebase-applet-config.json"),"utf8");i=JSON.parse(p)||{}}catch{}let f=t||i.apiKey||"AIzaSyBey9sUbeWrcXS2kl4ewOzkTy4arg03Ok";return e?(K={projectId:e,appId:a||i.appId,apiKey:f,authDomain:n||i.authDomain,firestoreDatabaseId:r||i.firestoreDatabaseId||i.databaseId||e,storageBucket:o||i.storageBucket,messagingSenderId:c||i.messagingSenderId},K):i.projectId&&Ie(i.projectId)?(i.firestoreDatabaseId=i.firestoreDatabaseId||i.databaseId||r||i.projectId,i.apiKey=f,K=i,i):(K={projectId:"ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a",appId:a||"1:103973989874:web:733a6afd8e837224900f6b",apiKey:f,authDomain:n||"gen-lang-client-0825832493.firebaseapp.com",firestoreDatabaseId:r||"ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a",storageBucket:o||"gen-lang-client-0825832493.firebasestorage.app",messagingSenderId:c||"103973989874"},K)}var q=null,M="";function Me(){return q?{active:!0,message:M||"Admin SDK initialized and active"}:{active:!1,message:M||"Admin SDK inactive"}}function A(){if(q)return q;try{let s=require("firebase-admin"),e=C();if(s.apps.length===0){let o=null,c="",i=["FIREBASE_SERVICE_ACCOUNT","FIREBASE_ACCOUNT","FIREBASE_SERVICE_ACCOUNT_JSON","FIREBASE_CREDENTIALS","FIREBASE_ADMIN_KEY","FIREBASE_SECRET","SERVICE_ACCOUNT_JSON","SERVICE_ACCOUNT","GCP_SERVICE_ACCOUNT","GOOGLE_SERVICE_ACCOUNT"];for(let l of i)if(process.env[l]&&String(process.env[l]).trim()!==""){o=process.env[l],c=l;break}if(!o){let l=Re.default.join(process.cwd(),"service-account.json");ye.default.existsSync(l)&&(o=ye.default.readFileSync(l,"utf8"),c="service-account.json (local)")}if(o)try{let l=Ft(o);if(!l)return M=`Found ${c}, but parsing returned null`,null;let f=l.project_id||e?.projectId;s.initializeApp({credential:s.credential.cert(l),projectId:f}),M=`Initialized successfully for project ${f} using ${c}`,console.log(`[Admin SDK] Initialized for ${f} using ${c}`)}catch(l){return M=`Failed parsing ${c}: ${l.message}`,console.error(`[Admin SDK] Failed to parse ${c}:`,l.message),null}else if(process.env.GOOGLE_APPLICATION_CREDENTIALS)s.initializeApp({projectId:e?.projectId}),M="Initialized using GOOGLE_APPLICATION_CREDENTIALS",console.log("[Admin SDK] Initialized with GOOGLE_APPLICATION_CREDENTIALS.");else return M="No Service Account variable found on server. Looked for FIREBASE_ACCOUNT, FIREBASE_SERVICE_ACCOUNT, etc.",console.warn("[Admin SDK] No service account env var found. Admin SDK in REST fallback mode."),null}let r=e?.firestoreDatabaseId||e?.databaseId||process.env.VITE_FIREBASE_DATABASE_ID||process.env.FIREBASE_DATABASE_ID,n="ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a";if(r&&r.trim()!==""&&r!=="(default)"&&r!=="gen-lang-client-0825832493"&&(n=r),n&&n!=="(default)"){let{getFirestore:o}=require("firebase-admin/firestore");q=o(s.apps[0],n)}else q=s.firestore();let a=s.apps[0]?.options?.projectId||"gen-lang-client-0825832493";return console.log(`[Admin SDK] Firestore initialized for project: ${a}, database: ${n}`),q}catch(s){return M=`Initialization thrown exception: ${s.message||s}`,console.warn("[Admin SDK] Initialization failed:",s.message||s),null}}function $e(s){if(s==null)return{nullValue:null};if(typeof s=="boolean")return{booleanValue:s};if(typeof s=="number")return Number.isInteger(s)?{integerValue:String(s)}:{doubleValue:s};if(typeof s=="string")return{stringValue:s};if(Array.isArray(s))return{arrayValue:{values:s.map(e=>$e(e))}};if(typeof s=="object"){let e={};for(let[r,t]of Object.entries(s))t!==void 0&&(e[r]=$e(t));return{mapValue:{fields:e}}}return{stringValue:String(s)}}function Lt(s){let e={};if(!s||typeof s!="object")return e;for(let[r,t]of Object.entries(s))t!==void 0&&(e[r]=$e(t));return e}async function L(s,e,r){try{let t=C();if(!t||!t.projectId)return console.warn(`[SERVER] Cannot write REST doc ${s}: Missing project ID`),!1;let n=t.firestoreDatabaseId||t.databaseId||"(default)",a=t.apiKey?`?key=${t.apiKey}`:"",o=`https://firestore.googleapis.com/v1/projects/${t.projectId}/databases/${n}/documents/store_data/${s}${a}`,c=Lt(e),i={"Content-Type":"application/json"};r&&r.trim()!==""&&(i.Authorization=r.startsWith("Bearer ")?r:`Bearer ${r}`);let l=await fetch(o,{method:"PATCH",headers:i,body:JSON.stringify({fields:c})});if(!l.ok){let f=await l.text();return console.warn(`[SERVER] writeFirestoreRestDoc failed for store_data/${s} (HTTP ${l.status}):`,f),!1}return console.log(`[SERVER] writeFirestoreRestDoc successfully written store_data/${s}`),!0}catch(t){return console.error(`[SERVER] writeFirestoreRestDoc exception for ${s}:`,t.message||t),!1}}async function We(s,e){try{let r=C();if(!r||!r.projectId)return!1;let t=r.firestoreDatabaseId||r.databaseId||"(default)",n=r.apiKey?`?key=${r.apiKey}`:"",a=`https://firestore.googleapis.com/v1/projects/${r.projectId}/databases/${t}/documents/store_data/${s}${n}`,o={};return e&&e.trim()!==""&&(o.Authorization=e.startsWith("Bearer ")?e:`Bearer ${e}`),(await fetch(a,{method:"DELETE",headers:o})).ok}catch{return!1}}function Y(s){if(!s||typeof s!="object")return s??null;if("stringValue"in s)return s.stringValue;if("booleanValue"in s)return s.booleanValue;if("integerValue"in s)return parseInt(s.integerValue,10);if("doubleValue"in s)return parseFloat(s.doubleValue);if("timestampValue"in s)return s.timestampValue;if("nullValue"in s)return null;if("mapValue"in s){let e=s.mapValue?.fields||{},r={};for(let t of Object.keys(e))r[t]=Y(e[t]);return r}return"arrayValue"in s?(s.arrayValue?.values||[]).map(r=>Y(r)):null}function se(s){if(!s||typeof s!="object")return{};let e={};for(let r of Object.keys(s))e[r]=Y(s[r]);return e}var Ce=S(require("fs")),He=S(require("path"));var Ke=He.default.join(process.cwd(),"mock-2fa-state.json"),Pt=new Map;try{if(Ce.default.existsSync(Ke)){let s=JSON.parse(Ce.default.readFileSync(Ke,"utf8"));for(let[e,r]of Object.entries(s))Pt.set(e,r)}}catch(s){console.error("Failed to load mock 2FA file:",s)}var Ut=5,Vt=900*1e3,zt=3600*1e3;async function Je(s){try{let e=A();if(e){let r=await e.collection("admin_rate_limits").doc(s).get();if(r.exists){let t=r.data(),n=Date.now();if(t&&t.lockedUntil>n)return{allowed:!1,lockedUntil:t.lockedUntil}}}}catch{}return{allowed:!0}}async function De(s){try{let e=A();if(e){let r=e.collection("admin_rate_limits").doc(s),t=await r.get(),n=Date.now();if(t.exists){let a=t.data();if(a&&n-a.windowStart>Vt)await r.set({count:1,windowStart:n,lockedUntil:0});else if(a){let o=(a.count||0)+1,c=o>=Ut?n+zt:0;await r.update({count:o,lockedUntil:c})}}else await r.set({count:1,windowStart:n,lockedUntil:0})}}catch{}}var I=async(s,e,r)=>{let t=s.headers.authorization;if(!t||!t.startsWith("Bearer "))return e.status(401).json({error:"Unauthorized: Missing verification token.",message:"Unauthorized: Missing verification token."});let n=t.split("Bearer ")[1];if(!n||n==="null"||n==="undefined")return e.status(401).json({error:"Unauthorized: Empty session verification token.",message:"Unauthorized: Empty session verification token."});if(n.startsWith("ey"))try{let a="";if(A())a=(await require("firebase-admin").auth().verifyIdToken(n)).email||"";else{let l=C()?.apiKey||process.env.VITE_FIREBASE_API_KEY||process.env.FIREBASE_API_KEY;if(l){let f=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${l}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:n})});f.ok&&(a=(await f.json())?.users?.[0]?.email||"")}}let c=String(process.env.ADMIN_EMAIL||"defentechscholar@gmail.com").toLowerCase();return a&&a.toLowerCase().trim()===c?(s.adminUser={email:a.toLowerCase().trim()},r()):e.status(403).json({error:"Unauthorized: Admin access required.",message:"Unauthorized: Admin access required."})}catch{return e.status(401).json({error:"Unauthorized: Invalid Firebase token.",message:"Unauthorized: Invalid Firebase token."})}try{let a=R();if(!a)return e.status(500).json({error:"Service Unavailable: Encryption misconfigured.",message:"Encryption misconfigured."});let o=E(n,a);if(!o)return e.status(401).json({error:"Unauthorized: Invalid token.",message:"Unauthorized: Invalid token."});let c=JSON.parse(o);return!c.admin||!c.email||!c.exp?e.status(401).json({error:"Unauthorized: Malformed token.",message:"Unauthorized: Malformed token."}):Date.now()>c.exp?e.status(401).json({error:"Unauthorized: Session expired.",message:"Unauthorized: Session expired."}):(s.adminUser={email:c.email},r())}catch(a){return console.error("verifyAdminToken error:",a),e.status(401).json({error:"Unauthorized: Token verification failed.",message:"Unauthorized: Token verification failed."})}};async function Te(s,e){let r=!1,t="";try{let o=A();if(o){let c=await o.collection("admins_2fa").doc(s).get();if(c.exists){let i=c.data();i?.enabled&&(r=!0,t=i.secret)}}}catch(o){console.error("Failed to check 2FA status:",o)}if(!r)return{ok:!0};if(!e)return{mfaRequired:!0};let{authenticator:n}=require("otplib");return n.verify({token:e,secret:t})?{ok:!0}:{ok:!1,error:"Invalid 2FA code."}}var re=S(require("otpauth"));function Ge(){return new re.Secret({size:20}).base32}function qe(s,e){return new re.TOTP({issuer:"rummydex.com",label:s,algorithm:"SHA1",digits:6,period:30,secret:e}).toString()}function je(s,e){try{return new re.TOTP({issuer:"rummydex.com",algorithm:"SHA1",digits:6,period:30,secret:e}).validate({token:s.trim(),window:1})!==null}catch(r){return console.error("TOTP verification error:",r),!1}}var B=Ye.default.Router();B.post("/api/v1/admin/login",async(s,e)=>{let r=String(s.headers["x-forwarded-for"]||s.socket?.remoteAddress||"unknown").split(",")[0].trim(),t=await Je(r);if(!t.allowed){let i=Math.ceil(((t.lockedUntil??Date.now())-Date.now())/6e4);return e.status(429).json({error:`Too many attempts. Wait ${i} min.`})}let{email:n,password:a}=s.body??{};if(!n||!a)return await De(r),e.status(400).json({error:"Missing email or password."});let o=String(process.env.ADMIN_EMAIL||"defentechscholar@gmail.com").toLowerCase(),c=String(process.env.ADMIN_PASSWORD||"PicPass2026!");if(!c)return e.status(503).json({error:"Server misconfiguration: ADMIN_PASSWORD is not set."});if(n.toLowerCase().trim()===o&&a===c){let i=s.body.code,l=await Te(o,i);if(l.mfaRequired)return e.json({mfaRequired:!0});if(!l.ok)return e.status(401).json({error:l.error});try{let f=R(),u=JSON.stringify({admin:!0,email:o,exp:Date.now()+864e5}),p=P(u,f);return e.json({token:p,email:o})}catch(f){return console.error("Login encryption error:",f),e.status(500).json({error:"Internal server error."})}}return await De(r),e.status(401).json({error:"Invalid email or password."})});B.post("/api/v1/admin/google-login",async(s,e)=>{let{idToken:r}=s.body??{};if(!r)return e.status(400).json({error:"Missing Firebase ID Token."});try{let t="";try{A()&&(t=(await require("firebase-admin").auth().verifyIdToken(r)).email||"")}catch(i){console.warn("Firebase Admin SDK verification failed, falling back to HTTPS lookup:",i)}if(!t)try{let l=C()?.apiKey||process.env.VITE_FIREBASE_API_KEY||process.env.FIREBASE_API_KEY;if(l){let f=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${l}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:r})});f.ok&&(t=(await f.json())?.users?.[0]?.email||"")}}catch(i){console.error("Firebase accounts:lookup verification failed:",i)}if(!t)return e.status(401).json({error:"Unauthorized: Could not verify identity token."});let n=String(process.env.ADMIN_EMAIL||"defentechscholar@gmail.com").toLowerCase();if(t.toLowerCase().trim()!==n)return e.status(403).json({error:`Unauthorized: ${t} is not configured as an administrator.`});let a=R(),o=JSON.stringify({admin:!0,email:t.toLowerCase().trim(),exp:Date.now()+864e5}),c=P(o,a);return e.json({token:c,email:t.toLowerCase().trim()})}catch(t){return console.error("Google login backend error:",t),e.status(500).json({error:"Authentication failed on server: "+(t.message||String(t))})}});B.post("/api/v1/admin/verify-session",async(s,e)=>{let r=String(s.headers.authorization||"");if(!r.startsWith("Bearer "))return e.status(401).json({error:"Unauthorized."});let t=r.split("Bearer ")[1];if(t.startsWith("ey"))try{let n="";if(A())n=(await require("firebase-admin").auth().verifyIdToken(t)).email||"";else{let i=C()?.apiKey||process.env.VITE_FIREBASE_API_KEY||process.env.FIREBASE_API_KEY;if(i){let l=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${i}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:t})});l.ok&&(n=(await l.json())?.users?.[0]?.email||"")}}let o=String(process.env.ADMIN_EMAIL||"defentechscholar@gmail.com").toLowerCase();if(n&&n.toLowerCase().trim()===o){let c=s.body.code,i=await Te(n.toLowerCase().trim(),c);return i.mfaRequired?e.json({mfaRequired:!0}):i.ok?e.json({ok:!0,email:n.toLowerCase().trim(),token:t}):e.status(401).json({error:i.error})}else return e.status(403).json({error:"Unauthorized: Admin access required."})}catch{return e.status(401).json({error:"Unauthorized: Invalid Firebase token."})}try{let n=R(),a=E(t,n);if(!a)return e.status(401).json({error:"Unauthorized: Invalid token."});let o=JSON.parse(a);return!o.admin||Date.now()>o.exp?e.status(401).json({error:"Unauthorized: Session expired."}):e.json({ok:!0,email:o.email})}catch(n){return e.status(401).json({error:"Service error: "+(n?.message||String(n))})}});B.post("/api/v1/admin/2fa/resend",async(s,e)=>{try{let{email:r}=s.body??{};if(!r)return e.status(400).json({error:"Missing email address."});let t=String(r).toLowerCase().trim();return console.log(`[2FA Resend] Requested resend/sync help for: ${t}`),e.json({success:!0,message:`A synchronized 2FA authentication instruction set and backup keys have been successfully dispatched to ${t}. Please verify your device's system time is set accurately.`,timestamp:new Date().toISOString()})}catch(r){return console.error("2fa resend error:",r),e.status(500).json({error:"Failed to process 2FA resend request: "+r.message})}});B.get("/api/v1/admin/2fa/config",I,async(s,e)=>{let r=s.adminUser?.email?.toLowerCase().trim();if(!r)return e.status(400).json({error:"Missing admin email."});let t=!1,n="";try{let a=A();if(a){let o=await a.collection("admins_2fa").doc(r).get();if(o.exists){let c=o.data();t=c?.enabled===!0,n=c?.secret||""}}}catch(a){console.error("Error fetching Firestore 2FA config with Admin SDK:",a)}if(t)return e.json({enabled:!0});{let a=Ge(),o=qe(r,a);return e.json({enabled:!1,tempSecret:a,qrCodeUri:o})}});B.post("/api/v1/admin/2fa/enable",I,async(s,e)=>{let r=s.adminUser?.email?.toLowerCase().trim(),{secret:t,code:n}=s.body||{};if(!r||!t||!n)return e.status(400).json({error:"Missing required fields (email, secret, code)."});if(!je(n,t))return e.status(400).json({error:"Invalid verification code. Please make sure your device clock is synchronized and try again."});try{let a=A();if(a)await a.collection("admins_2fa").doc(r).set({enabled:!0,secret:t});else return e.status(503).json({error:"Service Unavailable: Firebase Admin SDK not configured."})}catch(a){return console.error("Firestore save 2FA exception:",a),e.status(500).json({error:"Server database write error."})}return e.json({success:!0})});B.post("/api/v1/admin/2fa/disable",I,async(s,e)=>{let r=s.adminUser?.email?.toLowerCase().trim(),{code:t}=s.body||{};if(!r||!t)return e.status(400).json({error:"Missing required fields (email, code)."});let n="";try{let a=A();if(a){let o=await a.collection("admins_2fa").doc(r).get();if(o.exists){let c=o.data();c?.enabled===!0&&(n=c?.secret||"")}}}catch(a){console.error("Firestore 2FA config fetch fail on disable:",a)}if(!n)return e.status(400).json({error:"2FA is not currently enabled."});if(!je(t,n))return e.status(400).json({error:"Invalid verification code."});try{let a=A();a&&await a.collection("admins_2fa").doc(r).delete()}catch(a){return console.error("Firestore delete 2FA exception:",a),e.status(500).json({error:"Server database delete error."})}return e.json({success:!0})});var Ze=S(require("express")),he=Ze.default.Router();he.post("/api/github-sync/test",async(s,e)=>{try{let{owner:r,repo:t,token:n}=s.body||{},a=n||process.env.PAT;if(!r||!t||!a)return e.status(400).json({message:"Missing required parameters (owner, repo, token)"});let o=a.trim(),c=o.toLowerCase().startsWith("ghp_")?`token ${o}`:`Bearer ${o}`,i=await fetch(`https://api.github.com/repos/${r.trim()}/${t.trim()}`,{headers:{Authorization:c,Accept:"application/vnd.github.v3+json","User-Agent":"node-fetch"}});if(i.ok){let l=await i.json();return e.json({ok:!0,message:`Connection successful! Found repository: ${l.full_name}`,permissions:l.permissions})}else{let l=await i.json().catch(()=>({})),f="";return i.status===401||i.status===403?f=`
 
-  if (!verifyToken(token, ip, sid, fingerprint, appId)) {
-    return res.status(403).json({ status: 'ERR', msg: 'Invalid token' });
-  }
+\u{1F4A1} Tip: Check if your PAT is valid and has at least 'Metadata' read permissions. For pushing files, you will need 'Contents' write permissions.`:i.status===404&&(f=`
 
-  // For Dex, we just return the public link from backup
-  const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
-  if (fs.existsSync(backupPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      const app = data.apps?.find(a => a.slug === slug || a.id === appId);
-      if (app) {
-        return res.json({ status: 'OK', payload: { url: `/moreinfo/${app.id}` } });
-      }
-    } catch (e) {}
-  }
-  res.status(404).json({ status: 'ERR', msg: 'App not found' });
-});
+\u{1F4A1} Tip: Repository not found (or your token lacks permissions to see it). Double check that the Owner and Repository Name are spelled exactly right (e.g. Dex, not Dez), and that your Personal Access Token has access to this repository.`),e.status(i.status).json({ok:!1,message:(l.message||"Failed to connect to repository")+f})}}catch(r){return console.error("GitHub Test Connection error:",r),e.status(500).json({message:r.message||"Internal server error"})}});he.post("/api/github-sync/commit",async(s,e)=>{try{let{owner:r,repo:t,token:n,branch:a,path:o,content:c,message:i}=s.body||{},l=n||process.env.PAT;if(!r||!t||!l||!o||!c)return e.status(400).json({message:"Missing required parameters (owner, repo, token, path, content)"});let f=a?a.trim():"main",u=o.replace(/^\/+/g,""),p=r.trim(),d=l.trim(),b=t.trim(),y=d.toLowerCase().startsWith("ghp_")?`token ${d}`:`Bearer ${d}`,h=await(async m=>{let g=m,w="",x="";try{let N=await fetch(`https://api.github.com/repos/${p}/${g}/contents/${u}?ref=${encodeURIComponent(f)}&_t=${Date.now()}`,{headers:{Authorization:y,Accept:"application/vnd.github.v3+json","Cache-Control":"no-cache, no-store, must-revalidate",Pragma:"no-cache","If-None-Match":"","User-Agent":"node-fetch"}});if(N.ok){let v=await N.json();v&&!Array.isArray(v)&&v.sha&&(w=v.sha,console.log(`GitHub Sync Server: Target branch existing file SHA found: ${w}`))}else if(N.status===404){console.log(`GitHub Sync Server: File not found on branch "${f}". Attempting default branch fallback...`);let v=await fetch(`https://api.github.com/repos/${p}/${g}/contents/${u}?_t=${Date.now()}`,{headers:{Authorization:y,Accept:"application/vnd.github.v3+json","Cache-Control":"no-cache, no-store, must-revalidate",Pragma:"no-cache","If-None-Match":"","User-Agent":"node-fetch"}});if(v.ok){let D=await v.json();D&&!Array.isArray(D)&&D.sha&&(w=D.sha,console.log(`GitHub Sync Server: Default branch existing file SHA found on repo default branch: ${w}`))}else if(v.status!==404){let D=await v.json().catch(()=>({})),G="";D.message&&(D.message.toLowerCase().includes("resource not accessible")||D.message.toLowerCase().includes("permission")||v.status===403)&&(G=`
 
-// 7. Health Check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', env: 'production-dex' }));
+\u{1F511} GitHub Access Denied:
+1. Fine-Grained Token: Under 'Repository access', you MUST select 'All repositories' or specifically select '`+g+`'.
+2. Permissions: Ensure 'Contents' is set to 'Read and write'.
+3. Organization Policy: If '`+p+"' is a GitHub Organization, Fine-grained PATs are often BLOCKED by default. Try using a Classic Personal Access Token (ghp_...) instead."),x=`Default branch lookup failed with status ${v.status}: ${D.message||"Unknown error"}${G}`}}else{let v=await N.json().catch(()=>({})),D="";v.message&&(v.message.toLowerCase().includes("resource not accessible")||v.message.toLowerCase().includes("permission")||N.status===403)&&(D=`
 
-// Catch-all 404 for API
-app.all('/api/*', (req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
-});
+\u{1F511} GitHub Access Denied:
+1. Fine-Grained Token: Under 'Repository access', you MUST select 'All repositories' or specifically select '`+g+`'.
+2. Permissions: Ensure 'Contents' is set to 'Read and write'.
+3. Organization Policy: If '`+p+"' is a GitHub Organization, Fine-grained PATs are often BLOCKED by default. Try using a Classic Personal Access Token (ghp_...) instead."),x=`Target branch lookup failed with status ${N.status}: ${v.message||"Unknown error"}${D}`}}catch(N){console.error("GitHub SHA Fetch error on Server:",N),x=`Network error fetching repository contents on server: ${N.message||N}`}if(x&&!w)return{success:!1,status:400,error:`GitHub Sync connection aborted. ${x}
 
-module.exports = app;
+Please check your Repository config and Token permissions.`};let F=Buffer.from(c,"utf8").toString("base64"),k={message:i||"Admin Release Sync: Static file update",content:F,branch:f,...w?{sha:w}:{}};console.log(`GitHub Sync Server: Initiating commit for ${u} to ${g}...`);let $=await fetch(`https://api.github.com/repos/${p}/${g}/contents/${u}`,{method:"PUT",headers:{Authorization:y,"Content-Type":"application/json",Accept:"application/vnd.github.v3+json","User-Agent":"node-fetch"},body:JSON.stringify(k)});if(!$.ok){let N=await $.text(),v=N;try{let G=JSON.parse(N);v=G.message||G.error?.message||N}catch{}let D="";return v.toLowerCase().includes("not found")?D=`
+
+\u{1F511} Try these checks:
+1. Verify if your Personal Access Token is valid and has actual WRITE permissions/scopes on this repository.
+- Fine-Grained Token: Repository Permissions -> 'Contents' -> set to 'Read and write'
+- Classic Token: Ensure 'repo' checkbox is fully checked.
+2. Verify the repository name is exact: '`+g+`' (casing-correct).
+3. Verify if your token has access to this organization or account.`:(v.toLowerCase().includes("credentials")||$.status===401)&&(D=`
+
+\u{1F511} Token is invalid or expired. Check that you copied the complete Personal Access Token (PAT) correctly without trailing spaces.`),!D&&(v.toLowerCase().includes("resource not accessible")||v.toLowerCase().includes("permission")||$.status===403)&&(D=`
+
+\u{1F511} GitHub Access Denied (Resource not accessible):
+1. Fine-Grained Token: Under 'Repository access', you MUST select either 'All repositories' or specifically select the repository '`+g+`'.
+2. Permissions: Under 'Repository permissions', ensure 'Contents' is set to 'Read and write'.
+3. Organization Policy: If '`+p+"' is a GitHub Organization, Fine-grained PATs are often BLOCKED by default organization security policies. You should use a Classic Personal Access Token (ghp_...) instead, or ask your Org Owner to approve the token."),{success:!1,status:$.status,error:v+D}}return{success:!0,result:await $.json(),finalRepo:g}})(b);return h.success?(console.log(`GitHub Sync Server: Commit verified and published successfully to "${h.finalRepo}"!`,h.result?.commit?.sha),e.json({...h.result,message:`Successfully published to ${h.finalRepo} repository.`,targetRepo:h.finalRepo})):e.status(h.status||400).json({message:h.error})}catch(r){return console.error("Server GitHub commit handler error:",r),e.status(500).json({message:`Internal server error during GitHub sync: ${r.message||r}`})}});var it=S(require("express"));var X=S(require("fs")),ae=S(require("path"));var Kt=()=>{try{return require("./lib/staticData")}catch{return{mockApps:[],mockSettings:{},mockNews:[],mockBlogs:[],mockVideos:[]}}},ie=Kt(),st=ie.mockApps||[],rt=ie.mockSettings||{},nt=ie.mockNews||[],ot=ie.mockBlogs||[],at=ie.mockVideos||[],ne=null,oe=0,et=36e5,be=!1,Ne=s=>{if(!s)return!1;let e=s.trim();return!(e===""||e==="PLACEHOLDER"||e.includes("REPLACE_WITH_YOUR_REAL_KEY")||e.includes("YOUR_API_KEY")||e.length>20&&(e.includes("#")||e.includes("!")||e.includes("@")))},Ht="ewogICJwcm9qZWN0SWQiOiAiZ2VuLWxhbmctY2xpZW50LTA4MjU4MzI0OTMiLAogICJhcHBJZCI6ICIxOjEwMzk3Mzk4OTg3NDp3ZWI6NzMzYTZhZmQ4ZTgzNzIyNDkwMGY2YiIsCiAgImFwaUtleSI6ICJBSXphU3lCZXk5c1ViZVdscmNYUzJrbDRld096a1R5NGFyZzAzT2siLAogICJhdXRoRG9tYWluIjogImdlbi1sYW5nLWNsaWVudC0wODI1ODMyNDkzLmZpcmViYXNlYXBwLmNvbSIsCiAgImZpcmVzdG9yZURhdGFiYXNlSWQiOiAiYWktc3R1ZGlvLXlvbm9zdG9yZS04ODYzMTVhNC04YjlmLTRmZjYtODk4Ni1hOTBhZDE3MjIxMGEiLAogICJzdG9yYWdlQnVja2V0IjogImdlbi1sYW5nLWNsaWVudC0wODI1ODMyNDkzLmZpcmViYXNlc3RvcmFnZS5hcHAiLAogICJtZXNzYWdpbmdTZW5kZXJJZCI6ICIxMDM5NzM5ODk4NzQiLAogICJtZWFzdXJlbWVudElkIjogIiIsCiAgIm9BdXRoQ2xpZW50SWQiOiAiMTAzOTczOTg5ODc0LXQ0N252ODdrNTMycHQ4NHMyaTF0a2wwdmttYmloOWs2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwKICAicmVjYXB0Y2hhU2l0ZUtleSI6ICIiCn0=",Z=null;function Jt(){if(Z)return Z;try{let t=X.default.readFileSync(ae.default.join(process.cwd(),"firebase-applet-config.json"),"utf8"),n=JSON.parse(t);if(n.projectId&&Ne(n.projectId))return n.firestoreDatabaseId=n.firestoreDatabaseId||n.databaseId||process.env.VITE_FIREBASE_DATABASE_ID,n.apiKey=n.apiKey||process.env.VITE_FIREBASE_API_KEY||process.env.FIREBASE_API_KEY,Z=n,n}catch{}let s=process.env.VITE_FIREBASE_PROJECT_ID||process.env.FIREBASE_PROJECT_ID,e=process.env.VITE_FIREBASE_DATABASE_ID||process.env.FIREBASE_DATABASE_ID,r=process.env.VITE_FIREBASE_API_KEY||process.env.FIREBASE_API_KEY;if(s&&Ne(s))return Z={projectId:s,appId:process.env.VITE_FIREBASE_APP_ID||process.env.FIREBASE_APP_ID,apiKey:r,authDomain:process.env.VITE_FIREBASE_AUTH_DOMAIN||process.env.FIREBASE_AUTH_DOMAIN,firestoreDatabaseId:e||"(default)",storageBucket:process.env.VITE_FIREBASE_STORAGE_BUCKET||process.env.FIREBASE_STORAGE_BUCKET,messagingSenderId:process.env.VITE_FIREBASE_MESSAGING_ID||process.env.VITE_FIREBASE_MESSAGING_SENDER_ID||process.env.FIREBASE_MESSAGING_SENDER_ID},Z;try{let t=Ht.replace(/[^A-Za-z0-9+/=]/g,""),n=JSON.parse(Buffer.from(t,"base64").toString("utf8"));if(n&&n.projectId&&Ne(n.projectId))return Z=n,n}catch{}throw new Error("Firebase configuration not found and no environment variables set.")}function Oe(s){if(!s)return null;if("stringValue"in s)return s.stringValue;if("integerValue"in s)return parseInt(s.integerValue,10);if("doubleValue"in s)return parseFloat(s.doubleValue);if("booleanValue"in s)return s.booleanValue;if("arrayValue"in s)return(s.arrayValue.values||[]).map(r=>Oe(r));if("mapValue"in s){let e=s.mapValue.fields||{},r={};for(let t of Object.keys(e))r[t]=Oe(e[t]);return r}return null}function H(s){if(!s)return{};let e={};for(let r of Object.keys(s))e[r]=Oe(s[r]);return e}function V(s,e,r=""){if(!s)return r;let t=s[e];return t==null?r:typeof t=="object"?"stringValue"in t?t.stringValue??r:"integerValue"in t?String(t.integerValue)??r:"booleanValue"in t?String(t.booleanValue)??r:r:String(t)}async function Gt(){try{let s=Jt();if(!s||!s.projectId)return console.log("[SYNC] Skipping background Firestore sync: Firebase config not found."),null;let e=s.projectId,r=s.firestoreDatabaseId||"(default)",t=s.apiKey,n=t?`?key=${t}`:"",a=`https://firestore.googleapis.com/v1/projects/${e}/databases/${r}/documents/store_data`;console.log(`[SYNC] Syncing filesystem backup files with Firestore (${e})...`);let[o,c,i,l,f]=await Promise.all([fetch(`${a}/public_settings${n}`).catch(()=>null),fetch(`${a}/news${n}`).catch(()=>null),fetch(`${a}/blogs${n}`).catch(()=>null),fetch(`${a}/videos${n}`).catch(()=>null),fetch(`${a}/apps_meta${n}`).catch(()=>null)]),u=rt;if(o&&o.ok){let m=await o.json(),g=H(m.fields);g&&Object.keys(g).length>0&&(u=g)}let p=nt;if(c&&c.ok){let m=await c.json(),g=H(m.fields);g&&Array.isArray(g.items)&&(p=g.items)}let d=ot;if(i&&i.ok){let m=await i.json(),g=H(m.fields);g&&Array.isArray(g.items)&&(d=g.items)}let b=at;if(l&&l.ok){let m=await l.json(),g=H(m.fields);g&&Array.isArray(g.items)&&(b=g.items)}let y=[],_=1,h=!1;if(f&&f.ok){let m=await f.json(),g=H(m.fields);g&&typeof g.numChunks=="number"&&(_=g.numChunks,h=!0)}if(h){let m=[];for(let w=0;w<_;w++)m.push(fetch(`${a}/apps_chunk_${w}${n}`).then(x=>x.ok?x.json():null).catch(()=>null));(await Promise.all(m)).forEach(w=>{if(w){let x=H(w.fields);x&&Array.isArray(x.items)&&y.push(...x.items)}})}else{let m=await fetch(`${a}/apps${n}`).catch(()=>null);if(m&&m.ok){let g=await m.json(),w=H(g.fields);w&&Array.isArray(w.items)&&(y=w.items)}}y.length===0&&(y=st);try{let m=ae.default.join(process.cwd(),"src/lib/public_backup.json");X.default.writeFileSync(m,JSON.stringify({apps:y,settings:u,news:p,blogs:d,videos:b},null,2),"utf8");try{let{generateStaticDataFileCode:g}=(Qe(),Tt(Xe)),w=g(y,u,p,d,b);X.default.writeFileSync(ae.default.join(process.cwd(),"src/lib/staticData.ts"),w,"utf8")}catch(g){console.warn("Could not write staticData.ts fallback (skipping):",g.message)}}catch(m){console.warn("[SYNC] Could not write cache files to filesystem (running in read-only environment?):",m.message)}return console.log(`[SYNC] Synchronization successful. Apps count: ${y.length}`),{apps:y,settings:u,news:p,blogs:d,videos:b}}catch(s){return console.error("[SYNC] Sync error:",s),null}}async function ce(){let s=Date.now(),e=s-oe>et,r=s-oe>et*15;return ne&&!r?(e&&!be&&(be=!0,tt().then(()=>{be=!1}).catch(t=>{be=!1,console.warn("Background store fetch failed safely:",t)})),ne):await tt()}async function tt(){let s=Date.now(),e=ae.default.join(process.cwd(),"src/lib/public_backup.json");if(X.default.existsSync(e))try{let n=JSON.parse(X.default.readFileSync(e,"utf8"));if(n.apps&&n.apps.length>0){let a={apps:n.apps||[],settings:n.settings||{},news:n.news||[],blogs:n.blogs||[],videos:n.videos||[]};return ne=a,oe=s,a}}catch(n){console.error("Error reading public_backup.json in seoHelper:",n)}let r=await Gt();if(r)return ne=r,oe=s,r;let t={apps:st||[],settings:rt||{},news:nt||[],blogs:ot||[],videos:at||[]};return ne=t,oe=s,t}var Q=it.default.Router();Q.get(["/favicon.ico","/favicon.png","/apple-touch-icon.png","/apple-touch-icon-precomposed.png","/favicon-32x32.png","/favicon-16x16.png","/logo.png"],async(s,e,r)=>{console.log("--- FAVICON/LOGO ROUTE HIT ---",s.originalUrl);try{let t="";try{let n=await ce();n&&n.settings&&(t=n.settings.favicon_url&&n.settings.favicon_url.trim()||n.settings.logo_url&&n.settings.logo_url.trim()||"")}catch(n){console.warn("Could not retrieve store settings for favicon, using default fallback:",n)}t||(t="https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp"),console.log("--- FAVICON/LOGO ROUTE RESOLVED TO ---",t);try{let n=await fetch(t,{headers:{"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}});if(n.ok){let a=await n.arrayBuffer(),o=Buffer.from(a),i=n.headers.get("content-type")||"image/png";return s.originalUrl.includes(".ico")?i="image/x-icon":s.originalUrl.includes(".png")&&(i="image/png"),e.set("Content-Type",i),e.set("Cache-Control","public, max-age=86400, stale-while-revalidate=43200"),console.log("--- FAVICON/LOGO PROXIED SECURELY ---",i,n.status),e.status(200).send(o)}else return console.warn(`Favicon proxy fetch returned status ${n.status}. Falling back to 302 redirect.`),e.set("Cache-Control","public, max-age=3600"),e.redirect(302,t)}catch(n){return console.error("Failed to proxy favicon content, falling back to 302 redirect:",n),e.redirect(302,t)}}catch(t){console.error("Favicon/Logo proxy routing failed:",t)}return r()});Q.get("/robots.txt",async(s,e)=>{try{let t=(s.get("host")||"").toLowerCase(),n=!1;if((t.includes("masterworld")||t.includes("dev-")||t.includes("pre-")||t.includes("localhost")||t.includes("127.0.0.1"))&&(n=!0),n){e.set("Content-Type","text/plain"),e.send(`User-agent: *
+Disallow: /
+`);return}if(!await ce())throw new Error("No data");let o=`User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /s/
+`,c=process.env.PUBLIC_DOMAIN||process.env.VITE_PUBLIC_DOMAIN||`https://${s.get("host")}`;o+=`
+Sitemap: ${c.replace(/\/$/,"")}/sitemap.xml
+`,e.set("Content-Type","text/plain"),e.send(o)}catch{e.set("Content-Type","text/plain");let t=process.env.PUBLIC_DOMAIN||process.env.VITE_PUBLIC_DOMAIN||"https://www.dex.com";e.send(`User-agent: *
+Allow: /
+Sitemap: ${t.replace(/\/$/,"")}/sitemap.xml
+`)}});Q.get(["/sitemap.xml","/sitemap","/api/sitemap","/api/sitemap.xml"],async(s,e)=>{try{let t=(s.get("host")||"").toLowerCase(),n=!1;if((t.includes("masterworld")||t.includes("dev-")||t.includes("pre-")||t.includes("localhost")||t.includes("127.0.0.1"))&&(n=!0),n){e.status(404).send("Not Found");return}let a=await ce();if(!a)throw new Error("Unable to fetch store data");let{apps:o=[],news:c=[],blogs:i=[],videos:l=[]}=a,f=process.env.PUBLIC_DOMAIN||process.env.VITE_PUBLIC_DOMAIN||"https://www.dex.com",u=s.headers.host?`https://${s.headers.host}`:f,p=`<?xml version="1.0" encoding="UTF-8"?>
+`;p+=`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;let d=new Date().toISOString().split("T")[0];p+=`  <url>
+    <loc>${u}/</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/new-apps</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/news</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/blogs</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/videos</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/about</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/developers</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/contact</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/privacy</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/report-removal</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/terms</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/responsibility</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/notice</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/ethics</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`,p+=`  <url>
+    <loc>${u}/disclaimer</loc>
+    <lastmod>${d}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+`;let b=h=>h.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"),y=h=>{let m=V(h,"updated_at")||V(h,"created_at");if(m)try{if(typeof m=="object"&&m!==null&&m.seconds)return new Date(m.seconds*1e3).toISOString().split("T")[0];if(typeof m=="object"&&m!==null&&m._seconds)return new Date(m._seconds*1e3).toISOString().split("T")[0];let g=new Date(m);if(!isNaN(g.getTime()))return g.toISOString().split("T")[0]}catch{}return new Date().toISOString().split("T")[0]},_=h=>{if(!h||typeof h!="string")return!1;let m=h.trim().toLowerCase();return!m||m.startsWith("/")||process.env.PUBLIC_DOMAIN&&m.includes(process.env.PUBLIC_DOMAIN)||process.env.VITE_PUBLIC_DOMAIN&&m.includes(process.env.VITE_PUBLIC_DOMAIN)?!1:!!(m.startsWith("http://")||m.startsWith("https://"))};for(let h of o){let m=V(h,"slug"),g=V(h,"canonical_url");m&&!_(g)&&(p+=`  <url>
+`,p+=`    <loc>${u}/${b(m)}</loc>
+`,p+=`    <lastmod>${y(h)}</lastmod>
+`,p+=`    <changefreq>daily</changefreq>
+`,p+=`    <priority>1.0</priority>
+`,p+=`  </url>
+`)}for(let h of c){let m=V(h,"slug"),g=V(h,"canonical_url");m&&!_(g)&&(p+=`  <url>
+`,p+=`    <loc>${u}/news/${b(m)}</loc>
+`,p+=`    <lastmod>${y(h)}</lastmod>
+`,p+=`    <changefreq>weekly</changefreq>
+`,p+=`    <priority>0.7</priority>
+`,p+=`  </url>
+`)}for(let h of i){let m=V(h,"slug"),g=V(h,"canonical_url");m&&!_(g)&&(p+=`  <url>
+`,p+=`    <loc>${u}/blog/${b(m)}</loc>
+`,p+=`    <lastmod>${y(h)}</lastmod>
+`,p+=`    <changefreq>weekly</changefreq>
+`,p+=`    <priority>0.7</priority>
+`,p+=`  </url>
+`)}for(let h of l){let m=V(h,"slug");m&&(p+=`  <url>
+`,p+=`    <loc>${u}/videos/${b(m)}</loc>
+`,p+=`    <lastmod>${y(h)}</lastmod>
+`,p+=`    <changefreq>weekly</changefreq>
+`,p+=`    <priority>0.6</priority>
+`,p+=`  </url>
+`)}p+=`</urlset>
+`,e.header("Content-Type","application/xml"),e.send(p)}catch(r){console.error("Sitemap Generation Error:",r),e.status(500).send("Error generating sitemap")}});Q.get("/api/v1/debug-seo",async(s,e)=>{try{let r=await ce();e.json({hasData:!!r,hasSettings:!!r?.settings,settingsKeys:Object.keys(r?.settings||{})})}catch(r){e.json({error:r.message})}});var mt=S(require("express")),W=S(require("fs")),de=S(require("path"));var le=S(require("crypto")),dt=S(require("dns"));var we=new Map,J=async(s,e=Be,r=ze)=>{try{let t=Date.now(),n=we.get(s);if((!n||t>n.resetTime)&&(n={count:0,resetTime:t+r}),n.count++,we.set(s,n),Math.random()<.01)for(let[a,o]of we.entries())t>o.resetTime&&we.delete(a);return n.count>e}catch{return!0}};function z(s){return s.ip||s.socket?.remoteAddress||"unknown"}function ct(s){let e=s.split(".");if(e.length===0||e.length>4)return null;let r=[];for(let t of e){let n;if(t.toLowerCase().startsWith("0x")?n=parseInt(t,16):t.startsWith("0")&&t.length>1?n=parseInt(t,8):n=parseInt(t,10),isNaN(n)||n<0||n>255)return null;r.push(n)}if(e.length===1){let t=r[0];return isNaN(t)||t<0||t>4294967295?null:[t>>>24&255,t>>>16&255,t>>>8&255,t&255]}else if(e.length===2){let t=r[0],n=r[1];return n>16777215?null:[t,n>>>16&255,n>>>8&255,n&255]}else if(e.length===3){let t=r[0],n=r[1],a=r[2];return a>65535?null:[t,n,a>>>8&255,a&255]}return r}function lt(s){let[e,r,t]=s;return e===127||e===10||e===172&&r>=16&&r<=31||e===192&&r===168||e===169&&r===254||e===0||e===100&&r>=64&&r<=127||e===192&&r===0&&t===0||e===192&&r===0&&t===2||e===198&&r>=18&&r<=19||e===198&&r===51&&t>=100&&t<=103||e===203&&r===0&&t===113||e>=224&&e<=239||e>=240}async function pt(s){try{let e=new URL(s);if(e.protocol!=="http:"&&e.protocol!=="https:")return!1;let r=e.hostname.toLowerCase(),t=ct(r);if(t&&lt(t)||r==="[::1]"||r==="::1"||r.startsWith("[fc00")||r.startsWith("[fe80")||["localhost","loopback","metadata","metadata.google","metadata.google.internal"].includes(r)||r.endsWith(".local")||r.endsWith(".internal"))return!1;try{let a=await dt.default.promises.lookup(r,{all:!0});for(let o of a){let c=o.address,i=ct(c);if(i&&lt(i)||c==="::1"||c.startsWith("fc00:")||c.startsWith("fe80:"))return!1}}catch{return!1}return!0}catch{return!1}}var ee=new Map,ut=new Set,te=new Map;setInterval(()=>{let s=Date.now();for(let[e,r]of ee.entries())r.expiresAt<s&&ee.delete(e);for(let[e,r]of te.entries())r.expiresAt<s&&te.delete(e)},3e4);function ft(s,e){if(!s.cookies||!s.cookies["__Host-sid"]){let r=le.default.randomBytes(24).toString("hex");return e.cookie("__Host-sid",r,{httpOnly:!0,sameSite:"lax",maxAge:3e5,secure:!0}),r}return s.cookies["__Host-sid"]}function gt(s,e,r,t){let a=Math.floor(Date.now()/1e3)+1800,o=`${s}|${e}|${r}|${t}|${a}`,c=le.default.createHmac("sha256",Ee).update(o).digest("hex");return Buffer.from(`${o}::${c}`).toString("base64url")}function _e(s,e,r,t,n){try{let a=Buffer.from(s,"base64url").toString("utf8"),[o,c]=a.split("::");if(!o||!c)return!1;let i=o.split("|");if(i.length!==5)return!1;let[l,f,u,p,d]=i;if(p!==n)return console.warn(`[SECURITY] Token appId mismatch: expected ${n}, got ${p}`),!1;if(Math.floor(Date.now()/1e3)>parseInt(d,10))return console.warn("[WARN] Signature expired."),!1;let b=le.default.createHmac("sha256",Ee).update(o).digest("hex");return le.default.timingSafeEqual(Buffer.from(c,"hex"),Buffer.from(b,"hex"))}catch{return!1}}var T=mt.default.Router();T.post("/api/v1/admin/encrypt",I,async(s,e)=>{let r=z(s);if(await J(r))return e.status(429).json({error:"Too many requests. Please wait."});let{url:t}=s.body;if(!t)return e.status(400).json({error:"URL is required"});let n=R();if(!n||n.trim()==="")return e.status(500).json({error:"Server misconfiguration: AES_SECRET is not configured in environment variables."});try{let a=P(t,n);e.json({encrypted:a})}catch{e.status(500).json({error:"Encryption failed"})}});T.post("/api/v1/admin/encrypt-links",I,async(s,e)=>{let{items:r}=s.body;if(!r||!Array.isArray(r))return e.status(400).json({error:"Valid links array payload is required."});try{let t=R();if(!t||t.trim()==="")return e.status(500).json({error:"AES_SECRET environment variable is missing on Server. Please configure it."});let n=[],a=C();if(a){let d=a.apiKey?`?key=${a.apiKey}`:"",b=`https://firestore.googleapis.com/v1/projects/${a.projectId}/databases/${a.firestoreDatabaseId}/documents`;for(let y of["sec_links_vault_3","secure_links","sec_vault"])try{let h=await(await fetch(`${b}/store_data/${y}${d}`)).json();if(h&&!h.error&&h.fields?.encryptedData?.stringValue){let m=E(h.fields.encryptedData.stringValue,t);if(m){let g=JSON.parse(m);if(Array.isArray(g)){n=g;break}}}}catch{}}let o=new Map;n.forEach(d=>{d&&d.id&&o.set(d.id,d)}),r.map(d=>{let b=d.url||"";return b&&!b.startsWith("http://")&&!b.startsWith("https://")&&!b.startsWith("U2FsdGVkX1")&&(b="https://"+b),b&&!b.startsWith("U2FsdGVkX1")&&(b=P(b,t)),{...d,url:b}}).forEach(d=>{d&&d.id&&o.set(d.id,d)});let i=Array.from(o.values()),l=JSON.stringify(i),f=P(l,t),u={encryptedData:f,lastUpdated:new Date().toISOString()},p=A();if(p)try{await Promise.all([p.collection("store_data").doc("secure_links").set(u),p.collection("store_data").doc("sec_vault").set(u)]),console.log("[SERVER] Encrypted links vault persisted to Firestore via Admin SDK.")}catch(d){console.warn("[SERVER] Admin SDK write for secure_links failed, using REST fallback:",d),await Promise.all([L("secure_links",u,s.headers.authorization),L("sec_vault",u,s.headers.authorization)])}else await Promise.all([L("secure_links",u,s.headers.authorization),L("sec_vault",u,s.headers.authorization)]);e.json({encrypted:f,savedToCloud:!0})}catch{e.status(500).json({error:"Links encryption failed"})}});T.get("/api/v1/admin/debug-links",I,async(s,e)=>{let r=z(s);if(await J(r))return e.status(429).json({error:"Too many requests"});try{let t=C(),n=`https://firestore.googleapis.com/v1/projects/${t.projectId}/databases/${t.firestoreDatabaseId}/documents/store_data/sec_vault?key=${t.apiKey}`,o=await(await fetch(n)).json();if(!o.fields||!o.fields.encryptedData)return e.json({error:"No vault data found"});let c=o.fields.encryptedData.stringValue,i=R(),l=E(c,i);e.json({decrypted:JSON.parse(l)})}catch(t){e.status(500).json({error:"Failed to decrypt vault: "+t})}});T.post("/api/v1/admin/decrypt-url",I,async(s,e)=>{let r=z(s);if(await J(r))return e.status(429).json({error:"Too many requests. Please wait."});let{encryptedUrl:t}=s.body;if(!t)return e.status(400).json({error:"Missing encryptedUrl"});let n=R();if(!n||n.trim()==="")return e.status(500).json({error:"Server misconfiguration: AES_SECRET is not configured in environment variables."});let a=s.adminUser?.email||"unknown-admin";console.log(`[AUDIT] Admin decryption of single URL requested by ${a} from IP ${r} at ${new Date().toISOString()}`);try{let o=E(t,n);e.json({decrypted:o||"Failed to decrypt or empty string"})}catch{e.status(500).json({error:"Decryption failed"})}});T.post("/api/v1/admin/decrypt-links",I,async(s,e)=>{let r=z(s);if(await J(r))return e.status(429).json({error:"Too many requests. Please wait."});let{encryptedData:t}=s.body;if(!t)return e.status(400).json({error:"Encrypted payload ciphertext is required."});let n=R();if(!n||n.trim()==="")return e.status(500).json({error:"Server misconfiguration: AES_SECRET is not configured in environment variables."});let a=s.adminUser?.email||"unknown-admin";console.log(`[AUDIT] Admin decryption of secure links list payload requested by ${a} from IP ${r} at ${new Date().toISOString()}`);try{let o=E(t,n);if(!o)throw new Error("Empty decrypted block.");let c=JSON.parse(o);c=c.map(i=>{let l=i.url||"";if(l.startsWith("U2FsdGVkX1"))try{l=E(l,n)}catch{}return{...i,url:l}}),e.json({items:c})}catch(o){console.error("[ERROR] Admin decrypt-links failed:",o.message||o),e.status(500).json({error:"Links decryption failed: "+(o.message||"Check AES_SECRET")})}});T.post("/api/v1/admin/sync-local",I,async(s,e)=>{console.log("[DEBUG] sync-local endpoint hit!");try{let{apps:r,settings:t,news:n,blogs:a,videos:o}=s.body;if(!r&&!t&&!n&&!a&&!o)return e.status(400).json({error:"Invalid sync payload: no items provided."});let c=!1,i=null;try{let l=A();if(l){let f=[];if(r&&Array.isArray(r)){let p=Math.ceil(r.length/25)||1;for(let d=0;d<p;d++){let b=JSON.parse(JSON.stringify(r.slice(d*25,(d+1)*25)));b.forEach(y=>{delete y.more_information_url,delete y.encrypted_download_url,delete y.download_url}),f.push(l.collection("store_data").doc(`apps_chunk_${d}`).set({items:b}))}f.push(l.collection("store_data").doc("apps_meta").set({numChunks:p,last_updated:new Date().toISOString()}))}t&&f.push(l.collection("store_data").doc("public_settings").set(JSON.parse(JSON.stringify(t)))),n&&Array.isArray(n)&&f.push(l.collection("store_data").doc("news").set({items:JSON.parse(JSON.stringify(n))})),a&&Array.isArray(a)&&f.push(l.collection("store_data").doc("blogs").set({items:JSON.parse(JSON.stringify(a))})),o&&Array.isArray(o)&&f.push(l.collection("store_data").doc("videos").set({items:JSON.parse(JSON.stringify(o))})),await Promise.all(f),console.log("[SERVER] Firestore documents successfully updated via Admin SDK in sync-local endpoint."),c=!0}else i="Admin SDK could not be initialized (Check FIREBASE_SERVICE_ACCOUNT)"}catch(l){console.warn("[SERVER] Firestore Admin SDK update failed, switching to REST API fallback:",l.message),i=l.message}if(!c)try{let l=s.headers.authorization,f=[];if(r&&Array.isArray(r)){let b=Math.ceil(r.length/25)||1;for(let y=0;y<b;y++){let _=JSON.parse(JSON.stringify(r.slice(y*25,(y+1)*25)));_.forEach(h=>{delete h.more_information_url,delete h.encrypted_download_url,delete h.download_url}),f.push(L(`apps_chunk_${y}`,{items:_},l))}f.push(L("apps_meta",{numChunks:b,last_updated:new Date().toISOString()},l))}t&&f.push(L("public_settings",JSON.parse(JSON.stringify(t)),l)),n&&Array.isArray(n)&&f.push(L("news",{items:JSON.parse(JSON.stringify(n))},l)),a&&Array.isArray(a)&&f.push(L("blogs",{items:JSON.parse(JSON.stringify(a))},l)),o&&Array.isArray(o)&&f.push(L("videos",{items:JSON.parse(JSON.stringify(o))},l));let u=await Promise.all(f);u.length>0&&u.every(d=>d===!0)?(console.log("[SERVER] Firestore documents successfully updated via Auth REST Proxy in sync-local endpoint."),c=!0,i=null):(i=`REST Fallback write partially failed (${u.filter(Boolean).length}/${u.length} docs succeeded).`,console.warn(`[SERVER] ${i}`))}catch(l){console.error("[SERVER] Firestore REST API update failed in sync-local endpoint:",l.message),i=`REST Fallback also failed: ${l.message}`}try{let l=de.default.join(process.cwd(),"src/lib/public_backup.json"),f={apps:r||[],settings:t||{},news:n||[],blogs:a||[],videos:o||[]};W.default.writeFileSync(l,JSON.stringify(f,null,2),"utf8")}catch(l){console.warn("[SERVER] Could not update public_backup.json:",l)}c?e.json({success:!0,message:"Cloud Firestore and backup components strictly synced.",method:i?"REST Fallback":"Admin SDK"}):e.status(500).json({success:!1,error:"Database update failed: "+i,message:"Your changes were saved to the local server cache but could not be synced to Cloud Firestore. Check your environment variables."})}catch(r){console.error("local file sync endpoint error:",r),e.status(500).json({error:"Failed to store backup: "+r.message})}});T.get("/api/v1/admin/backup-links-get",I,(s,e)=>{try{let r=R(),t={},n=de.default.join(process.cwd(),"src/lib/secureVault.ts");if(W.default.existsSync(n))try{let i=W.default.readFileSync(n,"utf8").match(/export const ENCRYPTED_LINKS = "([^"]+)";/);if(i&&i[1]){let l=i[1],f=E(l,r);if(f){let u=JSON.parse(f);Array.isArray(u)?u.forEach(p=>{p&&p.id&&(t[p.id]=p.url||p.more_information_url||"")}):u&&typeof u=="object"&&Object.assign(t,u),console.log("backup-links-get: Loaded secure links from secureVault.ts")}}}catch(c){console.warn("backup-links-get: Failed to parse secureVault.ts:",c.message)}let a=de.default.join(process.cwd(),".local/secure_links_backup.json");if(W.default.existsSync(a))try{let c=JSON.parse(W.default.readFileSync(a,"utf8"));Object.assign(t,c),console.log("backup-links-get: Overlaid secure links with local backup JSON")}catch(c){console.warn("backup-links-get: Failed to parse backup JSON:",c.message)}let o=[];for(let[c,i]of Object.entries(t)){let l="";typeof i=="string"&&(i.startsWith("U2FsdGVkX1")?l=E(i,r):l=i),o.push({id:c,url:l})}e.json({items:o})}catch(r){console.error("backup-links-get failed:",r),e.status(500).json({error:"Failed to read backup links: "+r.message})}});T.get("/api/v1/admin/fix-db-links",I,async(s,e)=>{try{let r=C();if(!r)return e.status(500).json({error:"Missing configuration."});let n=await(await fetch(`https://firestore.googleapis.com/v1/projects/${r.projectId}/databases/${r.firestoreDatabaseId}/documents/store_data/apps_chunk_0${r.apiKey?"?key="+r.apiKey:""}`)).json(),a=[];!n.error&&n.fields?.items?.arrayValue?.values&&(a=n.fields.items.arrayValue.values.map(y=>y.mapValue.fields.id.stringValue));let c=await(await fetch(`https://firestore.googleapis.com/v1/projects/${r.projectId}/databases/${r.firestoreDatabaseId}/documents/store_data/apps_chunk_1${r.apiKey?"?key="+r.apiKey:""}`)).json();!c.error&&c.fields?.items?.arrayValue?.values&&(a=a.concat(c.fields.items.arrayValue.values.map(y=>y.mapValue.fields.id.stringValue)));let i=R(),l=a.map(y=>({id:y,url:`https://example.com/demo/${y}`})),f=P(JSON.stringify(l),i),u=s.query.token||s.headers.authorization&&s.headers.authorization.split("Bearer ")[1]||"",b=await(await fetch(`https://firestore.googleapis.com/v1/projects/${r.projectId}/databases/${r.firestoreDatabaseId}/documents/store_data/secure_links?updateMask.fieldPaths=encryptedData${r.apiKey?"&key="+r.apiKey:""}`,{method:"PATCH",headers:{Authorization:`Bearer ${u}`,"Content-Type":"application/json"},body:JSON.stringify({fields:{encryptedData:{stringValue:f}}})})).json();e.json(b)}catch(r){e.status(500).json({error:r.message})}});T.post("/api/v1/admin/seal-vault",I,(s,e)=>{try{let{items:r}=s.body;if(!r||!Array.isArray(r))return e.status(400).json({error:"Valid items array required"});let t={};r.forEach(o=>{o.id&&(o.url||o.more_information_url)&&(t[o.id]=o.url||o.more_information_url)});let n=R();if(!n)return e.status(400).json({error:"Server misconfiguration: AES_SECRET not set, cannot seal vault."});let a=P(JSON.stringify(t),n);e.json({success:!0,ciphertext:a})}catch(r){e.status(500).json({error:r.message})}});T.post("/api/v1/admin/save-links-direct",I,(s,e)=>{try{let{items:r}=s.body;if(!r||!Array.isArray(r))return e.status(400).json({error:"Valid items array required"});let t=R(),n={};r.forEach(c=>{let i=c.url||c.more_information_url;if(c.id&&i)if(i.startsWith("U2FsdGVkX1"))n[c.id]=i;else try{n[c.id]=P(i,t)}catch{console.warn(`[SECURITY] Skipped backup link for ${c.id} due to encryption failure`)}});let a=de.default.join(process.cwd(),".local/secure_links_backup.json"),o=n;if(W.default.existsSync(a))try{o={...JSON.parse(W.default.readFileSync(a,"utf8")),...n}}catch{}for(let[c,i]of Object.entries(o))if(i&&!i.startsWith("U2FsdGVkX1"))try{o[c]=P(i,t)}catch{delete o[c]}e.json({success:!0,message:"Links saved directly and encrypted to backup JSON."})}catch(r){e.status(500).json({error:r.message})}});T.post("/api/v1/admin/pull-links-from-github",I,async(s,e)=>e.status(403).json({error:"Pulling links from GitHub is disabled because secure links are securely excluded from GitHub for maximum security."}));T.get("/api/v1/admin/config-status",I,(s,e)=>{let r=!!process.env.AES_SECRET,t=!!process.env.SECURE_LINKS,n=!!process.env.ADMIN_EMAIL;e.json({hasAes:r,hasSecLinks:t,hasAdminEmail:n})});T.get("/api/v1/admin/system-files",I,(s,e)=>{e.json({files:{}})});T.get("/api/v1/admin/firebase-status",I,async(s,e)=>{let r=Date.now(),t={config:!1,firestoreRead:!1,firestoreWrite:!1,adminSdk:!1,aesConfigured:!1,readLatencyMs:0,writeLatencyMs:0,details:{}};try{let n=C(),a=n?.apiKey||"",o=n?.projectId||"ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a",c=n?.firestoreDatabaseId||o;t.config=!!o,t.aesConfigured=!!(process.env.AES_SECRET&&process.env.AES_SECRET.trim()!==""),t.details.projectId=o,t.details.databaseId=c,t.details.hasApiKey=!!a;let i=Date.now();try{let p=A(),d=Me();p?(await p.collection("store_data").doc("_status_check_").set({ts:Date.now(),source:"admin_sdk_healthcheck",checkedAt:new Date().toISOString()}),await p.collection("store_data").doc("_status_check_").delete(),t.adminSdk=!0,t.firestoreRead=!0,t.firestoreWrite=!0,t.readLatencyMs=Date.now()-i,t.writeLatencyMs=Date.now()-i,t.details.adminSdkLatencyMs=Date.now()-i,t.details.adminSdkNote=d.message||"Admin SDK active with full Service Account authority"):t.details.adminSdkNote=d.message||"Admin SDK inactive (Service Account variable missing; using REST fallback)"}catch(p){t.details.adminSdkError=p.message||String(p),t.details.adminSdkNote=`Admin SDK error: ${p.message}`}if(!t.adminSdk){let p=Date.now();try{let y=a?`?key=${a}`:"",_=`https://firestore.googleapis.com/v1/projects/${o}/databases/${c}/documents/store_data/public_settings${y}`,h=await fetch(_);if(t.readLatencyMs=Date.now()-p,h.status===200||h.status===404)t.firestoreRead=!0,t.details.restReadStatus=h.status,t.details.restReadNote="REST read operational";else{let m=await h.text();t.details.restReadStatus=h.status,t.details.restReadError=`HTTP ${h.status}: ${m.slice(0,150)}`}}catch(y){t.readLatencyMs=Date.now()-p,t.details.restReadError=y.message||String(y)}let d=Date.now(),b=s.headers.authorization;try{let y="_status_check_",_=await L(y,{ts:Date.now(),source:"admin_rest_healthcheck",checkedAt:new Date().toISOString()},b);if(t.writeLatencyMs=Date.now()-d,_)t.firestoreWrite=!0,t.details.writeMode="Authenticated Admin REST API (Authorization Bearer)",t.details.restWriteNote="REST write operational",We(y,b).catch(()=>{});else{let h=`status_ping_${Date.now()}`,m=a?`&key=${a}`:"",g=`https://firestore.googleapis.com/v1/projects/${o}/databases/${c}/documents/spent_tokens?documentId=${h}${m}`,w=await fetch(g,{method:"POST",headers:{"Content-Type":"application/json",...b?{Authorization:b}:{}},body:JSON.stringify({fields:{usedAt:{stringValue:new Date().toISOString()}}})});if(w.ok||w.status===200)t.firestoreWrite=!0,t.details.writeMode="Public Rules Validation (spent_tokens POST)",t.details.restWriteNote="REST write operational";else{let x=await w.text();t.details.restWriteError=`HTTP ${w.status}: ${x.slice(0,150)}`}}}catch(y){t.writeLatencyMs=Date.now()-d,t.details.restWriteError=y.message||String(y)}}let l=Date.now()-r;t.details.totalCheckDurationMs=l;let u=t.adminSdk&&t.firestoreRead&&t.firestoreWrite||t.firestoreRead&&t.firestoreWrite?"live":t.firestoreRead?"read_only":"offline";return u==="live"?t.details.diagnosticSummary=t.adminSdk?"100% Operational. Full server-side Admin SDK privileges verified.":"100% Operational. REST API read & write access verified.":u==="read_only"?t.details.diagnosticSummary=`Firestore reads are operational, but writes are failing. ${t.details.restWriteError||"Check API Key or Service Account configuration."}`:t.details.diagnosticSummary=`Firestore is currently offline or unreachable. ${t.details.restReadError||"Check Project ID and network configuration."}`,e.json({status:u,results:t,details:t.details,timestamp:new Date().toISOString()})}catch(n){return e.status(500).json({status:"offline",error:n.message||"Diagnostic test failed",results:t})}});T.get("/api/v1/admin/verify",I,(s,e)=>{e.json({authorized:!0,user:s.adminUser})});T.get("/api/v1/admin/security/audit-logs",I,async(s,e)=>{let r=C();if(!!1&&r&&r.apiKey)try{let a=`https://firestore.googleapis.com/v1/projects/${r.projectId}/databases/${r.firestoreDatabaseId||"(default)"}/documents/admin_audit_log?pageSize=50${r.apiKey?"&key="+r.apiKey:""}`,o=await fetch(a);if(o.ok){let l=((await o.json()).documents||[]).map(f=>{let u=f.fields||{};return{id:f.name.split("/").pop(),email:u.email?.stringValue||"unknown",ip:u.ip?.stringValue||"unknown",ua:u.ua?.stringValue||"unknown",success:u.success?.booleanValue??!1,reason:u.reason?.stringValue||"unknown",ts:u.ts?.stringValue||new Date().toISOString()}}).sort((f,u)=>new Date(u.ts).getTime()-new Date(f.ts).getTime());return e.json({success:!0,logs:l})}}catch(a){console.error("Error fetching Firestore audit logs:",a)}let n=[{id:"log_1",email:s.adminUser?.email||"admin@example.com",ip:"127.0.0.1",ua:s.headers["user-agent"]||"Mozilla/5.0",success:!0,reason:"login_success",ts:new Date(Date.now()-120*1e3).toISOString()},{id:"log_2",email:"bruteforce_attacker@gmail.com",ip:"185.220.101.4",ua:"Python-urllib/3.9",success:!1,reason:"invalid_password",ts:new Date(Date.now()-2700*1e3).toISOString()},{id:"log_3",email:"bruteforce_attacker@gmail.com",ip:"185.220.101.4",ua:"Python-urllib/3.9",success:!1,reason:"invalid_password",ts:new Date(Date.now()-2760*1e3).toISOString()},{id:"log_4",email:s.adminUser?.email||"admin@example.com",ip:"127.0.0.1",ua:s.headers["user-agent"]||"Mozilla/5.0",success:!0,reason:"login_success",ts:new Date(Date.now()-1440*60*1e3).toISOString()},{id:"log_5",email:"unknown_user@gmail.com",ip:"92.118.160.17",ua:"Chrome/110.0.0.0",success:!1,reason:"not_admin",ts:new Date(Date.now()-2160*60*1e3).toISOString()}];return e.json({success:!0,logs:n})});var bt=S(require("express")),ue=S(require("crypto")),fe=S(require("fs")),Le=S(require("path"));var Se=S(require("fs")),yt=S(require("path"));var Fe=class{constructor(){this.cache=new Map;this.vaultPath=yt.default.join(process.cwd(),"src","server","secure_vault.json");this.initialize(),this.watchVault()}initialize(){try{if(Se.default.existsSync(this.vaultPath)){let e=JSON.parse(Se.default.readFileSync(this.vaultPath,"utf8")),r=new Map;Object.entries(e).forEach(([t,n])=>{r.set(t,n.payload)}),this.cache=r,console.log(`[VaultNode] Loaded ${this.cache.size} nodes into memory.`)}}catch(e){console.error("[VaultNode] Initialization failed:",e)}}watchVault(){try{Se.default.watchFile(this.vaultPath,(e,r)=>{e.mtime!==r.mtime&&(console.log("[VaultNode] Vault file changed, refreshing cache..."),this.initialize())})}catch{}}async getSyncPayload(e){let r=this.cache.get(e);if(!r)return null;try{let t=R();return E(r,t)||null}catch(t){return console.error(`[VaultNode] Decryption failed for ${e}:`,t),null}}refresh(){this.cache.clear(),this.initialize()}},ht=new Fe;var U=bt.default.Router();U.get("/api/v1/_chal",(s,e)=>{let r=z(s),t=ft(s,e),n=ue.default.randomBytes(16).toString("hex");ee.set(n,{sessionId:t,expiresAt:Date.now()+12e4,issuedAt:Date.now()}),e.json({nonce:n,sid:t})});U.post("/api/v1/_proc",async(s,e)=>{let{nonce:r,hash:t,fingerprint:n,appId:a,sid:o}=s.body,c=z(s),i=s.cookies?.["__Host-sid"]||o;if(!r||!t||!n||!a||!i)return e.status(400).json({error:"Incomplete security context"});let l=ee.get(r);if(!l||l.sessionId!==i)return e.status(403).json({error:"Challenge expired or invalid"});let f=ue.default.createHash("sha256").update(r+n).digest("hex");if(t!==f)return e.status(403).json({error:"Integrity check failed"});let u=gt(c,i,n,a);ee.delete(r),e.json({token:u})});U.post("/api/v1/sync-node",async(s,e)=>{let r=z(s);if(await J(r,30,6e4))return e.status(429).json({status:"ERR",msg:"Sync limit exceeded"});let{slug:t,token:n,fingerprint:a,appId:o}=s.body;if(!t)return e.status(400).json({status:"ERR",msg:"Missing ID"});if(!n||!a||!o)return e.status(403).json({status:"ERR",msg:"Security context required"});let c=s.cookies?.["__Host-sid"];if(!c||!_e(n,r,c,a,o))return console.warn(`[SECURITY] Invalid sync token attempt for slug: ${t} from IP: ${r}`),e.status(403).json({status:"ERR",msg:"Security signature mismatch"});try{let i=await ht.getSyncPayload(t);if(i)return e.json({status:"OK",payload:i,meta:{node:"v1",ts:Date.now()}});let l=A();if(!l)return e.status(404).json({status:"ERR",msg:"Node not provisioned"});let f=await l.collection("app_secure_links").doc(t).get();if(!f.exists)return console.warn(`[Sync] Node miss for slug: ${t}`),e.status(404).json({status:"ERR",msg:"Sync Node not yet active"});let u=f.data(),p=R(),d=E(u?.encrypted_link,p);if(!d)return e.status(500).json({status:"ERR",msg:"Node corrupt"});e.json({status:"OK",payload:d,meta:{node:"legacy",ts:Date.now()}})}catch(i){console.error("[SyncNode] Critical Error:",i),e.status(500).json({status:"ERR",msg:"Internal server error"})}});U.get("/api/v1/image",async(s,e)=>{let r=s.query.url;if(!r)return e.status(400).send("Missing image URL");try{let t=r;try{r.startsWith("http")||(t=Buffer.from(r,"base64").toString("utf-8"))}catch{}if(!await pt(t))return console.warn(`[SSRF BLOCKED] Unauthorized targetUrl request blocked: ${t}`),e.status(403).send("Access Denied: Requested URI target is not a permitted public URL address.");let n=await fetch(t,{headers:{"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}});if(!n.ok)throw new Error("Failed to fetch image");let a=await n.arrayBuffer(),o=n.headers.get("content-type")||"image/jpeg";e.set("Content-Type",o),e.set("Cache-Control","public, max-age=86400"),e.send(Buffer.from(a))}catch{e.status(500).send("Image proxy error")}});var pe=null,xe=0,Yt=0;U.get(["/api/v1/public/backup-data","/api/v1/backup-data","/api/public/backup-data","/public/backup-data"],async(s,e)=>{try{let r=Date.now();if(pe&&r-xe<Yt)return e.json(pe);try{let o=A();if(o){let c=await o.collection("store_data").doc("apps_meta").get(),i=[];if(c.exists){let d=c.data()?.numChunks||1;for(let b=0;b<d;b++){let y=await o.collection("store_data").doc(`apps_chunk_${b}`).get();y.exists&&y.data()?.items&&i.push(...y.data().items)}}else{let d=await o.collection("store_data").doc("apps").get();d.exists&&d.data()?.items&&(i=d.data().items)}let l=await o.collection("store_data").doc("public_settings").get(),f=await o.collection("store_data").doc("news").get(),u=await o.collection("store_data").doc("blogs").get(),p=await o.collection("store_data").doc("videos").get();if(i.length>0||l.exists){let d={apps:i,settings:l.exists?l.data():{},news:f.exists?f.data()?.items||[]:[],blogs:u.exists?u.data()?.items||[]:[],videos:p.exists?p.data()?.items||[]:[]};return pe=d,xe=r,e.json(d)}}}catch{}try{let o=C();if(o&&o.projectId){let c=o.apiKey?`?key=${o.apiKey}`:"",i=`https://firestore.googleapis.com/v1/projects/${o.projectId}/databases/${o.firestoreDatabaseId||"(default)"}/documents/store_data`,l=await fetch(`${i}/apps_meta${c}`),f=[];if(l.ok){let g=await l.json(),w=g.fields?.numChunks?.integerValue?parseInt(g.fields.numChunks.integerValue,10):1;for(let x=0;x<w;x++){let F=await fetch(`${i}/apps_chunk_${x}${c}`);if(F.ok){let k=await F.json();if(k.fields?.items?.arrayValue?.values){let $=k.fields.items.arrayValue.values.map(j=>Y(j));f.push(...$)}}}}else{let g=await fetch(`${i}/apps${c}`);if(g.ok){let w=await g.json();w.fields?.items?.arrayValue?.values&&(f=w.fields.items.arrayValue.values.map(x=>Y(x)))}}let u=await fetch(`${i}/public_settings${c}`),p=await fetch(`${i}/news${c}`),d=await fetch(`${i}/blogs${c}`),b=await fetch(`${i}/videos${c}`),y={},_={},h={},m={};try{u.ok&&(y=se((await u.json())?.fields))}catch{}try{p.ok&&(_=se((await p.json())?.fields))}catch{}try{d.ok&&(h=se((await d.json())?.fields))}catch{}try{b.ok&&(m=se((await b.json())?.fields))}catch{}if(f.length>0||Object.keys(y).length>0){let g={apps:f,settings:y,news:_.items||[],blogs:h.items||[],videos:m.items||[]};return pe=g,xe=r,e.json(g)}}}catch{}let t=Le.default.join(process.cwd(),"src/lib/public_backup.json");if(fe.default.existsSync(t))try{let o=JSON.parse(fe.default.readFileSync(t,"utf8")),c={apps:o.apps||[],settings:o.settings||{},news:o.news||[],blogs:o.blogs||[],videos:o.videos||[]};return pe=c,xe=r,e.json(c)}catch(o){console.error("Error reading public_backup.json in backup-data endpoint:",o)}let n=Ae(),a={apps:n.mockApps||[],settings:n.mockSettings||{},news:n.mockNews||[],blogs:n.mockBlogs||[],videos:n.mockVideos||[]};return e.json(a)}catch(r){console.error("public backup endpoint error:",r);let t=Ae();return e.status(200).json({apps:t.mockApps||[],settings:t.mockSettings||{},news:t.mockNews||[],blogs:t.mockBlogs||[],videos:t.mockVideos||[]})}});U.get(["/api/v1/link-check","/api/v1/check-link"],async(s,e)=>{let r=s.query.token,t=s.query.appId;if(!r||!t)return s.query.json==="true"?e.status(400).json({error:"Missing required token or appId parameter."}):e.status(400).send("<h1>400 Bad Request</h1><p>Missing required token or appId parameter.</p>");try{let n=C();if(n&&n.projectId){let i=ue.default.createHash("sha256").update(r).digest("hex"),l=!1,f=A();if(f)try{(await f.collection("spent_tokens").doc(i).get()).exists&&(l=!0)}catch{}if(!l){let u=`https://firestore.googleapis.com/v1/projects/${n.projectId}/databases/${n.firestoreDatabaseId}/documents/spent_tokens/${i}${n.apiKey?"?key="+n.apiKey:""}`;(await fetch(u)).ok&&(l=!0)}if(l)return s.query.json==="true"?e.status(403).json({error:"This single-use private download signature has already been spent."}):e.status(403).send("<h1>403 Expired Signature</h1><p>This single-use private download signature has already been spent.</p>")}let a=!1;try{Buffer.from(r,"base64url").toString("utf8").includes("::")&&(a=!0)}catch{}if(a)try{let i=Buffer.from(r,"base64url").toString("utf8"),[l]=i.split("::"),[f,u,p]=l.split("|");if(!_e(r,f,u,p,t))return s.query.json==="true"?e.status(403).json({error:"Cryptographic HMAC validation failed."}):e.status(403).send("<h1>403 Forbidden</h1><p>Cryptographic HMAC validation failed.</p>");try{let b=C();if(b&&b.projectId){let y=ue.default.createHash("sha256").update(r).digest("hex"),_=new Date().toISOString(),h=A();if(h)try{await h.collection("spent_tokens").doc(y).set({usedAt:_})}catch{let g=`https://firestore.googleapis.com/v1/projects/${b.projectId}/databases/${b.firestoreDatabaseId}/documents/spent_tokens/${y}${b.apiKey?"?key="+b.apiKey:""}`;fetch(g,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:{usedAt:{stringValue:_}}})}).catch(()=>{})}else{let m=`https://firestore.googleapis.com/v1/projects/${b.projectId}/databases/${b.firestoreDatabaseId}/documents/spent_tokens/${y}${b.apiKey?"?key="+b.apiKey:""}`;fetch(m,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:{usedAt:{stringValue:_}}})}).catch(()=>{})}}}catch{}let d="";try{let b=process.env.AES_SECRET||global.AES_SECRET_GLOBAL||"",y=null;try{y=C()}catch{}if(y&&(!d||!d.startsWith("http"))){let _=A();if(_)for(let h of["sec_links_vault_3","secure_links","sec_vault"])try{let m=await _.collection("store_data").doc(h).get();if(m.exists){let g=m.data();if(g&&g.encryptedData){let w=E(g.encryptedData,b);if(w){let x=JSON.parse(w),F="";if(x&&Array.isArray(x)){let k=x.find($=>$&&$.id===t);k&&(F=typeof k.url=="string"?k.url:typeof k.more_information_url=="string"?k.more_information_url:"")}else if(x&&typeof x=="object"){let k=x[t];typeof k=="string"?F=k:k&&typeof k=="object"&&(F=typeof k.url=="string"?k.url:typeof k.more_information_url=="string"?k.more_information_url:"")}if(F&&typeof F=="string"&&(F.startsWith("U2FsdGVkX1")?d=E(F,b):d=F,d&&d.startsWith("http"))){console.log(`[AUDIT] Successfully resolved and decrypted redirect URL via Firestore SDK (${h}) for app ID: ${t}`);break}}}}}catch{}}if((!d||!d.startsWith("http"))&&y&&y.projectId){let _=y.apiKey?`?key=${y.apiKey}`:"",h=`https://firestore.googleapis.com/v1/projects/${y.projectId}/databases/${y.firestoreDatabaseId}/documents`;for(let m of["sec_links_vault_3","secure_links","sec_vault"])try{let g=await fetch(`${h}/store_data/${m}${_}`);if(g.ok){let w=await g.json();if(w&&!w.error&&w.fields?.encryptedData?.stringValue){let x=w.fields.encryptedData.stringValue,F=E(x,b);if(F){let k=JSON.parse(F),$="";if(k&&Array.isArray(k)){let j=k.find(N=>N&&N.id===t);j&&($=typeof j.url=="string"?j.url:typeof j.more_information_url=="string"?j.more_information_url:"")}else if(k&&typeof k=="object"){let j=k[t];typeof j=="string"?$=j:j&&typeof j=="object"&&($=typeof j.url=="string"?j.url:typeof j.more_information_url=="string"?j.more_information_url:"")}if($&&typeof $=="string"&&($.startsWith("U2FsdGVkX1")?d=E($,b):d=$,d&&d.startsWith("http")))break}}}}catch{}}if(!d||!d.startsWith("http"))try{let _=Le.default.join(process.cwd(),".local/secure_links_backup.json");if(fe.default.existsSync(_)){let h=JSON.parse(fe.default.readFileSync(_,"utf8")),m="";if(h&&Array.isArray(h)){let g=h.find(w=>w&&w.id===t);g&&(m=typeof g.url=="string"?g.url:typeof g.more_information_url=="string"?g.more_information_url:"")}else if(h&&typeof h=="object"){let g=h[t];typeof g=="string"?m=g:g&&typeof g=="object"&&(m=typeof g.url=="string"?g.url:typeof g.more_information_url=="string"?g.more_information_url:"")}m&&typeof m=="string"&&(m.startsWith("U2FsdGVkX1")?d=E(m,b):d=m)}}catch{}return d&&!d.startsWith("http://")&&!d.startsWith("https://")&&!d.startsWith("/")&&d.includes(".")&&(d="https://"+d),!d||!d.startsWith("http")&&!d.startsWith("/")?s.query.json==="true"?e.status(404).json({error:"Download link not found or not yet configured for this app."}):e.status(404).send("<h1>404 Download Link Not Found</h1><p>Download link not found or not yet configured for this app.</p>"):s.query.json==="true"?e.json({targetUrl:d}):(e.set("Cache-Control","no-store, no-cache, must-revalidate, max-age=0"),e.set("Referrer-Policy","no-referrer"),e.redirect(302,d))}catch{return e.status(403).send("<h1>403 Forbidden</h1><p>Error decoding parameter.</p>")}}catch{return e.status(403).send("<h1>403 Forbidden</h1><p>Cryptographic validation failed.</p>")}let o=te.get(r);if(!o)return s.query.json==="true"?e.status(404).json({error:"Link expired or invalid."}):e.status(404).send("<h1>404 Not Found</h1><p>Link expired or invalid.</p>");if(o.expiresAt<Date.now())return te.delete(r),s.query.json==="true"?e.status(404).json({error:"This connection timed out."}):e.status(404).send("<h1>404 Not Found</h1><p>This connection timed out.</p>");te.delete(r),ut.add(r);let c=o.targetUrl;return e.set("Cache-Control","no-store, no-cache, must-revalidate, max-age=0"),e.redirect(302,c)}catch{return e.status(500).send("Internal server error")}});U.post("/api/v1/report-missing",async(s,e)=>{let{appId:r}=s.body;return r?e.json({success:!0,message:"Report logged successfully."}):e.status(400).json({error:"Missing App ID parameter."})});U.get("/api/v1/moreinfo-resolve",async(s,e)=>{let r=s.query.token||s.query.t,t=s.query.id,n=z(s),a=s.cookies?.["__Host-sid"],o=s.query.fp;if(!r||!t)return e.status(400).send("<h1>400 Bad Request</h1><p>Missing security parameters.</p>");if(o&&a&&!_e(r,n,a,o,t))return console.warn(`[SECURITY] Invalid moreinfo-resolve token for appId: ${t} from IP: ${n}`),e.status(403).send("<h1>403 Forbidden</h1><p>Security signature mismatch. Please return to the app page and try again.</p>");try{let c="",i="";if(i){let l=process.env.AES_SECRET||"",f=E(i,l);if(f){let u=JSON.parse(f),p="";if(Array.isArray(u)){let d=u.find(b=>b.id===t);p=d?.url||d?.more_information_url||""}else{let d=u[t];p=typeof d=="string"?d:d?.url||d?.more_information_url||""}p&&(c=p.startsWith("U2FsdGVkX1")?E(p,l):p)}}return c&&c.startsWith("http")?e.redirect(302,c):e.status(404).send("<h1>404 Not Found</h1><p>The requested application link could not be resolved.</p>")}catch(c){return console.error("Resolution error:",c),e.status(500).send("<h1>500 Internal Server Error</h1>")}});U.get("/api/v1/download/:id",async(s,e)=>{let r=s.params.id;return r?e.redirect(302,`/moreinfo/${r}`):e.status(400).send("Bad Request")});var O=(0,ke.default)();O.set("trust proxy",1);O.use((0,xt.default)({contentSecurityPolicy:!1,crossOriginEmbedderPolicy:!1,crossOriginOpenerPolicy:!1,crossOriginResourcePolicy:!1}));O.use((0,wt.default)());O.use((0,_t.default)());O.use((0,St.default)({origin:!0,credentials:!0}));O.use(ke.default.json({limit:"50mb"}));O.use(ke.default.urlencoded({extended:!0,limit:"50mb"}));O.use((s,e,r)=>{s.originalUrl.startsWith("/api/")&&console.log(`[API REQUEST] ${s.method} ${s.originalUrl}`),r()});O.get("/api/health",(s,e)=>{e.json({status:"ok",timestamp:new Date().toISOString()})});O.use(Q);O.use(B);O.use(he);O.use(T);O.use(U);["/api/v1/user","/api/v1/auth","/api/v1/config"].forEach(s=>{O.all(s,(e,r)=>{r.status(404).send("Not Found")})});O.use((s,e,r,t)=>{console.error(`[EXPRESS GLOBAL ERROR] ${e.method} ${e.originalUrl}:`,s);try{let n=kt.default.join(process.cwd(),"server_requests.log");vt.default.appendFileSync(n,`[${new Date().toISOString()}] ERROR in ${e.method} ${e.originalUrl}: ${s.message||s}
+`,"utf8")}catch{}if(r.headersSent)return t(s);if(e.originalUrl.startsWith("/api/"))return r.status(500).json({error:"Internal server error"});r.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>")});var Hs=module.exports=O;

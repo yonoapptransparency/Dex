@@ -134,6 +134,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     videos,
     loading,
     loadedFromServer,
+    serverAppsFetched: loadedFromServer,
     appsSyncedWithServer: true,
     settingsSyncedWithServer: true,
     newsSyncedWithServer: true,
