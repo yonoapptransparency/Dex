@@ -173,7 +173,63 @@ export interface VideoItem {
   created_at: string;
 }
 
-export const mockApps: AppConfig[] = [] as any[];
+export const mockApps: AppConfig[] = [
+  {
+    "encrypted_link": "U2FsdGVkX1/InojE5SahliwPCcOsd51WxfGvuXFQBR9QquQbmsSCDmFKw/1IUZPC",
+    "slug": "new-app",
+    "is_coming_soon": false,
+    "safety_status": "Verified",
+    "idea_box_msg": "",
+    "icon_url": "",
+    "file_size": "Unknown",
+    "yellow_box_msg": "",
+    "seo_description": "",
+    "version": "1.0",
+    "faqs": [],
+    "red_box_msg": "",
+    "seo_keywords": "",
+    "features_html": "Hshaha",
+    "seo_title": "",
+    "developer": "Admin",
+    "name": "New App",
+    "rating": 5,
+    "screenshots": [],
+    "created_at": "2026-07-29T17:52:03.217Z",
+    "serial_number": 3,
+    "category": "General",
+    "is_new": false,
+    "id": "m717etjdf",
+    "description_html": "",
+    "og_image_url": ""
+  },
+  {
+    "is_coming_soon": false,
+    "category": "General",
+    "faqs": [],
+    "file_size": "Unknown",
+    "idea_box_msg": "",
+    "slug": "new-app",
+    "serial_number": 3,
+    "red_box_msg": "",
+    "features_html": "",
+    "yellow_box_msg": "",
+    "screenshots": [],
+    "is_new": false,
+    "developer": "Admin",
+    "seo_title": "",
+    "og_image_url": "",
+    "description_html": "",
+    "safety_status": "Verified",
+    "seo_description": "",
+    "version": "1.0",
+    "id": "d5pcrs7xt",
+    "created_at": "2026-07-29T11:14:42.214Z",
+    "icon_url": null,
+    "name": "New App",
+    "seo_keywords": "",
+    "rating": 5
+  }
+] as any[];
 
 export const saveMockApps = (apps: AppConfig[]) => {
   try {
@@ -185,10 +241,10 @@ export const saveMockApps = (apps: AppConfig[]) => {
 };
 
 export const mockSettings: GlobalSettings = {
-  "site_title": "Yono Store",
+  "site_title": "RummyDex",
   "meta_description": "",
-  "logo_url": "",
-  "favicon_url": "",
+  "logo_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp",
+  "favicon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784896838/ezgif-64180dd8ca74703b_rpungk.webp",
   "helpline_whatsapp": "",
   "helpline_telegram": "",
   "support_email": "",
@@ -196,11 +252,32 @@ export const mockSettings: GlobalSettings = {
   "ethics_discrimination_text": "",
   "ticker_text": "",
   "animations_enabled": true,
-  "categories": [],
+  "categories": [
+    "All Apps",
+    "Yono",
+    "Card"
+  ],
   "banners": [],
   "quick_links": [],
   "website_faqs": [],
-  "developers": []
+  "developers": [],
+  "trending_searches": [],
+  "hero_title_subtitle": "COMPREHENSIVE SOCIAL CASUAL E-SPORTS METRICS & UNBIASED INTEGRITY REVIEWS",
+  "last_updated": "2026-07-29T13:00:56.525Z",
+  "social_links": {
+    "twitter": "",
+    "linkedin": "",
+    "instagram": "",
+    "youtube": "",
+    "facebook": ""
+  },
+  "hero_title_style": "modern",
+  "hero_title_text": "",
+  "hero_title_visible": false,
+  "hero_title_animation": "fade-in",
+  "secure_index_subtitle": "Verified & Transparent App Marketplace",
+  "hero_title_color": "classic-dark",
+  "secure_index_title": "Secure Index"
 } as any;
 
 export const saveMockSettings = (settings: GlobalSettings) => {
