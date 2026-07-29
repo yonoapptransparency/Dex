@@ -102,10 +102,10 @@ export function PublicHeader() {
                     { to: '/notice', label: 'Notice', icon: ShieldCheck },
                     { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                     { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-                  ].map((item: any) => (
+                  ].map((item: any, idx: number) => (
                     item.to ? (
                       <Link 
-                        key={item.to}
+                        key={`more-link-${item.to}-${idx}`}
                         to={item.to} 
                         onClick={() => { setMoreOpen(false); triggerHaptic(); }}
                         className={`flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${pathname === item.to ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5'}`}
@@ -115,7 +115,7 @@ export function PublicHeader() {
                       </Link>
                     ) : (
                       <button 
-                        key={item.label}
+                        key={`more-btn-${item.label}-${idx}`}
                         onClick={() => { setMoreOpen(false); triggerHaptic(); if (item.action) item.action(); }}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5`}
                       >
@@ -227,11 +227,11 @@ export function PublicHeader() {
                 { to: '/notice', label: 'Notice', icon: ShieldCheck },
                 { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
                 { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-              ].map((item: any) => {
+              ].map((item: any, idx: number) => {
                 const active = item.to && pathname === item.to;
                 return item.to ? (
                   <Link 
-                    key={item.to}
+                    key={`mobile-link-${item.to}-${idx}`}
                     onClick={() => { triggerHaptic(); setMenuOpen(false); }} 
                     to={item.to} 
                     className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all ${active ? 'bg-blue-600 text-white' : 'bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 hover:bg-black/10'}`}
@@ -242,7 +242,7 @@ export function PublicHeader() {
                   </Link>
                 ) : (
                   <button 
-                    key={item.label}
+                    key={`mobile-btn-${item.label}-${idx}`}
                     onClick={() => { triggerHaptic(); setMenuOpen(false); if (item.action) item.action(); }} 
                     className={`w-full flex items-center text-left gap-3 p-3.5 rounded-2xl transition-all bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 hover:bg-black/10`}
                   >

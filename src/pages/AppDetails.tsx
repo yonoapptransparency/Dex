@@ -316,8 +316,8 @@ export default function AppDetails() {
               </h2>
             </div>
             <div className="space-y-2">
-              {relatedApps.map((relatedApp) => (
-                <AppListItem key={relatedApp.id} app={relatedApp} index={relatedApp.serial_number} />
+              {relatedApps.map((relatedApp, index) => (
+                <AppListItem key={`${relatedApp.id}-${index}`} app={relatedApp} index={relatedApp.serial_number} />
               ))}
             </div>
           </div>

@@ -21,7 +21,7 @@ export default function HomeFaqSection({ faqs, searchTerm }: HomeFaqSectionProps
         </h2>
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} question={faq.question} answer={faq.answer} isWebsiteFaq={true} />
+            <AccordionItem key={`faq-home-${index}`} question={faq.question} answer={faq.answer} isWebsiteFaq={true} />
           ))}
         </div>
       </div>

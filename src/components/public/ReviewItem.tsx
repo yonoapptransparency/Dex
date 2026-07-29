@@ -103,7 +103,7 @@ export function ReviewItem({
         <div className="flex items-center gap-0.5 mb-2.5 text-amber-500">
           {[1, 2, 3, 4, 5].map((s) => (
             <Star 
-              key={s} 
+              key={`star-${rev.id}-${s}`} 
               className={`w-3 h-3 ${s <= rev.rating ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
             />
           ))}

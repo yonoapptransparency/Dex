@@ -28,7 +28,7 @@ export default function NewAdditions({ loading, apps }: NewAdditionsProps) {
         ) : (
           apps.filter(app => app.is_new).slice(0, 10).map((app, index) => (
             <div
-              key={app.id}
+              key={`${app.id}-${index}`}
               className="flex-none w-[80px] sm:w-[96px] snap-start"
             >
               <Link to={`/${app.slug}`} className="flex flex-col gap-2 group active:scale-[0.98] transition-transform">

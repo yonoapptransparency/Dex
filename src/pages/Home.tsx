@@ -295,11 +295,11 @@ export default function Home() {
           <div className="space-y-2">
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <AppListItemSkeleton key={i} />
+                <AppListItemSkeleton key={`skeleton-home-${i}`} />
               ))
             ) : (
               filteredApps.slice(0, visibleCount).map((app, index) => (
-                <AppListItem key={app.id} app={app} index={index + 1} />
+                <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
               ))
             )}
           </div>
@@ -310,11 +310,11 @@ export default function Home() {
         <div className="space-y-1 px-0 sm:px-1">
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <TopChartItemSkeleton key={i} rank={i + 1} />
+              <TopChartItemSkeleton key={`skeleton-top-${i}`} rank={i + 1} />
             ))
           ) : (
             filteredApps.slice(0, visibleCount).map((app, index) => (
-              <TopChartItem key={app.id} rank={index + 1} app={app} />
+              <TopChartItem key={`${app.id}-${index}`} rank={index + 1} app={app} />
             ))
           )}
           {!loading && mockApps.length === 0 && (
@@ -343,11 +343,11 @@ export default function Home() {
             <div className="space-y-2">
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <AppListItemSkeleton key={i} />
+                  <AppListItemSkeleton key={`skeleton-cat-${i}`} />
                 ))
               ) : (
                 filteredApps.slice(0, visibleCount).map((app, index) => (
-                  <AppListItem key={app.id} app={app} index={index + 1} />
+                  <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
                 ))
               )}
             </div>
@@ -391,7 +391,7 @@ export default function Home() {
               return appCategories.some(cat => cat === currentTabLower || cat.includes(currentTabLower) || currentTabLower.includes(cat));
             });
             return tabApps.length > 0 ? (
-              tabApps.slice(0, visibleCount).map((app, index) => <AppListItem key={app.id} app={app} index={index + 1} />)
+              tabApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
             ) : (
               <div className="text-center py-20 text-slate-400">
                 <p className="text-lg">No apps found in {deferredActiveTab}</p>

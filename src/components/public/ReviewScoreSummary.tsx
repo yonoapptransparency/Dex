@@ -23,7 +23,7 @@ export function ReviewScoreSummary({ overallRating = 5.0, totalCount, averageVal
           <div className="flex justify-center gap-0.5 mb-1 text-amber-500">
             {[1, 2, 3, 4, 5].map((s) => (
               <Star 
-                key={s} 
+                key={`score-star-${s}`} 
                 className={`w-3.5 h-3.5 ${s <= Math.round(overallRating) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
               />
             ))}
@@ -41,8 +41,8 @@ export function ReviewScoreSummary({ overallRating = 5.0, totalCount, averageVal
             { star: 3, fill: '4%' },
             { star: 2, fill: '1%' },
             { star: 1, fill: '1%' },
-          ].map((item) => (
-            <div key={item.star} className="flex items-center gap-2">
+          ].map((item, idx) => (
+            <div key={`dist-bar-${item.star}-${idx}`} className="flex items-center gap-2">
               <span className="w-2.5 font-bold text-zinc-500 text-right">{item.star}</span>
               <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div 

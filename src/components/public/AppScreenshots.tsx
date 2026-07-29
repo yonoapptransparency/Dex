@@ -16,7 +16,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
         )}
         {app.screenshots && app.screenshots.map((imgUrl, i) => (
           <div 
-            key={i} 
+            key={`screenshot-${i}`} 
             className="flex-none w-[90px] sm:w-[125px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 select-none"
           >
             <img 

@@ -20,7 +20,7 @@ export default function AppFaqSection({ faqs }: AppFaqSectionProps) {
         </h2>
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-             <AccordionItem key={idx} question={faq.question} answer={faq.answer} />
+             <AccordionItem key={`faq-app-${idx}`} question={faq.question} answer={faq.answer} />
           ))}
         </div>
       </div>

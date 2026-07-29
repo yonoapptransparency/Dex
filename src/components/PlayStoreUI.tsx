@@ -109,7 +109,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
             if (isExternal) {
               return (
                 <a 
-                  key={item.id || i}
+                  key={`banner-ext-${item.id || i}`}
                   href={item.link} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
@@ -124,7 +124,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
 
             return (
               <Link
-                key={item.id || i}
+                key={`banner-int-${item.id || i}`}
                 to={item.link || "/"}
                 className="h-full block flex-shrink-0"
                 style={slideStyle}
@@ -241,10 +241,20 @@ export const PlayStoreTabs = React.memo(({ activeTab, onTabChange, hideOnSearch 
     tabs = ["All Apps", ...tabs];
   }
   
+  const uniqueTabs = React.useMemo(() => {
+    const seen = new Set<string>();
+    return tabs.filter(tab => {
+      const lower = tab.toLowerCase();
+      if (seen.has(lower)) return false;
+      seen.add(lower);
+      return true;
+    });
+  }, [tabs]);
+  
   return (
     <div className="mb-2 sticky top-[52px] sm:top-16 z-40 bg-[var(--bg-primary)] py-2 px-0">
       <div className="flex overflow-x-auto no-scrollbar gap-2">
-        {tabs.map((tab) => (
+        {uniqueTabs.map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}
