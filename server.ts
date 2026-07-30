@@ -1,0 +1,226 @@
+import express from 'express';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
+
+import { injectSeoTags, fetchStoreData } from './src/seoHelper';
+import { adminAuthRouter } from './src/server/routes/adminAuthRoutes';
+import { githubSyncRouter } from './src/server/routes/githubSyncRoutes';
+import { seoRouter } from './src/server/routes/seoRoutes';
+import { adminVaultRouter } from './src/server/routes/adminVaultRoutes';
+import { publicApiRouter } from './src/server/routes/publicApiRoutes';
+import { securityRouter } from './src/server/routes/securityRoutes';
+
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+
+  app.set('trust proxy', 1);
+
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  }));
+
+  app.use(compression());
+  app.use(cookieParser());
+  app.use(cors({
+    origin: true,
+    credentials: true,
+  }));
+
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+  // AES_SECRET verification for secure link flow
+  if (!process.env.AES_SECRET && process.env.NODE_ENV === "production") {
+    console.error("FATAL: AES_SECRET environment variable is not set. Secure link flow will fail.");
+    // In some environments we might want to exit, but here we just log it clearly
+  }
+
+  // Request logger
+  app.use((req, res, next) => {
+    if (req.originalUrl.startsWith('/api/')) {
+      console.log(`[API REQUEST] ${req.method} ${req.originalUrl}`);
+    }
+    next();
+  });
+
+  // Health check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Mount API & SEO Routes
+  app.use(seoRouter);
+  app.use(adminAuthRouter);
+  app.use(githubSyncRouter);
+  app.use(adminVaultRouter);
+  app.use(securityRouter);
+  app.use(publicApiRouter);
+
+  // Roadblocks
+  ["/api/v1/user", "/api/v1/auth", "/api/v1/config"].forEach(pathway => {
+    app.all(pathway, (req, res) => {
+      res.status(404).send("Not Found");
+    });
+  });
+
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const isHmrDisabled = process.env.DISABLE_HMR === 'true';
+      const vite = await createViteServer({
+        server: {
+          middlewareMode: true,
+          hmr: isHmrDisabled ? false : undefined,
+        },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } catch (e) {
+      console.error("Failed to initialize Vite middleware:", e);
+    }
+  } else {
+    const getDistPath = (): string => {
+      const pathsToTry = [
+        path.join(process.cwd(), 'dist'),
+        path.resolve(__dirname, 'dist'),
+        path.resolve(__dirname, '..', 'dist'),
+        __dirname
+      ];
+      for (const p of pathsToTry) {
+        if (fs.existsSync(path.join(p, 'index.html'))) {
+          return p;
+        }
+      }
+      return path.join(process.cwd(), 'dist');
+    };
+    const distPath = getDistPath();
+
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+      fallthrough: true,
+      setHeaders: (res) => {
+        const farFuture = new Date(Date.now() + 31536000000).toUTCString();
+        res.setHeader('Expires', farFuture);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }));
+
+    app.use(express.static(distPath, {
+      maxAge: '1d',
+      etag: true,
+      lastModified: true,
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        } else {
+          const farFuture = new Date(Date.now() + 86400000).toUTCString();
+          res.setHeader('Expires', farFuture);
+          res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=43200');
+        }
+      }
+    }));
+
+    let cachedIndexHtml: string | null = null;
+    app.get('*', async (req, res) => {
+      if (req.originalUrl.match(/\.(php|env|yml|yaml|ini|conf|log|sql|tar|gz|zip|bak|git|rsa)$/i) || req.originalUrl.includes('/etc/') || req.originalUrl.includes('/proc/') || req.originalUrl.includes('../') || req.originalUrl.includes('/.aws/')) {
+        return res.status(404).type('text/plain').send('Not found');
+      }
+      let templatePath = path.join(distPath, 'index.html');
+      if (!fs.existsSync(templatePath)) {
+        templatePath = path.join(process.cwd(), 'index.html');
+      }
+      try {
+        let template = cachedIndexHtml;
+        if (!template) {
+          template = fs.readFileSync(templatePath, 'utf-8');
+          cachedIndexHtml = template;
+        }
+        
+        let processedHtml = template;
+        if (process.env.NODE_ENV !== "production") {
+          try {
+            // Wait, we need the vite instance here. It is local to the block above!
+            // Let's just bypass it if we can't easily transform.
+          } catch(e) {}
+        }
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https";
+        const host = req.headers["x-forwarded-host"] || req.get("host") || (process.env.PUBLIC_DOMAIN ? new URL(process.env.PUBLIC_DOMAIN).host : (process.env.VITE_PUBLIC_DOMAIN ? new URL(process.env.VITE_PUBLIC_DOMAIN).host : "www.dex.com"));
+        const hostUrl = `${String(protocol).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
+        const userAgent = req.headers['user-agent'] || '';
+        const seoResult = await injectSeoTags(template, req.originalUrl, hostUrl, userAgent);
+        const html = typeof seoResult === 'string' ? seoResult : (seoResult.html || template);
+        const isNotFound = typeof seoResult === 'object' && seoResult ? seoResult.isNotFound : false;
+        const statusCode = isNotFound ? 404 : 200;
+        let cacheControl = isNotFound ? 'no-cache, no-store, must-revalidate' : 'public, max-age=1800';
+        if (req.originalUrl === '/' || req.originalUrl === '') {
+          cacheControl = 'public, max-age=300';
+        } else if (['/about', '/contact', '/privacy', '/terms', '/ethics', '/disclaimer', '/notice', '/responsibility', '/developers', '/report-removal'].includes(req.originalUrl)) {
+          cacheControl = 'public, max-age=3600';
+        }
+        res.status(statusCode).set({
+          'Content-Type': 'text/html',
+          'Cache-Control': cacheControl,
+          'Pragma': isNotFound ? 'no-cache' : '',
+          'Expires': isNotFound ? '0' : ''
+        }).send(html);
+      } catch (e) {
+        console.error("SEO fallback error in catch-all, serving file as-is:", e);
+        res.status(200).set({
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }).sendFile(templatePath);
+      }
+    });
+  }
+
+  // Global Express Error Handler
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error(`[EXPRESS GLOBAL ERROR] ${req.method} ${req.originalUrl}:`, err);
+    try {
+      const logFile = path.join(process.cwd(), 'server_requests.log');
+      fs.appendFileSync(logFile, `[${new Date().toISOString()}] ERROR in ${req.method} ${req.originalUrl}: ${err.message || err}\n`, 'utf8');
+    } catch (e) {}
+
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    if (req.originalUrl.startsWith('/api/')) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    res.status(500).send("<h1>500 Internal Server Error</h1><p>An unexpected error occurred.</p>");
+  });
+
+  const server = app.listen(PORT as number, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+    fetchStoreData()
+      .then(() => {
+        console.log("Local store cache warmed up successfully from backup files.");
+      })
+      .catch(e => {
+        console.warn("Local store cache warming failed:", e);
+      });
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[SERVER ERROR] Port ${PORT} is already in use. A dev server process may already be running on 0.0.0.0:${PORT}.`);
+    } else {
+      console.error('[SERVER ERROR]', err);
+    }
+  });
+}
+
+startServer();
