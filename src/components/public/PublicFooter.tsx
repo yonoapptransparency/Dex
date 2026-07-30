@@ -61,7 +61,6 @@ export function PublicFooter() {
         <h4 className="text-slate-900 font-bold mb-1">Discover</h4>
         <Link to="/new-apps" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">New Apps</Link>
         <Link to="/videos" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Apps</Link>
-        <Link to="/blogs" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">App Updates</Link>
         <Link to="/news" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">News</Link>
       </div>
       

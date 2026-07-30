@@ -79,7 +79,7 @@ export function PublicHeader() {
             </Link>
             <div className="relative group/more" onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
               <button 
-                className={`transition-all p-2 tracking-wide flex items-center gap-1 relative ${['/videos', '/blogs', '/contact', '/privacy', '/report-removal', '/terms', '/about', '/responsibility'].includes(pathname) ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}
+                className={`transition-all p-2 tracking-wide flex items-center gap-1 relative ${['/videos', '/contact', '/privacy', '/report-removal', '/terms', '/about', '/responsibility'].includes(pathname) ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}
                 onClick={triggerHaptic}
               >
                 More <MoreHorizontal className="w-4 h-4 ml-1" />
@@ -91,7 +91,6 @@ export function PublicHeader() {
                 >
                   {[
                     { to: '/videos', label: 'Videos', icon: Video },
-                    { to: '/blogs', label: 'App Updates', icon: LayoutGrid },
                     { to: '/about', label: 'About Us', icon: Info },
                     { to: '/developers', label: 'Our Team', icon: Users },
                     { to: '/contact', label: 'Contact', icon: Send },
@@ -216,7 +215,6 @@ export function PublicHeader() {
                 { to: '/new-apps', label: 'New Apps', icon: Sparkles, hot: true },
                 { to: '/news', label: 'News', icon: Newspaper },
                 { to: '/videos', label: 'Videos', icon: Video },
-                { to: '/blogs', label: 'App Updates', icon: Menu },
                 { to: '/responsibility', label: 'Safety', icon: ShieldCheck },
                 { to: '/about', label: 'About Us', icon: Info },
                 { to: '/developers', label: 'Our Team', icon: Users },
