@@ -125,7 +125,15 @@ export default function BlogDetailPage() {
             <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-500">
                 <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    {new Date(blog.published_at).toLocaleDateString()}
+                    {(() => {
+                      const dVal = blog.publish_date || blog.published_at || blog.created_at;
+                      if (!dVal) return new Date().toLocaleDateString();
+                      try {
+                        const d = new Date(dVal);
+                        if (!isNaN(d.getTime())) return d.toLocaleDateString();
+                      } catch (e) {}
+                      return new Date().toLocaleDateString();
+                    })()}
                 </div>
                 <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />

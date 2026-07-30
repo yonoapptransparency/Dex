@@ -65,7 +65,15 @@ export default function Blogs() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">Update</span>
                   <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-zinc-400">
                     <Calendar className="w-3 h-3" />
-                    {new Date(blog.published_at).toLocaleDateString()}
+                    {(() => {
+                      const dVal = blog.publish_date || blog.published_at || blog.created_at;
+                      if (!dVal) return new Date().toLocaleDateString();
+                      try {
+                        const d = new Date(dVal);
+                        if (!isNaN(d.getTime())) return d.toLocaleDateString();
+                      } catch (e) {}
+                      return new Date().toLocaleDateString();
+                    })()}
                   </div>
                 </div>
                 <Link to={`/blog/${encodeURIComponent(blog.slug || blog.id)}`} className="text-2xl sm:text-3xl font-bold mb-3 text-zinc-900 leading-tight hover:text-blue-600 transition-colors">
