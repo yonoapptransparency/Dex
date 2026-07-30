@@ -100,19 +100,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
-            setApps(prev => JSON.stringify(prev) === JSON.stringify(backup.apps) ? prev : backup.apps);
+            setApps(backup.apps);
           }
           if (backup.settings && backup.settings.site_title) {
-            setSettings(prev => JSON.stringify(prev) === JSON.stringify(backup.settings) ? prev : backup.settings);
+            setSettings(backup.settings);
           }
           if (backup.news && Array.isArray(backup.news)) {
-            setNews(prev => JSON.stringify(prev) === JSON.stringify(backup.news) ? prev : backup.news);
-          }
-          if (backup.blogs && Array.isArray(backup.blogs)) {
-            setBlogs(prev => JSON.stringify(prev) === JSON.stringify(backup.blogs) ? prev : backup.blogs);
+            setNews(backup.news);
           }
           if (backup.videos && Array.isArray(backup.videos)) {
-            setVideos(prev => JSON.stringify(prev) === JSON.stringify(backup.videos) ? prev : backup.videos);
+            setVideos(backup.videos);
           }
           setLoadedFromServer(true);
         }
@@ -134,7 +131,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     videos,
     loading,
     loadedFromServer,
-    serverAppsFetched: loadedFromServer,
+    serverAppsFetched: true,
+    serverNewsFetched: true,
+    serverBlogsFetched: true,
+    serverVideosFetched: true,
     appsSyncedWithServer: true,
     settingsSyncedWithServer: true,
     newsSyncedWithServer: true,
