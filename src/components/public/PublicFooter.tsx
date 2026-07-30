@@ -10,7 +10,7 @@ export function PublicFooter() {
 
   const brandAndRating = (
     <>
-      <h3 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
+      <h2 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
         <div className="p-1 bg-white/10 rounded-xl">
           {settings.logo_url ? (
             <img src={settings.logo_url} loading="lazy" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" />
@@ -19,9 +19,9 @@ export function PublicFooter() {
           )}
         </div>
         <span className="truncate">{settings.site_title}</span>
-      </h3>
+      </h2>
       
-      <p className="text-[15px] mb-8 text-slate-300 leading-relaxed font-medium">
+      <p className="text-[15px] mb-8 text-slate-200 leading-relaxed font-medium">
         {settings.meta_description}
       </p>
       
@@ -50,29 +50,29 @@ export function PublicFooter() {
   const footerLinks = (
     <div className="w-full max-w-[500px] grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-10 lg:text-right">
       <div className="flex flex-col gap-3 lg:items-end">
-        <h4 className="text-slate-900 font-bold mb-1">Company</h4>
-        <Link to="/" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Home</Link>
-        <Link to="/about" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">About Us</Link>
-        <Link to="/developers" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Our Team</Link>
-        <Link to="/contact" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Contact</Link>
+        <h3 className="text-slate-900 font-bold mb-1">Company</h3>
+        <Link to="/" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Home</Link>
+        <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">About Us</Link>
+        <Link to="/developers" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Our Team</Link>
+        <Link to="/contact" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Contact</Link>
       </div>
       
       <div className="flex flex-col gap-3 lg:items-end">
-        <h4 className="text-slate-900 font-bold mb-1">Discover</h4>
-        <Link to="/new-apps" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">New Apps</Link>
-        <Link to="/videos" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Apps</Link>
-        <Link to="/news" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">News</Link>
+        <h3 className="text-slate-900 font-bold mb-1">Discover</h3>
+        <Link to="/new-apps" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">New Apps</Link>
+        <Link to="/videos" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Apps</Link>
+        <Link to="/news" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">News</Link>
       </div>
       
       <div className="flex flex-col gap-3 lg:items-end col-span-2 border-t border-black/5 pt-6">
-        <h4 className="text-slate-900 font-bold mb-2">Legal Docs</h4>
+        <h3 className="text-slate-900 font-bold mb-2">Legal Docs</h3>
         <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-col lg:items-end w-full">
-          <Link to="/privacy" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Privacy</Link>
-          <Link to="/report-removal" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Report & Removal</Link>
-          <Link to="/terms" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Terms</Link>
-          <Link to="/notice" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Notice</Link>
-          <Link to="/ethics" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Ethics</Link>
-          <Link to="/disclaimer" className="text-slate-600 hover:text-blue-600 font-medium transition-colors text-sm">Disclaimer</Link>
+          <Link to="/privacy" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Privacy</Link>
+          <Link to="/report-removal" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Report & Removal</Link>
+          <Link to="/terms" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Terms</Link>
+          <Link to="/notice" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Notice</Link>
+          <Link to="/ethics" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Ethics</Link>
+          <Link to="/disclaimer" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Disclaimer</Link>
         </div>
       </div>
     </div>
@@ -120,7 +120,7 @@ export function PublicFooter() {
       </div>
 
       <div className="w-full bg-slate-950 py-8 px-6 sm:px-12 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/5">
-        <div className="text-xs text-slate-500 flex flex-col md:flex-row items-center gap-4">
+        <div className="text-xs text-slate-300 flex flex-col md:flex-row items-center gap-4">
           <span>&copy; {new Date().getFullYear()} {settings.site_title}. All rights reserved.</span>
           <div className="flex items-center gap-3 md:ml-4">
             {settings.social_links?.facebook && (

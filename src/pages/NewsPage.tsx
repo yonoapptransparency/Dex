@@ -64,24 +64,46 @@ export default function NewsPage() {
             animate={{ opacity: 1 }}
             className="group flex flex-col"
           >
-            <Link to={`/news/${item.slug}`} className="block h-64 sm:h-80 rounded-[24px] overflow-hidden mb-6 shadow-sm border border-black/5">
-              <img src={item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} alt={item.title} loading="lazy" decoding="async" width={800} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <Link 
+              to={`/news/${item.slug}`} 
+              aria-label={`Read full news article: ${item.title}`}
+              className="block w-full aspect-[16/9] rounded-[24px] overflow-hidden mb-6 shadow-sm border border-black/5 bg-zinc-100 relative"
+            >
+              <img 
+                src={item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} 
+                alt={item.title} 
+                loading="lazy" 
+                decoding="async" 
+                width={800} 
+                height={450} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+              />
             </Link>
             <div className="flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">{item.category || 'Report'}</span>
-                <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">{item.date ? new Date(item.date).toLocaleDateString() : new Date(item.published_at || Date.now()).toLocaleDateString()}</span>
+                <span className="text-[10px] font-semibold tracking-wider text-zinc-600 uppercase">{item.date ? new Date(item.date).toLocaleDateString() : new Date(item.published_at || Date.now()).toLocaleDateString()}</span>
               </div>
-              <Link to={`/news/${item.slug}`} className="text-2xl sm:text-3xl font-bold mb-3 text-zinc-900 leading-tight hover:text-blue-600 transition-colors">
-                {item.title}
-              </Link>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-zinc-900 leading-tight">
+                <Link 
+                  to={`/news/${item.slug}`} 
+                  aria-label={`Read news: ${item.title}`}
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  {item.title}
+                </Link>
+              </h2>
               <div 
-                className="text-base text-zinc-500 mb-6 line-clamp-3 leading-relaxed prose prose-sm prose-zinc" 
+                className="text-base text-zinc-700 mb-6 line-clamp-3 leading-relaxed prose prose-sm prose-zinc" 
                 dangerouslySetInnerHTML={{ __html: safeHtml(item.description || '' ) }} 
               />
               
-              <Link to={`/news/${item.slug}`} className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm group-hover:gap-3 transition-all">
-                Read More <ArrowRight className="w-4 h-4" />
+              <Link 
+                to={`/news/${item.slug}`} 
+                aria-label={`Read full article: ${item.title}`}
+                className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm group-hover:gap-3 transition-all"
+              >
+                <span>Read Full Article: {item.title}</span> <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
             </div>
           </motion.div>
