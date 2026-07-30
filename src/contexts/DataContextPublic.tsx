@@ -70,17 +70,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    if (initialCache?.news) return initialCache.news;
+    if (initialCache?.news?.length > 0) return initialCache.news;
     return mockNews;
   });
   
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    if (initialCache?.blogs) return initialCache.blogs;
+    if (initialCache?.blogs?.length > 0) return initialCache.blogs;
     return mockBlogs;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
-    if (initialCache?.videos) return initialCache.videos;
+    if (initialCache?.videos?.length > 0) return initialCache.videos;
     return mockVideos;
   });
 
@@ -105,10 +105,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (backup.settings && backup.settings.site_title) {
             setSettings(backup.settings);
           }
-          if (backup.news && Array.isArray(backup.news)) {
+          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
             setNews(backup.news);
           }
-          if (backup.videos && Array.isArray(backup.videos)) {
+          if (backup.blogs && Array.isArray(backup.blogs) && backup.blogs.length > 0) {
+            setBlogs(backup.blogs);
+          }
+          if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
             setVideos(backup.videos);
           }
           setLoadedFromServer(true);
