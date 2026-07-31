@@ -15,6 +15,30 @@ const AES_SECRET = process.env.AES_SECRET || process.env.VITE_AES_SECRET || '';
 // Security Stores (In-memory, transient per Vercel instance)
 const nonceStore = new Map();
 
+// Allowed Domains for Redirects
+const ALLOWED_REDIRECT_DOMAINS = process.env.ALLOWED_REDIRECT_DOMAINS
+  ? process.env.ALLOWED_REDIRECT_DOMAINS.split(',').map(d => d.trim().toLowerCase())
+  : ['rummydex.com', 'www.rummydex.com'];
+
+// Helper: Check if URL is safe to redirect
+function isSafeRedirect(targetUrl) {
+  if (!targetUrl || typeof targetUrl !== 'string') return false;
+  try {
+    const parsedUrl = new URL(targetUrl);
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      return false;
+    }
+    const hostname = parsedUrl.hostname.toLowerCase();
+
+    // Check if the hostname matches any allowed domain exactly, or is a subdomain of an allowed domain
+    return ALLOWED_REDIRECT_DOMAINS.some(domain =>
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
 // Helper: Get Client IP
 function getIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.headers['x-real-ip'] || req.socket?.remoteAddress || "unknown";
@@ -200,6 +224,10 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
     }
 
     if (targetUrl && targetUrl.startsWith('http')) {
+      if (!isSafeRedirect(targetUrl)) {
+        console.warn(`[Security] Blocked unsafe redirect to: ${targetUrl}`);
+        return res.status(403).send("<h1>403 Forbidden</h1><p>The requested redirect destination is not allowed.</p>");
+      }
       return res.redirect(302, targetUrl);
     }
 
@@ -223,6 +251,10 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
            if (encLink) {
              const decrypted = safeDecrypt(encLink, AES_SECRET);
              if (decrypted && decrypted.startsWith('http')) {
+               if (!isSafeRedirect(decrypted)) {
+                 console.warn(`[Security] Blocked unsafe redirect to: ${decrypted}`);
+                 return res.status(403).send("<h1>403 Forbidden</h1><p>The requested redirect destination is not allowed.</p>");
+               }
                return res.redirect(302, decrypted);
              }
            }
@@ -261,6 +293,10 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
                 if (lEnc) {
                   const decrypted = safeDecrypt(lEnc, AES_SECRET);
                   if (decrypted && decrypted.startsWith('http')) {
+                    if (!isSafeRedirect(decrypted)) {
+                      console.warn(`[Security] Blocked unsafe redirect to: ${decrypted}`);
+                      return res.status(403).send("<h1>403 Forbidden</h1><p>The requested redirect destination is not allowed.</p>");
+                    }
                     return res.redirect(302, decrypted);
                   }
                 }
