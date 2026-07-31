@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const CryptoJS = require('crypto-js');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const app = express();
 
@@ -75,6 +76,7 @@ function safeDecrypt(ciphertext, secret) {
 }
 
 // Middleware
+app.use(cors({ origin: [process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com'] }));
 app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
