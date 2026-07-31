@@ -152,7 +152,7 @@ async function prerender() {
     for (const app of data.apps || []) {
       const slug = getField(app, 'slug');
       if (slug) {
-        xml += `  <url>\n    <loc>${host}/app/${escapeHtmlForSitemap(slug)}</loc>\n    <lastmod>${getFormattedDate(app)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        xml += `  <url>\n    <loc>${host}/${escapeHtmlForSitemap(slug)}</loc>\n    <lastmod>${getFormattedDate(app)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
       }
     }
 

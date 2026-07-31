@@ -46,6 +46,23 @@ export function useSEO(
       element.setAttribute('content', content);
     };
 
+    const setLinkTag = (rel: string, href: string) => {
+      const selector = `link[rel="${rel}"]`;
+      let element = document.querySelector(selector);
+      if (!href) {
+        if (element) element.remove();
+        return;
+      }
+      if (!element) {
+        element = document.createElement('link');
+        element.setAttribute('rel', rel);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('href', href);
+    };
+
+    let canonicalUrl = window.location.href.split('?')[0];
+
     if (isAdminPath) {
       pageTitle = `Admin Dashboard - ${siteTitle}`;
       pageDesc = 'Admin authentication and management portal.';
@@ -118,6 +135,7 @@ export function useSEO(
         pageDesc = rawDesc ? rawDesc : (rawHtml ? stripHtml(rawHtml).substring(0, 160) : '');
         pageKeywords = app.seo_keywords || '';
         pageOgImage = app.og_image_url || app.icon_url || settings.logo_url || '';
+        canonicalUrl = `${window.location.origin}/${encodeURIComponent(app.slug)}`;
       }
     } else if (path.startsWith('/s/')) {
       const slug = decodeURIComponent(path.split('/s/')[1]?.split('?')[0] || '');
@@ -187,6 +205,73 @@ export function useSEO(
         pageKeywords = settings.seo_keywords || '';
         pageOgImage = getYoutubeThumbnail(videoItem.youtube_url) || settings.logo_url || '';
       }
+    } else {
+      // Fallback for root mapping (/:slug)
+      const slug = decodeURIComponent(path.replace(/^\/|\/$/g, '').split('?')[0] || '').toLowerCase().trim();
+
+      const app = apps.find((a: any) => a?.slug?.toLowerCase() === slug);
+      if (app) {
+        pageTitle = app.seo_title || app.name || siteTitle;
+        const rawDesc = app.seo_description || '';
+        const rawHtml = app.description_html || '';
+        pageDesc = rawDesc ? rawDesc : (rawHtml ? stripHtml(rawHtml).substring(0, 160) : '');
+        pageKeywords = app.seo_keywords || '';
+        pageOgImage = app.og_image_url || app.icon_url || settings.logo_url || '';
+      } else {
+        const newsItem = news.find((n: any) => n?.slug?.toLowerCase() === slug);
+        if (newsItem) {
+          pageTitle = newsItem.title ? `${newsItem.title} - ${siteTitle}` : siteTitle;
+          const rawDesc = newsItem.seo_description || '';
+          const rawContent = newsItem.description || '';
+          pageDesc = rawDesc ? rawDesc : (rawContent ? stripHtml(rawContent).substring(0, 160) : '');
+          pageKeywords = newsItem.seo_keywords || '';
+          pageOgImage = newsItem.logo_url || settings.logo_url || '';
+          pageAuthor = newsItem.ceo_name || siteTitle;
+        } else {
+          const blogItem = blogs.find((b: any) => b?.slug?.toLowerCase() === slug);
+          if (blogItem) {
+            pageTitle = blogItem.title ? `${blogItem.title} - ${siteTitle}` : siteTitle;
+            const rawDesc = blogItem.seo_description || '';
+            const rawContent = blogItem.content || '';
+            pageDesc = rawDesc ? rawDesc : (rawContent ? stripHtml(rawContent).substring(0, 160) : '');
+            pageKeywords = blogItem.seo_keywords || '';
+            pageOgImage = blogItem.cover_url || settings.logo_url || '';
+            pageAuthor = blogItem.author || siteTitle;
+          } else {
+            const videoItem = videos.find((v: any) => v?.slug?.toLowerCase() === slug || v?.id?.toLowerCase() === slug);
+            if (videoItem) {
+              const getYoutubeThumbnail = (urlStr: string) => {
+                if (!urlStr) return '';
+                let id = '';
+                try {
+                  const url = new URL(urlStr);
+                  if (url.hostname.includes('youtube.com')) {
+                    if (url.pathname.startsWith('/shorts/') || url.pathname.startsWith('/live/') || url.pathname.startsWith('/embed/') || url.pathname.startsWith('/v/')) {
+                      id = url.pathname.split('/')[2] || url.pathname.split('/')[1] || '';
+                    } else {
+                      id = url.searchParams.get('v') || '';
+                    }
+                  } else if (url.hostname.includes('youtu.be')) {
+                    id = url.pathname.slice(1);
+                  }
+                } catch (e) {
+                  if (urlStr.length === 11 && !urlStr.includes('/')) id = urlStr;
+                }
+                if (!id) {
+                  const m = urlStr.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|live\/|watch\?v=|watch\?.+&v=))([^&?\s]+)/);
+                  if (m && m[1]) id = m[1];
+                  else id = urlStr.split('/').pop()?.split('?')[0] || '';
+                }
+                return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : '';
+              };
+              pageTitle = videoItem.title ? `${videoItem.title} - ${siteTitle}` : siteTitle;
+              pageDesc = videoItem.seo_description || videoItem.description || '';
+              pageKeywords = settings.seo_keywords || '';
+              pageOgImage = getYoutubeThumbnail(videoItem.youtube_url) || settings.logo_url || '';
+            }
+          }
+        }
+      }
     }
 
     document.title = pageTitle;
@@ -204,6 +289,8 @@ export function useSEO(
     setMetaTag('twitter:title', pageTitle);
     setMetaTag('twitter:description', pageDesc);
     setMetaTag('twitter:image', pageOgImage);
+
+    setLinkTag('canonical', canonicalUrl);
 
     try {
       if (window.parent && window.parent !== window && window.parent.document) {

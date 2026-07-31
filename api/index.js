@@ -558,8 +558,7 @@ app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], async (req, res) => {
         if (app.slug) {
           const escSlug = escapeHtmlForSitemap(app.slug);
           const appDate = getFormattedDate(app);
-          xml += `  <url>\n    <loc>${host}/app/${escSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
-          xml += `  <url>\n    <loc>${host}/${escSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+          xml += `  <url>\n    <loc>${host}/${escSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
         }
       }
       for (const item of data.news || []) {
