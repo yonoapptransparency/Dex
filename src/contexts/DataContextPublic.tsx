@@ -60,7 +60,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
-    if (initialCache?.apps && Array.isArray(initialCache.apps)) return initialCache.apps;
+    if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) return initialCache.apps;
     return mockApps;
   });
   
@@ -70,17 +70,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    if (initialCache?.news && Array.isArray(initialCache.news)) return initialCache.news;
+    if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) return initialCache.news;
     return mockNews;
   });
   
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    if (initialCache?.blogs && Array.isArray(initialCache.blogs)) return initialCache.blogs;
+    if (initialCache?.blogs && Array.isArray(initialCache.blogs) && initialCache.blogs.length > 0) return initialCache.blogs;
     return mockBlogs;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
-    if (initialCache?.videos && Array.isArray(initialCache.videos)) return initialCache.videos;
+    if (initialCache?.videos && Array.isArray(initialCache.videos) && initialCache.videos.length > 0) return initialCache.videos;
     return mockVideos;
   });
 
@@ -99,19 +99,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem('yd_public_data_cache', JSON.stringify(backup));
           } catch (e) {}
 
-          if (backup.apps && Array.isArray(backup.apps)) {
+          if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
             setApps(backup.apps);
           }
           if (backup.settings && backup.settings.site_title) {
             setSettings(backup.settings);
           }
-          if (backup.news && Array.isArray(backup.news)) {
+          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
             setNews(backup.news);
           }
-          if (backup.blogs && Array.isArray(backup.blogs)) {
+          if (backup.blogs && Array.isArray(backup.blogs) && backup.blogs.length > 0) {
             setBlogs(backup.blogs);
           }
-          if (backup.videos && Array.isArray(backup.videos)) {
+          if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
             setVideos(backup.videos);
           }
           setLoadedFromServer(true);
