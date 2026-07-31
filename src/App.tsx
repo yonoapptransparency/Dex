@@ -138,7 +138,9 @@ function AppContent() {
         pageFactories.NewApps();
         pageFactories.AppDetails();
         pageFactories.VideosPage();
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Error preloading pages:', e);
+      }
     });
   }, []);
 
@@ -164,7 +166,9 @@ function AppContent() {
       setTimeout(() => {
         try {
           window.navigator.vibrate(10);
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Haptic feedback failed:', e);
+        }
       }, 0);
     }
   };
