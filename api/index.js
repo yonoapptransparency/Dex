@@ -329,17 +329,32 @@ const fetchPublicDataFromFirestore = async () => {
     if (meta && meta.numChunks) numChunks = meta.numChunks;
     
     let apps = [];
+    const chunkPromises = [];
     for (let i = 0; i < numChunks; i++) {
-      const chunk = await fetchDoc(`apps_chunk_${i}`);
+      chunkPromises.push(fetchDoc(`apps_chunk_${i}`));
+    }
+
+    const [
+      chunksResult,
+      settingsResult,
+      newsDoc,
+      blogsDoc,
+      videosDoc
+    ] = await Promise.all([
+      Promise.all(chunkPromises),
+      fetchDoc('public_settings'),
+      fetchDoc('news'),
+      fetchDoc('blogs'),
+      fetchDoc('videos')
+    ]);
+
+    for (const chunk of chunksResult) {
       if (chunk && chunk.items) apps = apps.concat(chunk.items);
     }
     
-    const settings = await fetchDoc('public_settings') || {};
-    const newsDoc = await fetchDoc('news');
+    const settings = settingsResult || {};
     const news = newsDoc && newsDoc.items ? newsDoc.items : [];
-    const blogsDoc = await fetchDoc('blogs');
     const blogs = blogsDoc && blogsDoc.items ? blogsDoc.items : [];
-    const videosDoc = await fetchDoc('videos');
     const videos = videosDoc && videosDoc.items ? videosDoc.items : [];
 
     return { apps, settings, news, blogs, videos };
