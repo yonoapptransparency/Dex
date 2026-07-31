@@ -3,16 +3,17 @@
  * Directs dynamic routes to target dynamic content without hardcoded router tables.
  */
 
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
+import { lazyWithRetry } from '../lib/lazyWithRetry';
 
-// Lazy load pages directly to avoid redirects
-const AppDetails = lazy(() => import('../pages/AppDetails'));
-const NewsDetailPage = lazy(() => import('../pages/NewsDetailPage'));
-const BlogDetailPage = lazy(() => import('../pages/BlogDetailPage'));
-const VideoDetailPage = lazy(() => import('../pages/VideoDetailPage'));
+// Lazy load pages directly with retry to avoid chunk load errors
+const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
+const NewsDetailPage = lazyWithRetry(() => import('../pages/NewsDetailPage'));
+const BlogDetailPage = lazyWithRetry(() => import('../pages/BlogDetailPage'));
+const VideoDetailPage = lazyWithRetry(() => import('../pages/VideoDetailPage'));
 
 function InlineLoading() {
   return (
