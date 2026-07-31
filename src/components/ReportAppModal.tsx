@@ -37,7 +37,9 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
       if (window.navigator && window.navigator.vibrate) {
         try {
           window.navigator.vibrate([30, 50, 30]);
-        } catch (_) {}
+        } catch (error) {
+          console.warn('Haptic feedback failed:', error);
+        }
       }
     }, 600);
   };
