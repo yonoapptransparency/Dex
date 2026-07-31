@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // Configuration constants
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'yono-default-secret-2026';
+const TOKEN_SECRET = process.env.TOKEN_SECRET;
 const AES_SECRET = process.env.AES_SECRET || process.env.VITE_AES_SECRET || '';
 
 // Security Stores (In-memory, transient per Vercel instance)
