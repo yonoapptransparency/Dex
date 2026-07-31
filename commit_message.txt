@@ -1,0 +1,5 @@
+🧪 Add test coverage for clearSeoCache
+
+🎯 What: Added a test suite for the previously untested function `clearSeoCache` in `src/seoHelper.ts`.
+📊 Coverage: Added tests that assert caching behavior of `fetchStoreData`, verifying that `clearSeoCache` properly resets the cache and forces a new data fetch, rather than returning the cached object reference. Mocks `fetch` to ensure test stability and avoid external network dependencies.
+✨ Result: Increased test reliability and coverage, ensuring that background caching invalidation mechanisms in `seoHelper.ts` function correctly and prevent future regressions.
