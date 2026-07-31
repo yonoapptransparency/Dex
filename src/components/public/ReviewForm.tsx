@@ -84,8 +84,10 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
             is_approved: false,
             source: newSubmission.source
           })
-        }).catch(() => {});
-      } catch (e) {}
+        });
+      } catch (e) {
+        console.error('Failed to submit review:', e);
+      }
 
       setSuccess(true);
       setUsername('');
