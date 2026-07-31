@@ -45,37 +45,46 @@ async function prerender() {
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
     // 2. Generate Application Routes
+    const appRoutePromises = [];
     for (const app of data.apps || []) {
       if (app.slug) {
-        await generateRoute(`/app/${app.slug}`);
-        await generateRoute(`/info/${app.slug}`);
-        await generateRoute(`/moreinfo/${app.slug}`);
-        await generateRoute(`/moredetail/${app.slug}`);
+        appRoutePromises.push(
+          generateRoute(`/app/${app.slug}`),
+          generateRoute(`/info/${app.slug}`),
+          generateRoute(`/moreinfo/${app.slug}`),
+          generateRoute(`/moredetail/${app.slug}`)
+        );
       }
     }
+    await Promise.all(appRoutePromises);
 
     // 3. Generate News Routes
+    const newsRoutePromises = [];
     for (const newsItem of data.news || []) {
       if (newsItem.slug) {
-        await generateRoute(`/news/${newsItem.slug}`);
+        newsRoutePromises.push(generateRoute(`/news/${newsItem.slug}`));
       }
     }
+    await Promise.all(newsRoutePromises);
 
     // 5. Generate Other Static Routes
-    await generateRoute('/new-apps');
-    await generateRoute('/news');
-    await generateRoute('/videos');
-    await generateRoute('/about');
-    await generateRoute('/developers');
-    await generateRoute('/contact');
-    await generateRoute('/privacy');
-    await generateRoute('/report-removal');
-    await generateRoute('/terms');
-    await generateRoute('/responsibility');
-    await generateRoute('/notice');
-    await generateRoute('/ethics');
-    await generateRoute('/disclaimer');
-    await generateRoute('/submit-app');
+    const staticRoutePromises = [
+      generateRoute('/new-apps'),
+      generateRoute('/news'),
+      generateRoute('/videos'),
+      generateRoute('/about'),
+      generateRoute('/developers'),
+      generateRoute('/contact'),
+      generateRoute('/privacy'),
+      generateRoute('/report-removal'),
+      generateRoute('/terms'),
+      generateRoute('/responsibility'),
+      generateRoute('/notice'),
+      generateRoute('/ethics'),
+      generateRoute('/disclaimer'),
+      generateRoute('/submit-app')
+    ];
+    await Promise.all(staticRoutePromises);
 
     
     // 6. Generate Sitemap and Robots.txt
