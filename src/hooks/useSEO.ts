@@ -209,7 +209,9 @@ export function useSEO(
       if (window.parent && window.parent !== window && window.parent.document) {
         window.parent.document.title = pageTitle;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Unable to update parent window title:', e);
+    }
 
   }, [location.pathname, settings, apps, news, blogs, videos, isAdminPath]);
 }
