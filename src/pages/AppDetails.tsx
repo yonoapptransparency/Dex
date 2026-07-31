@@ -42,6 +42,23 @@ export default function AppDetails() {
   const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [shareToast, setShareToast] = useState(false);
+
+  const relatedApps = useMemo(() => {
+    if (!app) return [];
+    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
+    return mockApps
+      .filter(a => {
+        if (a.id === app.id) return false;
+        const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
+        return appCats.some(cat => currentCats.includes(cat));
+      });
+  }, [mockApps, app?.category, app?.id]);
+
+  const relatedUpdates = useMemo(() => {
+    if (!slug) return [];
+    return mockBlogs?.filter(b => b.related_app_slug?.toLowerCase() === slug?.toLowerCase()) || [];
+  }, [mockBlogs, slug]);
 
   useEffect(() => {
     if (!app?.is_coming_soon || !app?.publish_date) {
@@ -203,22 +220,6 @@ export default function AppDetails() {
       }
     ]
   };
-
-  const relatedApps = useMemo(() => {
-    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
-    return mockApps
-      .filter(a => {
-        if (a.id === app.id) return false;
-        const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
-        return appCats.some(cat => currentCats.includes(cat));
-      });
-  }, [mockApps, app.category, app.id]);
-
-  const relatedUpdates = useMemo(() => {
-    return mockBlogs?.filter(b => b.related_app_slug?.toLowerCase() === slug?.toLowerCase()) || [];
-  }, [mockBlogs, slug]);
-
-  const [shareToast, setShareToast] = useState(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)

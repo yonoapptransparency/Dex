@@ -68,6 +68,10 @@ export default function GatewayPage() {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(false);
 
+  const [username, setUsername] = useState('');
+  const [rating, setRating] = useState('5');
+  const [review, setReview] = useState('');
+
   const isActuallyComingSoon = app?.is_coming_soon;
 
   useEffect(() => {
@@ -260,10 +264,6 @@ export default function GatewayPage() {
       "priceCurrency": "USD"
     }
   };
-
-    const [username, setUsername] = useState('');
-    const [rating, setRating] = useState('5');
-    const [review, setReview] = useState('');
 
   const handleReviewSubmit = (e: FormEvent) => {
     e.preventDefault();
