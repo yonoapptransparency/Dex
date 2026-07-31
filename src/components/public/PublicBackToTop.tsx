@@ -27,7 +27,9 @@ export function PublicBackToTop() {
     if (window.navigator && window.navigator.vibrate) {
       try {
         window.navigator.vibrate(50);
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Vibration API not supported or blocked:', e);
+      }
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
