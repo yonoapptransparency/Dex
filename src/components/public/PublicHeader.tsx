@@ -40,9 +40,7 @@ export function PublicHeader() {
       setTimeout(() => {
         try {
           window.navigator.vibrate(10);
-        } catch (e) {
-          console.warn('Haptic feedback failed:', e);
-        }
+        } catch (e) {}
       }, 0);
     }
   };

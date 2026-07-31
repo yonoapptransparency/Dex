@@ -6,7 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DOMPurify from 'dompurify';
 
 interface PlayStoreRatingSectionProps {
   appId: string;
@@ -65,8 +64,8 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       return;
     }
 
-    const cleanName = DOMPurify.sanitize(username.trim()); // Secure XSS protection
-    const cleanComment = DOMPurify.sanitize(comment.trim()); // Secure XSS protection
+    const cleanName = username.trim().replace(/<[^>]*>?/gm, ''); // Secure XSS protection
+    const cleanComment = comment.trim().replace(/<[^>]*>?/gm, ''); // Secure XSS protection
 
     if (!cleanName) {
       setErrorText('Please provide a name/nickname.');
