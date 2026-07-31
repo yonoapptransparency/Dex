@@ -121,7 +121,9 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
       if (newTab) {
         newTab.document.body.innerHTML = '<div style="background:#09090b;color:#a1a1aa;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">Synchronizing safety node...</div>';
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to pre-open tab:', e);
+    }
 
     triggerSync(newTab);
   };
