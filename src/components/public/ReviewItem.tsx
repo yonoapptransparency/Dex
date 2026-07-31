@@ -119,7 +119,7 @@ export function ReviewItem({
           {isLong && (
             <button
               onClick={() => onToggleExpand(rev.id)}
-              aria-label={isExpanded ? 'Show less review text' : `Read full review by ${rev.author || 'user'}`}
+              aria-label={isExpanded ? 'Show less review text' : `Read full review by ${rev.username || 'user'}`}
               className="self-start inline-flex items-center gap-0.5 text-[11px] font-black text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-2 cursor-pointer transition-all uppercase tracking-wide select-none outline-none"
             >
               <span>{isExpanded ? 'Show less' : 'Read more'}</span>
