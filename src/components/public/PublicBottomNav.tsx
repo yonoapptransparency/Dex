@@ -9,7 +9,9 @@ export function PublicBottomNav() {
       setTimeout(() => {
         try {
           window.navigator.vibrate(15);
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Haptic feedback failed:', e);
+        }
       }, 0);
     }
   };
