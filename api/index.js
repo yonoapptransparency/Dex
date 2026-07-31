@@ -15,6 +15,44 @@ const AES_SECRET = process.env.AES_SECRET || process.env.VITE_AES_SECRET || '';
 // Security Stores (In-memory, transient per Vercel instance)
 const nonceStore = new Map();
 
+// Cache for public backup (improves API lookups from O(n) to O(1))
+let publicBackupCache = {
+  mtimeMs: 0,
+  appsBySlug: {},
+  appsById: {}
+};
+
+// Helper: Get cached app from public backup
+function getCachedAppFromBackup(backupPath, slug, id) {
+  try {
+    if (!fs.existsSync(backupPath)) return null;
+
+    const stats = fs.statSync(backupPath);
+    if (stats.mtimeMs > publicBackupCache.mtimeMs) {
+      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+      const appsBySlug = {};
+      const appsById = {};
+
+      for (const app of (data.apps || [])) {
+        if (app.slug) appsBySlug[app.slug] = app;
+        if (app.id) appsById[app.id] = app;
+      }
+
+      publicBackupCache = {
+        mtimeMs: stats.mtimeMs,
+        appsBySlug,
+        appsById
+      };
+    }
+
+    if (slug && publicBackupCache.appsBySlug[slug]) return publicBackupCache.appsBySlug[slug];
+    if (id && publicBackupCache.appsById[id]) return publicBackupCache.appsById[id];
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Helper: Get Client IP
 function getIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.headers['x-real-ip'] || req.socket?.remoteAddress || "unknown";
@@ -394,14 +432,9 @@ app.post('/api/v1/sync-node', (req, res) => {
 
   // For Dex, we just return the public link from backup
   const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
-  if (fs.existsSync(backupPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      const app = (data.apps || []).find(a => a.slug === slug || a.id === appId);
-      if (app) {
-        return res.json({ status: 'OK', payload: `/moreinfo/${app.slug}` });
-      }
-    } catch (e) {}
+  const app = getCachedAppFromBackup(backupPath, slug, appId);
+  if (app) {
+    return res.json({ status: 'OK', payload: `/moreinfo/${app.slug}` });
   }
   res.status(404).json({ status: 'ERR', msg: 'App not found' });
 });
@@ -412,14 +445,8 @@ app.get('/api/v1/link-check', (req, res) => {
   if (!id) return res.json({ configured: false });
   // For Dex, we check if app exists in backup
   const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
-  if (fs.existsSync(backupPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      const app = (data.apps || []).find(a => a.id === id);
-      return res.json({ configured: !!app });
-    } catch (e) {}
-  }
-  res.json({ configured: false });
+  const app = getCachedAppFromBackup(backupPath, null, id);
+  return res.json({ configured: !!app });
 });
 
 
