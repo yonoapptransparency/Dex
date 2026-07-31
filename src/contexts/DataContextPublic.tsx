@@ -60,7 +60,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
-    if (initialCache?.apps?.length > 0) return initialCache.apps;
+    if (initialCache?.apps && Array.isArray(initialCache.apps)) return initialCache.apps;
     return mockApps;
   });
   
@@ -70,17 +70,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    if (initialCache?.news?.length > 0) return initialCache.news;
+    if (initialCache?.news && Array.isArray(initialCache.news)) return initialCache.news;
     return mockNews;
   });
   
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    if (initialCache?.blogs?.length > 0) return initialCache.blogs;
+    if (initialCache?.blogs && Array.isArray(initialCache.blogs)) return initialCache.blogs;
     return mockBlogs;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
-    if (initialCache?.videos?.length > 0) return initialCache.videos;
+    if (initialCache?.videos && Array.isArray(initialCache.videos)) return initialCache.videos;
     return mockVideos;
   });
 
