@@ -4,6 +4,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Edit3 } from 'lucide-react';
 import Meta from '../components/Meta';
+import { DEFAULT_ETHICS_HTML } from '../lib/defaultLegalContent';
 
 export default function Ethics() {
   const { settings: mockSettings } = useData();
@@ -40,7 +41,7 @@ export default function Ethics() {
         </div>
         
         <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
-          <div dangerouslySetInnerHTML={{ __html: safeHtml(mockSettings.ethics_discrimination_text || '<p>Ethics and safety information goes here.</p>' ) }} />
+          <div dangerouslySetInnerHTML={{ __html: safeHtml(mockSettings.ethics_discrimination_text || DEFAULT_ETHICS_HTML) }} />
         </div>
       </motion.div>
     </div>

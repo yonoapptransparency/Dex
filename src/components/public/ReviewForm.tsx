@@ -48,7 +48,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
 
     setSubmitting(true);
 
-    const generatedId = `user_${crypto.randomUUID()}`;
+    const generatedId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newSubmission: Review = {
       id: generatedId,
       app_id: appId,
