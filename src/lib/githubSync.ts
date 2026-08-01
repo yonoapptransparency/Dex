@@ -1,4 +1,73 @@
-// No secureStorage import to avoid Vercel build errors when secureStorage is stripped
+/**
+ * GitHub API Synchronizer Engine
+ * Responsible for backing up local game state logs, configs, and details on GitHub repos.
+ */
+
+export interface GitConfig {
+  owner: string;
+  repo: string;
+  branch: string;
+  token: string;
+  autoSync: boolean;
+}
+
+/**
+ * Encodes string to UTF-8 base64 properly for GitHub API content submission
+ */
+export function b64EncodeUnicode(str: string): string {
+  try {
+    return btoa(
+      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      })
+    );
+  } catch (error) {
+    console.error("Base64 unicode encoding error:", error);
+    return btoa(str);
+  }
+}
+
+/**
+ * Dynamically generates the content of `src/lib/staticData.ts` based on current state
+ */
+export function generateStaticDataFileCode(
+  apps: any[] = [],
+  settings: any = {},
+  news: any[] = [],
+  blogs: any[] = [],
+  videos: any[] = []
+): string {
+  // Let us clean up and default any potential circular refs or undef values by round-tripping
+  const cleanApps = JSON.parse(JSON.stringify(apps || [])).map((app: any) => {
+    delete app.more_information_url;
+    delete app.encrypted_download_url;
+    delete app.download_url;
+    return app;
+  });
+  const defaultSettings = {
+    site_title: "",
+    meta_description: "",
+    logo_url: "",
+    favicon_url: "",
+    helpline_whatsapp: "",
+    helpline_telegram: "",
+    support_email: "",
+    disclaimer_text: "",
+    ethics_discrimination_text: "",
+    ticker_text: "",
+    animations_enabled: true,
+    categories: [],
+    banners: [],
+    quick_links: [],
+    website_faqs: [],
+    developers: []
+  };
+  const cleanSettings = { ...defaultSettings, ...JSON.parse(JSON.stringify(settings || {})) };
+  const cleanNews = JSON.parse(JSON.stringify(news || []));
+  const cleanBlogs = JSON.parse(JSON.stringify(blogs || []));
+  const cleanVideos = JSON.parse(JSON.stringify(videos || []));
+
+  return `// No secureStorage import to avoid Vercel build errors when secureStorage is stripped
 
 export interface Banner {
   id: string;
@@ -173,7 +242,7 @@ export interface VideoItem {
   created_at: string;
 }
 
-export const mockApps: AppConfig[] = [] as any[];
+export const mockApps: AppConfig[] = ${JSON.stringify(cleanApps, null, 2)} as any[];
 
 export const saveMockApps = (apps: AppConfig[]) => {
   try {
@@ -184,24 +253,7 @@ export const saveMockApps = (apps: AppConfig[]) => {
   mockApps.splice(0, mockApps.length, ...apps);
 };
 
-export const mockSettings: GlobalSettings = {
-  "site_title": "",
-  "meta_description": "",
-  "logo_url": "",
-  "favicon_url": "",
-  "helpline_whatsapp": "",
-  "helpline_telegram": "",
-  "support_email": "",
-  "disclaimer_text": "",
-  "ethics_discrimination_text": "",
-  "ticker_text": "",
-  "animations_enabled": true,
-  "categories": [],
-  "banners": [],
-  "quick_links": [],
-  "website_faqs": [],
-  "developers": []
-} as any;
+export const mockSettings: GlobalSettings = ${JSON.stringify(cleanSettings, null, 2)} as any;
 
 export const saveMockSettings = (settings: GlobalSettings) => {
   try {
@@ -212,7 +264,7 @@ export const saveMockSettings = (settings: GlobalSettings) => {
   Object.assign(mockSettings, settings);
 };
 
-export const mockNews: NewsItem[] = [] as any[];
+export const mockNews: NewsItem[] = ${JSON.stringify(cleanNews, null, 2)} as any[];
 
 export const saveMockNews = (newsList: NewsItem[]) => {
   try {
@@ -223,7 +275,7 @@ export const saveMockNews = (newsList: NewsItem[]) => {
   mockNews.splice(0, mockNews.length, ...newsList);
 };
 
-export const mockBlogs: BlogPost[] = [] as any[];
+export const mockBlogs: BlogPost[] = ${JSON.stringify(cleanBlogs, null, 2)} as any[];
 
 export const saveMockBlogs = (blogs: BlogPost[]) => {
   try {
@@ -234,7 +286,7 @@ export const saveMockBlogs = (blogs: BlogPost[]) => {
   mockBlogs.splice(0, mockBlogs.length, ...blogs);
 };
 
-export const mockVideos: VideoItem[] = [] as any[];
+export const mockVideos: VideoItem[] = ${JSON.stringify(cleanVideos, null, 2)} as any[];
 
 export const saveMockVideos = (videos: VideoItem[]) => {
   try {
@@ -244,3 +296,64 @@ export const saveMockVideos = (videos: VideoItem[]) => {
   }
   mockVideos.splice(0, mockVideos.length, ...videos);
 };
+`;
+}
+
+/**
+ * Commits a file content update directly to Github via REST API
+ */
+export async function commitFileToGitHub({
+  owner,
+  repo,
+  token,
+  branch,
+  path,
+  content,
+  message
+}: {
+  owner: string;
+  repo: string;
+  token?: string;
+  branch: string;
+  path: string;
+  content: string;
+  message: string;
+}) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+
+  const response = await fetch('/api/github-sync/commit', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      owner,
+      repo,
+      token,
+      branch,
+      path,
+      content,
+      message
+    })
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type');
+    const errText = await response.text();
+    let errMsg = errText || `Server returned ${response.status} ${response.statusText}`;
+
+    if (contentType && contentType.includes('text/html')) {
+      throw new Error(`Server returned HTML instead of JSON (${response.status}). This usually indicates a routing issue or a backend crash. Check if the /api routes are correctly deployed. Details: ${errText.substring(0, 100)}...`);
+    }
+
+    try {
+      const errJSON = JSON.parse(errText);
+      errMsg = errJSON.message || errJSON.error || errMsg;
+    } catch (e) {
+      if (!errMsg || errMsg.trim() === '') errMsg = `HTTP Error ${response.status}`;
+    }
+    throw new Error(errMsg);
+  }
+
+  return response.json();
+}
