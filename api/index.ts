@@ -35,7 +35,9 @@ function ensureSession(req, res) {
 function generateToken(ip, sessionId, fingerprint, appId) {
   const EXPIRY = 1800; // 30 minutes
   const expires = Math.floor(Date.now() / 1000) + EXPIRY;
-  const payload = `${ip}|${sessionId}|${fingerprint}|${appId}|${expires}`;
+  const payload = [ip, sessionId, fingerprint, appId, expires]
+    .map(v => encodeURIComponent(String(v)))
+    .join("|");
   const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
   return Buffer.from(`${payload}::${sig}`).toString("base64url");
 }
@@ -44,16 +46,21 @@ function generateToken(ip, sessionId, fingerprint, appId) {
 function verifyToken(token, ip, sessionId, fingerprint, appId) {
   try {
     const raw = Buffer.from(token, "base64url").toString("utf8");
-    const [payload, sig] = raw.split("::");
+    const lastIndex = raw.lastIndexOf("::");
+    if (lastIndex === -1) return false;
+    const payload = raw.substring(0, lastIndex);
+    const sig = raw.substring(lastIndex + 2);
     if (!payload || !sig) return false;
-    const parts = payload.split("|");
+
+    const parts = payload.split("|").map(decodeURIComponent);
     if (parts.length !== 5) return false;
     const [tIp, tSession, tFp, tAppId, expires] = parts;
 
-    if (tAppId !== appId) return false;
+    if (tAppId !== String(appId)) return false;
     if (Math.floor(Date.now() / 1000) > parseInt(expires, 10)) return false;
     
     const expected = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
+    if (sig.length !== expected.length) return false;
     return crypto.timingSafeEqual(Buffer.from(sig, "hex"), Buffer.from(expected, "hex"));
   } catch {
     return false;
