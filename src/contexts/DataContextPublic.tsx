@@ -134,7 +134,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchBackupData();
   }, [fetchBackupData]);
 
-  const value: DataContextType = {
+  const value = React.useMemo<DataContextType>(() => ({
     apps,
     settings,
     news,
@@ -168,7 +168,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchNews: fetchBackupData,
     fetchBlogs: fetchBackupData,
     fetchVideos: fetchBackupData,
-  };
+  }), [apps, settings, news, blogs, videos, loading, loadedFromServer, isLive, fetchBackupData]);
 
   return (
     <DataContext.Provider value={value}>

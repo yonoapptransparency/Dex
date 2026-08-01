@@ -107,7 +107,7 @@ export default function VideosPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
-                key={video.id}
+                key={video.id || video.slug || `vid-${index}`}
                 className="group flex flex-col bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-[24px] overflow-hidden hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 hover:border-black/10 dark:hover:border-white/10 transition-all duration-300"
               >
                 {/* Visual Thumbnail Frame */}
@@ -167,7 +167,7 @@ export default function VideosPage() {
                   {/* Action Link Footer */}
                   <div className="mt-auto pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
                     <span className="text-[11px] font-medium text-zinc-400">
-                      REF: YT-{video.id.substring(0, 5).toUpperCase()}
+                      REF: YT-{String(video.id || video.slug || '00000').substring(0, 5).toUpperCase()}
                     </span>
                     <Link 
                       to={`/videos/${video.slug || video.id}`}

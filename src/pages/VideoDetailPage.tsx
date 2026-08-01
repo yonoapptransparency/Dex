@@ -198,7 +198,7 @@ export default function VideoDetailPage() {
             <div className="flex items-center gap-2 mb-8 text-sm font-medium text-zinc-500">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {new Date(videoItem.created_at).toLocaleDateString()}
+                  {videoItem.created_at ? new Date(videoItem.created_at).toLocaleDateString() : 'Recently Published'}
                 </span>
             </div>
 
