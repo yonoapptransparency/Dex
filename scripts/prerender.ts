@@ -71,8 +71,8 @@ async function prerender() {
     // 5. Generate Other Static Routes
     await generateRoute('/new-apps');
     await generateRoute('/news');
-    await generateRoute('/blogs');
-    await generateRoute('/videos');
+    if (data.blogs && data.blogs.length > 0) await generateRoute('/blogs');
+    if (data.videos && data.videos.length > 0) await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
     await generateRoute('/contact');
@@ -83,7 +83,6 @@ async function prerender() {
     await generateRoute('/notice');
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
-    await generateRoute('/submit-app');
 
     // 6. Generate Sitemap and Robots.txt
     let rawDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
@@ -143,22 +142,26 @@ async function prerender() {
 
     const staticRoutes = [
       { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/new-apps', priority: '0.8', changefreq: 'daily' },
+      { path: '/new-apps', priority: '0.9', changefreq: 'daily' },
       { path: '/news', priority: '0.8', changefreq: 'daily' },
-      { path: '/blogs', priority: '0.8', changefreq: 'daily' },
-      { path: '/videos', priority: '0.8', changefreq: 'daily' },
-      { path: '/about', priority: '0.5', changefreq: 'weekly' },
-      { path: '/developers', priority: '0.5', changefreq: 'weekly' },
-      { path: '/contact', priority: '0.5', changefreq: 'weekly' },
-      { path: '/privacy', priority: '0.3', changefreq: 'weekly' },
-      { path: '/report-removal', priority: '0.3', changefreq: 'weekly' },
-      { path: '/terms', priority: '0.3', changefreq: 'weekly' },
-      { path: '/responsibility', priority: '0.3', changefreq: 'weekly' },
-      { path: '/notice', priority: '0.3', changefreq: 'weekly' },
-      { path: '/ethics', priority: '0.3', changefreq: 'weekly' },
-      { path: '/disclaimer', priority: '0.3', changefreq: 'weekly' },
-      { path: '/submit-app', priority: '0.5', changefreq: 'weekly' }
+      { path: '/about', priority: '0.5', changefreq: 'monthly' },
+      { path: '/developers', priority: '0.5', changefreq: 'monthly' },
+      { path: '/contact', priority: '0.5', changefreq: 'monthly' },
+      { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
+      { path: '/report-removal', priority: '0.3', changefreq: 'monthly' },
+      { path: '/terms', priority: '0.3', changefreq: 'monthly' },
+      { path: '/responsibility', priority: '0.3', changefreq: 'monthly' },
+      { path: '/notice', priority: '0.3', changefreq: 'monthly' },
+      { path: '/ethics', priority: '0.3', changefreq: 'monthly' },
+      { path: '/disclaimer', priority: '0.3', changefreq: 'monthly' }
     ];
+
+    if (data.videos && Array.isArray(data.videos) && data.videos.length > 0) {
+      staticRoutes.splice(3, 0, { path: '/videos', priority: '0.7', changefreq: 'weekly' });
+    }
+    if (data.blogs && Array.isArray(data.blogs) && data.blogs.length > 0) {
+      staticRoutes.splice(3, 0, { path: '/blogs', priority: '0.7', changefreq: 'weekly' });
+    }
 
     const reservedSlugs = new Set(['app', 'news', 'blogs', 'videos', 'new-apps', 'about', 'developers', 'contact', 'privacy', 'terms', 'responsibility', 'notice', 'ethics', 'disclaimer', 'submit-app', 'admin', 'login', 'api']);
 
@@ -172,7 +175,7 @@ async function prerender() {
         const cSlug = cleanSlug(slug);
         const appDate = getFormattedDate(app);
 
-        addUrl(`${host}/app/${cSlug}`, appDate, 'daily', '1.0');
+        addUrl(`${host}/app/${cSlug}`, appDate, 'daily', '0.9');
 
         const rawSlug = slug.trim().toLowerCase();
         if (!reservedSlugs.has(rawSlug)) {
@@ -185,7 +188,7 @@ async function prerender() {
       const slug = getField(newsItem, 'slug');
       if (slug) {
         const cSlug = cleanSlug(slug);
-        addUrl(`${host}/news/${cSlug}`, getFormattedDate(newsItem), 'weekly', '0.7');
+        addUrl(`${host}/news/${cSlug}`, getFormattedDate(newsItem), 'weekly', '0.8');
       }
     }
 
@@ -197,11 +200,11 @@ async function prerender() {
       }
     }
 
-    for (const video of data.videos || []) {
-      const slug = getField(video, 'slug');
+    for (const videoItem of data.videos || []) {
+      const slug = getField(videoItem, 'slug');
       if (slug) {
         const cSlug = cleanSlug(slug);
-        addUrl(`${host}/videos/${cSlug}`, getFormattedDate(video), 'weekly', '0.6');
+        addUrl(`${host}/videos/${cSlug}`, getFormattedDate(videoItem), 'weekly', '0.6');
       }
     }
 
