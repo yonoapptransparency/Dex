@@ -61,9 +61,17 @@ async function prerender() {
       }
     }
 
+    // 4. Generate Blog Routes
+    for (const blogItem of data.blogs || []) {
+      if (blogItem.slug) {
+        await generateRoute(`/blogs/${blogItem.slug}`);
+      }
+    }
+
     // 5. Generate Other Static Routes
     await generateRoute('/new-apps');
     await generateRoute('/news');
+    await generateRoute('/blogs');
     await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
@@ -77,42 +85,39 @@ async function prerender() {
     await generateRoute('/disclaimer');
     await generateRoute('/submit-app');
 
-    
     // 6. Generate Sitemap and Robots.txt
-    const baseUrlFallback = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
-    const host = baseUrlFallback;
+    let rawDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
+    if (!rawDomain.startsWith('http://') && !rawDomain.startsWith('https://')) {
+      rawDomain = `https://${rawDomain}`;
+    }
+    const host = rawDomain.replace(/\/$/, '');
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    // Static routes
-    const today = new Date().toISOString().split('T')[0]; // Dynamic today instead of fixed date
-    const staticRoutes = [
-      { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/new-apps', priority: '0.8', changefreq: 'daily' },
-      { path: '/news', priority: '0.8', changefreq: 'daily' },
-      { path: '/videos', priority: '0.8', changefreq: 'daily' },
-      { path: '/about', priority: '0.5', changefreq: 'weekly' },
-      { path: '/developers', priority: '0.5', changefreq: 'weekly' },
-      { path: '/contact', priority: '0.5', changefreq: 'weekly' },
-      { path: '/privacy', priority: '0.3', changefreq: 'weekly' },
-      { path: '/report-removal', priority: '0.3', changefreq: 'weekly' },
-      { path: '/terms', priority: '0.3', changefreq: 'weekly' },
-      { path: '/responsibility', priority: '0.3', changefreq: 'weekly' },
-      { path: '/notice', priority: '0.3', changefreq: 'weekly' },
-      { path: '/ethics', priority: '0.3', changefreq: 'weekly' },
-      { path: '/disclaimer', priority: '0.3', changefreq: 'weekly' }
-    ];
+    const today = new Date().toISOString().split('T')[0];
 
-    for (const route of staticRoutes) {
-      xml += `  <url>\n    <loc>${host}${route.path}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
-    }
+    const escapeXml = (unsafe: any) => {
+      if (typeof unsafe !== 'string') unsafe = String(unsafe || '');
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    const cleanSlug = (slug: string) => {
+      if (!slug) return '';
+      return escapeXml(encodeURI(slug.trim().replace(/^\/+|\/+$/g, '')));
+    };
+
+    const getField = (obj: any, field: string) => obj && obj[field];
 
     const getFormattedDate = (obj: any) => {
-      const dateStr = getField(obj, 'updated_at') || getField(obj, 'created_at');
+      const dateStr = getField(obj, 'updated_at') || getField(obj, 'created_at') || getField(obj, 'published_at') || getField(obj, 'date');
       if (dateStr) {
         try {
-          // Check if it's a Firestore Timestamp-like object
           if (typeof dateStr === 'object' && dateStr !== null && (dateStr as any).seconds) {
             return new Date((dateStr as any).seconds * 1000).toISOString().split('T')[0];
           }
@@ -128,45 +133,75 @@ async function prerender() {
       return today;
     };
 
-    const escapeHtmlForSitemap = (unsafe) => {
-      if (!unsafe) return '';
-      return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+    const seenUrls = new Set<string>();
+    const addUrl = (loc: string, lastmod: string, changefreq: string, priority: string) => {
+      if (!seenUrls.has(loc)) {
+        seenUrls.add(loc);
+        xml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
+      }
     };
 
-    const getField = (obj, field) => obj && obj[field];
+    const staticRoutes = [
+      { path: '/', priority: '1.0', changefreq: 'daily' },
+      { path: '/new-apps', priority: '0.8', changefreq: 'daily' },
+      { path: '/news', priority: '0.8', changefreq: 'daily' },
+      { path: '/blogs', priority: '0.8', changefreq: 'daily' },
+      { path: '/videos', priority: '0.8', changefreq: 'daily' },
+      { path: '/about', priority: '0.5', changefreq: 'weekly' },
+      { path: '/developers', priority: '0.5', changefreq: 'weekly' },
+      { path: '/contact', priority: '0.5', changefreq: 'weekly' },
+      { path: '/privacy', priority: '0.3', changefreq: 'weekly' },
+      { path: '/report-removal', priority: '0.3', changefreq: 'weekly' },
+      { path: '/terms', priority: '0.3', changefreq: 'weekly' },
+      { path: '/responsibility', priority: '0.3', changefreq: 'weekly' },
+      { path: '/notice', priority: '0.3', changefreq: 'weekly' },
+      { path: '/ethics', priority: '0.3', changefreq: 'weekly' },
+      { path: '/disclaimer', priority: '0.3', changefreq: 'weekly' },
+      { path: '/submit-app', priority: '0.5', changefreq: 'weekly' }
+    ];
 
-    const isExternalCanonical = (url?: string) => {
-      if (!url || typeof url !== 'string') return false;
-      const trimmed = url.trim().toLowerCase();
-      if (!trimmed) return false;
-      if (trimmed.startsWith('/') || trimmed.includes('rummydex.com')) return false;
-      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return true;
-      return false;
-    };
+    const reservedSlugs = new Set(['app', 'news', 'blogs', 'videos', 'new-apps', 'about', 'developers', 'contact', 'privacy', 'terms', 'responsibility', 'notice', 'ethics', 'disclaimer', 'submit-app', 'admin', 'login', 'api']);
+
+    for (const route of staticRoutes) {
+      addUrl(`${host}${route.path}`, today, route.changefreq, route.priority);
+    }
 
     for (const app of data.apps || []) {
       const slug = getField(app, 'slug');
       if (slug) {
-        xml += `  <url>\n    <loc>${host}/app/${escapeHtmlForSitemap(slug)}</loc>\n    <lastmod>${getFormattedDate(app)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        const cSlug = cleanSlug(slug);
+        const appDate = getFormattedDate(app);
+
+        addUrl(`${host}/app/${cSlug}`, appDate, 'daily', '1.0');
+
+        const rawSlug = slug.trim().toLowerCase();
+        if (!reservedSlugs.has(rawSlug)) {
+          addUrl(`${host}/${cSlug}`, appDate, 'daily', '0.9');
+        }
       }
     }
 
     for (const newsItem of data.news || []) {
       const slug = getField(newsItem, 'slug');
       if (slug) {
-        xml += `  <url>\n    <loc>${host}/news/${escapeHtmlForSitemap(slug)}</loc>\n    <lastmod>${getFormattedDate(newsItem)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+        const cSlug = cleanSlug(slug);
+        addUrl(`${host}/news/${cSlug}`, getFormattedDate(newsItem), 'weekly', '0.7');
+      }
+    }
+
+    for (const blogItem of data.blogs || []) {
+      const slug = getField(blogItem, 'slug');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        addUrl(`${host}/blogs/${cSlug}`, getFormattedDate(blogItem), 'weekly', '0.7');
       }
     }
 
     for (const video of data.videos || []) {
       const slug = getField(video, 'slug');
       if (slug) {
-        xml += `  <url>\n    <loc>${host}/videos/${escapeHtmlForSitemap(slug)}</loc>\n    <lastmod>${getFormattedDate(video)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+        const cSlug = cleanSlug(slug);
+        addUrl(`${host}/videos/${cSlug}`, getFormattedDate(video), 'weekly', '0.6');
       }
     }
 
