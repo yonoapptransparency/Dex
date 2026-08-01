@@ -99,19 +99,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem('yd_public_data_cache', JSON.stringify(backup));
           } catch (e) {}
 
-          if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
+          if (backup.apps && Array.isArray(backup.apps)) {
             setApps(backup.apps);
           }
-          if (backup.settings && backup.settings.site_title) {
-            setSettings(backup.settings);
+          if (backup.settings) {
+            setSettings(prev => ({ ...prev, ...backup.settings }));
           }
-          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
+          if (backup.news && Array.isArray(backup.news)) {
             setNews(backup.news);
           }
-          if (backup.blogs && Array.isArray(backup.blogs) && backup.blogs.length > 0) {
+          if (backup.blogs && Array.isArray(backup.blogs)) {
             setBlogs(backup.blogs);
           }
-          if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
+          if (backup.videos && Array.isArray(backup.videos)) {
             setVideos(backup.videos);
           }
           setLoadedFromServer(true);
