@@ -10,7 +10,10 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // Configuration constants
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'yono-default-secret-2026';
+const TOKEN_SECRET = process.env.TOKEN_SECRET;
+if (!TOKEN_SECRET) {
+  throw new Error('CRITICAL SECURITY ERROR: TOKEN_SECRET environment variable is missing.');
+}
 const AES_SECRET = process.env.AES_SECRET || process.env.VITE_AES_SECRET || '';
 
 // Security Stores (In-memory, transient per Vercel instance)
