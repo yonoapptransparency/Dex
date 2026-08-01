@@ -101,18 +101,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (backup.apps && Array.isArray(backup.apps)) {
             setApps(backup.apps);
+          } else {
+            setApps([]);
           }
           if (backup.settings) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
           if (backup.news && Array.isArray(backup.news)) {
             setNews(backup.news);
+          } else {
+            setNews([]);
           }
           if (backup.blogs && Array.isArray(backup.blogs)) {
             setBlogs(backup.blogs);
+          } else {
+            setBlogs([]);
           }
           if (backup.videos && Array.isArray(backup.videos)) {
             setVideos(backup.videos);
+          } else {
+            setVideos([]);
           }
           setLoadedFromServer(true);
         }
