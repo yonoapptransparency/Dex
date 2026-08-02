@@ -21,11 +21,13 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
           >
             <img 
               src={imgUrl} 
-              alt={`Screenshot ${i + 1}`} 
+              alt={`App screenshot ${i + 1}`} 
               loading="lazy" 
+              decoding="async"
               width={125} 
               height={222} 
               className="w-full h-full object-cover select-none pointer-events-none" 
+              referrerPolicy="no-referrer"
             />
           </div>
         ))}

@@ -83,7 +83,19 @@ export default function NewApps() {
                 className="bg-white dark:bg-zinc-900 p-4 rounded-[20px] transition-all group flex gap-4 items-center relative overflow-hidden block border border-black/5 dark:border-white/5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 shadow-sm"
               >
                 <div className="w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-white dark:bg-zinc-800 border border-black/5 dark:border-white/5 shadow-sm relative z-10">
-                  <img src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} alt={app.name} loading="lazy" width={64} height={64} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img 
+                    src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+                    alt={app.name} 
+                    loading="lazy" 
+                    decoding="async"
+                    width={64} 
+                    height={64} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                    }}
+                  />
                 </div>
 
                 <div className="flex-1 min-w-0 relative z-10">

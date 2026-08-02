@@ -131,12 +131,47 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    fetchBackupData();
+    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
+      setLoadedFromServer(true);
+    }
+
+    let timerId: any;
+    let idleId: any;
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = (window as any).requestIdleCallback(() => {
+        fetchBackupData();
+      }, { timeout: 3000 });
+    } else {
+      timerId = setTimeout(() => {
+        fetchBackupData();
+      }, 1500);
+    }
+
+    return () => {
+      if (idleId && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
   }, [fetchBackupData]);
+
+  const resolvedSettings = React.useMemo(() => {
+    const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1785648485/ezgif-88d07abd3ef5753f_yz8ytg.webp";
+    const fav = settings?.favicon_url;
+    const logo = settings?.logo_url;
+    return {
+      ...settings,
+      favicon_url: (!fav || fav.includes("ezgif-64180dd8ca74703b")) ? defaultLogo : fav,
+      logo_url: (!logo || logo.includes("ezgif-64180dd8ca74703b")) ? defaultLogo : logo
+    };
+  }, [settings]);
 
   const value = React.useMemo<DataContextType>(() => ({
     apps,
-    settings,
+    settings: resolvedSettings,
     news,
     blogs,
     videos,

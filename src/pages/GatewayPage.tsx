@@ -317,6 +317,11 @@ export default function GatewayPage() {
                   <img 
                     src={app.icon_url} 
                     alt={app.name} 
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    width={128}
+                    height={128}
                     className="w-full h-full object-cover rounded-[1.8rem]"
                     referrerPolicy="no-referrer"
                   />

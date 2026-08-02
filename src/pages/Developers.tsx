@@ -64,9 +64,11 @@ export default function Developers() {
                     src={dev.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=random`} 
                     alt={dev.name} 
                     loading="lazy"
+                    decoding="async"
                     width={128}
                     height={128}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 

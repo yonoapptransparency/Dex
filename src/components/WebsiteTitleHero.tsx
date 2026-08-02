@@ -58,10 +58,10 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
   // Map CSS Animation class
   let animClass = '';
   if (isAnimated && animation !== 'none') {
-    if (animation === 'fade-in') animClass = 'animate-in fade-in duration-500';
-    else if (animation === 'slide-up') animClass = 'animate-in fade-in slide-in-from-bottom-2 duration-500';
-    else if (animation === 'bounce-in') animClass = 'animate-in fade-in zoom-in-95 duration-500';
-    else if (animation === 'zoom-out') animClass = 'animate-in fade-in zoom-in-105 duration-500';
+    if (animation === 'fade-in') animClass = '';
+    else if (animation === 'slide-up') animClass = 'animate-in slide-in-from-bottom-2 duration-300';
+    else if (animation === 'bounce-in') animClass = 'animate-in zoom-in-95 duration-300';
+    else if (animation === 'zoom-out') animClass = 'animate-in zoom-in-105 duration-300';
     else if (animation === 'glow-pulse') animClass = 'animate-pulse duration-1000';
   }
 
@@ -90,7 +90,7 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
 
         {/* Dynamic Tagline Subtitle */}
         {subtitle && (
-          <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.18em] text-zinc-900/60 dark:text-zinc-100/60 uppercase max-w-2xl select-text pt-0.5 leading-tight animate-in fade-in duration-500">
+          <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.18em] text-zinc-900/60 dark:text-zinc-100/60 uppercase max-w-2xl select-text pt-0.5 leading-tight">
             {subtitle}
           </p>
         )}

@@ -23,7 +23,7 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.FIREBASE_PROJECT_ID': JSON.stringify(firebaseConfig.projectId || env.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID),
@@ -151,23 +151,23 @@ export default defineConfig(({mode}) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
               if (id.includes('i18next') || id.includes('react-i18next')) {
                 return 'vendor-i18n';
               }
-              if (id.includes('react-router')) {
+              if (id.includes('react-router') || id.includes('@remix-run')) {
                 return 'vendor-router';
-              }
-              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
-                return 'vendor-react';
-              }
-              if (id.includes('lucide-react')) {
-                return 'vendor-icons';
               }
               if (id.includes('framer-motion') || id.includes('motion')) {
                 return 'vendor-motion';
               }
               if (id.includes('firebase')) {
                 return 'vendor-firebase';
+              }
+              if (/\bnode_modules\/(react|react-dom|scheduler)\//.test(id)) {
+                return 'vendor-react';
               }
             }
           }

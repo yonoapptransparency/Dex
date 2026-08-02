@@ -60,7 +60,16 @@ export default function SafetyStatus() {
             {/* Neutral Icon Frame */}
             <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-800 rounded-[24px] p-1 border border-black/[0.05] dark:border-white/[0.05] mb-8 shadow-inner overflow-hidden">
               {app.icon_url ? (
-                <img src={app.icon_url} alt="" className="w-full h-full object-cover rounded-[20px]" />
+                <img 
+                  src={app.icon_url} 
+                  alt={app.name} 
+                  loading="lazy"
+                  decoding="async"
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover rounded-[20px]" 
+                  referrerPolicy="no-referrer"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <ShieldCheck className="w-8 h-8 text-emerald-500" />

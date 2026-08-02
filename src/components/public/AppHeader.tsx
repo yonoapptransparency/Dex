@@ -22,9 +22,11 @@ export default function AppHeader({ app }: AppHeaderProps) {
               alt={app.name} 
               loading="eager" 
               fetchPriority="high" 
+              decoding="async"
               width={128} 
               height={128} 
               className="w-full h-full object-cover" 
+              referrerPolicy="no-referrer"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-3xl font-bold bg-zinc-800 text-zinc-500">

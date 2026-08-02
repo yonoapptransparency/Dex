@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, Shield, ShieldCheck, Info, X, LayoutGrid, Newspaper, Sparkles, Send, MoreHorizontal, Search, Video, Users, Trash2 } from 'lucide-react';
@@ -6,6 +6,7 @@ import { useData } from '../../contexts/DataContextPublic';
 import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
 import GlobalSearch from '../GlobalSearch';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 export function PublicHeader() {
   const { settings } = useData();
@@ -13,27 +14,10 @@ export function PublicHeader() {
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { scrollDirection, scrolled } = useScrollDirection();
   
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const isScrolled = window.scrollY > 20;
-          setScrolled(prev => {
-            if (prev !== isScrolled) return isScrolled;
-            return prev;
-          });
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const isHeaderHidden = scrollDirection === 'down' && !menuOpen && !searchOpen;
 
   const triggerHaptic = () => {
     if (window.navigator && window.navigator.vibrate) {
@@ -48,7 +32,9 @@ export function PublicHeader() {
   return (
     <>
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 ease-out backdrop-blur-md ${
+        className={`sticky top-0 z-50 transition-all duration-300 ease-in-out backdrop-blur-md transform-gpu will-change-transform ${
+          isHeaderHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'
+        } ${
           scrolled 
             ? 'bg-white/80 dark:bg-black/80 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
             : 'bg-white/50 dark:bg-black/50 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
