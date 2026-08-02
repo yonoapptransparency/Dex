@@ -191,7 +191,9 @@ export default class GlobalErrorBoundary extends Component<Props, State> {
                                 </div>
                               );
                             }
-                          } catch (_) {}
+                          } catch (e) {
+                            console.debug('Error boundary failed to parse error message as JSON:', e);
+                          }
                         }
                         return <p className="font-bold mb-1">{this.state.error.toString()}</p>;
                       })()}
