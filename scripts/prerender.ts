@@ -48,9 +48,6 @@ async function prerender() {
     for (const app of data.apps || []) {
       if (app.slug) {
         await generateRoute(`/app/${app.slug}`);
-        await generateRoute(`/info/${app.slug}`);
-        await generateRoute(`/moreinfo/${app.slug}`);
-        await generateRoute(`/moredetail/${app.slug}`);
       }
     }
 
@@ -176,11 +173,6 @@ async function prerender() {
         const appDate = getFormattedDate(app);
 
         addUrl(`${host}/app/${cSlug}`, appDate, 'daily', '0.9');
-
-        const rawSlug = slug.trim().toLowerCase();
-        if (!reservedSlugs.has(rawSlug)) {
-          addUrl(`${host}/${cSlug}`, appDate, 'daily', '0.9');
-        }
       }
     }
 
