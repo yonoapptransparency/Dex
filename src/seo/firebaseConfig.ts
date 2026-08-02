@@ -27,7 +27,11 @@ export function getRawFirebaseConfig(): any {
       cachedRawFirebaseConfig = config;
       return config;
     }
-  } catch (err) {}
+  } catch (err: any) {
+    if (err.code !== 'ENOENT') {
+      console.warn('[firebaseConfig] Failed to load config from firebase-applet-config.json:', err.message || err);
+    }
+  }
 
   const envProjectId = process.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
   const envDbId = process.env.VITE_FIREBASE_DATABASE_ID || process.env.FIREBASE_DATABASE_ID;
@@ -52,7 +56,9 @@ export function getRawFirebaseConfig(): any {
       cachedRawFirebaseConfig = fallbackConfig;
       return fallbackConfig;
     }
-  } catch (_) {}
+  } catch (err: any) {
+    console.warn('[firebaseConfig] Failed to parse base64 fallback config:', err.message || err);
+  }
 
   throw new Error('Firebase configuration not found and no environment variables set.');
 }
