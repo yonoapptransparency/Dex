@@ -52,7 +52,9 @@ export function getRawFirebaseConfig(): any {
       cachedRawFirebaseConfig = fallbackConfig;
       return fallbackConfig;
     }
-  } catch (_) {}
+  } catch (e) {
+    console.warn('Failed to parse B64 fallback Firebase config:', e);
+  }
 
   throw new Error('Firebase configuration not found and no environment variables set.');
 }
