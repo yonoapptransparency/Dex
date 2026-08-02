@@ -49,7 +49,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
 
   const handleStarClick = (selectedRating: number) => {
     if (window.navigator && window.navigator.vibrate) {
-      try { window.navigator.vibrate(10); } catch (e) {}
+      try { window.navigator.vibrate(10); } catch (e) { console.warn('Vibration error', e); }
     }
     setRating(selectedRating);
     setErrorText('');
