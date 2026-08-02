@@ -37,7 +37,9 @@ export default function StarRatingFeedback() {
     if (window.navigator && window.navigator.vibrate) {
       try {
         window.navigator.vibrate(12);
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to trigger haptic feedback', e);
+      }
     }
   };
 
@@ -86,13 +88,18 @@ export default function StarRatingFeedback() {
             created_at: new Date().toISOString(),
             source: window.location.hostname
           })
-        }).catch(() => {});
-      } catch (e) {}
+        }).catch((e) => {
+          console.warn('Failed to submit feedback to server', e);
+        });
+      } catch (e) {
+        console.warn('Unexpected error during feedback submission', e);
+      }
 
       setSubmitted(true);
       triggerHaptic();
     } catch (err) {
       // Gracefully finish
+      console.warn('Error during feedback process', err);
     } finally {
       setSubmitting(false);
     }
@@ -103,7 +110,9 @@ export default function StarRatingFeedback() {
     setHasReviewedOnGoogle(true);
     try {
       localStorage.setItem('user_google_review_clicked', 'true');
-    } catch (e) {}
+    } catch (e) {
+      console.warn('LocalStorage not accessible', e);
+    }
   };
 
   return (
@@ -360,7 +369,9 @@ export default function StarRatingFeedback() {
               onClick={() => {
                 try {
                   localStorage.removeItem('user_feedback_submitted');
-                } catch(e){}
+                } catch(e){
+                  console.warn('LocalStorage not accessible', e);
+                }
                 setSubmitted(false);
                 setRating(null);
                 setHasReviewedOnGoogle(false);
