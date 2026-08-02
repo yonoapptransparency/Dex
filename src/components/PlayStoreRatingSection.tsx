@@ -49,7 +49,9 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
 
   const handleStarClick = (selectedRating: number) => {
     if (window.navigator && window.navigator.vibrate) {
-      try { window.navigator.vibrate(10); } catch (e) {}
+      try { window.navigator.vibrate(10); } catch (e) {
+        console.warn('Vibration failed', e);
+      }
     }
     setRating(selectedRating);
     setErrorText('');
@@ -104,7 +106,9 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
         if (stored) {
           existing = JSON.parse(stored);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Error reading local user reviews from localStorage:', e);
+      }
       
       localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newReview, ...existing]));
       localStorage.setItem(`playstore_rated_${appId}`, 'true');
@@ -124,8 +128,12 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
             is_approved: false,
             source: 'community'
           })
-        }).catch(() => {});
-      } catch (e) {}
+        }).catch((e) => {
+          console.warn('Failed to post rating:', e);
+        });
+      } catch (e) {
+        console.warn('Failed to post rating (outer):', e);
+      }
 
       setSubmitted(true);
       if (onReviewSubmitted) {
@@ -133,6 +141,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       }
     } catch (err) {
       // Gracefully finish
+      console.error('Error submitting review:', err);
     } finally {
       setSubmitting(false);
     }
@@ -345,7 +354,9 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
                 setRating(null);
                 try {
                   localStorage.removeItem(`playstore_rated_${appId}`);
-                } catch(e){}
+                } catch(e) {
+                  console.warn('Failed to clear localStorage:', e);
+                }
               }}
               className="text-[10px] text-blue-500 hover:text-blue-600 underline font-bold mt-3.5 cursor-pointer"
             >
