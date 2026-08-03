@@ -183,17 +183,17 @@ export const mockApps: AppConfig[] = [
     "developer": "Bingo",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785670352/ezgif-82a15987d682a1a8_sdzpjc.webp",
     "release_notes": "",
-    "canonical_url": "",
+    "canonical_url": "https://www.rummydex.com/app/spin-crush",
     "idea_box_msg": "",
     "is_coming_soon": false,
     "version": "1.0.6",
     "seo_keywords": "casual game hub, arcade collection, virtual coin games, offline mini-games, spin crush app",
-    "updated_at": "2026-08-02T11:32:45.813Z",
+    "updated_at": "2026-08-03T02:37:24.987Z",
     "publish_date": "",
     "encrypted_link": "",
     "category": "All Apps, Yono",
     "screenshots": [],
-    "og_image_url": "",
+    "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785670352/ezgif-82a15987d682a1a8_sdzpjc.webp",
     "created_at": "2026-08-02T11:14:13.263Z",
     "red_box_msg": "",
     "slug": "spin-crush",
@@ -225,8 +225,8 @@ export const mockApps: AppConfig[] = [
     "seo_title": "Rummy 77 - Hands On Review - Gameplay, Features & Performance | RummyDex",
     "seo_description": "We went hands-on with Rummy 77. Read our neutral review detailing the actual table mechanics, card sorting features, and real-world battery performance.",
     "seo_keywords": "rummy 77 app, real rummy gameplay, rummy 77 review, 13 card rummy",
-    "og_image_url": "",
-    "canonical_url": "",
+    "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785722974/1000132690_11zon_1_l43qhv.jpg",
+    "canonical_url": "https://www.rummydex.com/app/rummy-77",
     "video_url": "",
     "publish_date": "",
     "release_notes": "",
@@ -238,7 +238,7 @@ export const mockApps: AppConfig[] = [
     "screenshots": [],
     "faqs": [],
     "created_at": "2026-08-03T02:13:03.477Z",
-    "updated_at": "2026-08-03T02:23:59.257Z"
+    "updated_at": "2026-08-03T02:38:06.645Z"
   }
 ] as any[];
 
