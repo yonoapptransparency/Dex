@@ -17,7 +17,7 @@ import HomeFilterBar from '../components/public/HomeFilterBar';
 import HomeFaqSection from '../components/public/HomeFaqSection';
 
 const ITEMS_PER_PAGE = 15;
-const STORAGE_KEY = 'rummy_home_feed_state';
+const STORAGE_KEY = 'home_feed_state';
 
 export default function Home() {
   const { apps: mockApps, settings: mockSettings, loading } = useData();
