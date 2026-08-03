@@ -68,7 +68,7 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-400 mb-1">Live Chat</h3>
-                <p className="text-zinc-900 dark:text-zinc-100 font-semibold text-base">Available Mon-Fri, 9am - 6pm EST</p>
+                <p className="text-zinc-900 dark:text-zinc-100 font-semibold text-base">Monday to Saturday, 10:00 AM - 3:00 PM (Instant reply in every section)</p>
               </div>
             </div>
 
@@ -78,7 +78,7 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-400 mb-1">Office</h3>
-                <p className="text-zinc-900 dark:text-zinc-100 font-semibold text-base">123 Tech Avenue, Silicon Valley, CA</p>
+                <p className="text-zinc-900 dark:text-zinc-100 font-semibold text-base">Plot No. 18, 4th Floor, Commercial Complex, Sector 12, Dwarka, New Delhi, Delhi 110075, India</p>
               </div>
             </div>
           </div>
