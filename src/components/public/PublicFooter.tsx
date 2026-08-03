@@ -13,7 +13,7 @@ export function PublicFooter() {
       <h2 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
         <div className="p-1 bg-white/10 rounded-xl">
           {settings.logo_url ? (
-            <img src={settings.logo_url} loading="lazy" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt="Logo" />
+            <img src={settings.logo_url} loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Footer Logo`} />
           ) : (
             <Shield className="w-8 h-8 text-blue-400" />
           )}
