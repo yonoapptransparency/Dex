@@ -258,7 +258,8 @@ export default function GatewayPage() {
     "applicationCategory": app.category,
     "operatingSystem": "All",
     "softwareVersion": app.version,
-    "image": app.og_image_url || app.icon_url,
+    "image": app.icon_url || app.og_image_url,
+    "logo": app.icon_url || app.og_image_url,
     "offers": {
       "price": "0",
       "priceCurrency": "USD"
@@ -294,7 +295,7 @@ export default function GatewayPage() {
         title={`${app.name} - Details`}
         description={`${app.name} detail page. Complete verification to access the requested information.`}
         keywords={app.seo_keywords ? `${app.seo_keywords}, info ${app.name}, ${app.name} technical info` : undefined}
-        image={app.og_image_url || app.icon_url}
+        image={app.icon_url || app.og_image_url}
         canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}

@@ -85,14 +85,19 @@ export default function Home() {
     }
   }, [navType]);
 
-  // Save scroll position & visible count to sessionStorage before navigating away
+  const feedStateRef = useRef({ visibleCount, activeTab });
+  useEffect(() => {
+    feedStateRef.current = { visibleCount, activeTab };
+  }, [visibleCount, activeTab]);
+
+  // Save scroll position & visible count to sessionStorage only before unloading or navigating away
   useEffect(() => {
     const handleSaveState = () => {
       try {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-          visibleCount,
+          visibleCount: feedStateRef.current.visibleCount,
           scrollY: window.scrollY,
-          activeTab
+          activeTab: feedStateRef.current.activeTab
         }));
       } catch (e) {
         // Ignore storage errors
@@ -101,10 +106,9 @@ export default function Home() {
 
     window.addEventListener('beforeunload', handleSaveState);
     return () => {
-      handleSaveState();
       window.removeEventListener('beforeunload', handleSaveState);
     };
-  }, [visibleCount, activeTab]);
+  }, []);
 
   useEffect(() => {
     const q = searchParams.get('q');

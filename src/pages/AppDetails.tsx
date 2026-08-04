@@ -165,7 +165,7 @@ export default function AppDetails() {
   };
   
   const desc = cleanSeoDescription(app.seo_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} application specifications`);
-  const ogImage = app.og_image_url || app.icon_url;
+  const ogImage = app.icon_url || app.og_image_url;
 
   const faqSchema = app.faqs && app.faqs.length > 0 ? {
     "@context": "https://schema.org",
@@ -189,7 +189,8 @@ export default function AppDetails() {
     "operatingSystem": "Android, iOS, Windows",
     "softwareVersion": app.version,
     "fileSize": app.file_size,
-    "image": app.og_image_url || app.icon_url,
+    "image": app.icon_url || app.og_image_url,
+    "logo": app.icon_url || app.og_image_url,
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": app.rating || "5.0",
