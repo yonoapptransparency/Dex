@@ -8,6 +8,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
+import AppDetailsSkeleton from './public/AppDetailsSkeleton';
 
 // Lazy load pages directly with retry to avoid chunk load errors
 const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
@@ -111,7 +112,7 @@ export default function FallbackRouteMatcher() {
 
   if (resolvedType === 'app') {
     return (
-      <Suspense fallback={<InlineLoading />}>
+      <Suspense fallback={<AppDetailsSkeleton />}>
         <AppDetails />
       </Suspense>
     );

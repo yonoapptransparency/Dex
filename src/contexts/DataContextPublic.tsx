@@ -131,8 +131,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
+    const hasInitialData = typeof window !== 'undefined' && !!(window as any).__INITIAL_DATA__;
+    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
+
+    if (hasInitialData) {
       setLoadedFromServer(true);
+    }
+
+    // Do NOT fire background XHR for search engine crawlers or if initial data is already present and fresh
+    if (isCrawler || hasInitialData) {
+      return;
     }
 
     let timerId: any;
@@ -141,11 +149,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       idleId = (window as any).requestIdleCallback(() => {
         fetchBackupData();
-      }, { timeout: 3000 });
+      }, { timeout: 4000 });
     } else {
       timerId = setTimeout(() => {
         fetchBackupData();
-      }, 1500);
+      }, 2500);
     }
 
     return () => {
