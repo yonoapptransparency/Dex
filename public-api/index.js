@@ -64,10 +64,6 @@ function verifyToken(token, ip, sessionId, fingerprint, appId) {
 function safeDecrypt(ciphertext, secret) {
   if (!ciphertext || !secret) return '';
   try {
-    // Note: We use crypto-js like implementation for AES-256-CBC if possible, 
-    // but here we'll use node's native crypto for simplicity if compatible.
-    // However, the links are encrypted with CryptoJS in the admin.
-    // For Dex, we'll implement a compatible version.
     const bytes = CryptoJS.AES.decrypt(ciphertext, secret);
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch (e) {
@@ -132,9 +128,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
     return res.status(400).send("<h1>400 Bad Request</h1><p>Missing parameters.</p>");
   }
 
-  // Security verification
-  // If fingerprint is provided, we check it. If not (from direct link), we might be more lenient or fail.
-  // The Claude summary said we should verify the token.
   if (fingerprint && sid) {
     if (!verifyToken(token, ip, sid, fingerprint, appId)) {
       return res.status(403).send("<h1>403 Forbidden</h1><p>Security signature mismatch. Please return to the app page and try again.</p>");
@@ -144,7 +137,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
   try {
     let targetUrl = '';
     
-    // 1. Path Discovery for Secure Vault (Critical for different deployment environments)
     const vaultPaths = [
       path.join(process.cwd(), 'src/lib/secureVault.ts'),
       path.join(process.cwd(), 'lib/secureVault.ts'),
@@ -204,7 +196,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
       return res.redirect(302, targetUrl);
     }
 
-    // 2. Final Fallback: Check if we can reach Firestore via REST (if configured)
     const FIREBASE_PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
     if (FIREBASE_PROJECT_ID && appId) {
       try {
@@ -212,7 +203,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
         const dbId = process.env.VITE_FIREBASE_DATABASE_ID || '(default)';
         const apiSuffix = apiKey ? `?key=${apiKey}` : '';
         
-        // Try direct ID lookup first
         const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/${dbId}/documents/app_secure_links/${appId}${apiSuffix}`;
         const fsRes = await fetch(url);
         
@@ -228,7 +218,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
              }
            }
         } else if (appId.length > 5) {
-          // If 404 and appId looks like a slug, try to find the ID from apps collection
           const queryUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/${dbId}/documents:runQuery${apiSuffix}`;
           const queryBody = {
             structuredQuery: {
@@ -281,7 +270,6 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
   }
 });
 
-
 // --- Dynamic Firestore Fetcher ---
 const parseValue = (val) => {
   if (!val) return null;
@@ -309,12 +297,12 @@ const fetchPublicDataFromFirestore = async () => {
   const apiSuffix = apiKey ? `?key=${apiKey}` : '';
   const baseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/${dbId}/documents/store_data`;
   
-  const fetchDoc = async (docName: string): Promise<any> => {
+  const fetchDoc = async (docName) => {
     try {
       const res = await fetch(`${baseUrl}/${docName}${apiSuffix}`);
       if (!res.ok) return null;
       const data = await res.json();
-      const obj: any = {};
+      const obj = {};
       for (const key in data.fields || {}) {
         obj[key] = parseValue(data.fields[key]);
       }
@@ -349,6 +337,7 @@ const fetchPublicDataFromFirestore = async () => {
     return null;
   }
 };
+
 const getStaticData = () => {
   try {
     const staticDataModulePath = path.join(process.cwd(), "src/lib/staticData");
@@ -362,8 +351,7 @@ const getStaticData = () => {
   }
 };
 
-// ---------------------------------
-// 4. Backup Data (The lifeblood of Dex)
+// 4. Backup Data
 app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backup-data", "/public/backup-data"], async (req, res) => {
   const fsData = await fetchPublicDataFromFirestore();
   if (fsData) return res.json(fsData);
@@ -386,7 +374,7 @@ app.get(["/api/v1/public/backup-data", "/api/v1/backup-data", "/api/public/backu
   });
 });
 
-// 5. Public Data Endpoints (Mapping to backup data)
+// 5. Public Data Endpoints
 app.get('/api/v1/public/:type', (req, res) => {
   const { type } = req.params;
   const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
@@ -398,7 +386,7 @@ app.get('/api/v1/public/:type', (req, res) => {
   }
   
   const staticData = getStaticData();
-  const fallbackData: any = {
+  const fallbackData = {
     apps: staticData.mockApps || [],
     settings: staticData.mockSettings || {},
     news: staticData.mockNews || [],
@@ -410,7 +398,7 @@ app.get('/api/v1/public/:type', (req, res) => {
   res.json([]);
 });
 
-// 6. Sync Node (For the transparency system)
+// 6. Sync Node
 app.post('/api/v1/sync-node', (req, res) => {
   const { slug, token, fingerprint, appId } = req.body;
   const ip = getIp(req);
@@ -424,39 +412,35 @@ app.post('/api/v1/sync-node', (req, res) => {
     return res.status(403).json({ status: 'ERR', msg: 'Invalid token' });
   }
 
-  // For Dex, we just return the public link from backup
   const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
   if (fs.existsSync(backupPath)) {
     try {
       const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      const app = (data.apps || []).find(a => a.slug === slug || a.id === appId);
-      if (app) {
-        return res.json({ status: 'OK', payload: `/moreinfo/${app.slug}` });
+      const appItem = (data.apps || []).find(a => a.slug === slug || a.id === appId);
+      if (appItem) {
+        return res.json({ status: 'OK', payload: `/moreinfo/${appItem.slug}` });
       }
     } catch (e) {}
   }
   res.status(404).json({ status: 'ERR', msg: 'App not found' });
 });
 
-// 7. Link Check (For UI feedback)
+// 7. Link Check
 app.get('/api/v1/link-check', (req, res) => {
   const { id } = req.query;
   if (!id) return res.json({ configured: false });
-  // For Dex, we check if app exists in backup
   const backupPath = path.join(process.cwd(), 'src/lib/public_backup.json');
   if (fs.existsSync(backupPath)) {
     try {
       const data = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-      const app = (data.apps || []).find(a => a.id === id);
-      return res.json({ configured: !!app });
+      const appItem = (data.apps || []).find(a => a.id === id);
+      return res.json({ configured: !!appItem });
     } catch (e) {}
   }
   res.json({ configured: false });
 });
 
-
-// Dynamic Sitemap for Dex
-
+// Sitemap, RSS, OpenSearch, Robots
 app.get(['/rss.xml', '/api/rss.xml'], async (req, res) => {
   const host = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
   let xml = '<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0">\n<channel>\n';
@@ -495,22 +479,20 @@ app.get(['/rss.xml', '/api/rss.xml'], async (req, res) => {
     (data.apps || []).forEach(a => allItems.push({ type: 'app', data: a }));
     (data.news || []).forEach(n => allItems.push({ type: 'news', data: n }));
     
-    // Sort by newest
     allItems.sort((a, b) => {
       const d1 = new Date(a.data.updated_at || a.data.created_at || a.data.date || a.data.published_at || 0).getTime();
       const d2 = new Date(b.data.updated_at || b.data.created_at || b.data.date || b.data.published_at || 0).getTime();
       return d2 - d1;
     });
     
-    // Top 20 items
     allItems.slice(0, 20).forEach(item => {
       const obj = item.data;
       if (!obj.slug) return;
       const title = escapeHtml(obj.name || obj.title || obj.slug);
       const desc = escapeHtml(obj.meta_description || obj.description || '');
-      const path = item.type === 'app' ? `/app/${obj.slug}` : `/news/${obj.slug}`;
+      const itemPath = item.type === 'app' ? `/app/${obj.slug}` : `/news/${obj.slug}`;
       const date = getFormattedDate(obj);
-      xml += `  <item>\n    <title>${title}</title>\n    <link>${host}${path}</link>\n    <description>${desc}</description>\n    <pubDate>${date}</pubDate>\n  </item>\n`;
+      xml += `  <item>\n    <title>${title}</title>\n    <link>${host}${itemPath}</link>\n    <description>${desc}</description>\n    <pubDate>${date}</pubDate>\n  </item>\n`;
     });
   }
   
@@ -586,10 +568,10 @@ app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], async (req, res) => {
       
       const escapeHtmlForSitemap = (unsafe) => unsafe ? unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
       
-      for (const app of data.apps || []) {
-        if (app.slug) {
-          const escSlug = escapeHtmlForSitemap(app.slug);
-          const appDate = getFormattedDate(app);
+      for (const appItem of data.apps || []) {
+        if (appItem.slug) {
+          const escSlug = escapeHtmlForSitemap(appItem.slug);
+          const appDate = getFormattedDate(appItem);
           xml += `  <url>\n    <loc>${host}/app/${escSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
           xml += `  <url>\n    <loc>${host}/${escSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
         }
