@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
@@ -111,11 +111,7 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'app') {
-    return (
-      <Suspense fallback={<AppDetailsSkeleton />}>
-        <AppDetails />
-      </Suspense>
-    );
+    return <Navigate to={`/app/${slug}`} replace />;
   }
 
   if (resolvedType === 'news') {

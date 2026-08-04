@@ -296,7 +296,7 @@ export default function GatewayPage() {
         description={`${app.name} detail page. Complete verification to access the requested information.`}
         keywords={app.seo_keywords ? `${app.seo_keywords}, info ${app.name}, ${app.name} technical info` : undefined}
         image={app.icon_url || app.og_image_url}
-        canonical={app.canonical_url || `${window.location.origin}/${app.slug}`}
+        canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
       />
