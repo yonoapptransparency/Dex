@@ -45,12 +45,20 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
+const DATA_CACHE_KEY = 'yd_public_data_cache';
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
+
 const getInitialCache = () => {
   try {
     if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) return (window as any).__INITIAL_DATA__;
     if (typeof window !== 'undefined' && window.localStorage) {
-      const cached = localStorage.getItem('yd_public_data_cache');
-      if (cached) return JSON.parse(cached);
+      const cached = localStorage.getItem(DATA_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed._timestamp && (Date.now() - parsed._timestamp < CACHE_TTL_MS)) {
+          return parsed.data || parsed;
+        }
+      }
     }
   } catch (e) {}
   return null;
@@ -96,7 +104,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const backup = await res.json();
         if (backup) {
           try {
-            localStorage.setItem('yd_public_data_cache', JSON.stringify(backup));
+            localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({
+              data: backup,
+              _timestamp: Date.now()
+            }));
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps)) {

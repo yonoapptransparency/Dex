@@ -15,20 +15,20 @@ async function prerender() {
   }
   
   try {
+    const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
     const originalTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');
     const data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
     if (!data.apps) {
       data.apps = [];
     }
     if (data.apps.length === 0) {
-      console.warn("No apps found in store data. Prerendering static pages...");
+      throw new Error("BUILD ERROR: Prerender failed because store data apps list is empty! Ensure FIREBASE_SERVICE_ACCOUNT or public_backup.json is present.");
     }
     
     // Helper to generate a file for a specific path
     const generateRoute = async (routePath: string) => {
       console.log(`Prerendering route: ${routePath}`);
-      // Don't remove og:url for specific routes since we want the exact share URL
-      const seoRes = await injectSeoTags(originalTemplate, routePath, 'https://rummydex.com');
+      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
       const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
       
       const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
@@ -39,15 +39,14 @@ async function prerender() {
     };
 
     // 1. Generate Home Route
-    const homeRes = await injectSeoTags(originalTemplate, '/', 'https://rummydex.com');
+    const homeRes = await injectSeoTags(originalTemplate, '/', HOST);
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
-    homeTemplate = homeTemplate.replace(/<meta property=["']og:url["'] [^>]*\/>/gi, '');
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
     // 2. Generate Application Routes
     for (const app of data.apps || []) {
       if (app.slug) {
-        await generateRoute(`/app/${app.slug}`);
+        await generateRoute(`/${app.slug}`);
       }
     }
 
