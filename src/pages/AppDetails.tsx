@@ -180,28 +180,35 @@ export default function AppDetails() {
     }))
   } : null;
 
-  const softwareSchema = {
+  const realRatingVal = parseFloat(String(app.rating));
+  const realReviewCount = parseInt(String((app as any)?.review_count || ''), 10);
+  const softwareSchema: any = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": app.name,
     "description": desc,
-    "applicationCategory": app.category,
+    "applicationCategory": app.category || 'GameApplication',
     "operatingSystem": "Android, iOS, Windows",
     "softwareVersion": app.version,
     "fileSize": app.file_size,
     "image": app.icon_url || app.og_image_url,
     "logo": app.icon_url || app.og_image_url,
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": app.rating || "5.0",
-      "ratingCount": app.serial_number ? parseInt(String(app.serial_number).replace(/\D/g,'')) % 1000 + 100 : "150"
-    },
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "USD"
+      "priceCurrency": "INR"
     }
   };
+
+  if (!isNaN(realRatingVal) && realRatingVal > 0 && !isNaN(realReviewCount) && realReviewCount > 0) {
+    softwareSchema["aggregateRating"] = {
+      "@type": "AggregateRating",
+      "ratingValue": String(realRatingVal),
+      "ratingCount": String(realReviewCount),
+      "bestRating": "5",
+      "worstRating": "1"
+    };
+  }
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
