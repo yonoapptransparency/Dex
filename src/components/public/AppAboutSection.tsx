@@ -16,8 +16,9 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
     [&_p]:mb-5 [&_p]:leading-relaxed [&_p]:text-zinc-700 dark:[&_p]:text-zinc-300
     [&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:font-semibold [&_a]:underline [&_a]:hover:text-blue-700
     [&_h1]:text-2xl sm:[&_h1]:text-3xl [&_h1]:font-black [&_h1]:tracking-tight [&_h1]:text-zinc-900 dark:[&_h1]:text-zinc-100 [&_h1]:mt-8 [&_h1]:mb-4
-    [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-extrabold [&_h2]:tracking-tight [&_h2]:text-zinc-900 dark:[&_h2]:text-zinc-100 [&_h2]:mt-9 [&_h2]:mb-4 [&_h2]:pt-4 [&_h2]:border-t [&_h2]:border-zinc-200/80 dark:[&_h2]:border-zinc-800/80 [&_h2]:first-of-type:border-0 [&_h2]:first-of-type:pt-0 [&_h2]:first-of-type:mt-0
-    [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:tracking-tight [&_h3]:text-zinc-900 dark:[&_h3]:text-zinc-100 [&_h3]:mt-7 [&_h3]:mb-3
+    [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-extrabold [&_h2]:tracking-tight [&_h2]:text-zinc-900 dark:[&_h2]:text-zinc-100 [&_h2]:mt-9 [&_h2]:mb-4 [&_h2]:pt-4 [&_h2]:border-t [&_h2]:border-zinc-200/80 dark:[&_h2]:border-zinc-800/80 [&_h2:first-child]:border-t-0 [&_h2:first-child]:pt-0 [&_h2:first-child]:mt-0
+    [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:tracking-tight [&_h3]:text-zinc-900 dark:[&_h3]:text-zinc-100 [&_h3]:mt-6 [&_h3]:mb-3
+    [&_h4]:text-base sm:[&_h4]:text-lg [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-900 dark:[&_h4]:text-zinc-100 [&_h4]:mt-5 [&_h4]:mb-2
     [&_ul]:my-5 [&_ul]:space-y-3 [&_ul]:list-disc [&_ul]:pl-6
     [&_ol]:my-5 [&_ol]:space-y-3 [&_ol]:list-decimal [&_ol]:pl-6
     [&_li]:leading-relaxed [&_li]:pl-1 [&_li::marker]:text-blue-600 dark:[&_li::marker]:text-blue-400 [&_li::marker]:font-bold
