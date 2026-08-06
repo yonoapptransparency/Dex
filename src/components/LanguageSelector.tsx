@@ -36,6 +36,9 @@ export default function LanguageSelector() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={`Select language. Current: ${currentLang.name}`}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors w-full"
       >
         <Globe className="w-4 h-4 text-blue-500" />
