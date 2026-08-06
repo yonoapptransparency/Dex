@@ -50,39 +50,39 @@ export function PublicFooter() {
   const footerLinks = (
     <div className="w-full max-w-[500px] grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-10 lg:text-right">
       <div className="flex flex-col gap-3 lg:items-end">
-        <h3 className="text-slate-900 font-bold mb-1">Company</h3>
-        <Link to="/" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Home</Link>
-        <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">About Us</Link>
-        <Link to="/developers" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Our Team</Link>
-        <Link to="/contact" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Contact</Link>
+        <h3 className="text-slate-900 dark:text-white font-bold mb-1">Company</h3>
+        <Link to="/" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Home</Link>
+        <Link to="/about" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">About Us</Link>
+        <Link to="/developers" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Our Team</Link>
+        <Link to="/contact" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Contact</Link>
       </div>
       
       <div className="flex flex-col gap-3 lg:items-end">
-        <h3 className="text-slate-900 font-bold mb-1">Discover</h3>
-        <Link to="/new-apps" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">New Apps</Link>
-        <Link to="/videos" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Apps</Link>
-        <Link to="/news" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">News</Link>
+        <h3 className="text-slate-900 dark:text-white font-bold mb-1">Discover</h3>
+        <Link to="/new-apps" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">New Apps</Link>
+        <Link to="/videos" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Apps</Link>
+        <Link to="/news" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">News</Link>
       </div>
       
-      <div className="flex flex-col gap-3 lg:items-end col-span-2 border-t border-black/5 pt-6">
-        <h3 className="text-slate-900 font-bold mb-2">Legal Docs</h3>
+      <div className="flex flex-col gap-3 lg:items-end col-span-2 border-t border-black/5 dark:border-white/10 pt-6">
+        <h3 className="text-slate-900 dark:text-white font-bold mb-2">Legal Docs</h3>
         <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-col lg:items-end w-full">
-          <Link to="/privacy" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Privacy</Link>
-          <Link to="/report-removal" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Report & Removal</Link>
-          <Link to="/terms" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Terms</Link>
-          <Link to="/notice" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Notice</Link>
-          <Link to="/ethics" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Ethics</Link>
-          <Link to="/disclaimer" className="text-slate-700 hover:text-blue-600 font-medium transition-colors text-sm">Disclaimer</Link>
+          <Link to="/privacy" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Privacy</Link>
+          <Link to="/report-removal" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Report & Removal</Link>
+          <Link to="/terms" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Terms</Link>
+          <Link to="/notice" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Notice</Link>
+          <Link to="/ethics" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Ethics</Link>
+          <Link to="/disclaimer" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Disclaimer</Link>
         </div>
       </div>
     </div>
   );
 
   return (
-    <footer className="w-full mt-12 bg-white flex flex-col z-10 border-t border-black/5">
+    <footer className="w-full mt-12 bg-white dark:bg-zinc-950 flex flex-col z-10 border-t border-black/5 dark:border-white/10">
       <div className="hidden lg:flex relative overflow-hidden w-full min-h-[500px]">
         <svg 
-          className="absolute top-0 left-0 w-full h-full text-slate-900 pointer-events-none z-0"
+          className="absolute top-0 left-0 w-full h-full text-slate-900 dark:text-zinc-900 pointer-events-none z-0"
           preserveAspectRatio="none" 
           viewBox="0 0 100 100"
         >
@@ -101,9 +101,9 @@ export function PublicFooter() {
       </div>
 
       <div className="flex flex-col lg:hidden w-full">
-        <div className="w-full bg-slate-900 text-white px-6 pt-16 pb-28 relative overflow-hidden">
+        <div className="w-full bg-slate-900 dark:bg-zinc-900 text-white px-6 pt-16 pb-28 relative overflow-hidden">
              <svg 
-               className="absolute -bottom-1 left-0 w-full h-12 sm:h-16 text-white fill-current pointer-events-none" 
+               className="absolute -bottom-1 left-0 w-full h-12 sm:h-16 text-white dark:text-zinc-950 fill-current pointer-events-none" 
                preserveAspectRatio="none" 
                viewBox="0 0 100 20"
              >
@@ -114,12 +114,12 @@ export function PublicFooter() {
              </div>
         </div>
 
-        <div className="w-full bg-white px-6 pb-16 pt-8 flex justify-center text-left">
+        <div className="w-full bg-white dark:bg-zinc-950 px-6 pb-16 pt-8 flex justify-center text-left">
            {footerLinks}
         </div>
       </div>
 
-      <div className="w-full bg-slate-950 py-8 px-6 sm:px-12 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/5">
+      <div className="w-full bg-slate-950 py-8 pb-32 sm:pb-8 px-6 sm:px-12 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/5">
         <div className="text-xs text-slate-300 flex flex-col md:flex-row items-center gap-4">
           <span>&copy; {new Date().getFullYear()} {settings.site_title}. All rights reserved.</span>
           <div className="flex items-center gap-3 md:ml-4">

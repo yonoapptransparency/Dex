@@ -22,13 +22,13 @@ export default function NewsPage() {
   );
 
   return (
-    <div className="animate-fade-in min-h-screen max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10">
+    <div className="animate-fade-in min-h-screen max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10 text-zinc-900 dark:text-zinc-100">
       <div className="mb-10">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline transition-colors group"
         >
-          <div className="p-1.5 rounded-full bg-blue-50 group-hover:-translate-x-1 transition-transform">
+          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 group-hover:-translate-x-1 transition-transform">
             <ArrowLeft className="w-4 h-4" />
           </div>
           Home
@@ -41,18 +41,18 @@ export default function NewsPage() {
       />
 
       <div className="mb-12">
-        <h1 className="text-3xl sm:text-5xl font-bold mb-6 text-zinc-900 tracking-tight">
+        <h1 className="text-3xl sm:text-5xl font-bold mb-6 text-zinc-900 dark:text-white tracking-tight">
           News & Updates
         </h1>
         <div className="relative max-w-xl">
           <input
             type="text"
-            className="block w-full py-4 text-zinc-900 bg-transparent border-b-2 border-black/10 placeholder-zinc-400 focus:outline-none focus:border-blue-500 transition-all font-medium text-lg"
+            className="block w-full py-4 text-zinc-900 dark:text-white bg-transparent border-b-2 border-black/10 dark:border-white/15 placeholder-zinc-400 focus:outline-none focus:border-blue-500 transition-all font-medium text-lg"
             placeholder="Search news..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-300" />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" />
         </div>
       </div>
 
@@ -67,7 +67,7 @@ export default function NewsPage() {
             <Link 
               to={`/news/${item.slug}`} 
               aria-label={`Read full news article: ${item.title}`}
-              className="block w-full aspect-[16/9] rounded-[24px] overflow-hidden mb-6 shadow-sm border border-black/5 bg-zinc-100 relative"
+              className="block w-full aspect-[16/9] rounded-[24px] overflow-hidden mb-6 shadow-sm border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800 relative"
             >
               <img 
                 src={item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} 
@@ -81,27 +81,27 @@ export default function NewsPage() {
             </Link>
             <div className="flex flex-col">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">{item.category || 'Report'}</span>
-                <span className="text-[10px] font-semibold tracking-wider text-zinc-600 uppercase">{item.date ? new Date(item.date).toLocaleDateString() : new Date(item.published_at || Date.now()).toLocaleDateString()}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full">{item.category || 'Report'}</span>
+                <span className="text-[10px] font-semibold tracking-wider text-zinc-500 dark:text-zinc-400 uppercase">{item.date ? new Date(item.date).toLocaleDateString() : new Date(item.published_at || Date.now()).toLocaleDateString()}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-zinc-900 leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-zinc-900 dark:text-white leading-tight">
                 <Link 
                   to={`/news/${item.slug}`} 
                   aria-label={`Read news: ${item.title}`}
-                  className="hover:text-blue-600 transition-colors"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {item.title}
                 </Link>
               </h2>
               <div 
-                className="text-base text-zinc-700 mb-6 line-clamp-3 leading-relaxed prose prose-sm prose-zinc" 
+                className="text-base text-zinc-700 dark:text-zinc-300 mb-6 line-clamp-3 leading-relaxed prose prose-sm prose-zinc dark:prose-invert" 
                 dangerouslySetInnerHTML={{ __html: safeHtml(item.description || '' ) }} 
               />
               
               <Link 
                 to={`/news/${item.slug}`} 
                 aria-label={`Read full article: ${item.title}`}
-                className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm group-hover:gap-3 transition-all"
+                className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:gap-3 transition-all"
               >
                 <span>Read Full Article: {item.title}</span> <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
@@ -109,7 +109,7 @@ export default function NewsPage() {
           </motion.div>
         ))}
         {filteredNews.length === 0 && (
-          <div className="col-span-full py-20 text-center text-zinc-500 font-medium text-lg">
+          <div className="col-span-full py-20 text-center text-zinc-500 dark:text-zinc-400 font-medium text-lg">
             No news found matching your search.
           </div>
         )}

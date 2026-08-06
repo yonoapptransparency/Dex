@@ -36,8 +36,8 @@ export function PublicHeader() {
           isHeaderHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'
         } ${
           scrolled 
-            ? 'bg-white/80 dark:bg-black/80 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
-            : 'bg-white/50 dark:bg-black/50 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
+            ? 'bg-white/90 dark:bg-black/90 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
+            : 'bg-white/80 dark:bg-black/80 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
         }`}
       >
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">

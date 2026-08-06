@@ -35,12 +35,12 @@ export function PublicBackToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-24 md:bottom-8 right-6 z-50 p-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full shadow-lg border border-black/5 dark:border-white/10 transition-all duration-300 hover:scale-110 active:scale-95 transform-gpu will-change-transform ${
+      className={`fixed bottom-28 md:bottom-8 right-6 z-[90] p-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full shadow-xl border border-black/10 dark:border-white/20 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer ${
         visible ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-5 scale-90 pointer-events-none'
       }`}
       aria-label="Back to top"
     >
-      <ArrowRight className="w-5 h-5 -rotate-90 opacity-70" />
+      <ArrowRight className="w-5 h-5 -rotate-90 text-blue-600 dark:text-blue-400" />
     </button>
   );
 }
