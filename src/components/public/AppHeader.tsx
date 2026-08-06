@@ -36,8 +36,8 @@ export default function AppHeader({ app }: AppHeaderProps) {
         </div>
       </div>
       
-      <div className="flex flex-col justify-center flex-1">
-        <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight mb-0.5 break-words">
+      <div className="flex flex-col justify-center flex-1 min-w-0">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black sm:font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 leading-snug sm:leading-tight mb-1 break-words">
           {app.name}
         </h1>
         <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
