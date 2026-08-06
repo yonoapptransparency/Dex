@@ -278,16 +278,16 @@ export const mockApps: AppConfig[] = [
   {
     "faqs": [
       {
-        "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection.",
-        "question": "Q1: Can I play Callbreak fully offline without mobile data?"
-      },
-      {
-        "question": "Q2: Are the in-game Gems and Coins tied to real-money rewards?",
+        "question": "Q1: Can I play Callbreak fully offline without mobile data?",
         "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection."
       },
       {
-        "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?",
-        "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low."
+        "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection.",
+        "question": "Q2: Are the in-game Gems and Coins tied to real-money rewards?"
+      },
+      {
+        "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low.",
+        "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?"
       },
       {
         "answer": "The platform includes Super 8 Bid Challenge (racing to win eight hands against aggressive AI) and Blind Bid Mode (bidding before viewing player hands).",
@@ -340,20 +340,20 @@ export const mockApps: AppConfig[] = [
     "video_url": "",
     "faqs": [
       {
-        "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose.",
-        "question": "1. Is Card Game 29 free to download and play?"
+        "question": "1. Is Card Game 29 free to download and play?",
+        "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose."
       },
       {
-        "question": "2. Can I play Card Game 29 without an internet connection?",
-        "answer": "Yes. The game includes an offline mode where you can play against AI opponents without an internet connection. However, online multiplayer features require an active internet connection."
+        "answer": "Yes. The game includes an offline mode where you can play against AI opponents without an internet connection. However, online multiplayer features require an active internet connection.",
+        "question": "2. Can I play Card Game 29 without an internet connection?"
       },
       {
-        "answer": "Yes. Card Game 29 supports multiple ways to play, including online multiplayer, private rooms with friends, and local multiplayer options on supported devices, depending on the available features in your version of the app.",
-        "question": "3. Does Card Game 29 support multiplayer gameplay?"
+        "question": "3. Does Card Game 29 support multiplayer gameplay?",
+        "answer": "Yes. Card Game 29 supports multiple ways to play, including online multiplayer, private rooms with friends, and local multiplayer options on supported devices, depending on the available features in your version of the app."
       },
       {
-        "answer": "Yes. While the game is based on the traditional rules of Twenty-Nine, its straightforward interface and offline practice mode make it accessible for new players. Experienced players can also enjoy advanced gameplay through bidding, partnerships, and customizable rule variations.",
-        "question": "4. Is Card Game 29 suitable for beginners?"
+        "question": "4. Is Card Game 29 suitable for beginners?",
+        "answer": "Yes. While the game is based on the traditional rules of Twenty-Nine, its straightforward interface and offline practice mode make it accessible for new players. Experienced players can also enjoy advanced gameplay through bidding, partnerships, and customizable rule variations."
       }
     ],
     "id": "colrcaih7",
@@ -411,8 +411,8 @@ export const mockApps: AppConfig[] = [
         "question": "1. What type of rummy gameplay does Joy Rummy offer?"
       },
       {
-        "question": "2. Does Joy Rummy include both practice and competitive game modes?",
-        "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world."
+        "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world.",
+        "question": "2. Does Joy Rummy include both practice and competitive game modes?"
       },
       {
         "answer": "No. The core gameplay is available without making any purchases. Optional in-app purchases primarily focus on cosmetic enhancements and personalization features, allowing players to customize their experience without affecting competitive balance.",
@@ -446,8 +446,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Yes, Jaiho 91 is free to download. The app features a virtual progression system designed for casual card play and strategy practice."
       },
       {
-        "question": "2. Can I play Jaiho 91 without an internet connection?",
-        "answer": "Yes, Jaiho 91 includes an offline AI mode, allowing you to play and practice your strategies against virtual opponents anytime without cellular data or Wi-Fi."
+        "answer": "Yes, Jaiho 91 includes an offline AI mode, allowing you to play and practice your strategies against virtual opponents anytime without cellular data or Wi-Fi.",
+        "question": "2. Can I play Jaiho 91 without an internet connection?"
       },
       {
         "answer": "Jaiho 91 features classic 13-card Rummy and Teen Patti mechanics, along with a built-in Smart Hint System to help players learn hand rankings and set formations.",
@@ -487,8 +487,8 @@ export const mockApps: AppConfig[] = [
         "question": "1. Is OK Rummy free to download and play?"
       },
       {
-        "answer": "Yes, the core puzzle-solving mechanics and the primary progression map are fully available offline. You can enjoy the game uninterrupted even when you do not have a Wi-Fi or cellular connection.",
-        "question": "2. Can I play the game without an internet connection?"
+        "question": "2. Can I play the game without an internet connection?",
+        "answer": "Yes, the core puzzle-solving mechanics and the primary progression map are fully available offline. You can enjoy the game uninterrupted even when you do not have a Wi-Fi or cellular connection."
       },
       {
         "answer": "Instead of traditional matches, the game uses a level-based map. You clear individual puzzle boards by forming valid card sequences, which earns you virtual stars to unlock new thematic zones and more complex challenges.",
@@ -533,16 +533,16 @@ export const mockApps: AppConfig[] = [
     "rating": 5,
     "faqs": [
       {
-        "question": "1. Is Jaiho Slots free to download and play?",
-        "answer": "Yes, the application is completely free to download. All gameplay features, levels, and progression systems are accessible without mandatory purchases, supported entirely by a virtual coin economy and in-app advertisements."
+        "answer": "Yes, the application is completely free to download. All gameplay features, levels, and progression systems are accessible without mandatory purchases, supported entirely by a virtual coin economy and in-app advertisements.",
+        "question": "1. Is Jaiho Slots free to download and play?"
       },
       {
         "question": "2. Can I play the game offline?",
         "answer": "Yes, the core reel-matching puzzles and level progression are fully functional offline. You can enjoy the game uninterrupted without an active Wi-Fi or cellular connection."
       },
       {
-        "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage.",
-        "question": "3. How does the puzzle progression work?"
+        "question": "3. How does the puzzle progression work?",
+        "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage."
       }
     ],
     "release_notes": "",
@@ -579,8 +579,8 @@ export const mockApps: AppConfig[] = [
     "red_box_msg": "",
     "faqs": [
       {
-        "question": "1. What are the main gameplay mechanics in Yono Arcade?",
-        "answer": "Yono Arcade features a four-reel fruit tile system where players spin and match symbols. You win virtual rewards by aligning fruit symbols into specific shapes like horizontal lines, diagonals, triangles, and W patterns."
+        "answer": "Yono Arcade features a four-reel fruit tile system where players spin and match symbols. You win virtual rewards by aligning fruit symbols into specific shapes like horizontal lines, diagonals, triangles, and W patterns.",
+        "question": "1. What are the main gameplay mechanics in Yono Arcade?"
       },
       {
         "answer": "Yes, Yono Arcade is completely free to download. The application operates using a virtual arcade ecosystem designed entirely for casual entertainment and pattern-matching progression.",
@@ -647,16 +647,16 @@ export const mockApps: AppConfig[] = [
     "serial_number": 11,
     "faqs": [
       {
-        "answer": "Yes, Bingo 101 is completely free to download. The app utilizes a virtual progression system designed purely for casual entertainment and daily activity tracking.",
-        "question": "1. Is Bingo 101 free to download and play?"
+        "question": "1. Is Bingo 101 free to download and play?",
+        "answer": "Yes, Bingo 101 is completely free to download. The app utilizes a virtual progression system designed purely for casual entertainment and daily activity tracking."
       },
       {
-        "answer": "Yes, the app features a completely offline mode, allowing you to enjoy the classic number-matching gameplay and practice your skills without needing cellular data or Wi-Fi.",
-        "question": "2. Can I play the game without an internet connection?"
+        "question": "2. Can I play the game without an internet connection?",
+        "answer": "Yes, the app features a completely offline mode, allowing you to enjoy the classic number-matching gameplay and practice your skills without needing cellular data or Wi-Fi."
       },
       {
-        "answer": "Alongside the core grid mechanics, the app includes an interactive spin wheel, daily missions, achievement tracking, and a personal profile section to monitor your activity history.",
-        "question": "3. What features are included besides the main game?"
+        "question": "3. What features are included besides the main game?",
+        "answer": "Alongside the core grid mechanics, the app includes an interactive spin wheel, daily missions, achievement tracking, and a personal profile section to monitor your activity history."
       }
     ],
     "custom_admin_box_html": "",
@@ -677,8 +677,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Yes, ABC Rummy is completely offline. You can play matches, practice your skills, and challenge the AI without needing Wi-Fi or cellular data, making it perfect for travel."
       },
       {
-        "question": "2. How do you win a match in ABC Rummy?",
-        "answer": "To win, you must engage in classic gameplay by organizing your hand into valid sets (3 to 4 cards of the same rank) and runs (3 or more consecutive cards of the same suit)."
+        "answer": "To win, you must engage in classic gameplay by organizing your hand into valid sets (3 to 4 cards of the same rank) and runs (3 or more consecutive cards of the same suit).",
+        "question": "2. How do you win a match in ABC Rummy?"
       },
       {
         "answer": "Alongside the card matches, the app features a spin wheel for bonus virtual coins, unlockable avatars, customizable themes, and a system to track your wins and high scores.",
@@ -791,12 +791,12 @@ export const mockApps: AppConfig[] = [
     "seo_keywords": "",
     "faqs": [
       {
-        "answer": "You level up by completing daily missions, participating in activity challenges, and using features like the Lucky Spin Wheel. Earning points through these tasks advances your profile through multiple achievement tiers.  ",
-        "question": "1. How do I level up in Love Rummy?"
+        "question": "1. How do I level up in Love Rummy?",
+        "answer": "You level up by completing daily missions, participating in activity challenges, and using features like the Lucky Spin Wheel. Earning points through these tasks advances your profile through multiple achievement tiers.  "
       },
       {
-        "question": "2. What can I find inside the app's Personal Profile?",
-        "answer": "The personal profile acts as your main dashboard, where you can track your current level, review your completed milestones, and monitor your overall activity history.  "
+        "answer": "The personal profile acts as your main dashboard, where you can track your current level, review your completed milestones, and monitor your overall activity history.  ",
+        "question": "2. What can I find inside the app's Personal Profile?"
       },
       {
         "answer": "Yes, Love Rummy includes community participation features that allow you to invite friends to the app, making it easy to share your progress and enjoy the level-based challenges together",
@@ -850,8 +850,8 @@ export const mockApps: AppConfig[] = [
         "question": "1. What types of mini-games are available in Share Slots?"
       },
       {
-        "answer": "No, a major benefit of Share Slots is its offline capability. Select mini-games and progression features can be played without needing cellular data or a Wi-Fi connection.",
-        "question": "2. Does the application require a constant internet connection?"
+        "question": "2. Does the application require a constant internet connection?",
+        "answer": "No, a major benefit of Share Slots is its offline capability. Select mini-games and progression features can be played without needing cellular data or a Wi-Fi connection."
       },
       {
         "answer": "Every day, the app provides a new checklist of activities. This includes spinning a lucky wheel, answering trivia questions, and revealing digital scratch cards to earn progression points and track your daily engagement.  ",
@@ -895,8 +895,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Unlike traditional tabletop apps, YONO VIP is a futuristic spatial puzzle game. You must draw lines to connect matching energy nodes on a neon grid without letting your paths cross, all while dodging moving obstacles."
       },
       {
-        "answer": "Yes! The core grid-solving levels are fully available offline. You only need the internet if you want to update your daily mission logs or spin the daily Quantum Wheel.",
-        "question": "2. Can I play the puzzles without an internet connection?"
+        "question": "2. Can I play the puzzles without an internet connection?",
+        "answer": "Yes! The core grid-solving levels are fully available offline. You only need the internet if you want to update your daily mission logs or spin the daily Quantum Wheel."
       },
       {
         "question": "3. Is the game free to play?",
@@ -940,12 +940,12 @@ export const mockApps: AppConfig[] = [
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879172/download_33_d1pgy0.webp",
     "faqs": [
       {
-        "answer": "Maha Games is a physics-based sandbox and puzzle application. You use mechanics like gravity inversion and momentum to guide objects through complex, 3D floating mazes.",
-        "question": "1. What kind of game is Maha Games?"
+        "question": "1. What kind of game is Maha Games?",
+        "answer": "Maha Games is a physics-based sandbox and puzzle application. You use mechanics like gravity inversion and momentum to guide objects through complex, 3D floating mazes."
       },
       {
-        "question": "2. Can I play the puzzles without an internet connection?",
-        "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection."
+        "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection.",
+        "question": "2. Can I play the puzzles without an internet connection?"
       },
       {
         "question": "3. Is there a time limit on the puzzles?",
@@ -992,16 +992,16 @@ export const mockApps: AppConfig[] = [
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879252/download_34_wrdzdw.webp",
     "faqs": [
       {
-        "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board.",
-        "question": "1. How do you move in Rummy Ludo?"
+        "question": "1. How do you move in Rummy Ludo?",
+        "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board."
       },
       {
         "question": "2. What happens if I land on an opponent's token?",
         "answer": "Unlike classic rules where the token is sent home, landing on an opponent in this game allows you to randomly steal one of the tiles from their hand, helping you build your own sets faster."
       },
       {
-        "question": "3. Does the app support offline gameplay?",
-        "answer": "Yes, the application includes a robust offline mode with intelligent AI opponents, allowing you to practice your tile-drafting and board strategies without needing an internet connection."
+        "answer": "Yes, the application includes a robust offline mode with intelligent AI opponents, allowing you to practice your tile-drafting and board strategies without needing an internet connection.",
+        "question": "3. Does the app support offline gameplay?"
       }
     ]
   },
@@ -1015,16 +1015,16 @@ export const mockApps: AppConfig[] = [
     "is_new": false,
     "faqs": [
       {
-        "question": "1. How do you play 789 Jackports?",
-        "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way."
+        "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way.",
+        "question": "1. How do you play 789 Jackports?"
       },
       {
-        "question": "2. What happens when you dock a 7, 8, and 9 together?",
-        "answer": "Docking those three numbers in a consecutive sequence triggers a massive chain reaction that clears the board and instantly completes the puzzle phase."
+        "answer": "Docking those three numbers in a consecutive sequence triggers a massive chain reaction that clears the board and instantly completes the puzzle phase.",
+        "question": "2. What happens when you dock a 7, 8, and 9 together?"
       },
       {
-        "answer": "No, the entire cosmic puzzle campaign and all physics-based levels are fully available offline.",
-        "question": "3. Do I need Wi-Fi to play this game?"
+        "question": "3. Do I need Wi-Fi to play this game?",
+        "answer": "No, the entire cosmic puzzle campaign and all physics-based levels are fully available offline."
       }
     ],
     "rating": 5,
@@ -1088,8 +1088,8 @@ export const mockApps: AppConfig[] = [
         "question": "2. Can I play this puzzle game without an internet connection?"
       },
       {
-        "question": "3. Are there different visual styles for the puzzles?",
-        "answer": "Yes, as you play, you earn virtual progression points that allow you to unlock unique cosmetic skins for your cube, such as neon lights, glass, or metallic textures."
+        "answer": "Yes, as you play, you earn virtual progression points that allow you to unlock unique cosmetic skins for your cube, such as neon lights, glass, or metallic textures.",
+        "question": "3. Are there different visual styles for the puzzles?"
       }
     ],
     "encrypted_link": "",
@@ -1115,7 +1115,7 @@ export const saveMockApps = (apps: AppConfig[]) => {
 export const mockSettings: GlobalSettings = {
   "site_title": "RummyDex",
   "meta_description": "RummyDex is the ultimate game directory. Access hand-tested reviews, verified secure links, and daily news to elevate your mobile experience.",
-  "logo_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785719943/1000132603_ym7nto.jpg",
+  "logo_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785648485/ezgif-88d07abd3ef5753f_yz8ytg.webp",
   "favicon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785720339/1000132678_1_ro1ftj.png",
   "helpline_whatsapp": "",
   "helpline_telegram": "",
@@ -1138,41 +1138,41 @@ export const mockSettings: GlobalSettings = {
       "question": "​Q1: What is RummyDex, and how does it help me find the best apps?"
     },
     {
-      "question": "Q2: How does RummyDex ensure listed apps perform well on my device?",
-      "answer": "Every application featured on our platform undergoes real, hands-on evaluation by our team. We analyze frame rate stability, thermal efficiency, battery consumption, and overall interface responsiveness so you know exactly how an app behaves before you install it."
+      "answer": "Every application featured on our platform undergoes real, hands-on evaluation by our team. We analyze frame rate stability, thermal efficiency, battery consumption, and overall interface responsiveness so you know exactly how an app behaves before you install it.",
+      "question": "Q2: How does RummyDex ensure listed apps perform well on my device?"
     },
     {
-      "question": "Q3: Does RummyDex host software files directly on its servers?",
-      "answer": "No. We function as a secure informational bridge. We review software and provide verified, direct routing to official developer sources. This guarantees you always access authentic, unalterable releases straight from the original creators."
+      "answer": "No. We function as a secure informational bridge. We review software and provide verified, direct routing to official developer sources. This guarantees you always access authentic, unalterable releases straight from the original creators.",
+      "question": "Q3: Does RummyDex host software files directly on its servers?"
     },
     {
       "question": "Q4: Do I need an account or subscription to use RummyDex?",
       "answer": "Not at all. RummyDex is an open-access resource. You can explore our full app index, stream video review highlights, read technical breakdowns, and check daily platform news completely free, with no account registration required."
     },
     {
-      "question": "Q5: What will I find in the News and Video sections?",
-      "answer": "Our News section keeps you updated on major software patches, developer announcements, and mobile trends. Our Video section offers fast, lightweight gameplay and UI clips so you can visually inspect an app’s performance before visiting the developer source"
+      "answer": "Our News section keeps you updated on major software patches, developer announcements, and mobile trends. Our Video section offers fast, lightweight gameplay and UI clips so you can visually inspect an app’s performance before visiting the developer source",
+      "question": "Q5: What will I find in the News and Video sections?"
     },
     {
-      "question": "Q6: How frequently are new reviews and apps added?",
-      "answer": "Our catalog is constantly growing. We continuously evaluate new submissions, test software updates, and publish fresh insights to ensure our directory reflects the newest and most reliable mobile applications available."
+      "answer": "Our catalog is constantly growing. We continuously evaluate new submissions, test software updates, and publish fresh insights to ensure our directory reflects the newest and most reliable mobile applications available.",
+      "question": "Q6: How frequently are new reviews and apps added?"
     }
   ],
   "developers": [
     {
-      "bio": "Chief Executive Officer (CEO), RummyDex\nAs the visionary architect behind RummyDex, the CEO is dedicated to transforming how users discover and experience mobile entertainment. Driven by a strict commitment to digital transparency and platform integrity, the CEO leads the strategic direction of the directory, ensuring that every featured application meets rigorous standards for performance, safety, and overall quality. By championing a zero-bias, hands-on review process and prioritizing a seamless, secure user experience, the CEO drives RummyDex’s mission to be the internet’s most trusted, authoritative hub for premium offline and online casual games.",
-      "role": "CEO",
       "github": "",
+      "bio": "Chief Executive Officer (CEO), RummyDex\nAs the visionary architect behind RummyDex, the CEO is dedicated to transforming how users discover and experience mobile entertainment. Driven by a strict commitment to digital transparency and platform integrity, the CEO leads the strategic direction of the directory, ensuring that every featured application meets rigorous standards for performance, safety, and overall quality. By championing a zero-bias, hands-on review process and prioritizing a seamless, secure user experience, the CEO drives RummyDex’s mission to be the internet’s most trusted, authoritative hub for premium offline and online casual games.",
       "image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785064868/download_47_tltvqo.webp",
       "twitter": "",
-      "name": "Jeet Roj"
+      "name": "Jeet Roj",
+      "role": "CEO"
     },
     {
-      "name": "Shehzad .L",
-      "role": "Chief Technology Officer (CTO)",
       "image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785718054/1000132675_11zon_pogxm7.jpg",
       "github": "",
       "twitter": "",
+      "name": "Shehzad .L",
+      "role": "Chief Technology Officer (CTO)",
       "bio": "As the lead technical architect of RummyDex, the CTO drives the core engineering, database infrastructure, and platform security of the website. Responsible for maintaining a high-performance framework, the CTO ensures lightning-fast search indexing, real-time content delivery for our active News Hub, and robust server stability under heavy traffic. By continuously optimizing back-end operations and system architecture, the CTO guarantees that navigating RummyDex remains an exceptionally fast, smooth, and reliable experience for every user."
     }
   ],
@@ -1203,13 +1203,13 @@ export const mockSettings: GlobalSettings = {
   "secure_index_title": "RummyDex",
   "secure_index_subtitle": "RummyDex is the ultimate game directory. Access hand-tested reviews, verified secure links, and daily news to elevate your mobile experience.",
   "social_links": {
-    "twitter": "",
-    "linkedin": "",
     "instagram": "https://www.instagram.com/rummydex?igsh=MTJjaGR3c3hmdjhnZA==",
-    "youtube": "https://www.youtube.com/@rummydex",
-    "facebook": "https://www.facebook.com/share/1951euBy3d/"
+    "twitter": "",
+    "facebook": "https://www.facebook.com/share/1951euBy3d/",
+    "linkedin": "",
+    "youtube": "https://www.youtube.com/@rummydex"
   },
-  "last_updated": "2026-08-03T16:10:13.769Z"
+  "last_updated": "2026-08-06T13:14:09.726Z"
 } as any;
 
 export const saveMockSettings = (settings: GlobalSettings) => {
