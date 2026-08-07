@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Star, Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 import { useData } from '../../contexts/DataContextPublic';
-import StarRatingFeedback from '../StarRatingFeedback';
-import PublicSyncStatus from './PublicSyncStatus';
+
+const StarRatingFeedback = React.lazy(() => import('../StarRatingFeedback'));
+const PublicSyncStatus = React.lazy(() => import('./PublicSyncStatus'));
 
 export function PublicFooter() {
   const { settings } = useData();
@@ -26,7 +27,9 @@ export function PublicFooter() {
       </p>
       
       <div className="mt-4 w-full">
-        <StarRatingFeedback />
+        <Suspense fallback={<div className="h-10 animate-pulse bg-white/5 rounded-xl w-32" />}>
+          <StarRatingFeedback />
+        </Suspense>
       </div>
 
       <a href="#" className="inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-full py-2.5 px-5 backdrop-blur-sm mt-8 w-fit shadow-lg shadow-black/20 group">
@@ -141,7 +144,9 @@ export function PublicFooter() {
           </div>
         </div>
         <div className="scale-90 opacity-70 hover:opacity-100 transition-opacity">
-          <PublicSyncStatus />
+          <Suspense fallback={null}>
+            <PublicSyncStatus />
+          </Suspense>
         </div>
       </div>
     </footer>

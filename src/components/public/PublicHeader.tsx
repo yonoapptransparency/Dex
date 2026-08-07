@@ -5,8 +5,9 @@ import { Menu, Shield, ShieldCheck, Info, X, LayoutGrid, Newspaper, Sparkles, Se
 import { useData } from '../../contexts/DataContextPublic';
 import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
-import GlobalSearch from '../GlobalSearch';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
+
+const GlobalSearch = React.lazy(() => import('../GlobalSearch'));
 
 export function PublicHeader() {
   const { settings } = useData();
@@ -244,7 +245,11 @@ export function PublicHeader() {
         </div>
       )}
 
-      <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      {searchOpen && (
+        <React.Suspense fallback={null}>
+          <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+        </React.Suspense>
+      )}
     </>
   );
 }
