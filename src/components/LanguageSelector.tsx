@@ -36,11 +36,14 @@ export default function LanguageSelector() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Select language"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors w-full"
       >
-        <Globe className="w-4 h-4 text-blue-500" />
+        <Globe className="w-4 h-4 text-blue-500" aria-hidden="true" />
         <span className="text-sm font-medium dark:text-gray-300 flex-1 text-left">{currentLang.name}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
 
       {isOpen && (
@@ -49,6 +52,7 @@ export default function LanguageSelector() {
             <button
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
+              aria-current={activeLangCode.startsWith(lang.code) ? 'true' : undefined}
               className={`block w-full text-left px-4 py-3 text-sm font-medium transition-colors ${
                 activeLangCode.startsWith(lang.code) 
                   ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
