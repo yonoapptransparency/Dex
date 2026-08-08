@@ -106,6 +106,11 @@ export default function VideoDetailPage() {
   if (!videoItem) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
+        <Meta 
+          title="404 - Video Not Found | RummyDex" 
+          description="The requested video walkthrough could not be located on RummyDex." 
+          noindex={true} 
+        />
         <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
           <ShieldAlert className="w-8 h-8" />
         </div>

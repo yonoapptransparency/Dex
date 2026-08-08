@@ -8,6 +8,8 @@ import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
+import { resolveAppSlug } from '../seoHelper';
+import Meta from './Meta';
 import AppDetailsSkeleton from './public/AppDetailsSkeleton';
 
 // Lazy load pages directly with retry to avoid chunk load errors
@@ -49,8 +51,8 @@ export default function FallbackRouteMatcher() {
       return;
     }
 
-    const appExists = apps.some(a => a.slug?.toLowerCase() === slug);
-    if (appExists) {
+    const matchedApp = resolveAppSlug(slug, apps);
+    if (matchedApp) {
       setResolvedType('app');
       return;
     }
@@ -111,7 +113,9 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'app') {
-    return <Navigate to={`/app/${slug}`} replace />;
+    const matchedApp = resolveAppSlug(slug, apps);
+    const targetSlug = matchedApp?.slug || slug;
+    return <Navigate to={`/app/${targetSlug}`} replace />;
   }
 
   if (resolvedType === 'news') {
@@ -141,10 +145,11 @@ export default function FallbackRouteMatcher() {
 
   return (
     <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
-      <Helmet>
-        <title>404 - Page Not Found</title>
-        <meta name="robots" content="noindex, follow" />
-      </Helmet>
+      <Meta 
+        title="404 - Page Not Found | RummyDex" 
+        description="We could not resolve this link to any application listing, news bulletin, or blog post." 
+        noindex={true} 
+      />
       <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
 
         <span className="text-2xl font-bold">404</span>

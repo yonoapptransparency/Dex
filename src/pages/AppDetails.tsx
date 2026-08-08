@@ -16,6 +16,7 @@ import UserReviews from '../components/UserReviews';
 import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
 
+import { resolveAppSlug } from '../seoHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
@@ -33,7 +34,7 @@ export default function AppDetails() {
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
-  const app = mockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase());
+  const app = resolveAppSlug(slug, mockApps);
   
   const navigate = useNavigate();
   const [triedRefresh, setTriedRefresh] = useState(false);
@@ -113,6 +114,11 @@ export default function AppDetails() {
   if (!app) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
+        <Meta 
+          title="404 - App Not Found | RummyDex" 
+          description="The requested application could not be located on RummyDex." 
+          noindex={true} 
+        />
         <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
           <ShieldAlert className="w-8 h-8" />
         </div>
