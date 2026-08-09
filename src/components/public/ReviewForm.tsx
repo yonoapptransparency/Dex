@@ -119,6 +119,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
                   onMouseEnter={() => setHoveredRating(s)}
                   onMouseLeave={() => setHoveredRating(null)}
                   onClick={() => setRating(s)}
+                  aria-label={`Rate ${s} stars`}
                   className="p-1 focus:outline-none cursor-pointer"
                 >
                   <Star 
@@ -136,8 +137,9 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="sm:col-span-1">
-            <span className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Your Name</span>
+            <label htmlFor="username" className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Your Name</label>
             <input
+              id="username"
               type="text"
               required
               maxLength={30}
