@@ -115,8 +115,8 @@
           "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection."
         },
         {
-          "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low.",
-          "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?"
+          "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?",
+          "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low."
         },
         {
           "question": "Q4: What extra game modes are included besides standard 5-round matches?",
@@ -170,16 +170,16 @@
       "video_url": "",
       "faqs": [
         {
-          "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose.",
-          "question": "1. Is Card Game 29 free to download and play?"
+          "question": "1. Is Card Game 29 free to download and play?",
+          "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose."
         },
         {
-          "answer": "Yes. The game includes an offline mode where you can play against AI opponents without an internet connection. However, online multiplayer features require an active internet connection.",
-          "question": "2. Can I play Card Game 29 without an internet connection?"
+          "question": "2. Can I play Card Game 29 without an internet connection?",
+          "answer": "Yes. The game includes an offline mode where you can play against AI opponents without an internet connection. However, online multiplayer features require an active internet connection."
         },
         {
-          "question": "3. Does Card Game 29 support multiplayer gameplay?",
-          "answer": "Yes. Card Game 29 supports multiple ways to play, including online multiplayer, private rooms with friends, and local multiplayer options on supported devices, depending on the available features in your version of the app."
+          "answer": "Yes. Card Game 29 supports multiple ways to play, including online multiplayer, private rooms with friends, and local multiplayer options on supported devices, depending on the available features in your version of the app.",
+          "question": "3. Does Card Game 29 support multiplayer gameplay?"
         },
         {
           "question": "4. Is Card Game 29 suitable for beginners?",
@@ -238,20 +238,20 @@
       "is_coming_soon": false,
       "faqs": [
         {
-          "question": "1. What type of rummy gameplay does Joy Rummy offer?",
-          "answer": "Joy Rummy is built around the traditional 13-card rummy format, where players organize cards into valid sequences and sets before declaring their hand. The gameplay emphasizes strategic planning, memory, and decision-making rather than relying solely on chance."
+          "answer": "Joy Rummy is built around the traditional 13-card rummy format, where players organize cards into valid sequences and sets before declaring their hand. The gameplay emphasizes strategic planning, memory, and decision-making rather than relying solely on chance.",
+          "question": "1. What type of rummy gameplay does Joy Rummy offer?"
         },
         {
-          "question": "2. Does Joy Rummy include both practice and competitive game modes?",
-          "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world."
+          "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world.",
+          "question": "2. Does Joy Rummy include both practice and competitive game modes?"
         },
         {
           "answer": "No. The core gameplay is available without making any purchases. Optional in-app purchases primarily focus on cosmetic enhancements and personalization features, allowing players to customize their experience without affecting competitive balance.",
           "question": "3. Are in-app purchases required to enjoy the complete gameplay experience?"
         },
         {
-          "answer": "Joy Rummy combines skill-based gameplay with features such as global matchmaking, private rooms, AI practice, and regular content improvements. These features provide both new and experienced players with a consistent and engaging environment to refine their strategies over time.",
-          "question": "4. What makes Joy Rummy suitable for long-term players?"
+          "question": "4. What makes Joy Rummy suitable for long-term players?",
+          "answer": "Joy Rummy combines skill-based gameplay with features such as global matchmaking, private rooms, AI practice, and regular content improvements. These features provide both new and experienced players with a consistent and engaging environment to refine their strategies over time."
         }
       ],
       "release_notes": "",
@@ -274,16 +274,16 @@
       "idea_box_msg": "",
       "faqs": [
         {
-          "answer": "Yes, Jaiho 91 is free to download. The app features a virtual progression system designed for casual card play and strategy practice.",
-          "question": "1. Is Jaiho 91 free to download and play?"
+          "question": "1. Is Jaiho 91 free to download and play?",
+          "answer": "Yes, Jaiho 91 is free to download. The app features a virtual progression system designed for casual card play and strategy practice."
         },
         {
           "answer": "Yes, Jaiho 91 includes an offline AI mode, allowing you to play and practice your strategies against virtual opponents anytime without cellular data or Wi-Fi.",
           "question": "2. Can I play Jaiho 91 without an internet connection?"
         },
         {
-          "question": "3. What card game formats are available in Jaiho 91?",
-          "answer": "Jaiho 91 features classic 13-card Rummy and Teen Patti mechanics, along with a built-in Smart Hint System to help players learn hand rankings and set formations."
+          "answer": "Jaiho 91 features classic 13-card Rummy and Teen Patti mechanics, along with a built-in Smart Hint System to help players learn hand rankings and set formations.",
+          "question": "3. What card game formats are available in Jaiho 91?"
         }
       ],
       "developer": "Iskit tool",
@@ -316,12 +316,12 @@
       "custom_admin_box_heading": "",
       "faqs": [
         {
-          "question": "1. Is OK Rummy free to download and play?",
-          "answer": "Yes, OK Rummy is completely free to download. The app provides full access to its puzzle map and levels without any mandatory purchases, supported entirely by in-app advertisements."
+          "answer": "Yes, OK Rummy is completely free to download. The app provides full access to its puzzle map and levels without any mandatory purchases, supported entirely by in-app advertisements.",
+          "question": "1. Is OK Rummy free to download and play?"
         },
         {
-          "question": "2. Can I play the game without an internet connection?",
-          "answer": "Yes, the core puzzle-solving mechanics and the primary progression map are fully available offline. You can enjoy the game uninterrupted even when you do not have a Wi-Fi or cellular connection."
+          "answer": "Yes, the core puzzle-solving mechanics and the primary progression map are fully available offline. You can enjoy the game uninterrupted even when you do not have a Wi-Fi or cellular connection.",
+          "question": "2. Can I play the game without an internet connection?"
         },
         {
           "answer": "Instead of traditional matches, the game uses a level-based map. You clear individual puzzle boards by forming valid card sequences, which earns you virtual stars to unlock new thematic zones and more complex challenges.",
@@ -375,8 +375,8 @@
           "answer": "Yes, the core reel-matching puzzles and level progression are fully functional offline. You can enjoy the game uninterrupted without an active Wi-Fi or cellular connection."
         },
         {
-          "question": "3. How does the puzzle progression work?",
-          "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage."
+          "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage.",
+          "question": "3. How does the puzzle progression work?"
         }
       ],
       "release_notes": "",
@@ -418,8 +418,8 @@
           "answer": "Yono Arcade features a four-reel fruit tile system where players spin and match symbols. You win virtual rewards by aligning fruit symbols into specific shapes like horizontal lines, diagonals, triangles, and W patterns."
         },
         {
-          "question": "2. Is Yono Arcade free to download and play?",
-          "answer": "Yes, Yono Arcade is completely free to download. The application operates using a virtual arcade ecosystem designed entirely for casual entertainment and pattern-matching progression."
+          "answer": "Yes, Yono Arcade is completely free to download. The application operates using a virtual arcade ecosystem designed entirely for casual entertainment and pattern-matching progression.",
+          "question": "2. Is Yono Arcade free to download and play?"
         },
         {
           "answer": "No. According to the developer's data safety guidelines, Yono Arcade does not collect user data and does not share any data with third parties, ensuring a secure and private experience.",
@@ -483,8 +483,8 @@
       "serial_number": 11,
       "faqs": [
         {
-          "question": "1. Is Bingo 101 free to download and play?",
-          "answer": "Yes, Bingo 101 is completely free to download. The app utilizes a virtual progression system designed purely for casual entertainment and daily activity tracking."
+          "answer": "Yes, Bingo 101 is completely free to download. The app utilizes a virtual progression system designed purely for casual entertainment and daily activity tracking.",
+          "question": "1. Is Bingo 101 free to download and play?"
         },
         {
           "answer": "Yes, the app features a completely offline mode, allowing you to enjoy the classic number-matching gameplay and practice your skills without needing cellular data or Wi-Fi.",
@@ -586,16 +586,16 @@
       "developer": "Studio 77 Interactive",
       "faqs": [
         {
-          "answer": "Players take turns adding numbered cards to a central pile, maintaining a running total. The goal is to use action cards and numerical strategy to force your opponent to play a card that pushes the total sum over 77.",
-          "question": "1. How do you play the EVERY 77 card game?"
+          "question": "1. How do you play the EVERY 77 card game?",
+          "answer": "Players take turns adding numbered cards to a central pile, maintaining a running total. The goal is to use action cards and numerical strategy to force your opponent to play a card that pushes the total sum over 77."
         },
         {
           "answer": "Yes, the application is completely free to download. It features a virtual progression system for cosmetic unlocks and is supported by standard in-app advertisements.",
           "question": "2. Is EVERY 77 free to download and play?"
         },
         {
-          "answer": "Yes, EVERY 77 includes a fully functional offline mode. You can practice against various levels of computer-controlled AI without needing a Wi-Fi or cellular data connection.",
-          "question": "3. Does the app support offline gameplay?"
+          "question": "3. Does the app support offline gameplay?",
+          "answer": "Yes, EVERY 77 includes a fully functional offline mode. You can practice against various levels of computer-controlled AI without needing a Wi-Fi or cellular data connection."
         }
       ],
       "release_notes": "",
@@ -686,16 +686,16 @@
       "is_coming_soon": false,
       "faqs": [
         {
-          "question": "1. What types of mini-games are available in Share Slots?",
-          "answer": "The app includes a dedicated Game Zone with seven different activities, including endless runners (Money Runner), reflex games (Speed Tap, Bubble Pop), and precision puzzles (Stack Tower, Number Dash).  "
+          "answer": "The app includes a dedicated Game Zone with seven different activities, including endless runners (Money Runner), reflex games (Speed Tap, Bubble Pop), and precision puzzles (Stack Tower, Number Dash).  ",
+          "question": "1. What types of mini-games are available in Share Slots?"
         },
         {
-          "answer": "No, a major benefit of Share Slots is its offline capability. Select mini-games and progression features can be played without needing cellular data or a Wi-Fi connection.",
-          "question": "2. Does the application require a constant internet connection?"
+          "question": "2. Does the application require a constant internet connection?",
+          "answer": "No, a major benefit of Share Slots is its offline capability. Select mini-games and progression features can be played without needing cellular data or a Wi-Fi connection."
         },
         {
-          "question": "3. How do the daily tasks work?",
-          "answer": "Every day, the app provides a new checklist of activities. This includes spinning a lucky wheel, answering trivia questions, and revealing digital scratch cards to earn progression points and track your daily engagement.  "
+          "answer": "Every day, the app provides a new checklist of activities. This includes spinning a lucky wheel, answering trivia questions, and revealing digital scratch cards to earn progression points and track your daily engagement.  ",
+          "question": "3. How do the daily tasks work?"
         }
       ],
       "yellow_box_msg": "",
@@ -732,16 +732,16 @@
       "idea_box_msg": "",
       "faqs": [
         {
-          "answer": "Unlike traditional tabletop apps, YONO VIP is a futuristic spatial puzzle game. You must draw lines to connect matching energy nodes on a neon grid without letting your paths cross, all while dodging moving obstacles.",
-          "question": "1. What exactly is the gameplay in YONO VIP?"
+          "question": "1. What exactly is the gameplay in YONO VIP?",
+          "answer": "Unlike traditional tabletop apps, YONO VIP is a futuristic spatial puzzle game. You must draw lines to connect matching energy nodes on a neon grid without letting your paths cross, all while dodging moving obstacles."
         },
         {
-          "question": "2. Can I play the puzzles without an internet connection?",
-          "answer": "Yes! The core grid-solving levels are fully available offline. You only need the internet if you want to update your daily mission logs or spin the daily Quantum Wheel."
+          "answer": "Yes! The core grid-solving levels are fully available offline. You only need the internet if you want to update your daily mission logs or spin the daily Quantum Wheel.",
+          "question": "2. Can I play the puzzles without an internet connection?"
         },
         {
-          "answer": "Absolutely. YONO VIP is entirely free to download. It relies on a virtual progression system where you earn \"Energy Cells\" through gameplay to unlock new levels and visual themes, supported by in-app advertisements.",
-          "question": "3. Is the game free to play?"
+          "question": "3. Is the game free to play?",
+          "answer": "Absolutely. YONO VIP is entirely free to download. It relies on a virtual progression system where you earn \"Energy Cells\" through gameplay to unlock new levels and visual themes, supported by in-app advertisements."
         }
       ],
       "yellow_box_msg": "",
@@ -786,12 +786,12 @@
           "answer": "Maha Games is a physics-based sandbox and puzzle application. You use mechanics like gravity inversion and momentum to guide objects through complex, 3D floating mazes."
         },
         {
-          "question": "2. Can I play the puzzles without an internet connection?",
-          "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection."
+          "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection.",
+          "question": "2. Can I play the puzzles without an internet connection?"
         },
         {
-          "answer": "No, the main puzzle rooms do not have timers. The game is designed to be a stress-free environment that encourages you to take your time and experiment with different physics solutions.",
-          "question": "3. Is there a time limit on the puzzles?"
+          "question": "3. Is there a time limit on the puzzles?",
+          "answer": "No, the main puzzle rooms do not have timers. The game is designed to be a stress-free environment that encourages you to take your time and experiment with different physics solutions."
         }
       ],
       "seo_description": "Explore Maha Games on RummyDex. Dive into a crazy physics-based puzzle hub featuring gravity-defying mechanics, level building, and offline challenges.",
@@ -835,12 +835,12 @@
       "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879252/download_34_wrdzdw.webp",
       "faqs": [
         {
-          "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board.",
-          "question": "1. How do you move in Rummy Ludo?"
+          "question": "1. How do you move in Rummy Ludo?",
+          "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board."
         },
         {
-          "question": "2. What happens if I land on an opponent's token?",
-          "answer": "Unlike classic rules where the token is sent home, landing on an opponent in this game allows you to randomly steal one of the tiles from their hand, helping you build your own sets faster."
+          "answer": "Unlike classic rules where the token is sent home, landing on an opponent in this game allows you to randomly steal one of the tiles from their hand, helping you build your own sets faster.",
+          "question": "2. What happens if I land on an opponent's token?"
         },
         {
           "question": "3. Does the app support offline gameplay?",
@@ -859,8 +859,8 @@
       "is_new": false,
       "faqs": [
         {
-          "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way.",
-          "question": "1. How do you play 789 Jackports?"
+          "question": "1. How do you play 789 Jackports?",
+          "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way."
         },
         {
           "answer": "Docking those three numbers in a consecutive sequence triggers a massive chain reaction that clears the board and instantly completes the puzzle phase.",
@@ -929,8 +929,8 @@
           "answer": "Instead of flat boards, you manipulate a massive 3D puzzle cube. You must rotate the structure and align 7 matching blocks within a 7-second window to clear the matrix before the time runs out."
         },
         {
-          "question": "2. Can I play this puzzle game without an internet connection?",
-          "answer": "Yes, the core 3D matrix puzzles and gravity challenges are fully functional offline, allowing you to play anywhere without needing Wi-Fi or mobile data."
+          "answer": "Yes, the core 3D matrix puzzles and gravity challenges are fully functional offline, allowing you to play anywhere without needing Wi-Fi or mobile data.",
+          "question": "2. Can I play this puzzle game without an internet connection?"
         },
         {
           "answer": "Yes, as you play, you earn virtual progression points that allow you to unlock unique cosmetic skins for your cube, such as neon lights, glass, or metallic textures.",
