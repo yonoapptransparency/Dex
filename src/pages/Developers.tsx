@@ -20,7 +20,7 @@ export default function Developers() {
             description="Our talented engineering and design teams developing high-performance secure platforms."
             canonical={window.location.origin + "/developers"}
           />
-          <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-black/5 dark:border-white/5 p-12 rounded-[3rem] max-w-lg mx-auto shadow-2xl">
+          <div className="bg-white/50 dark:bg-zinc-900/50  border border-black/5 dark:border-white/5 p-12 rounded-[3rem] max-w-lg mx-auto shadow-2xl">
             <h1 className="text-3xl font-black mb-4 dark:text-white uppercase tracking-tight italic">Our Developers</h1>
             <p className="text-slate-600 dark:text-slate-400 font-medium">Information about our developers is not available at this moment. Please check back later.</p>
           </div>
@@ -56,7 +56,7 @@ export default function Developers() {
             {settings.developers.map((dev, index) => (
               <div 
                 key={`dev-card-${dev.id || dev.name || index}`} 
-                className="bg-white/70 dark:bg-zinc-900/70 border border-black/5 dark:border-white/5 rounded-[2rem] p-8 backdrop-blur-md shadow-lg transition-all hover:shadow-xl hover:-translate-y-2 flex flex-col items-center text-center group animate-fade-in"
+                className="bg-white/70 dark:bg-zinc-900/70 border border-black/5 dark:border-white/5 rounded-[2rem] p-8  shadow-lg transition-all hover:shadow-xl hover:-translate-y-2 flex flex-col items-center text-center group animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white dark:border-zinc-800 shadow-xl group-hover:scale-105 transition-transform duration-500">

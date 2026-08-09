@@ -127,13 +127,13 @@ export default function VideosPage() {
                   
                   {/* Center glassmorphic Play Button indicator */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="p-4 rounded-full bg-white/20 dark:bg-black/40 backdrop-blur-md border border-white/40 dark:border-white/10 text-white shadow-xl scale-95 group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-transparent transition-all duration-300">
+                    <div className="p-4 rounded-full bg-white/20 dark:bg-black/40  border border-white/40 dark:border-white/10 text-white shadow-xl scale-95 group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-transparent transition-all duration-300">
                       <Play className="w-5 h-5 fill-current ml-0.5" />
                     </div>
                   </div>
 
                   {/* Top Safety Status Pin Badge */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-black/60  rounded-full border border-white/10 shadow-sm">
                     <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[10px] font-semibold tracking-wide text-white/90">Verified</span>
                   </div>

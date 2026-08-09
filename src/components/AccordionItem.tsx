@@ -15,7 +15,7 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
   return (
     <div className={cn(
       "border border-black/5 dark:border-white/5 rounded-2xl overflow-hidden transition-all duration-200",
-      isWebsiteFaq ? "bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-sm hover:shadow-md" : "bg-white dark:bg-zinc-900 shadow-sm p-1"
+      isWebsiteFaq ? "bg-white/70 dark:bg-zinc-900/70  shadow-sm hover:shadow-md" : "bg-white dark:bg-zinc-900 shadow-sm p-1"
     )}>
       <button
         onClick={() => setIsOpen(!isOpen)}

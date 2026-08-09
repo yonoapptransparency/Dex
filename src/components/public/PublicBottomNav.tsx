@@ -23,7 +23,7 @@ export function PublicBottomNav() {
 
   return (
     <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden pb-safe px-4">
-      <div className="flex items-center gap-1.5 p-1.5 pointer-events-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-zinc-800 shadow-xl shadow-slate-900/10 dark:shadow-black/50 rounded-full w-auto max-w-full overflow-x-auto no-scrollbar scroll-smooth">
+      <div className="flex items-center gap-1.5 p-1.5 pointer-events-auto bg-white/95 dark:bg-zinc-900/95  border border-slate-200/80 dark:border-zinc-800 shadow-xl shadow-slate-900/10 dark:shadow-black/50 rounded-full w-auto max-w-full overflow-x-auto no-scrollbar scroll-smooth">
         {[
           { icon: Video, label: 'Videos', path: '/videos' },
           { icon: Sparkles, label: 'New', path: '/new-apps' },

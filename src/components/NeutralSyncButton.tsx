@@ -3,10 +3,10 @@
  * A lightning-fast, neutral resource synchronization button.
  * Avoids bot-attractive terminology and uses in-memory vault node sync.
  */
-
 import { useState, useEffect } from 'react';
 import { ShieldCheck, Loader2, CheckCircle2, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { solveChallenge } from '../lib/security/pow';
 
 interface NeutralSyncButtonProps {
   appId: string;
@@ -16,7 +16,7 @@ interface NeutralSyncButtonProps {
 
 export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncButtonProps) {
   const [phase, setPhase] = useState<'idle' | 'syncing' | 'ready' | 'error'>('idle');
-  const [target, setTarget] = useState('');
+  const [syncMessage, setSyncMessage] = useState('Synchronizing');
   const [error, setError] = useState('');
 
   const getFingerprint = () => {
@@ -40,36 +40,30 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
     return Math.abs(hash).toString(16).padStart(8, '0');
   };
 
-  const solveChallenge = async (nonce: string, difficulty: string) => {
-    let counter = 0;
-    const encoder = new TextEncoder();
-    while (counter < 5000000) {
-      const msg = encoder.encode(nonce + counter);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msg);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      if (hashHex.startsWith(difficulty)) return counter;
-      counter++;
-    }
-    throw new Error('Mathematical limit exceeded');
-  };
-
-  const triggerSync = async (newTab: Window | null) => {
+  const triggerSync = async () => {
     setPhase('syncing');
     setError('');
+    
+    const msgs = ["Loading resources...", "Optimizing view...", "Preparing content..."];
+    let msgIdx = 0;
+    setSyncMessage(msgs[0]);
+    const msgInterval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % msgs.length;
+      setSyncMessage(msgs[msgIdx]);
+    }, 800);
 
     try {
       const fingerprint = getFingerprint();
-
+      
       // 1. Get Challenge
       const chalRes = await fetch('/api/v1/_chal');
       const chalData = await chalRes.json();
       if (!chalRes.ok) throw new Error(chalData.error || 'Identity Check Failed');
-
       const { nonce, difficulty, sid } = chalData;
-
-      // 2. Solve & Get Token
+      
+      // 2. Solve & Get Token (optimized)
       const solution = await solveChallenge(nonce, difficulty || "0000");
+      
       const procRes = await fetch('/api/v1/_proc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,8 +71,9 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
       });
       const procData = await procRes.json();
       if (!procRes.ok) throw new Error(procData.error || 'Verification Failed');
-
+      
       const { token } = procData;
+      setSyncMessage("Syncing...");
 
       // 3. Secure Node Synchronization
       const response = await fetch('/api/v1/sync-node', {
@@ -86,25 +81,30 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug, token, fingerprint, appId }),
       });
-
       const data = await response.json();
-
+      
+      clearInterval(msgInterval);
+      
       if (data.status === 'OK' && data.payload) {
-        setTarget(data.payload);
         setPhase('ready');
+        setSyncMessage("Completing...");
         
-        // Instant Redirect
-        if (newTab) {
-          newTab.location.href = data.payload;
-        } else {
+        // Instant Redirect directly on the same page for a 1-click experience.
+        // For file downloads, this won't even close the page.
+        setTimeout(() => {
           window.location.href = data.payload;
-        }
+          
+          setTimeout(() => {
+            setPhase('idle');
+            setSyncMessage('Synchronizing');
+          }, 3000);
+        }, 300);
       } else {
         throw new Error(data.msg || 'Sync Node Offline');
       }
     } catch (err: any) {
+      clearInterval(msgInterval);
       console.error('[Sync] Failed:', err);
-      if (newTab) newTab.close();
       setError(err.message || 'Sync Node Busy');
       setPhase('error');
       setTimeout(() => setPhase('idle'), 3000);
@@ -113,17 +113,7 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
 
   const handleAction = () => {
     if (phase === 'syncing' || phase === 'ready') return;
-    
-    // Attempt to pre-open tab for smoother redirect
-    let newTab: Window | null = null;
-    try {
-      newTab = window.open('about:blank', '_blank');
-      if (newTab) {
-        newTab.document.body.innerHTML = '<div style="background:#09090b;color:#a1a1aa;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">Synchronizing safety node...</div>';
-      }
-    } catch (e) {}
-
-    triggerSync(newTab);
+    triggerSync();
   };
 
   return (
@@ -139,7 +129,6 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
             {error}
           </motion.div>
         )}
-
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleAction}
@@ -150,16 +139,24 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
             {phase === 'syncing' ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Synchronizing</span>
+                <motion.span 
+                  key={syncMessage}
+                  initial={{ opacity: 0, y: 2 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {syncMessage}
+                </motion.span>
               </>
             ) : phase === 'ready' ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Node Active</span>
+                <span>{syncMessage}</span>
               </>
             ) : (
               <>
-                <span>Download</span>
+                <span>Proceed</span>
               </>
             )}
           </div>
@@ -171,7 +168,7 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
 
       <div className="flex items-center gap-1.5 opacity-40">
         <ShieldCheck className="w-3 h-3 text-emerald-500" />
-        <span className="text-[10px] font-bold uppercase tracking-widest">Safety Status: Verified</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest">System: Ready</span>
       </div>
     </div>
   );

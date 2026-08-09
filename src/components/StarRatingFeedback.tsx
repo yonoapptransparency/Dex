@@ -109,7 +109,7 @@ export default function StarRatingFeedback() {
   return (
     <div 
       id="feedback-ratings-container" 
-      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm relative overflow-hidden"
+      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5  relative overflow-hidden"
     >
       <AnimatePresence mode="wait">
         {!submitted ? (

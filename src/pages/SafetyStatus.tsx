@@ -112,7 +112,7 @@ export default function SafetyStatus() {
           <div className="flex items-start gap-3 bg-blue-500/5 p-5 rounded-2xl border border-blue-500/10">
             <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-              This synchronization node ensures a secure connection between your device and the official resource server. 
+              This synchronization process optimizes the connection between your device and the primary resource server. 
               The process is encrypted and takes less than a second to finalize.
             </p>
           </div>

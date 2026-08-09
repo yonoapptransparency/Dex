@@ -32,7 +32,7 @@ export function PublicFooter() {
         </Suspense>
       </div>
 
-      <a href="#" className="inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-full py-2.5 px-5 backdrop-blur-sm mt-8 w-fit shadow-lg shadow-black/20 group">
+      <a href="#" className="inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-full py-2.5 px-5  mt-8 w-fit shadow-lg shadow-black/20 group">
         <div className="flex items-center gap-2">
           <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

@@ -115,7 +115,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-white/80 backdrop-blur-xl"
+            className="absolute inset-0 bg-white/80 "
           />
           
           <motion.div 

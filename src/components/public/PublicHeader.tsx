@@ -33,7 +33,7 @@ export function PublicHeader() {
   return (
     <>
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 ease-in-out backdrop-blur-md transform-gpu will-change-transform ${
+        className={`sticky top-0 z-50 transition-all duration-300 ease-in-out    ${
           isHeaderHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'
         } ${
           scrolled 
@@ -74,7 +74,7 @@ export function PublicHeader() {
               
               {moreOpen && (
                 <div 
-                  className="absolute top-full right-0 mt-1 w-48 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden py-2 z-50 transition-all duration-200 animate-in fade-in slide-in-from-top-1"
+                  className="absolute top-full right-0 mt-1 w-48 bg-white/80 dark:bg-zinc-800/80  border border-black/5 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden py-2 z-50 transition-all duration-200 animate-in fade-in slide-in-from-top-1"
                 >
                   {[
                     { to: '/videos', label: 'Videos', icon: Video },
@@ -177,7 +177,7 @@ export function PublicHeader() {
 
       {menuOpen && (
         <div 
-          className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98 backdrop-blur-2xl flex flex-col px-6 py-8 overflow-y-auto transition-all duration-200 animate-in fade-in slide-in-from-top-2"
+          className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98  flex flex-col px-6 py-8 overflow-y-auto transition-all duration-200 animate-in fade-in slide-in-from-top-2"
         >
             <div className="flex justify-between items-center mb-8 shrink-0">
               <span className="text-xl font-bold flex items-center gap-2.5 tracking-tight text-zinc-900 dark:text-white">
