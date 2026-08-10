@@ -160,7 +160,7 @@ export default function BlogDetailPage() {
           <div className="mb-12 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-[24px] border border-blue-100 dark:border-blue-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-1">Get the App</h3>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm">Download {blog.related_app_name} to experience these new features.</p>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm">Experience {blog.related_app_name} and explore these new features.</p>
             </div>
             <Link to={`/app/${blog.related_app_slug}`} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-bold transition-all shadow-sm shrink-0 whitespace-nowrap">
               View {blog.related_app_name}

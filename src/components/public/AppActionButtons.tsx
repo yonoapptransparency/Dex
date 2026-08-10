@@ -60,7 +60,7 @@ export default function AppActionButtons({
             className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]"
           >
             <span className="flex items-center gap-1.5 font-bold text-white !text-white">
-              Download <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" />
+              Continue <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" />
             </span>
           </Link>
         )}
