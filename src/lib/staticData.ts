@@ -228,7 +228,7 @@ export const mockApps: AppConfig[] = [
     "seo_keywords": "rummy 77 app, real rummy gameplay, rummy 77 review, 13 card rummy",
     "version": "1.0.6",
     "id": "i5uw2apum",
-    "encrypted_link": "U2FsdGVkX18Cyue6LTD0P60V32GE8sK69boRtM7lRoMwtMawX+NqGTcWFjYccubm",
+    "encrypted_link": "U2FsdGVkX1+i3/qzdxDDQRss2To4+DSu3zQ4XbtP2LtpxWkvq8QI6DaoNrQU9Pxe",
     "serial_number": 2,
     "updated_at": "2026-08-10T04:27:14.086Z",
     "canonical_url": "https://www.rummydex.com/app/rummy-77",
@@ -244,7 +244,7 @@ export const mockApps: AppConfig[] = [
     "url": "",
     "custom_admin_box_heading": "",
     "custom_admin_box_html": "",
-    "more_information_url": "U2FsdGVkX18Cyue6LTD0P60V32GE8sK69boRtM7lRoMwtMawX+NqGTcWFjYccubm"
+    "more_information_url": "U2FsdGVkX1+i3/qzdxDDQRss2To4+DSu3zQ4XbtP2LtpxWkvq8QI6DaoNrQU9Pxe"
   },
   {
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785780996/download_22_vgi4h1_1_jjm7jx.webp",
@@ -259,7 +259,7 @@ export const mockApps: AppConfig[] = [
     "canonical_url": "https://www.rummydex.com/app/rummy-91",
     "faqs": [],
     "serial_number": 3,
-    "encrypted_link": "U2FsdGVkX1/xfxtkTI7+0l0rK7SIu5kiukhWCoxSG2MSYiP9Lmpdkk7UN14gmpkiM65QTs3ApsDMHbL7lOE6D24h6UuTQw1Yr8Sg5Vl2uOcKe+ha9cNMhQ79s2Iajgzt",
+    "encrypted_link": "U2FsdGVkX1800PonkGUnNOYHOWGAlD4xUlg56K+MmrKI5pnV5GXPzpYdP0TwTZ3d/Tp+4WO7LbK5eCAkWCWOrCT+HsMKOXVP4haQegef2xTEH8kW4ulV/ymkTz8IYDhN",
     "red_box_msg": "",
     "video_url": "",
     "is_new": false,
@@ -281,7 +281,7 @@ export const mockApps: AppConfig[] = [
     "url": "",
     "custom_admin_box_heading": "",
     "custom_admin_box_html": "",
-    "more_information_url": "U2FsdGVkX1/xfxtkTI7+0l0rK7SIu5kiukhWCoxSG2MSYiP9Lmpdkk7UN14gmpkiM65QTs3ApsDMHbL7lOE6D24h6UuTQw1Yr8Sg5Vl2uOcKe+ha9cNMhQ79s2Iajgzt"
+    "more_information_url": "U2FsdGVkX1800PonkGUnNOYHOWGAlD4xUlg56K+MmrKI5pnV5GXPzpYdP0TwTZ3d/Tp+4WO7LbK5eCAkWCWOrCT+HsMKOXVP4haQegef2xTEH8kW4ulV/ymkTz8IYDhN"
   },
   {
     "rating": 4,
@@ -291,23 +291,23 @@ export const mockApps: AppConfig[] = [
     "safety_status": "Verified",
     "faqs": [
       {
-        "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection.",
-        "question": "Q1: Can I play Callbreak fully offline without mobile data?"
+        "question": "Q1: Can I play Callbreak fully offline without mobile data?",
+        "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection."
       },
       {
         "answer": "Yes. Callbreak features robust offline AI single-player matches as well as local Wi-Fi connectivity, allowing you to play anywhere without an internet connection.",
         "question": "Q2: Are the in-game Gems and Coins tied to real-money rewards?"
       },
       {
-        "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?",
-        "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low."
+        "answer": "Because the app utilizes clean 2D graphics and lightweight processing, it runs smoothly at 60 FPS on older devices while keeping battery drain and heat output very low.",
+        "question": "Q3: How does Callbreak perform on older or lower-spec smartphones?"
       },
       {
         "answer": "The platform includes Super 8 Bid Challenge (racing to win eight hands against aggressive AI) and Blind Bid Mode (bidding before viewing player hands).",
         "question": "Q4: What extra game modes are included besides standard 5-round matches?"
       }
     ],
-    "encrypted_link": "U2FsdGVkX1/CWg/U47vmmtgSbmFJCtSU9spj7hZqlQE9DbGubxOEL/C9yjMHeiB+uh6RQcJ42rv+VEXE7W5j4/4qYkm6ZVBbC6KoTLWKDXyEh1RYpBrTgZAcMkVBMvgJpvp6u4C+Ni4QpedSWsWjI1g2XekTwaZjfvjO93J0NnY=",
+    "encrypted_link": "U2FsdGVkX19TTchtEyY6KhVNXT+Cox5x7BPkIcj8FVBKUGWclWwJponbZEpfTXw7jOtp2o8qfYtOYW8MtqRNxbw/ebzdAySiXFetGs+RewH9W1RI56epzr/fkc2z/uk+QlljlFLKSDM8D9XlQGHdavXMTLRPS7aIrBxiEM9xnf8=",
     "release_notes": "",
     "features_html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Callbreak: What It's Actually Like to Play</title>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>\nbody{font-family:Arial,Helvetica,sans-serif;color:#3c4043;max-width:700px;margin:40px auto;padding:0 20px;line-height:1.7;font-size:15px;background:#fff}\nh1{font-size:24px;color:#202124;font-weight:400;margin-bottom:6px}\n.tagline{color:#5f6368;font-size:14px;margin-bottom:28px;font-style:italic}\nh2{font-size:19px;color:#202124;font-weight:500;margin-top:40px}\np{margin:10px 0}\nul{margin:10px 0;padding-left:22px}\nli{margin:8px 0}\n</style>\n</head>\n<body>\n\n<h1>Callbreak: What It's Actually Like to Play</h1>\n<p class=\"tagline\">A look at how the game feels day to day — the wins, the friction, and everything in between.</p>\n\n<h2>First Impressions</h2>\n<p>Callbreak comes across as an engaging, easy-to-pick-up card game that brings the traditional South Asian trick-taking game to mobile in a way that feels smooth, polished, and beginner-friendly right from the start. Having offline AI play, online multiplayer, and quick matches all in one place gives players real flexibility, and that's a big part of why people keep coming back.</p>\n<p>The overall feeling is positive, but with some caveats. The core card game itself is satisfying and genuinely addictive — the friction tends to come from the ads, monetization, and occasional technical hiccups around the edges.</p>\n\n<h2>Getting Started</h2>\n<p>New players are guided in rather than dropped into a confusing menu. A beginner-friendly tutorial walks through the rules of Callbreak, bidding, trump suits, and trick-taking, and an in-app rulebook covers everything from the basics to more advanced strategy for players who want to improve over time.</p>\n<p>Difficulty settings run from novice to advanced, so beginners can ease in while experienced players have room to push themselves. Most people find the rules easy to pick up, while the strategy stays deep enough to hold their interest. The onboarding experience overall feels welcoming and low-pressure — most new players feel ready to jump in within minutes.</p>\n\n<h2>How a Match Feels</h2>\n<p>Quick match options get you into a game fast, while standard matches feel more like a complete session. Bidding sits at the center of the experience, and the interface makes calling your number straightforward. Touch controls for selecting and playing cards feel smooth and intuitive.</p>\n<p>Little quality-of-life touches make a real difference — the ability to undo a mis-tap takes the stress out of quick decisions, reviewing card history helps with strategic planning, and being able to reshuffle a genuinely bad hand is appreciated. Animations move at a good pace, and game speed can be adjusted if you want things faster or slower.</p>\n<p>Altogether, the gameplay loop feels rhythmic and satisfying — bid, play, win or lose the trick, watch the score update. The tactile card play and animated trick collection give it a real card-table feel.</p>\n\n<h2>Playing Against the AI</h2>\n<p>AI opponents are generally described as challenging and smart, adapting to how you play. That said, more advanced players report that the AI becomes predictable after extended play, which can wear down long-term replay value. One specific quirk that comes up is bots sometimes playing only their lowest available card, which can feel less realistic or strategically shallow.</p>\n<p>Being able to play entirely offline is a strong point, especially for anyone dealing with unreliable connectivity, and practice mode is genuinely useful for building up strategy before jumping into matches against real people. Overall, single-player is solid and convenient, though it can start to feel repetitive for players who've mastered the AI's patterns.</p>\n\n<h2>Playing With Others</h2>\n<p>Real-time matches against players from around the world add excitement and unpredictability that AI matches can't match. Matchmaking uses a skill-rating system to pair similar-level players, though some users report inconsistencies — trouble connecting with random opponents or with friends specifically.</p>\n<p>Private tables for playing with friends or family are well-liked, and local Wi-Fi play is praised for situations without internet access, like travel or gatherings. In-game chat and emojis add a bit of social warmth, though they're fairly minimal compared to dedicated chat apps. Network interruptions are a real pain point — they can cause bid failures, auto-resets, or disconnections mid-match. Referral-code invites and Facebook integration exist for connecting with friends, though some users run into friction there too.</p>\n<p>When it works, multiplayer is fun and competitive — but connection instability and matchmaking hiccups can make the experience inconsistent.</p>\n\n<h2>Look and Sound</h2>\n<p>The app gets frequent praise for its visuals — people describe the card animations as beautiful and the interface as sleek. The game board has a modern, premium look that adds to the overall sense of polish. Multiple card designs and table themes let players personalize things, and dealing, trick collection, and win/loss animations all feel smooth and satisfying.</p>\n<p>Sound design leans into authentic, realistic card shuffling and playing sounds, with background music and customization options available too. On supported devices, haptic feedback adds an extra layer of tactile feel. Altogether, the visuals and audio work together to create a premium, polished card-room atmosphere.</p>\n\n<h2>Controls and Navigation</h2>\n<p>Touch controls come across as smooth and intuitive, and the interface is generally easy to navigate. The main menu and home screen are clean, though some players wish settings were more directly accessible. Colorblind mode and multi-language support help make the app accessible to a wider audience.</p>\n<p>One recurring complaint is being forced to play a specific card in certain situations, when players would rather have more freedom. That said, the app is easy to operate one-handed, which matters a lot for a mobile card game — most of the friction comes from gameplay rules like forced suit-following rather than the interface itself.</p>\n\n<h2>Ads and Monetization</h2>\n<p>The game is genuinely free to download and play, which keeps the barrier to entry low. But ad frequency is by far the most frequently cited pain point — some users describe feeling like they spend the vast majority of their time watching ads rather than playing. Ads tend to show up between games or at natural breaks, but how often and how long they run can break immersion.</p>\n<p>A \"Remove Ads\" purchase is available, but some users report ads still showing up even after paying — which creates real frustration and damages trust. Gem packs are offered for unlocking assets; some players are fine with that, others feel pushed toward spending. The daily reward wheel and login bonuses add a sense of progression, though the rewards themselves can feel small.</p>\n<p>Monetization is the single biggest source of dissatisfaction here, and ads persisting after a paid removal is the kind of thing that really damages trust with paying users.</p>\n\n<h2>Progression and Rewards</h2>\n<p>Daily login rewards and the spin-based daily wheel encourage regular use and add small moments of anticipation. Global leaderboards give players a long-term goal to chase, and league progression — Bronze, Gold, Platinum, and so on — adds a sense of advancement. Detailed stats let players track their own improvement and compare themselves to others, and small skill-point bonuses for extra tricks offer little moments of satisfaction along the way.</p>\n<p>These systems are generally effective at keeping people engaged, though the rewards are modest and the competitive pace may feel slow for more casual players.</p>\n\n<h2>Where Things Get Frustrating</h2>\n<ul>\n<li><strong>Excessive ads</strong> — breaks immersion, fragments sessions, and is enough to make some players uninstall.</li>\n<li><strong>Ads after paying to remove them</strong> — a trust-breaking experience that has led to refund requests.</li>\n<li><strong>AI predictability</strong> — reduces long-term challenge for more experienced players.</li>\n<li><strong>Multiplayer connection issues</strong> — bid failures, disconnections, and trouble connecting with friends specifically.</li>\n<li><strong>No Nil Bid option</strong> — players coming from Spades or more advanced Callbreak variants miss this strategic choice.</li>\n<li><strong>Forced card play</strong> — some players want more freedom in which card they play.</li>\n<li><strong>Crashes and freezes</strong> — technical instability that can interrupt games and cost progress.</li>\n<li><strong>Login issues</strong> — problems signing in that affect multiplayer access and reward tracking.</li>\n<li><strong>Missing cards bug</strong> — connectivity or sync issues that can make cards appear to vanish mid-play.</li>\n</ul>\n\n<h2>The Emotional Highs and Lows</h2>\n<p>The delight moments are the ones you'd expect from a good card game — winning a tricky bid, watching a smooth animation play out, pulling off a perfect hand, unlocking a new theme, or beating a friend at a private table. The friction moments are just as clear: sitting through another ad, losing connection mid-bid, discovering ads still show up after paying to remove them, or watching the AI make another predictable low-card play.</p>\n<p>Long-term, the app is addictive and fun as a casual card game, but frequent players tend to hit a ceiling where the ads and AI predictability start to wear thin. The social multiplayer side keeps a lot of people engaged — but only when the connection actually holds up.</p>\n\n<h2>The Bottom Line</h2>\n<p>Callbreak delivers a polished, accessible, and strategically satisfying card game that works well for both casual players and longtime fans of the format. Its strongest points are its visual polish, smooth controls, offline flexibility, and social features. Its biggest weaknesses are ad overload and technical instability, especially around multiplayer and after paying to remove ads. Most players genuinely enjoy the core experience, but frequently wish for fewer ads, more reliable servers, and deeper AI strategy.</p>\n\n</body>\n</html>\n",
     "file_size": "51.11 MB",
@@ -335,7 +335,7 @@ export const mockApps: AppConfig[] = [
     "name": "CALLBREAK",
     "version": "1.0",
     "url": "",
-    "more_information_url": "U2FsdGVkX1/CWg/U47vmmtgSbmFJCtSU9spj7hZqlQE9DbGubxOEL/C9yjMHeiB+uh6RQcJ42rv+VEXE7W5j4/4qYkm6ZVBbC6KoTLWKDXyEh1RYpBrTgZAcMkVBMvgJpvp6u4C+Ni4QpedSWsWjI1g2XekTwaZjfvjO93J0NnY="
+    "more_information_url": "U2FsdGVkX19TTchtEyY6KhVNXT+Cox5x7BPkIcj8FVBKUGWclWwJponbZEpfTXw7jOtp2o8qfYtOYW8MtqRNxbw/ebzdAySiXFetGs+RewH9W1RI56epzr/fkc2z/uk+QlljlFLKSDM8D9XlQGHdavXMTLRPS7aIrBxiEM9xnf8="
   },
   {
     "video_url": "",
@@ -356,8 +356,8 @@ export const mockApps: AppConfig[] = [
     "seo_keywords": "",
     "faqs": [
       {
-        "question": "1. Is Card Game 29 free to download and play?",
-        "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose."
+        "answer": "Yes. Card Game 29 is free to download and play. The app also offers optional in-app purchases and displays advertisements, allowing users to unlock additional features or enjoy a more streamlined experience if they choose.",
+        "question": "1. Is Card Game 29 free to download and play?"
       },
       {
         "question": "2. Can I play Card Game 29 without an internet connection?",
@@ -368,8 +368,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Yes. Card Game 29 supports multiple ways to play, including online multiplayer, private rooms with friends, and local multiplayer options on supported devices, depending on the available features in your version of the app."
       },
       {
-        "question": "4. Is Card Game 29 suitable for beginners?",
-        "answer": "Yes. While the game is based on the traditional rules of Twenty-Nine, its straightforward interface and offline practice mode make it accessible for new players. Experienced players can also enjoy advanced gameplay through bidding, partnerships, and customizable rule variations."
+        "answer": "Yes. While the game is based on the traditional rules of Twenty-Nine, its straightforward interface and offline practice mode make it accessible for new players. Experienced players can also enjoy advanced gameplay through bidding, partnerships, and customizable rule variations.",
+        "question": "4. Is Card Game 29 suitable for beginners?"
       }
     ],
     "category": "All Apps, Card Apps",
@@ -404,8 +404,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Joy Rummy is built around the traditional 13-card rummy format, where players organize cards into valid sequences and sets before declaring their hand. The gameplay emphasizes strategic planning, memory, and decision-making rather than relying solely on chance."
       },
       {
-        "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world.",
-        "question": "2. Does Joy Rummy include both practice and competitive game modes?"
+        "question": "2. Does Joy Rummy include both practice and competitive game modes?",
+        "answer": "Yes. The application offers offline AI practice for learning strategies and improving gameplay, along with online matchmaking and private multiplayer rooms for users who want to compete with friends or players from around the world."
       },
       {
         "answer": "No. The core gameplay is available without making any purchases. Optional in-app purchases primarily focus on cosmetic enhancements and personalization features, allowing players to customize their experience without affecting competitive balance.",
@@ -463,16 +463,16 @@ export const mockApps: AppConfig[] = [
     "rating": 4.6,
     "faqs": [
       {
-        "question": "1. Is Jaiho 91 free to download and play?",
-        "answer": "Yes, Jaiho 91 is free to download. The app features a virtual progression system designed for casual card play and strategy practice."
+        "answer": "Yes, Jaiho 91 is free to download. The app features a virtual progression system designed for casual card play and strategy practice.",
+        "question": "1. Is Jaiho 91 free to download and play?"
       },
       {
-        "answer": "Yes, Jaiho 91 includes an offline AI mode, allowing you to play and practice your strategies against virtual opponents anytime without cellular data or Wi-Fi.",
-        "question": "2. Can I play Jaiho 91 without an internet connection?"
+        "question": "2. Can I play Jaiho 91 without an internet connection?",
+        "answer": "Yes, Jaiho 91 includes an offline AI mode, allowing you to play and practice your strategies against virtual opponents anytime without cellular data or Wi-Fi."
       },
       {
-        "question": "3. What card game formats are available in Jaiho 91?",
-        "answer": "Jaiho 91 features classic 13-card Rummy and Teen Patti mechanics, along with a built-in Smart Hint System to help players learn hand rankings and set formations."
+        "answer": "Jaiho 91 features classic 13-card Rummy and Teen Patti mechanics, along with a built-in Smart Hint System to help players learn hand rankings and set formations.",
+        "question": "3. What card game formats are available in Jaiho 91?"
       }
     ],
     "screenshots": [],
@@ -500,8 +500,8 @@ export const mockApps: AppConfig[] = [
     "seo_description": "Read our comprehensive OK Rummy review on RummyDex. Explore unique puzzle-based card mechanics, level progression, and offline features.",
     "faqs": [
       {
-        "answer": "Yes, OK Rummy is completely free to download. The app provides full access to its puzzle map and levels without any mandatory purchases, supported entirely by in-app advertisements.",
-        "question": "1. Is OK Rummy free to download and play?"
+        "question": "1. Is OK Rummy free to download and play?",
+        "answer": "Yes, OK Rummy is completely free to download. The app provides full access to its puzzle map and levels without any mandatory purchases, supported entirely by in-app advertisements."
       },
       {
         "answer": "Yes, the core puzzle-solving mechanics and the primary progression map are fully available offline. You can enjoy the game uninterrupted even when you do not have a Wi-Fi or cellular connection.",
@@ -538,16 +538,16 @@ export const mockApps: AppConfig[] = [
   {
     "faqs": [
       {
-        "answer": "Yes, the application is completely free to download. All gameplay features, levels, and progression systems are accessible without mandatory purchases, supported entirely by a virtual coin economy and in-app advertisements.",
-        "question": "1. Is Jaiho Slots free to download and play?"
+        "question": "1. Is Jaiho Slots free to download and play?",
+        "answer": "Yes, the application is completely free to download. All gameplay features, levels, and progression systems are accessible without mandatory purchases, supported entirely by a virtual coin economy and in-app advertisements."
       },
       {
-        "answer": "Yes, the core reel-matching puzzles and level progression are fully functional offline. You can enjoy the game uninterrupted without an active Wi-Fi or cellular connection.",
-        "question": "2. Can I play the game offline?"
+        "question": "2. Can I play the game offline?",
+        "answer": "Yes, the core reel-matching puzzles and level progression are fully functional offline. You can enjoy the game uninterrupted without an active Wi-Fi or cellular connection."
       },
       {
-        "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage.",
-        "question": "3. How does the puzzle progression work?"
+        "question": "3. How does the puzzle progression work?",
+        "answer": "Instead of automated spinning, you must use tap-to-stop and reel-locking mechanics to align specific symbols. Clearing these patterns completes the board's objective, rewarding you with virtual coins and unlocking the next thematic stage."
       }
     ],
     "file_size": "36 MB ",
@@ -663,8 +663,8 @@ export const mockApps: AppConfig[] = [
         "answer": "Yes, the app features a completely offline mode, allowing you to enjoy the classic number-matching gameplay and practice your skills without needing cellular data or Wi-Fi."
       },
       {
-        "answer": "Alongside the core grid mechanics, the app includes an interactive spin wheel, daily missions, achievement tracking, and a personal profile section to monitor your activity history.",
-        "question": "3. What features are included besides the main game?"
+        "question": "3. What features are included besides the main game?",
+        "answer": "Alongside the core grid mechanics, the app includes an interactive spin wheel, daily missions, achievement tracking, and a personal profile section to monitor your activity history."
       }
     ],
     "file_size": "63 MB",
@@ -715,12 +715,12 @@ export const mockApps: AppConfig[] = [
         "question": "1. Can I play ABC Rummy without an internet connection?"
       },
       {
-        "answer": "To win, you must engage in classic gameplay by organizing your hand into valid sets (3 to 4 cards of the same rank) and runs (3 or more consecutive cards of the same suit).",
-        "question": "2. How do you win a match in ABC Rummy?"
+        "question": "2. How do you win a match in ABC Rummy?",
+        "answer": "To win, you must engage in classic gameplay by organizing your hand into valid sets (3 to 4 cards of the same rank) and runs (3 or more consecutive cards of the same suit)."
       },
       {
-        "answer": "Alongside the card matches, the app features a spin wheel for bonus virtual coins, unlockable avatars, customizable themes, and a system to track your wins and high scores.",
-        "question": "3. What features are included besides the card game?"
+        "question": "3. What features are included besides the card game?",
+        "answer": "Alongside the card matches, the app features a spin wheel for bonus virtual coins, unlockable avatars, customizable themes, and a system to track your wins and high scores."
       }
     ],
     "red_box_msg": "",
@@ -749,16 +749,16 @@ export const mockApps: AppConfig[] = [
     "rating": 3.9,
     "faqs": [
       {
-        "answer": "Players take turns adding numbered cards to a central pile, maintaining a running total. The goal is to use action cards and numerical strategy to force your opponent to play a card that pushes the total sum over 77.",
-        "question": "1. How do you play the EVERY 77 card game?"
+        "question": "1. How do you play the EVERY 77 card game?",
+        "answer": "Players take turns adding numbered cards to a central pile, maintaining a running total. The goal is to use action cards and numerical strategy to force your opponent to play a card that pushes the total sum over 77."
       },
       {
-        "question": "2. Is EVERY 77 free to download and play?",
-        "answer": "Yes, the application is completely free to download. It features a virtual progression system for cosmetic unlocks and is supported by standard in-app advertisements."
+        "answer": "Yes, the application is completely free to download. It features a virtual progression system for cosmetic unlocks and is supported by standard in-app advertisements.",
+        "question": "2. Is EVERY 77 free to download and play?"
       },
       {
-        "question": "3. Does the app support offline gameplay?",
-        "answer": "Yes, EVERY 77 includes a fully functional offline mode. You can practice against various levels of computer-controlled AI without needing a Wi-Fi or cellular data connection."
+        "answer": "Yes, EVERY 77 includes a fully functional offline mode. You can practice against various levels of computer-controlled AI without needing a Wi-Fi or cellular data connection.",
+        "question": "3. Does the app support offline gameplay?"
       }
     ],
     "developer": "Studio 77 Interactive",
@@ -807,16 +807,16 @@ export const mockApps: AppConfig[] = [
     "yellow_box_msg": "",
     "faqs": [
       {
-        "question": "1. How do I level up in Love Rummy?",
-        "answer": "You level up by completing daily missions, participating in activity challenges, and using features like the Lucky Spin Wheel. Earning points through these tasks advances your profile through multiple achievement tiers.  "
+        "answer": "You level up by completing daily missions, participating in activity challenges, and using features like the Lucky Spin Wheel. Earning points through these tasks advances your profile through multiple achievement tiers.  ",
+        "question": "1. How do I level up in Love Rummy?"
       },
       {
-        "answer": "The personal profile acts as your main dashboard, where you can track your current level, review your completed milestones, and monitor your overall activity history.  ",
-        "question": "2. What can I find inside the app's Personal Profile?"
+        "question": "2. What can I find inside the app's Personal Profile?",
+        "answer": "The personal profile acts as your main dashboard, where you can track your current level, review your completed milestones, and monitor your overall activity history.  "
       },
       {
-        "question": "3. Is there a way to connect with others in the game?",
-        "answer": "Yes, Love Rummy includes community participation features that allow you to invite friends to the app, making it easy to share your progress and enjoy the level-based challenges together"
+        "answer": "Yes, Love Rummy includes community participation features that allow you to invite friends to the app, making it easy to share your progress and enjoy the level-based challenges together",
+        "question": "3. Is there a way to connect with others in the game?"
       }
     ],
     "video_url": "",
@@ -896,16 +896,16 @@ export const mockApps: AppConfig[] = [
     "idea_box_msg": "",
     "faqs": [
       {
-        "answer": "Unlike traditional tabletop apps, YONO VIP is a futuristic spatial puzzle game. You must draw lines to connect matching energy nodes on a neon grid without letting your paths cross, all while dodging moving obstacles.",
-        "question": "1. What exactly is the gameplay in YONO VIP?"
+        "question": "1. What exactly is the gameplay in YONO VIP?",
+        "answer": "Unlike traditional tabletop apps, YONO VIP is a futuristic spatial puzzle game. You must draw lines to connect matching energy nodes on a neon grid without letting your paths cross, all while dodging moving obstacles."
       },
       {
         "question": "2. Can I play the puzzles without an internet connection?",
         "answer": "Yes! The core grid-solving levels are fully available offline. You only need the internet if you want to update your daily mission logs or spin the daily Quantum Wheel."
       },
       {
-        "question": "3. Is the game free to play?",
-        "answer": "Absolutely. YONO VIP is entirely free to download. It relies on a virtual progression system where you earn \"Energy Cells\" through gameplay to unlock new levels and visual themes, supported by in-app advertisements."
+        "answer": "Absolutely. YONO VIP is entirely free to download. It relies on a virtual progression system where you earn \"Energy Cells\" through gameplay to unlock new levels and visual themes, supported by in-app advertisements.",
+        "question": "3. Is the game free to play?"
       }
     ],
     "screenshots": [],
@@ -930,12 +930,12 @@ export const mockApps: AppConfig[] = [
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879172/download_33_d1pgy0.webp",
     "faqs": [
       {
-        "question": "1. What kind of game is Maha Games?",
-        "answer": "Maha Games is a physics-based sandbox and puzzle application. You use mechanics like gravity inversion and momentum to guide objects through complex, 3D floating mazes."
+        "answer": "Maha Games is a physics-based sandbox and puzzle application. You use mechanics like gravity inversion and momentum to guide objects through complex, 3D floating mazes.",
+        "question": "1. What kind of game is Maha Games?"
       },
       {
-        "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection.",
-        "question": "2. Can I play the puzzles without an internet connection?"
+        "question": "2. Can I play the puzzles without an internet connection?",
+        "answer": "Yes, the core puzzle campaign and sandbox features are completely functional offline, allowing you to solve levels without needing an active data connection."
       },
       {
         "question": "3. Is there a time limit on the puzzles?",
@@ -985,12 +985,12 @@ export const mockApps: AppConfig[] = [
     "yellow_box_msg": "",
     "faqs": [
       {
-        "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board.",
-        "question": "1. How do you move in Rummy Ludo?"
+        "question": "1. How do you move in Rummy Ludo?",
+        "answer": "Instead of rolling dice, you move your board tokens by playing numbered tiles from your hand. You can also play sequences of tiles at once to unlock special safe zones and shortcuts on the board."
       },
       {
-        "answer": "Unlike classic rules where the token is sent home, landing on an opponent in this game allows you to randomly steal one of the tiles from their hand, helping you build your own sets faster.",
-        "question": "2. What happens if I land on an opponent's token?"
+        "question": "2. What happens if I land on an opponent's token?",
+        "answer": "Unlike classic rules where the token is sent home, landing on an opponent in this game allows you to randomly steal one of the tiles from their hand, helping you build your own sets faster."
       },
       {
         "question": "3. Does the app support offline gameplay?",
@@ -1036,16 +1036,16 @@ export const mockApps: AppConfig[] = [
     "release_notes": "",
     "faqs": [
       {
-        "question": "1. How do you play 789 Jackports?",
-        "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way."
+        "answer": "You use a pull-and-release slingshot mechanic to fire numbered pods into the empty bays of a spinning orbital ring, adjusting for gravity curves along the way.",
+        "question": "1. How do you play 789 Jackports?"
       },
       {
         "question": "2. What happens when you dock a 7, 8, and 9 together?",
         "answer": "Docking those three numbers in a consecutive sequence triggers a massive chain reaction that clears the board and instantly completes the puzzle phase."
       },
       {
-        "answer": "No, the entire cosmic puzzle campaign and all physics-based levels are fully available offline.",
-        "question": "3. Do I need Wi-Fi to play this game?"
+        "question": "3. Do I need Wi-Fi to play this game?",
+        "answer": "No, the entire cosmic puzzle campaign and all physics-based levels are fully available offline."
       }
     ],
     "safety_status": "Verified",
@@ -1150,7 +1150,7 @@ export const mockApps: AppConfig[] = [
     "release_notes": "In-App Purchases Yes — ad removal, coins, hints, and cosmetic items\nAds Contains ads (banner, interstitial, rewarded video)\nMinimum Android Android 5.0+ (varies by source)",
     "features_html": "",
     "seo_title": "Solitaire - Classic Card Games : latest info 2026 | RummyDex",
-    "is_new": false,
+    "is_new": true,
     "file_size": "104.5 MB",
     "idea_box_msg": "",
     "seo_keywords": "",
@@ -1174,8 +1174,8 @@ export const mockApps: AppConfig[] = [
     "publish_date": "",
     "name": "SOLITAIRE",
     "custom_admin_box_html": "",
-    "updated_at": "2026-08-10T14:52:59.579Z",
-    "is_coming_soon": true,
+    "updated_at": "2026-08-10T14:56:26.681Z",
+    "is_coming_soon": false,
     "yellow_box_msg": "",
     "video_url": "",
     "screenshots": [],
