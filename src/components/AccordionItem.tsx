@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { cn } from '../lib/utilsPublic';
@@ -11,6 +11,7 @@ interface AccordionItemProps {
 
 export default function AccordionItem({ question, answer, isWebsiteFaq }: AccordionItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const contentId = useId();
 
   return (
     <div className={cn(
@@ -19,6 +20,8 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
     )}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
         className={cn(
           "w-full text-left font-bold cursor-pointer select-none flex items-center justify-between text-zinc-900 dark:text-white transition-colors",
           isWebsiteFaq ? "py-5 px-6 text-lg" : "p-4 text-base font-medium"
@@ -38,7 +41,7 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
       </button>
       
       {isOpen && (
-        <div className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+        <div id={contentId} className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
           <div className={cn(
             "text-slate-600 dark:text-slate-400 leading-relaxed",
             isWebsiteFaq ? "px-6 pb-6 pt-0 font-medium" : "px-4 pb-4 pt-0 text-sm"
