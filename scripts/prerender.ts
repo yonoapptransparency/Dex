@@ -65,7 +65,6 @@ async function prerender() {
     }
 
     // 5. Generate Other Static Routes
-    await generateRoute('/new-apps');
     await generateRoute('/news');
     if (data.blogs && data.blogs.length > 0) await generateRoute('/blogs');
     if (data.videos && data.videos.length > 0) await generateRoute('/videos');
@@ -138,7 +137,6 @@ async function prerender() {
 
     const staticRoutes = [
       { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/new-apps', priority: '0.9', changefreq: 'daily' },
       { path: '/news', priority: '0.8', changefreq: 'daily' },
       { path: '/about', priority: '0.5', changefreq: 'monthly' },
       { path: '/developers', priority: '0.5', changefreq: 'monthly' },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Video, Sparkles, LayoutGrid, Newspaper, Info } from 'lucide-react';
+import { Video, LayoutGrid, Newspaper, Info } from 'lucide-react';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 export function PublicBottomNav() {
@@ -26,7 +26,6 @@ export function PublicBottomNav() {
       <div className="flex items-center gap-1.5 p-1.5 pointer-events-auto bg-white/95 dark:bg-zinc-900/95  border border-slate-200/80 dark:border-zinc-800 shadow-xl shadow-slate-900/10 dark:shadow-black/50 rounded-full w-auto max-w-full overflow-x-auto no-scrollbar scroll-smooth">
         {[
           { icon: Video, label: 'Videos', path: '/videos' },
-          { icon: Sparkles, label: 'New', path: '/new-apps' },
           { icon: LayoutGrid, label: 'Home', path: '/' },
           { icon: Newspaper, label: 'News', path: '/news' },
           { icon: Info, label: 'Help', path: '/contact' }

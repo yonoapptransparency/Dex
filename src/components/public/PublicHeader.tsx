@@ -56,10 +56,6 @@ export function PublicHeader() {
               {t('Home')}
               {pathname === '/' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
             </Link>
-            <Link to="/new-apps" onClick={triggerHaptic} className={`transition-all p-2 tracking-wide flex items-center gap-1.5 relative ${pathname === '/new-apps' ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}>
-              {t('New Releases')} <span className="flex w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              {pathname === '/new-apps' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
-            </Link>
             <Link to="/news" onClick={triggerHaptic} className={`transition-all p-2 tracking-wide relative ${pathname === '/news' ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}>
               {t('News')}
               {pathname === '/news' && <div className="absolute -bottom-1 left-2 right-2 h-[2px] bg-blue-600 rounded-t-full transition-all duration-300" />}
@@ -199,7 +195,6 @@ export function PublicHeader() {
             <nav className="grid grid-cols-2 gap-3 mb-6 shrink-0 relative z-40">
               {[
                 { to: '/', label: 'Home', icon: LayoutGrid },
-                { to: '/new-apps', label: 'New Apps', icon: Sparkles, hot: true },
                 { to: '/news', label: 'News', icon: Newspaper },
                 { to: '/videos', label: 'Videos', icon: Video },
                 { to: '/responsibility', label: 'Safety', icon: ShieldCheck },

@@ -62,7 +62,6 @@ export function PublicFooter() {
       
       <div className="flex flex-col gap-3 lg:items-end">
         <h3 className="text-slate-900 dark:text-white font-bold mb-1">Discover</h3>
-        <Link to="/new-apps" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">New Apps</Link>
         <Link to="/videos" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Apps</Link>
         <Link to="/news" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">News</Link>
       </div>
