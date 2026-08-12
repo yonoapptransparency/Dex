@@ -18,7 +18,7 @@ import AccordionItem from '../components/AccordionItem';
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();
   const { slug } = useParams();
-  const app = mockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase());
+  const app = mockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase());
   const [isClearing, setIsClearing] = useState(false);
   
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -114,7 +114,7 @@ export default function GatewayPage() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const found = mockApps.some(a => a.slug?.toLowerCase() === slugKey);
+    const found = mockApps.some(a => a.slug?.toLowerCase() === slugKey || a.id?.toLowerCase() === slugKey);
     if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
@@ -355,7 +355,7 @@ export default function GatewayPage() {
               </div>
             ) : (
                <div className="w-full sm:w-72">
-                 <ClearanceButton appId={app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
+                 <ClearanceButton appId={app.slug || app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
                </div>
             )}
           </div>
