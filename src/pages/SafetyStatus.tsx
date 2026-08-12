@@ -26,7 +26,18 @@ export default function SafetyStatus() {
     );
   }
 
-  if (!app) return <Navigate to="/" replace />;
+  if (!app) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+        <Meta title="Sync Portal | RummyDex" noindex={true} />
+        <h1 className="text-lg font-bold text-zinc-800 dark:text-zinc-200 mb-2">Resource Node Updating</h1>
+        <p className="text-xs text-zinc-500 mb-6 max-w-sm">The requested resource index for "{slug}" is syncing. Please check back shortly or explore the app directory.</p>
+        <Link to="/" className="px-5 py-2.5 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:opacity-90">
+          Return to Hub
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24 pt-8 px-4 sm:px-6">
