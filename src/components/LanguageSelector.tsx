@@ -20,8 +20,17 @@ export default function LanguageSelector() {
         setIsOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const changeLanguage = (code: string) => {
@@ -36,6 +45,9 @@ export default function LanguageSelector() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label="Select language"
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors w-full"
       >
         <Globe className="w-4 h-4 text-blue-500" />
@@ -44,10 +56,14 @@ export default function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-full min-w-[120px] bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-[9999] animate-in fade-in slide-in-from-top-2">
+        <div
+          role="listbox"
+          className="absolute top-full left-0 mt-2 w-full min-w-[120px] bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-[9999] animate-in fade-in slide-in-from-top-2">
           {languages.map(lang => (
             <button
               key={lang.code}
+              role="option"
+              aria-selected={activeLangCode.startsWith(lang.code)}
               onClick={() => changeLanguage(lang.code)}
               className={`block w-full text-left px-4 py-3 text-sm font-medium transition-colors ${
                 activeLangCode.startsWith(lang.code) 
