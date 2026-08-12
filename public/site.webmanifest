@@ -9,13 +9,13 @@
   "lang": "en-IN",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/diewalae4/image/upload/v1785720339/1000132678_1_ro1ftj.png",
+      "src": "/android-chrome-192x192.png?v=3",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://res.cloudinary.com/diewalae4/image/upload/v1785720339/1000132678_1_ro1ftj.png",
+      "src": "/android-chrome-512x512.png?v=3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
