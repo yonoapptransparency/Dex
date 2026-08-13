@@ -103,7 +103,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
   const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
-    return new Date(app.publish_date).getTime() > Date.now();
+    return Date.parse(app.publish_date) > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
   
   return (
@@ -178,7 +178,7 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
   const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
-    return new Date(app.publish_date).getTime() > Date.now();
+    return Date.parse(app.publish_date) > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
 
   return (
