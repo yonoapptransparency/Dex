@@ -416,8 +416,12 @@ const fetchPublicDataFromFirestore = async () => {
     if (meta && meta.numChunks) numChunks = meta.numChunks;
     
     let apps = [];
+    const chunkPromises = [];
     for (let i = 0; i < numChunks; i++) {
-      const chunk = await fetchDoc(`apps_chunk_${i}`);
+      chunkPromises.push(fetchDoc(`apps_chunk_${i}`));
+    }
+    const chunks = await Promise.all(chunkPromises);
+    for (const chunk of chunks) {
       if (chunk && chunk.items) apps = apps.concat(chunk.items);
     }
     
