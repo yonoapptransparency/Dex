@@ -10,7 +10,8 @@
     "precommit": "test -f scripts/check-secrets.ts && tsx scripts/check-secrets.ts || echo \"Skipping secret check\"",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -47,6 +48,9 @@
   "devDependencies": {
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@tailwindcss/vite": "^4.1.14",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -60,12 +64,14 @@
     "cors": "^2.8.6",
     "esbuild": "^0.28.0",
     "eslint": "^9.1.1",
+    "jsdom": "^30.0.1",
     "puppeteer": "^25.3.0",
     "supertest": "^7.2.2",
     "tailwindcss": "^4.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "vitest": "^4.1.10"
   }
 }
