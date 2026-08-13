@@ -12,20 +12,6 @@ import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useMemo, Suspense, ComponentType, LazyExoticComponent } from 'react';
 import { lazyWithRetry } from './lib/lazyWithRetry';
 
-// Error Boundary component for robust UI
-class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch(error: any, errorInfo: any) { console.error("Admin Load Error:", error, errorInfo); }
-  render() {
-    if (this.state.hasError) return this.props.fallback;
-    return this.props.children;
-  }
-}
-
 // Polished, high-performance loading screen
 function LoadingScreen() {
   return (
