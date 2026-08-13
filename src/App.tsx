@@ -107,11 +107,6 @@ function ScrollToTop() {
   return null;
 }
 
-function NavigateWithSlug({ prefix }: { prefix: string }) {
-  const { slug } = useParams();
-  return <Navigate to={`${prefix}${slug}`} replace />;
-}
-
 function AppContent() {
   const { settings, apps = [], news = [], blogs = [], videos = [], quotaExceeded } = useData();
   const [reportApp, setReportApp] = useState<any>(null);
