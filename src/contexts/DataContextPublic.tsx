@@ -178,7 +178,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [fetchBackupData]);
 
   const resolvedSettings = React.useMemo(() => {
-    const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786556304/1000134161_11zon_fgqzz6.png";
+    const defaultLogo = "/logo.png";
     const fav = settings?.favicon_url;
     const logo = settings?.logo_url;
     return {

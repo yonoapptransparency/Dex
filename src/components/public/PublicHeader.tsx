@@ -44,7 +44,7 @@ export function PublicHeader() {
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
           <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2.5 sm:gap-3 group">
             <div className="p-0 transition-transform group-hover:scale-[1.03] duration-300 shrink-0">
-              <img src="https://res.cloudinary.com/diewalae4/image/upload/v1786556304/1000134161_11zon_fgqzz6.png" width={56} height={56} loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Official Logo`} />
+              <img src="/logo.png" width={56} height={56} loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Official Logo`} />
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{settings.site_title}</span>
@@ -177,7 +177,7 @@ export function PublicHeader() {
         >
             <div className="flex justify-between items-center mb-8 shrink-0">
               <span className="text-xl font-bold flex items-center gap-2.5 tracking-tight text-zinc-900 dark:text-white">
-                <img src="https://res.cloudinary.com/diewalae4/image/upload/v1786556304/1000134161_11zon_fgqzz6.png" loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Brand Logo`} /> {settings.site_title}
+                <img src="/logo.png" loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Brand Logo`} /> {settings.site_title}
               </span>
               <button 
                 onClick={() => { triggerHaptic(); setMenuOpen(false); }}

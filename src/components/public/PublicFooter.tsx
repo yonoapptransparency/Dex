@@ -13,7 +13,7 @@ export function PublicFooter() {
     <>
       <h2 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
         <div className="p-1 bg-white/10 rounded-xl">
-          <img src="https://res.cloudinary.com/diewalae4/image/upload/v1786556304/1000134161_11zon_fgqzz6.png" loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Footer Logo`} />
+          <img src="/logo.png" loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Footer Logo`} />
         </div>
         <span className="truncate">{settings.site_title}</span>
       </h2>
