@@ -10,6 +10,33 @@ import {
   DEFAULT_ABOUT_HTML
 } from '../lib/defaultLegalContent';
 
+const lookupCache = new WeakMap<any[], Map<string, any>>();
+
+function findBySlugOrId(items: any[], slugOrId: string, checkId: boolean = false): any {
+  if (!items || items.length === 0) return undefined;
+
+  let map = lookupCache.get(items);
+  if (!map) {
+    map = new Map<string, any>();
+    for (const item of items) {
+      const s = getField(item, 'slug');
+      if (s) {
+        const key = String(s).toLowerCase();
+        if (!map.has(key)) map.set(key, item);
+      }
+      if (checkId) {
+        const id = getField(item, 'id');
+        if (id) {
+          const key = String(id).toLowerCase();
+          if (!map.has(key)) map.set(key, item);
+        }
+      }
+    }
+    lookupCache.set(items, map);
+  }
+
+  return map.get(String(slugOrId).toLowerCase());
+}
 function escapeHtml(unsafe: string) {
   if (!unsafe) return '';
   return unsafe
@@ -158,7 +185,7 @@ export function renderHome(apps: any[], settings: any, news: any[], videos: any[
 
 export function renderAppDetails(slug: string, apps: any[], settings: any) {
   const cleanSlug = decodeURIComponent(slug).toLowerCase();
-  const app = apps.find(a => getField(a, 'slug').toLowerCase() === cleanSlug);
+  const app = findBySlugOrId(apps, cleanSlug, false);
   if (!app) return `<div class="py-12 text-center"><h1 class="text-2xl font-bold mb-4">App Not Found</h1><a href="/" class="text-blue-500 hover:underline">Go Home</a></div>`;
 
   const name = getField(app, 'name');
@@ -277,7 +304,7 @@ export function renderNewsList(news: any[], settings: any) {
 
 export function renderNewsDetail(slug: string, news: any[], settings: any) {
   const cleanSlug = decodeURIComponent(slug).toLowerCase();
-  const item = news.find(n => getField(n, 'slug').toLowerCase() === cleanSlug);
+  const item = findBySlugOrId(news, cleanSlug, false);
   if (!item) return `<div class="py-12 text-center"><h1 class="text-2xl font-bold">Failed to load article.</h1><a href="/news" class="text-blue-500 hover:underline">Go Back</a></div>`;
   
   const title = getField(item, 'title');
@@ -330,7 +357,7 @@ export function renderVideosList(videos: any[], settings: any) {
 
 export function renderVideoDetail(slug: string, videos: any[], settings: any) {
   const cleanSlug = decodeURIComponent(slug).toLowerCase();
-  const v = videos.find(item => getField(item, 'slug').toLowerCase() === cleanSlug || getField(item, 'id').toLowerCase() === cleanSlug);
+  const v = findBySlugOrId(videos, cleanSlug, true);
   if (!v) return `<div class="py-12 text-center"><h1 class="text-2xl font-bold">Video not found.</h1><a href="/videos" class="text-blue-500 hover:underline">Go Back</a></div>`;
   const title = getField(v, 'title');
   const desc = getField(v, 'description');
