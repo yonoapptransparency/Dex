@@ -195,9 +195,36 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
     `);
   }
 
+  const ALLOWED_DOMAINS = [
+    'play.google.com',
+    'res.cloudinary.com',
+    'tools.pingdom.com',
+    'www.example.com',
+    'www.facebook.com',
+    'www.instagram.com',
+    'www.rummydex.com',
+    'rummydex.com',
+    'www.youtube.com'
+  ];
+
   function respondWithUrl(targetUrl) {
     const cleanUrl = targetUrl.trim();
-    return res.redirect(302, cleanUrl);
+    try {
+      const urlObj = new URL(cleanUrl);
+      const hostname = urlObj.hostname;
+
+      const isAllowed = ALLOWED_DOMAINS.includes(hostname) || hostname.endsWith('.rummydex.com');
+
+      if (isAllowed) {
+        return res.redirect(302, cleanUrl);
+      } else {
+        console.warn(`[SECURITY] Blocked open redirect attempt to untrusted domain: ${hostname}`);
+        return fallbackToAppPage(appId);
+      }
+    } catch (e) {
+      console.warn(`[SECURITY] Blocked open redirect attempt with invalid URL format: ${cleanUrl}`);
+      return fallbackToAppPage(appId);
+    }
   }
 
   function fallbackToAppPage(slugOrId) {
