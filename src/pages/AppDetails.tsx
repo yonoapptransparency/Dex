@@ -3,7 +3,6 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
