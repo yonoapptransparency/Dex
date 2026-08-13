@@ -183,8 +183,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logo = settings?.logo_url;
     return {
       ...settings,
-      favicon_url: defaultLogo,
-      logo_url: defaultLogo
+      favicon_url: (!fav || fav.includes('1000132678_1_ro1ftj') || fav.includes('ezgif')) ? defaultLogo : fav,
+      logo_url: (!logo || logo.includes('1000132678_1_ro1ftj') || logo.includes('ezgif')) ? defaultLogo : logo
     };
   }, [settings]);
 
