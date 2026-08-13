@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const CryptoJS = require('crypto-js');
 const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -82,7 +83,27 @@ function safeDecrypt(ciphertext, secret) {
   return '';
 }
 
+// Rate Limiters
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  keyGenerator: getIp,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // Limit each IP to 10 requests per `window` (here, per 1 minute)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  keyGenerator: getIp,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
 // Middleware
+app.use(globalLimiter);
 app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
@@ -90,7 +111,7 @@ app.use(cookieParser());
 // --- ROUTES ---
 
 // 1. Security Challenge Initiation (Stateless HMAC Nonce)
-app.get('/api/v1/_chal', (req, res) => {
+app.get('/api/v1/_chal', strictLimiter, (req, res) => {
   const sid = ensureSession(req, res);
   const realNonce = crypto.randomBytes(8).toString('hex');
   const difficulty = "0"; // Ultra-fast execution
@@ -106,7 +127,7 @@ app.get('/api/v1/_chal', (req, res) => {
 });
 
 // 2. Security Challenge Processing (Stateless HMAC Verification)
-app.post('/api/v1/_proc', (req, res) => {
+app.post('/api/v1/_proc', strictLimiter, (req, res) => {
   const { nonce, hash: hashField, solution, fingerprint, appId, sid: clientSid } = req.body;
   const ip = getIp(req);
   const cookieSid = req.cookies?.["__Host-sid"];
