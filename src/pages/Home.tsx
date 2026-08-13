@@ -8,7 +8,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
 import { Link, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
-import { cn } from '../lib/utilsPublic';
+import { cn } from '../lib/utils';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';

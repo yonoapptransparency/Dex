@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react';
 import { MessageCircle, Mail, X, Send } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { safeVibrate } from '../lib/utilsPublic';
+import { safeVibrate } from '../lib/utils';
 
 export default function SupportWidget() {
   const { settings } = useData();
