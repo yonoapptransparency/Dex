@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { safeHtml } from '../../lib/safeHtmlPublic';
+import { safeHtml } from '../../lib/safeHtml';
 import { AppConfig, BlogPost } from '../../types';
 
 interface AppAboutSectionProps {

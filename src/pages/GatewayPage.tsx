@@ -3,7 +3,7 @@
  * Secure countdown and verification interface before serving high-priority mirror links.
  */
 
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 import { useParams, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';

@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useMemo, useDeferredValue, useRef, useCallback } from 'react';
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 import { Link, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';

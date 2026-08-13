@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * Responsibility safety awareness details layout
  * Advises users on secure gaming techniques and safety benchmarks.

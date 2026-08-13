@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';

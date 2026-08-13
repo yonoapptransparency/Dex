@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * NewsPage details listings
  * Publishes announcements, system patches, safe apk mirrors status changes, and general portal logs.

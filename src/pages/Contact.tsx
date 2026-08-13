@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * Contact ticketing desk form
  * Integrates directly with Firestore db schemas to log customer inquiries, issues, or direct suggestions.

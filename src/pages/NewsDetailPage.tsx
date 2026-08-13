@@ -3,7 +3,7 @@
  * Shows layout announcements, system patches logs, and live interactive user commentaries.
  */
 
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';

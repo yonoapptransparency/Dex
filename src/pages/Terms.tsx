@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * Terms and Conditions page layout
  * Displays basic user agreement protocols, cookies consent directives, and listing responsibility guidelines.

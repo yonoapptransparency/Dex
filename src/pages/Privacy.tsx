@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * Privacy Policy static layout
  * Explains device logs, storage obfuscation criteria, and cookie protection.

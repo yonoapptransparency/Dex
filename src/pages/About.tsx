@@ -1,4 +1,4 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
+import { safeHtml } from '../lib/safeHtml';
 /**
  * About page layout
  * Explains the verification frameworks, safe apk guidelines, and the platform mission statement.
