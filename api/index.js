@@ -216,6 +216,12 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
     const cleanInputNoSep = cleanInput.replace(/[-_ ]/g, '');
     const cleanInputNoTrailingDash = cleanInput.replace(/[-_ ]+$/, '');
 
+    const matchRegexStr = cleanInputNoSep.split('').map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[-_ ]*');
+    const matchRegex = new RegExp('^[-_ ]*' + matchRegexStr + '[-_ ]*$');
+
+    const escapedNoTrailing = cleanInputNoTrailingDash.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const trailingRegex = new RegExp('^' + escapedNoTrailing + '[-_ ]*$');
+
     const isValidTargetUrl = (url) => {
       if (!url || typeof url !== 'string') return false;
       const clean = url.trim().toLowerCase();
@@ -261,10 +267,11 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
           if (Array.isArray(parsed)) {
             const item = parsed.find(i => {
               const iId = (i.id || '').toString().toLowerCase().trim();
+              if (iId === cleanInput) return true;
               const iSlug = (i.slug || '').toString().toLowerCase().trim();
-              const iIdNoSep = iId.replace(/[-_ ]/g, '');
-              const iSlugNoSep = iSlug.replace(/[-_ ]/g, '');
-              return iId === cleanInput || iSlug === cleanInput || iIdNoSep === cleanInputNoSep || iSlugNoSep === cleanInputNoSep;
+              if (iSlug === cleanInput) return true;
+
+              return matchRegex.test(iId) || matchRegex.test(iSlug);
             });
             const url = extractUrlFromApp(item);
             if (url) return respondWithUrl(url);
@@ -289,18 +296,14 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
     
     const matchedApp = mockApps.find(a => {
       const sId = (a.id || '').toString().toLowerCase().trim();
+      if (sId === cleanInput) return true;
       const sSlug = (a.slug || '').toString().toLowerCase().trim();
-      const sIdNoSep = sId.replace(/[-_ ]/g, '');
-      const sSlugNoSep = sSlug.replace(/[-_ ]/g, '');
-      const sIdClean = sId.replace(/[-_ ]+$/, '');
-      const sSlugClean = sSlug.replace(/[-_ ]+$/, '');
+      if (sSlug === cleanInput) return true;
 
-      return sId === cleanInput ||
-             sSlug === cleanInput ||
-             sIdClean === cleanInputNoTrailingDash ||
-             sSlugClean === cleanInputNoTrailingDash ||
-             sIdNoSep === cleanInputNoSep ||
-             sSlugNoSep === cleanInputNoSep;
+      if (trailingRegex.test(sId)) return true;
+      if (trailingRegex.test(sSlug)) return true;
+
+      return matchRegex.test(sId) || matchRegex.test(sSlug);
     });
 
     if (matchedApp) {
@@ -341,8 +344,10 @@ app.get("/api/v1/moreinfo-resolve", async (req, res) => {
                   if (Array.isArray(parsed)) {
                      const item = parsed.find(i => {
                         const iId = (i.id || '').toString().toLowerCase().trim();
+                        if (iId === cleanInput) return true;
                         const iSlug = (i.slug || '').toString().toLowerCase().trim();
-                        return iId === cleanInput || iSlug === cleanInput || iId.replace(/[-_ ]/g, '') === cleanInputNoSep;
+                        if (iSlug === cleanInput) return true;
+                        return matchRegex.test(iId) || matchRegex.test(iSlug);
                      });
                      foundRaw = item?.more_information_url || item?.encrypted_link || item?.download_url || item?.url || '';
                   } else {
