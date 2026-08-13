@@ -135,16 +135,6 @@ function AppContent() {
     };
   }, []);
 
-  const triggerHaptic = () => {
-    if (window.navigator && window.navigator.vibrate) {
-      setTimeout(() => {
-        try {
-          window.navigator.vibrate(10);
-        } catch (e) {}
-      }, 0);
-    }
-  };
-
   // Memoize static layout parts to prevent redundant re-renders
   const memoizedHeader = useMemo(() => <PublicHeader />, [location.pathname, settings]);
   const memoizedFooter = useMemo(() => <PublicFooter />, [settings]);
