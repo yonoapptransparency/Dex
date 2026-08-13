@@ -7,6 +7,25 @@ import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const memoryCache = new Map<string, string | null>();
+
+const getCachedStorage = (key: string): string | null => {
+  if (memoryCache.has(key)) return memoryCache.get(key) as string | null;
+  const val = localStorage.getItem(key);
+  memoryCache.set(key, val);
+  return val;
+};
+
+const setCachedStorage = (key: string, value: string): void => {
+  memoryCache.set(key, value);
+  localStorage.setItem(key, value);
+};
+
+const removeCachedStorage = (key: string): void => {
+  memoryCache.delete(key);
+  localStorage.removeItem(key);
+};
+
 interface PlayStoreRatingSectionProps {
   appId: string;
   appTitle: string;
@@ -34,10 +53,10 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
   // Check if user has already rated this app in this browser session or memory
   useEffect(() => {
     try {
-      const alreadyRated = localStorage.getItem(`playstore_rated_${appId}`);
+      const alreadyRated = getCachedStorage(`playstore_rated_${appId}`);
       if (alreadyRated) {
         setSubmitted(true);
-        const stored = localStorage.getItem(`playstore_rating_val_${appId}`);
+        const stored = getCachedStorage(`playstore_rating_val_${appId}`);
         if (stored) {
           setRating(parseInt(stored, 10));
         }
@@ -100,15 +119,15 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       // 1. Save locally so it manifests on the page immediately
       let existing: any[] = [];
       try {
-        const stored = localStorage.getItem(`local_user_reviews_${appId}`);
+        const stored = getCachedStorage(`local_user_reviews_${appId}`);
         if (stored) {
           existing = JSON.parse(stored);
         }
       } catch (e) {}
       
-      localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newReview, ...existing]));
-      localStorage.setItem(`playstore_rated_${appId}`, 'true');
-      localStorage.setItem(`playstore_rating_val_${appId}`, rating.toString());
+      setCachedStorage(`local_user_reviews_${appId}`, JSON.stringify([newReview, ...existing]));
+      setCachedStorage(`playstore_rated_${appId}`, 'true');
+      setCachedStorage(`playstore_rating_val_${appId}`, rating.toString());
 
       try {
         await fetch('/api/v1/public/rating', {
@@ -344,7 +363,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
                 setSubmitted(false);
                 setRating(null);
                 try {
-                  localStorage.removeItem(`playstore_rated_${appId}`);
+                  removeCachedStorage(`playstore_rated_${appId}`);
                 } catch(e){}
               }}
               className="text-[10px] text-blue-500 hover:text-blue-600 underline font-bold mt-3.5 cursor-pointer"
