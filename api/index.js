@@ -67,7 +67,11 @@ function verifyToken(token, ip, sessionId, fingerprint, appId) {
 // Helper: Safe Decrypt (AES)
 function safeDecrypt(ciphertext, secret) {
   if (!ciphertext) return '';
-  const keys = [secret, process.env.AES_SECRET, 'fallback_aes_secret_for_local_dev_only'].filter(Boolean);
+  const keys = [
+    secret,
+    process.env.AES_SECRET,
+    process.env.NODE_ENV !== 'production' ? 'fallback_aes_secret_for_local_dev_only' : null
+  ].filter(Boolean);
   const uniqueKeys = Array.from(new Set(keys));
   for (const key of uniqueKeys) {
     if (!key || key.trim() === '') continue;

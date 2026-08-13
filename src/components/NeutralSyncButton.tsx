@@ -34,7 +34,7 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
             'YonoVaultSecret2026MasterKey!', 
             'YonoVaultSecret2026MasterKey',
             'rummydex_master_vault_key_2026',
-            'fallback_aes_secret_for_local_dev_only'
+            ...(process.env.NODE_ENV !== 'production' ? ['fallback_aes_secret_for_local_dev_only'] : [])
           ];
           for (const k of keys) {
             try {
