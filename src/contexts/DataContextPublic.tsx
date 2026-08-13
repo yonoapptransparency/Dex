@@ -183,8 +183,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logo = settings?.logo_url;
     return {
       ...settings,
-      favicon_url: (!fav || fav.includes('1000132678_1_ro1ftj') || fav.includes('ezgif-64180dd8ca74703b') || fav.includes('ezgif-88d07abd3ef5753f_yz8ytg') || fav.includes('ezgif-8cbbc4a0aaeb367e_s4k2nb')) ? defaultLogo : fav,
-      logo_url: (!logo || logo.includes('1000132678_1_ro1ftj') || logo.includes('ezgif-64180dd8ca74703b') || logo.includes('ezgif-88d07abd3ef5753f_yz8ytg') || logo.includes('ezgif-8cbbc4a0aaeb367e_s4k2nb')) ? defaultLogo : logo
+      favicon_url: defaultLogo,
+      logo_url: defaultLogo
     };
   }, [settings]);
 
