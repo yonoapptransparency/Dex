@@ -4,9 +4,8 @@
  */
 
 import { DataProvider, useData } from './contexts/DataContextPublic';
-import { useLocation, useParams, BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { useLocation, useParams, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { Menu, Shield, ShieldCheck, Info, ArrowRight, X, LayoutGrid, Newspaper, Sparkles, Send, MoreHorizontal, Search, Video, Star, Facebook, Instagram, Twitter, Linkedin, Youtube, Users, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import React, { useState, useEffect, useMemo, Suspense, ComponentType, LazyExoticComponent } from 'react';
@@ -256,9 +255,7 @@ function App() {
   return (
     <HelmetProvider>
       <DataProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <AppContent />
       </DataProvider>
     </HelmetProvider>
   );
