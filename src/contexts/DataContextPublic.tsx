@@ -178,13 +178,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [fetchBackupData]);
 
   const resolvedSettings = React.useMemo(() => {
-    const defaultLogo = "/logo.png";
+    const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png";
     const fav = settings?.favicon_url;
     const logo = settings?.logo_url;
     return {
       ...settings,
-      favicon_url: (!fav || fav.includes('1000132678_1_ro1ftj') || fav.includes('ezgif')) ? defaultLogo : fav,
-      logo_url: (!logo || logo.includes('1000132678_1_ro1ftj') || logo.includes('ezgif')) ? defaultLogo : logo
+      favicon_url: (!fav || fav.includes('1000132678_1_ro1ftj') || fav.includes('ezgif') || fav.includes('1000134161_11zon_fgqzz6')) ? defaultLogo : fav,
+      logo_url: (!logo || logo.includes('1000132678_1_ro1ftj') || logo.includes('ezgif') || logo.includes('1000134161_11zon_fgqzz6')) ? defaultLogo : logo
     };
   }, [settings]);
 
