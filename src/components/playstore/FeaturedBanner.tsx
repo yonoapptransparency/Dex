@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../lib/utilsPublic';
+import { cn } from '../../lib/utils';
 
 interface BannerProps {
   items: any[];

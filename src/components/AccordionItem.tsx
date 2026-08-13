@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
-import { cn } from '../lib/utilsPublic';
+import { cn } from '../lib/utils';
 
 interface AccordionItemProps {
   question: string;

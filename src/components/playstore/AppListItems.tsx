@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ShieldCheck, MoreVertical, Share2, Flag } from 'lucide-react';
-import { cn, safeVibrate } from '../../lib/utilsPublic';
+import { cn, safeVibrate } from '../../lib/utils';
 import { getOptimizedImageUrl } from '../../seo/utils';
 
 const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpen: boolean) => void }) => {

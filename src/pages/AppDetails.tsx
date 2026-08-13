@@ -7,7 +7,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
-import { cn } from '../lib/utilsPublic';
+import { cn } from '../lib/utils';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';
