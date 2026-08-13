@@ -1,5 +1,6 @@
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
 import { AppConfig } from '../../types';
+import { getOptimizedImageUrl } from '../../seo/utils';
 
 interface AppHeaderProps {
   app: AppConfig;
@@ -18,7 +19,7 @@ export default function AppHeader({ app }: AppHeaderProps) {
           
           {app.icon_url ? (
             <img 
-              src={app.icon_url || undefined} 
+              src={getOptimizedImageUrl(app.icon_url, 200)} 
               alt={app.name} 
               loading="eager" 
               fetchPriority="high" 

@@ -8,6 +8,7 @@ import { Search, X, Loader2, ArrowRight, Zap, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useNavigate } from 'react-router-dom';
+import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
@@ -275,7 +276,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
                         className="flex items-center gap-4 p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-2xl transition-all group"
                       >
                         <div className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-black/5 dark:border-white/5 overflow-hidden shrink-0">
-                          {app.icon_url && <img src={app.icon_url} loading="lazy" width={48} height={48} alt={`${app.name} icon`} className="w-full h-full object-cover" />}
+                          {app.icon_url && <img src={getOptimizedImageUrl(app.icon_url, 96)} loading="lazy" width={48} height={48} alt={`${app.name} icon`} className="w-full h-full object-cover" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 truncate mb-0.5">{app.name}</h4>

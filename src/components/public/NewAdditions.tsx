@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { BadgeCheck } from 'lucide-react';
 import { NewAdditionItemSkeleton } from '../PlayStoreUI';
 import { AppConfig } from '../../types';
+import { getOptimizedImageUrl } from '../../seo/utils';
 
 interface NewAdditionsProps {
   loading: boolean;
@@ -35,7 +36,7 @@ export default function NewAdditions({ loading, apps }: NewAdditionsProps) {
                 <div className="relative w-full aspect-square">
                   <div className="w-full h-full rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
                     <img 
-                      src={app.icon_url || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+                      src={getOptimizedImageUrl(app.icon_url, 160) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                       alt={app.name} 
                       referrerPolicy="no-referrer"
                       loading={index < 3 ? "eager" : "lazy"}
