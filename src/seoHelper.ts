@@ -712,8 +712,44 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     ${jsonLdSchema}
   `;
 
-  // Provide full initial data object to guarantee all app descriptions, features, and news content are available client-side
-  const initialDataJson = JSON.stringify(data || {}).replace(/</g, '\\u003c');
+  // Optimize initial data payload size by stripping heavy HTML descriptions from non-target apps for ultra-fast page loads
+  let initialDataPayload = data;
+  if (data && Array.isArray(data.apps)) {
+    const targetSlug = targetApp ? getField(targetApp, 'slug')?.toLowerCase() : null;
+    const optimizedApps = data.apps.map((app: any) => {
+      const isTarget = targetSlug && getField(app, 'slug')?.toLowerCase() === targetSlug;
+      if (isTarget) return app; // Keep full details for the target page app
+
+      // Trim heavy HTML strings for list view items
+      return {
+        id: app.id,
+        name: app.name,
+        slug: app.slug,
+        icon_url: app.icon_url,
+        og_image_url: app.og_image_url,
+        rating: app.rating,
+        category: app.category,
+        is_new: app.is_new,
+        file_size: app.file_size,
+        developer: app.developer,
+        safety_status: app.safety_status,
+        updated_at: app.updated_at,
+        serial_number: app.serial_number,
+        is_coming_soon: app.is_coming_soon,
+        version: app.version,
+        url: app.url,
+        encrypted_link: app.encrypted_link,
+        yellow_box_msg: app.yellow_box_msg,
+        red_box_msg: app.red_box_msg,
+        idea_box_msg: app.idea_box_msg,
+        seo_description: app.seo_description,
+        seo_keywords: app.seo_keywords
+      };
+    });
+    initialDataPayload = { ...data, apps: optimizedApps };
+  }
+
+  const initialDataJson = JSON.stringify(initialDataPayload || {}).replace(/</g, '\\u003c');
   const initialDataScript = `<script>window.__INITIAL_DATA__ = ${initialDataJson};</script>`;
 
   // Clean up default static title & meta tags from template without destroying scripts or stylesheets

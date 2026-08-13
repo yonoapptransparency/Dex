@@ -90,11 +90,12 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const found = mockApps.some(a => a.slug?.toLowerCase() === slugKey);
-    if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+    const found = mockApps.find(a => a.slug?.toLowerCase() === slugKey);
+    const isMissingDetails = found && !found.description_html;
+    if ((!found || isMissingDetails) && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      console.log(`Deep Link Sync: App "${slug}" not found in local cache. Syncing latest indices...`);
+      console.log(`Deep Link Sync: App "${slug}" needs details update. Syncing latest indices...`);
       refreshAll(true)
         .catch((e: any) => {
           console.warn("Deep Link Auto-Sync failed:", e.message || e);
