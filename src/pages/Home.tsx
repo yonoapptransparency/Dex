@@ -10,7 +10,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import Meta from '../components/Meta';
-import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
+import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
 import NewAdditions from '../components/public/NewAdditions';
 import HomeFilterBar from '../components/public/HomeFilterBar';
@@ -20,7 +20,7 @@ const ITEMS_PER_PAGE = 10;
 const STORAGE_KEY = 'home_feed_state';
 
 export default function Home() {
-  const { apps: mockApps, settings: mockSettings, loading } = useData();
+  const { apps: mockApps, settings: mockSettings } = useData();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -244,7 +244,7 @@ export default function Home() {
   // Exact on-trigger Play Store loading mechanism:
   // When the bottom sentinel enters viewport, show the spinner and load the next batch
   useEffect(() => {
-    if (!sentinelRef.current || !hasMore || loading) return;
+    if (!sentinelRef.current || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -272,7 +272,7 @@ export default function Home() {
     return () => {
       observer.disconnect();
     };
-  }, [hasMore, loading, filteredApps.length]);
+  }, [hasMore, filteredApps.length]);
 
   const bannerItems = mockSettings.banners || [];
 
@@ -305,7 +305,7 @@ export default function Home() {
 
       {/* Modular New Additions Component */}
       {!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps') && (
-        <NewAdditions loading={loading} apps={filteredApps} />
+        <NewAdditions loading={false} apps={filteredApps} />
       )}
 
       <PlayStoreTabs activeTab={activeTab} onTabChange={setActiveTab} hideOnSearch={!!deferredSearchTerm} />
@@ -338,11 +338,7 @@ export default function Home() {
             </button>
           </div>
           <div className="space-y-2">
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <AppListItemSkeleton key={`skeleton-home-${i}`} />
-              ))
-            ) : filteredApps.length === 0 ? (
+            {filteredApps.length === 0 ? (
               <div className="py-12 text-center text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50">
                 <Search className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
                 <p className="text-base font-bold text-zinc-800 dark:text-zinc-200">No applications matched "{deferredSearchTerm}"</p>
@@ -359,16 +355,10 @@ export default function Home() {
 
       {deferredActiveTab.toLowerCase() === 'top charts' && !deferredSearchTerm && (
         <div className="space-y-1 px-0 sm:px-1">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <TopChartItemSkeleton key={`skeleton-top-${i}`} rank={i + 1} />
-            ))
-          ) : (
-            filteredApps.slice(0, visibleCount).map((app, index) => (
-              <TopChartItem key={`${app.id}-${index}`} rank={index + 1} app={app} />
-            ))
-          )}
-          {!loading && mockApps.length === 0 && (
+          {filteredApps.slice(0, visibleCount).map((app, index) => (
+            <TopChartItem key={`${app.id}-${index}`} rank={index + 1} app={app} />
+          ))}
+          {mockApps.length === 0 && (
             <div className="p-8 text-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl mx-4 mt-8 border border-zinc-200 dark:border-zinc-800">
               <svg className="w-12 h-12 text-zinc-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -392,15 +382,9 @@ export default function Home() {
         return isHomeTab && (
           <div className="px-0 sm:px-1">
             <div className="space-y-2">
-              {loading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <AppListItemSkeleton key={`skeleton-cat-${i}`} />
-                ))
-              ) : (
-                filteredApps.slice(0, visibleCount).map((app, index) => (
-                  <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
-                ))
-              )}
+              {filteredApps.slice(0, visibleCount).map((app, index) => (
+                <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
+              ))}
             </div>
           </div>
         );
@@ -440,11 +424,6 @@ export default function Home() {
         return !isExcluded && (
         <div className="animate-fade-in space-y-2 px-0 sm:px-1">
           {(() => {
-            if (loading) {
-              return Array.from({ length: 6 }).map((_, i) => (
-                <AppListItemSkeleton key={`skeleton-tab-apps-${i}`} />
-              ));
-            }
             const currentTabLower = deferredActiveTab.toLowerCase().trim();
             const tabApps = filteredApps.filter(app => {
               if (deferredSearchTerm) return true;
@@ -463,14 +442,14 @@ export default function Home() {
         );
       })()}
 
-      {!loading && filteredApps.length === 0 && deferredSearchTerm && (
+      {filteredApps.length === 0 && deferredSearchTerm && (
         <div className="text-center py-20 text-slate-400">
           <p className="text-lg">No results found for "{searchTerm}"</p>
         </div>
       )}
 
       {/* Play Store Exact On-Trigger Spinner & Sentinel */}
-      {hasMore && !loading && (
+      {hasMore && (
         <div ref={sentinelRef} className="py-8 flex flex-col items-center justify-center min-h-[72px]">
           {isLoadingMore ? (
             <div className="flex items-center justify-center gap-3">
@@ -483,7 +462,7 @@ export default function Home() {
       )}
 
       {/* End of Catalog Notice */}
-      {!hasMore && !loading && filteredApps.length > 0 && !deferredSearchTerm && (
+      {!hasMore && filteredApps.length > 0 && !deferredSearchTerm && (
         <div className="pt-4 pb-2 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-3 w-full max-w-xs justify-center mb-1">
             <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />

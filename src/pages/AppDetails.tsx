@@ -130,9 +130,13 @@ export default function AppDetails() {
     }
   }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll, updateAppDetail]);
 
-  // Initial loading phase or DB syncing phase: show complete visual structure skeleton
-  if ((loading && !app) || (!app && (!serverAppsFetched || !appsSyncedWithServer || isRefreshing || !triedRefresh))) {
-    return <AppDetailsSkeleton />;
+  // If app is not yet available, show clean minimal loader rather than heavy skeleton flashing
+  if (!app && isRefreshing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 min-h-[40vh]">
+        <div className="w-8 h-8 border-2 border-zinc-300 dark:border-zinc-700 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   if (!app) {

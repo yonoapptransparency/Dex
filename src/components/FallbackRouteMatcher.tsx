@@ -12,13 +12,21 @@ import { resolveAppSlug } from '../seoHelper';
 import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as staticMockBlogs, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
 import AppDetailsSkeleton from './public/AppDetailsSkeleton';
-import { ArticleSkeleton } from './public/PageSkeletonLoader';
 
 // Lazy load pages directly with retry to avoid chunk load errors
 const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
 const NewsDetailPage = lazyWithRetry(() => import('../pages/NewsDetailPage'));
 const BlogDetailPage = lazyWithRetry(() => import('../pages/BlogDetailPage'));
 const VideoDetailPage = lazyWithRetry(() => import('../pages/VideoDetailPage'));
+
+function InlineLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
+      <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+      <p className="text-sm font-medium tracking-wide text-zinc-500">Loading Content...</p>
+    </div>
+  );
+}
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
@@ -113,7 +121,7 @@ export default function FallbackRouteMatcher() {
 
   if (resolvedType === 'news') {
     return (
-      <Suspense fallback={<ArticleSkeleton />}>
+      <Suspense fallback={<InlineLoading />}>
         <NewsDetailPage />
       </Suspense>
     );
@@ -121,7 +129,7 @@ export default function FallbackRouteMatcher() {
 
   if (resolvedType === 'blog') {
     return (
-      <Suspense fallback={<ArticleSkeleton />}>
+      <Suspense fallback={<InlineLoading />}>
         <BlogDetailPage />
       </Suspense>
     );
@@ -129,7 +137,7 @@ export default function FallbackRouteMatcher() {
 
   if (resolvedType === 'video') {
     return (
-      <Suspense fallback={<ArticleSkeleton />}>
+      <Suspense fallback={<InlineLoading />}>
         <VideoDetailPage />
       </Suspense>
     );
