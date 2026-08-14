@@ -16,7 +16,25 @@ async function prerender() {
   
   try {
     const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
-    const originalTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');
+    let originalTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');
+    
+    // Inline CSS to eliminate render-blocking stylesheet requests
+    try {
+      originalTemplate = originalTemplate.replace(
+        /<link\s+rel="stylesheet"[^>]*href="\/assets\/([^"]+\.css)"[^>]*>/i,
+        (match, cssFilename) => {
+          const cssPath = path.join(distPath, 'assets', cssFilename);
+          if (fs.existsSync(cssPath)) {
+            const cssContent = fs.readFileSync(cssPath, 'utf-8');
+            return `<style id="inlined-css">${cssContent}</style>`;
+          }
+          return match;
+        }
+      );
+    } catch (e) {
+      console.warn('Failed to inline CSS during prerender', e);
+    }
+
     const data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
     if (!data.apps) {
       data.apps = [];

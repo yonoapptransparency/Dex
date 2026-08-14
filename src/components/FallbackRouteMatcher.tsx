@@ -13,10 +13,10 @@ import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as st
 import Meta from './Meta';
 import AppDetailsSkeleton from './public/AppDetailsSkeleton';
 
-import AppDetails from '../pages/AppDetails';
-import NewsDetailPage from '../pages/NewsDetailPage';
-import BlogDetailPage from '../pages/BlogDetailPage';
-import VideoDetailPage from '../pages/VideoDetailPage';
+const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
+const NewsDetailPage = lazyWithRetry(() => import('../pages/NewsDetailPage'));
+const BlogDetailPage = lazyWithRetry(() => import('../pages/BlogDetailPage'));
+const VideoDetailPage = lazyWithRetry(() => import('../pages/VideoDetailPage'));
 
 function InlineLoading() {
   return (
