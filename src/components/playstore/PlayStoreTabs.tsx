@@ -1,6 +1,6 @@
 import React from 'react';
 import { useData } from '../../contexts/DataContextPublic';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/utilsPublic';
 
 interface TabProps {
   activeTab: string;

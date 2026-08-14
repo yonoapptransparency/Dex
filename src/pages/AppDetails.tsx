@@ -7,7 +7,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';
@@ -29,7 +29,7 @@ import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
 export { AppDetailsSkeleton };
 
 export default function AppDetails() {
-  const { apps: mockApps, settings: mockSettings, blogs: mockBlogs, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();
+  const { apps: mockApps, settings: mockSettings, blogs: mockBlogs, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
@@ -53,7 +53,8 @@ export default function AppDetails() {
         if (a.id === app.id) return false;
         const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
         return appCats.some(cat => currentCats.includes(cat));
-      });
+      })
+      .slice(0, 10);
   }, [mockApps, app?.category, app?.id]);
 
   const relatedUpdates = useMemo(() => {
@@ -85,27 +86,40 @@ export default function AppDetails() {
     setIsRefreshing(false);
   }, [slug]);
 
-  // Automatically trigger a silent cloud sync if the requested app is not found in local cache
+  // On-demand single-app fetch: Only loads the complete details for THIS specific app
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const found = mockApps.find(a => a.slug?.toLowerCase() === slugKey);
-    const isMissingDetails = found && !found.description_html;
-    if ((!found || isMissingDetails) && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+    const resolved = resolveAppSlug(slugKey, mockApps);
+    const isMissingDetails = !resolved || !resolved.description_html;
+
+    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      console.log(`Deep Link Sync: App "${slug}" needs details update. Syncing latest indices...`);
-      refreshAll(true)
+
+      fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
+        .then(res => {
+          if (res.ok) return res.json();
+          throw new Error(`HTTP ${res.status}`);
+        })
+        .then(data => {
+          if (data?.status === 'OK' && data?.app && updateAppDetail) {
+            updateAppDetail(data.app);
+          } else if (refreshAll) {
+            return refreshAll(true);
+          }
+        })
         .catch((e: any) => {
-          console.warn("Deep Link Auto-Sync failed:", e.message || e);
+          console.warn("Single-App On-Demand fetch failed, falling back to full refresh:", e.message || e);
+          if (refreshAll) return refreshAll(true);
         })
         .finally(() => {
           setTriedRefresh(true);
           setIsRefreshing(false);
         });
     }
-  }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll]);
+  }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll, updateAppDetail]);
 
   // Initial loading phase or DB syncing phase: show complete visual structure skeleton
   if ((loading && !app) || (!app && (!serverAppsFetched || !appsSyncedWithServer || isRefreshing || !triedRefresh))) {
@@ -281,7 +295,7 @@ export default function AppDetails() {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="px-3 sm:px-6 mb-4">
+      <div className="px-1 sm:px-4 md:px-6 mb-4">
         <Link 
           to="/" 
           className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
@@ -321,31 +335,35 @@ export default function AppDetails() {
           handleShare={handleShare} 
         />
 
-        {/* Modular Screenshots Gallery */}
-        <AppScreenshots app={app} />
+        {/* Industrial Application Overview & Technical Specifications (Directly below action buttons) */}
+        <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
 
+        {/* Similar & Related Apps Section (Placed right after Application Overview) */}
         {relatedApps.length > 0 && (
-          <div className="mb-6 px-0">
-            <div className="flex items-center justify-between mb-4 px-3 sm:px-6">
-              <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-                You might also like
+          <section aria-labelledby="related-apps-heading" className="my-6 px-0">
+            <div className="flex items-center justify-between mb-3 px-1 sm:px-4 md:px-6">
+              <h2 id="related-apps-heading" className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+                Similar Applications
               </h2>
+              <span className="text-xs text-zinc-400 font-medium">{relatedApps.length} apps</span>
             </div>
             <div className="space-y-2">
               {relatedApps.map((relatedApp, index) => (
                 <AppListItem key={`${relatedApp.id}-${index}`} app={relatedApp} index={relatedApp.serial_number} />
               ))}
             </div>
-          </div>
+          </section>
         )}
+
+        {/* Modular Screenshots Gallery */}
+        <AppScreenshots app={app} />
       </div>
 
+      {/* App Safety & Security Highlight Notices */}
       <AppSafetyBoxes app={app} />
 
-      {/* Modular About Content Section */}
-      <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
-
-      <div className="px-3 sm:px-6 mb-8">
+      {/* Verified Peer Ratings & Reviews Section */}
+      <div className="px-1 sm:px-4 md:px-6 mb-8">
         <UserReviews key={reviewsRefreshKey} appId={app.id} appTitle={app.name} overallRating={app.rating} />
       </div>
       

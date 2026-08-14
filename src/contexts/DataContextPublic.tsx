@@ -41,6 +41,7 @@ interface DataContextType {
   fetchNews: () => void;
   fetchBlogs: () => void;
   fetchVideos: () => void;
+  updateAppDetail?: (app: AppConfig) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -188,6 +189,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [settings]);
 
+  const updateAppDetail = useCallback((updatedApp: AppConfig) => {
+    if (!updatedApp || !updatedApp.slug) return;
+    setApps(prevApps => {
+      const index = prevApps.findIndex(a => a.slug?.toLowerCase() === updatedApp.slug?.toLowerCase() || a.id === updatedApp.id);
+      if (index >= 0) {
+        const next = [...prevApps];
+        next[index] = { ...next[index], ...updatedApp };
+        return next;
+      }
+      return [...prevApps, updatedApp];
+    });
+  }, []);
+
   const value = React.useMemo<DataContextType>(() => ({
     apps,
     settings: resolvedSettings,
@@ -205,6 +219,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     newsSyncedWithServer: true,
     isLive,
     refreshAll: fetchBackupData,
+    updateAppDetail,
 
     // Dummy admin handlers for public view interface compliance
     saveSettings: async () => {},
@@ -222,7 +237,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchNews: fetchBackupData,
     fetchBlogs: fetchBackupData,
     fetchVideos: fetchBackupData,
-  }), [apps, resolvedSettings, news, blogs, videos, loading, loadedFromServer, isLive, fetchBackupData]);
+  }), [apps, resolvedSettings, news, blogs, videos, loading, loadedFromServer, isLive, fetchBackupData, updateAppDetail]);
 
   return (
     <DataContext.Provider value={value}>

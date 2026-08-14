@@ -7,7 +7,8 @@ import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 
-const GlobalSearch = React.lazy(() => import('../GlobalSearch'));
+const LightSearch = React.lazy(() => import('../LightSearch'));
+const MobileMenuModal = React.lazy(() => import('./MobileMenuModal'));
 
 export function PublicHeader() {
   const { settings } = useData();
@@ -172,77 +173,20 @@ export function PublicHeader() {
       </header>
 
       {menuOpen && (
-        <div 
-          className="fixed inset-0 z-[60] bg-white/98 dark:bg-slate-950/98  flex flex-col px-6 py-8 overflow-y-auto transition-all duration-200 animate-in fade-in slide-in-from-top-2"
-        >
-            <div className="flex justify-between items-center mb-8 shrink-0">
-              <span className="text-xl font-bold flex items-center gap-2.5 tracking-tight text-zinc-900 dark:text-white">
-                {settings.logo_url ? <img src={settings.logo_url} loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Brand Logo`} /> : <Shield className="w-6 h-6 text-blue-500" />} {settings.site_title}
-              </span>
-              <button 
-                onClick={() => { triggerHaptic(); setMenuOpen(false); }}
-                className="flex items-center justify-center w-10 h-10 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-full active:scale-95 transition-transform"
-                aria-label="Close menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="mb-6 z-50 relative">
-              <LanguageSelector />
-            </div>
-
-            <nav className="grid grid-cols-2 gap-3 mb-6 shrink-0 relative z-40">
-              {[
-                { to: '/', label: 'Home', icon: LayoutGrid },
-                { to: '/news', label: 'News', icon: Newspaper },
-                { to: '/videos', label: 'Videos', icon: Video },
-                { to: '/responsibility', label: 'Safety', icon: ShieldCheck },
-                { to: '/about', label: 'About Us', icon: Info },
-                { to: '/developers', label: 'Our Team', icon: Users },
-                { to: '/contact', label: 'Contact', icon: Send },
-                { to: '/privacy', label: 'Privacy', icon: ShieldCheck },
-                { to: '/report-removal', label: 'Report & Removal', icon: Trash2 },
-                { to: '/terms', label: 'Terms', icon: ShieldCheck },
-                { to: '/notice', label: 'Notice', icon: ShieldCheck },
-                { to: '/ethics', label: 'Ethics', icon: ShieldCheck },
-                { to: '/disclaimer', label: 'Disclaimer', icon: ShieldCheck },
-              ].map((item: any, idx: number) => {
-                const active = item.to && pathname === item.to;
-                return item.to ? (
-                  <Link 
-                    key={`mobile-link-${item.to}-${idx}`}
-                    onClick={() => { triggerHaptic(); setMenuOpen(false); }} 
-                    to={item.to} 
-                    className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all ${active ? 'bg-blue-600 text-white' : 'bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 hover:bg-black/10'}`}
-                  >
-                    <item.icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'}`} />
-                    <span className="text-[13px] font-medium truncate">{item.label}</span>
-                    {item.hot && <span className="flex w-1.5 h-1.5 rounded-full bg-blue-500 ml-auto shrink-0"></span>}
-                  </Link>
-                ) : (
-                  <button 
-                    key={`mobile-btn-${item.label}-${idx}`}
-                    onClick={() => { triggerHaptic(); setMenuOpen(false); if (item.action) item.action(); }} 
-                    className={`w-full flex items-center text-left gap-3 p-3.5 rounded-2xl transition-all bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 hover:bg-black/10`}
-                  >
-                    <item.icon className={`w-4 h-4 shrink-0 text-zinc-500 dark:text-zinc-400`} />
-                    <span className="text-[13px] font-medium truncate">{item.label}</span>
-                    {item.hot && <span className="flex w-1.5 h-1.5 rounded-full bg-blue-500 ml-auto shrink-0"></span>}
-                  </button>
-                );
-              })}
-            </nav>
-            
-            <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 text-center shrink-0">
-              <span className="text-xs text-zinc-400 font-medium">&copy; {new Date().getFullYear()} {settings.site_title}</span>
-            </div>
-        </div>
+        <React.Suspense fallback={null}>
+          <MobileMenuModal
+            isOpen={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            siteTitle={settings.site_title || 'RummyDex'}
+            logoUrl={settings.logo_url}
+            triggerHaptic={triggerHaptic}
+          />
+        </React.Suspense>
       )}
 
       {searchOpen && (
         <React.Suspense fallback={null}>
-          <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+          <LightSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
         </React.Suspense>
       )}
     </>

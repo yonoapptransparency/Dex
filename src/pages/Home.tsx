@@ -8,7 +8,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
 import { Link, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem, AppListItemSkeleton, TopChartItemSkeleton, NewAdditionItemSkeleton } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
@@ -16,7 +16,7 @@ import NewAdditions from '../components/public/NewAdditions';
 import HomeFilterBar from '../components/public/HomeFilterBar';
 import HomeFaqSection from '../components/public/HomeFaqSection';
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 const STORAGE_KEY = 'home_feed_state';
 
 export default function Home() {
@@ -88,25 +88,44 @@ export default function Home() {
   const feedStateRef = useRef({ visibleCount, activeTab });
   useEffect(() => {
     feedStateRef.current = { visibleCount, activeTab };
+    // Automatically save loaded count in session so going back or clicking apps retains loaded list
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        visibleCount,
+        scrollY: window.scrollY,
+        activeTab
+      }));
+    } catch (e) {
+      // Ignore
+    }
   }, [visibleCount, activeTab]);
 
-  // Save scroll position & visible count to sessionStorage only before unloading or navigating away
+  // Track scroll position before navigating away (throttled with rAF)
   useEffect(() => {
-    const handleSaveState = () => {
-      try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-          visibleCount: feedStateRef.current.visibleCount,
-          scrollY: window.scrollY,
-          activeTab: feedStateRef.current.activeTab
-        }));
-      } catch (e) {
-        // Ignore storage errors
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+              visibleCount: feedStateRef.current.visibleCount,
+              scrollY: window.scrollY,
+              activeTab: feedStateRef.current.activeTab
+            }));
+          } catch (e) {
+            // Ignore storage errors
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('beforeunload', handleSaveState);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('beforeunload', handleScroll);
     return () => {
-      window.removeEventListener('beforeunload', handleSaveState);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('beforeunload', handleScroll);
     };
   }, []);
 
@@ -220,25 +239,32 @@ export default function Home() {
   }, [mockApps, deferredSearchTerm, deferredRatingFilter, deferredSortBy]);
 
   const hasMore = visibleCount < filteredApps.length;
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Zero-lag IntersectionObserver prefetch trigger
+  // Exact on-trigger Play Store loading mechanism:
+  // When the bottom sentinel enters viewport, show the spinner and load the next batch
   useEffect(() => {
     if (!sentinelRef.current || !hasMore || loading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => {
-            const nextCount = prev + ITEMS_PER_PAGE;
-            const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', String(nextPage));
-            window.history.replaceState(null, '', url.toString());
-            return nextCount;
-          });
+          setIsLoadingMore(true);
+          // Trigger the page load cleanly with smooth pacing
+          setTimeout(() => {
+            setVisibleCount((prev) => {
+              const nextCount = prev + ITEMS_PER_PAGE;
+              const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
+              const url = new URL(window.location.href);
+              url.searchParams.set('page', String(nextPage));
+              window.history.replaceState(null, '', url.toString());
+              return nextCount;
+            });
+            setIsLoadingMore(false);
+          }, 350);
         }
       },
-      { rootMargin: '400px 0px 400px 0px', threshold: 0.01 }
+      { rootMargin: '0px 0px 50px 0px', threshold: 0.1 }
     );
 
     observer.observe(sentinelRef.current);
@@ -295,12 +321,33 @@ export default function Home() {
       />
 
       {deferredSearchTerm && (
-        <div className="px-0 sm:px-1">
+        <div className="px-0 sm:px-1 mb-4">
+          <div className="flex items-center justify-between bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-xl px-3 py-2 text-xs font-medium text-blue-900 dark:text-blue-200 mb-3">
+            <span className="flex items-center gap-1.5">
+              <Search className="w-3.5 h-3.5 text-blue-500" />
+              <span>Showing results for <strong>"{deferredSearchTerm}"</strong> ({filteredApps.length} found)</span>
+            </span>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                navigate('/', { replace: true });
+              }}
+              className="text-blue-600 dark:text-blue-400 hover:underline font-bold text-xs cursor-pointer ml-2"
+            >
+              Clear Search
+            </button>
+          </div>
           <div className="space-y-2">
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <AppListItemSkeleton key={`skeleton-home-${i}`} />
               ))
+            ) : filteredApps.length === 0 ? (
+              <div className="py-12 text-center text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50">
+                <Search className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+                <p className="text-base font-bold text-zinc-800 dark:text-zinc-200">No applications matched "{deferredSearchTerm}"</p>
+                <p className="text-xs text-zinc-400 mt-1">Try checking for typos or searching a broader keyword</p>
+              </div>
             ) : (
               filteredApps.slice(0, visibleCount).map((app, index) => (
                 <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
@@ -422,11 +469,32 @@ export default function Home() {
         </div>
       )}
 
-      {/* Infinite Scroll Prefetch Sentinel & Zero-CLS Skeletons */}
+      {/* Play Store Exact On-Trigger Spinner & Sentinel */}
       {hasMore && !loading && (
-        <div ref={sentinelRef} className="py-4 space-y-2 px-0 sm:px-1">
-          <AppListItemSkeleton />
-          <AppListItemSkeleton />
+        <div ref={sentinelRef} className="py-8 flex flex-col items-center justify-center min-h-[72px]">
+          {isLoadingMore ? (
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-8 h-8 rounded-full border-3 border-blue-500 border-t-transparent animate-spin" />
+            </div>
+          ) : (
+            <div className="w-2 h-2 opacity-0" />
+          )}
+        </div>
+      )}
+
+      {/* End of Catalog Notice */}
+      {!hasMore && !loading && filteredApps.length > 0 && !deferredSearchTerm && (
+        <div className="pt-4 pb-2 flex flex-col items-center justify-center text-center">
+          <div className="flex items-center gap-3 w-full max-w-xs justify-center mb-1">
+            <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+              You're all caught up
+            </span>
+            <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+          </div>
+          <p className="text-xs text-slate-400 dark:text-zinc-600">
+            Showing all {filteredApps.length} verified applications
+          </p>
         </div>
       )}
 

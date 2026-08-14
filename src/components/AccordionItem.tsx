@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
-import { cn } from '../lib/utils';
+import { cn } from '../lib/utilsPublic';
 
 interface AccordionItemProps {
   question: string;
@@ -14,39 +14,38 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
 
   return (
     <div className={cn(
-      "border border-black/5 dark:border-white/5 rounded-2xl overflow-hidden transition-all duration-200",
-      isWebsiteFaq ? "bg-white/70 dark:bg-zinc-900/70  shadow-sm hover:shadow-md" : "bg-white dark:bg-zinc-900 shadow-sm p-1"
+      "border border-black/5 dark:border-white/5 rounded-xl overflow-hidden transition-all duration-200",
+      isWebsiteFaq ? "bg-white/80 dark:bg-zinc-900/80 hover:border-black/10 dark:hover:border-white/10 shadow-xs" : "bg-white dark:bg-zinc-900 shadow-xs p-1"
     )}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full text-left font-bold cursor-pointer select-none flex items-center justify-between text-zinc-900 dark:text-white transition-colors",
-          isWebsiteFaq ? "py-5 px-6 text-lg" : "p-4 text-base font-medium"
+          "w-full text-left font-semibold cursor-pointer select-none flex items-center justify-between text-zinc-900 dark:text-white transition-colors",
+          isWebsiteFaq ? "py-3.5 px-4 text-sm sm:text-[15px]" : "p-3 text-sm font-medium"
         )}
       >
-        <span className="flex items-start gap-3 flex-1 pr-4">
-          {isWebsiteFaq && <span className="text-blue-500 font-black mt-px shrink-0">Q.</span>}
-          <span>{question}</span>
+        <span className="flex items-center gap-2.5 flex-1 pr-2">
+          {isWebsiteFaq && <span className="text-blue-500 font-bold text-xs shrink-0">Q.</span>}
+          <span className="leading-snug">{question}</span>
         </span>
         <div className={cn(
-          "shrink-0 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 transition-transform duration-300",
-          isOpen ? "rotate-180" : "rotate-0",
-          isWebsiteFaq ? "w-8 h-8" : "w-8 h-8"
+          "shrink-0 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 transition-transform duration-200",
+          isOpen ? "rotate-180 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "rotate-0",
+          "w-6 h-6"
         )}>
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className="w-3.5 h-3.5" />
         </div>
       </button>
       
       {isOpen && (
-        <div className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 border-t border-black/5 dark:border-white/5">
           <div className={cn(
             "text-slate-600 dark:text-slate-400 leading-relaxed",
-            isWebsiteFaq ? "px-6 pb-6 pt-0 font-medium" : "px-4 pb-4 pt-0 text-sm"
+            isWebsiteFaq ? "px-4 pb-4 pt-3 text-xs sm:text-sm font-normal bg-zinc-50/50 dark:bg-zinc-900/40" : "px-3 pb-3 pt-2 text-xs"
           )}>
-            <div className={cn("flex flex-col sm:flex-row items-start gap-3 w-full")}>
-              {isWebsiteFaq && <span className="text-indigo-500 font-black mt-px shrink-0">A.</span>}
+            <div className={cn("flex flex-col items-start gap-2 w-full")}>
               <div 
-                className="prose prose-zinc dark:prose-invert prose-sm max-w-none w-full break-words break-all sm:break-normal overflow-wrap-anywhere whitespace-normal"
+                className="prose prose-zinc dark:prose-invert prose-xs sm:prose-sm max-w-none w-full break-words overflow-wrap-anywhere whitespace-normal leading-relaxed text-slate-600 dark:text-slate-300"
                 dangerouslySetInnerHTML={{ __html: safeHtml(answer) }}
               />
             </div>

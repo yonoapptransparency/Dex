@@ -1,5 +1,6 @@
 import YouTubePlayer from './YouTubePlayer';
 import { AppConfig } from '../../types';
+import { getOptimizedImageUrl } from '../../seo/utils';
 
 interface AppScreenshotsProps {
   app: AppConfig;
@@ -20,7 +21,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
             className="flex-none w-[90px] sm:w-[125px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 select-none"
           >
             <img 
-              src={imgUrl} 
+              src={getOptimizedImageUrl(imgUrl, 300)} 
               alt={`App screenshot ${i + 1}`} 
               loading="lazy" 
               decoding="async"

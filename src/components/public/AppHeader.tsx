@@ -8,7 +8,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ app }: AppHeaderProps) {
   return (
-    <div className="flex w-full items-center gap-4 sm:gap-6 mb-6 px-3 sm:px-6 mt-2">
+    <div className="flex w-full items-center gap-3.5 sm:gap-6 mb-5 px-1 sm:px-4 md:px-6 mt-2">
       <div className="relative w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] shrink-0 premium-logo-container">
         {/* Dynamic glowing colorful aura background */}
         <div className="premium-logo-aura"></div>

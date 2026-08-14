@@ -17,7 +17,7 @@ export function AppSafetyBoxes({ app }: AppSafetyBoxesProps) {
   if (!hasRed && !hasYellow && !hasIdea) return null;
 
   return (
-    <div className="px-3 sm:px-6 space-y-3 mb-8 w-full">
+    <div className="px-1 sm:px-4 md:px-6 space-y-3 mb-8 w-full">
       {hasRed && (
         <div className="bg-rose-50/50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 p-4 rounded-2xl flex items-start gap-4 shadow-sm group">
           <div className="p-2 bg-rose-100 dark:bg-rose-500/20 rounded-xl text-rose-600 shrink-0">
