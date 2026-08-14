@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, Shield, ShieldCheck, Info, X, LayoutGrid, Newspaper, Sparkles, Send, MoreHorizontal, Search, Video, Users, Trash2 } from 'lucide-react';
 import { useData } from '../../contexts/DataContextPublic';
+import { getOptimizedImageUrl } from '../../seo/utils';
 import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
@@ -45,7 +46,7 @@ export function PublicHeader() {
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
           <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2.5 sm:gap-3 group">
             <div className="p-0 transition-transform group-hover:scale-[1.03] duration-300 shrink-0">
-              {settings.logo_url ? <img src={settings.logo_url} width={56} height={56} loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Official Logo`} /> : <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-lg">{settings.site_title?.substring(0, 1)}</div>}
+              {settings.logo_url ? <img src={getOptimizedImageUrl(settings.logo_url, 120)} width={56} height={56} loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Official Logo`} /> : <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-lg">{settings.site_title?.substring(0, 1)}</div>}
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{settings.site_title}</span>
