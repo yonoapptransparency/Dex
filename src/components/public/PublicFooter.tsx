@@ -42,7 +42,7 @@ export function PublicFooter() {
   const footerLinks = (
     <div className="w-full max-w-[540px] grid grid-cols-2 sm:grid-cols-2 gap-x-8 gap-y-8 lg:text-right">
       <div className="flex flex-col gap-2.5 lg:items-end">
-        <h3 className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-wider mb-1">Company</h3>
+        <h3 className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-wider mb-1">Company Info</h3>
         <Link to="/" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Home</Link>
         <Link to="/about" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">About Us</Link>
         <Link to="/developers" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm">Our Team</Link>
