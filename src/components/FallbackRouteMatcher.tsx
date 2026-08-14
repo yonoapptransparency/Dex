@@ -9,6 +9,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { Helmet } from 'react-helmet-async';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { resolveAppSlug } from '../seoHelper';
+import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as staticMockBlogs, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
 import AppDetailsSkeleton from './public/AppDetailsSkeleton';
 
@@ -51,25 +52,25 @@ export default function FallbackRouteMatcher() {
       return;
     }
 
-    const matchedApp = resolveAppSlug(slug, apps);
+    const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
     if (matchedApp) {
       setResolvedType('app');
       return;
     }
 
-    const newsExists = news.some(n => n.slug?.toLowerCase() === slug);
+    const newsExists = news.some(n => n.slug?.toLowerCase() === slug) || staticMockNews.some(n => n.slug?.toLowerCase() === slug);
     if (newsExists) {
       setResolvedType('news');
       return;
     }
 
-    const blogExists = blogs.some(b => b.slug?.toLowerCase() === slug);
+    const blogExists = blogs.some(b => b.slug?.toLowerCase() === slug) || staticMockBlogs.some(b => b.slug?.toLowerCase() === slug);
     if (blogExists) {
       setResolvedType('blog');
       return;
     }
 
-    const videoExists = videos.some(v => v.slug?.toLowerCase() === slug);
+    const videoExists = videos.some(v => v.slug?.toLowerCase() === slug) || staticMockVideos.some(v => v.slug?.toLowerCase() === slug);
     if (videoExists) {
       setResolvedType('video');
       return;
@@ -113,7 +114,7 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'app') {
-    const matchedApp = resolveAppSlug(slug, apps);
+    const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
     const targetSlug = matchedApp?.slug || slug;
     return <Navigate to={`/app/${targetSlug}`} replace />;
   }

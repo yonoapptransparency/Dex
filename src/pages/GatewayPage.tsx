@@ -14,11 +14,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import AccordionItem from '../components/AccordionItem';
+import { mockApps as staticMockApps } from '../lib/staticData';
 
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();
   const { slug } = useParams();
-  const app = mockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase());
+  const allApps = mockApps.length > 0 ? mockApps : staticMockApps;
+  const app = allApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase()) || staticMockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase());
   const [isClearing, setIsClearing] = useState(false);
   
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -292,13 +294,11 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Details`}
-        description={`${app.name} detail page. Complete verification to access the requested information.`}
-        keywords={app.seo_keywords ? `${app.seo_keywords}, info ${app.name}, ${app.name} technical info` : undefined}
+        title={`${app.name} - Download Portal`}
+        description={`Direct clearance download portal for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
-        schema={softwareSchema}
-        faqSchema={faqSchema}
+        noindex={true}
       />
       
       {/* Main App Presentation & Action */}

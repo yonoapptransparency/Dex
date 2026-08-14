@@ -5,6 +5,7 @@
 
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
+import { mockApps as staticMockApps } from '../lib/staticData';
 import Meta from '../components/Meta';
 import { ShieldCheck, ArrowLeft, Sparkles, LayoutGrid, Info, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -15,7 +16,10 @@ export default function SafetyStatus() {
   const { apps = [], loading } = useData();
   const { slug } = useParams();
   
-  const app = useMemo(() => apps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase()), [apps, slug]);
+  const app = useMemo(() => {
+    const s = slug?.toLowerCase();
+    return apps.find(a => a.slug?.toLowerCase() === s) || staticMockApps.find(a => a.slug?.toLowerCase() === s);
+  }, [apps, slug]);
 
   if (loading && !app) {
     return (

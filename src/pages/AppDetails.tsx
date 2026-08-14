@@ -17,6 +17,7 @@ import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
 
 import { resolveAppSlug } from '../seoHelper';
+import { mockApps as staticMockApps } from '../lib/staticData';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
@@ -34,7 +35,7 @@ export default function AppDetails() {
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
-  const app = resolveAppSlug(slug, mockApps);
+  const app = resolveAppSlug(slug, mockApps) || resolveAppSlug(slug, staticMockApps);
   
   const navigate = useNavigate();
   const [triedRefresh, setTriedRefresh] = useState(false);
@@ -48,7 +49,8 @@ export default function AppDetails() {
   const relatedApps = useMemo(() => {
     if (!app) return [];
     const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
-    return mockApps
+    const sourceApps = mockApps.length > 0 ? mockApps : staticMockApps;
+    return sourceApps
       .filter(a => {
         if (a.id === app.id) return false;
         const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
@@ -91,7 +93,7 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const resolved = resolveAppSlug(slugKey, mockApps);
+    const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
     if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
@@ -111,13 +113,20 @@ export default function AppDetails() {
           }
         })
         .catch((e: any) => {
-          console.warn("Single-App On-Demand fetch failed, falling back to full refresh:", e.message || e);
-          if (refreshAll) return refreshAll(true);
+          // Fallback to static data if on-demand fetch fails
+          const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
+          if (fallbackApp && updateAppDetail) {
+            updateAppDetail(fallbackApp);
+          } else if (refreshAll) {
+            return refreshAll(true);
+          }
         })
         .finally(() => {
           setTriedRefresh(true);
           setIsRefreshing(false);
         });
+    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
+      updateAppDetail(resolved);
     }
   }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll, updateAppDetail]);
 

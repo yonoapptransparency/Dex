@@ -65,31 +65,72 @@ const getInitialCache = () => {
   return null;
 };
 
+// Helper to merge lists by ID or Slug so newly bundled items are always preserved
+function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], dynamicList?: T[]): T[] {
+  if (!Array.isArray(dynamicList) || dynamicList.length === 0) return staticList;
+  const map = new Map<string, T>();
+  
+  // 1. Add static base items
+  staticList.forEach(item => {
+    if (item.id) map.set(item.id, item);
+    if (item.slug) map.set(item.slug.toLowerCase(), item);
+  });
+
+  // 2. Overlay dynamic/cached items (merging properties)
+  dynamicList.forEach(item => {
+    const key = item.id || (item.slug ? item.slug.toLowerCase() : null);
+    if (key) {
+      const existing = map.get(key);
+      map.set(key, existing ? { ...existing, ...item } : item);
+    }
+  });
+
+  // 3. Return combined unique list
+  const result: T[] = [];
+  const seen = new Set<string>();
+  for (const item of map.values()) {
+    const uid = item.id || item.slug || JSON.stringify(item);
+    if (!seen.has(uid)) {
+      seen.add(uid);
+      result.push(item);
+    }
+  }
+  return result.length > 0 ? result : staticList;
+}
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
-    if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) return initialCache.apps;
+    if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
+      return mergeLists(mockApps, initialCache.apps);
+    }
     return mockApps;
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    if (initialCache?.settings?.site_title) return initialCache.settings;
+    if (initialCache?.settings?.site_title) return { ...mockSettings, ...initialCache.settings };
     return mockSettings;
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) return initialCache.news;
+    if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) {
+      return mergeLists(mockNews, initialCache.news);
+    }
     return mockNews;
   });
   
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    if (initialCache?.blogs && Array.isArray(initialCache.blogs) && initialCache.blogs.length > 0) return initialCache.blogs;
+    if (initialCache?.blogs && Array.isArray(initialCache.blogs) && initialCache.blogs.length > 0) {
+      return mergeLists(mockBlogs, initialCache.blogs);
+    }
     return mockBlogs;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
-    if (initialCache?.videos && Array.isArray(initialCache.videos) && initialCache.videos.length > 0) return initialCache.videos;
+    if (initialCache?.videos && Array.isArray(initialCache.videos) && initialCache.videos.length > 0) {
+      return mergeLists(mockVideos, initialCache.videos);
+    }
     return mockVideos;
   });
 
@@ -112,27 +153,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps)) {
-            setApps(backup.apps);
-          } else {
-            setApps([]);
+            setApps(mergeLists(mockApps, backup.apps));
           }
           if (backup.settings) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
           if (backup.news && Array.isArray(backup.news)) {
-            setNews(backup.news);
-          } else {
-            setNews([]);
+            setNews(mergeLists(mockNews, backup.news));
           }
           if (backup.blogs && Array.isArray(backup.blogs)) {
-            setBlogs(backup.blogs);
-          } else {
-            setBlogs([]);
+            setBlogs(mergeLists(mockBlogs, backup.blogs));
           }
           if (backup.videos && Array.isArray(backup.videos)) {
-            setVideos(backup.videos);
-          } else {
-            setVideos([]);
+            setVideos(mergeLists(mockVideos, backup.videos));
           }
           setLoadedFromServer(true);
         }
@@ -246,10 +279,49 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useData = () => {
+export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error('useData must be used within a DataProvider');
+    return {
+      apps: mockApps,
+      settings: mockSettings,
+      news: mockNews,
+      blogs: mockBlogs,
+      videos: mockVideos,
+      loading: false,
+      loadedFromServer: true,
+      appsSyncedWithServer: true,
+      settingsSyncedWithServer: true,
+      newsSyncedWithServer: true,
+      blogsSyncedWithServer: true,
+      videosSyncedWithServer: true,
+      serverAppsFetched: true,
+      serverNewsFetched: true,
+      serverBlogsFetched: true,
+      serverVideosFetched: true,
+      isConnected: true,
+      isLive: true,
+      quotaExceeded: false,
+      lastSyncTime: '',
+      testCloudConnection: async () => true,
+      refreshAll: async () => {},
+      saveSettings: async () => {},
+      saveApp: async () => {},
+      deleteApp: async () => {},
+      saveNews: async () => {},
+      deleteNews: async () => {},
+      saveBlog: async () => {},
+      deleteBlog: async () => {},
+      saveVideo: async () => {},
+      deleteVideo: async () => {},
+      syncDataToGithub: async () => ({ success: false, log: '' }),
+      fetchApps: () => {},
+      fetchSettings: () => {},
+      fetchNews: () => {},
+      fetchBlogs: () => {},
+      fetchVideos: () => {},
+      updateAppDetail: () => {},
+    };
   }
   return context;
 };
