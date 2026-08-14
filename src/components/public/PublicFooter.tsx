@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 import { useData } from '../../contexts/DataContextPublic';
 import { getOptimizedImageUrl } from '../../seo/utils';
-
-const PublicSyncStatus = React.lazy(() => import('./PublicSyncStatus'));
+import { PublicSyncStatus } from './PublicSyncStatus';
 
 export function PublicFooter() {
   const { settings } = useData();
@@ -138,9 +137,7 @@ export function PublicFooter() {
         </div>
 
         <div className="scale-90 opacity-70 hover:opacity-100 transition-opacity">
-          <Suspense fallback={null}>
-            <PublicSyncStatus />
-          </Suspense>
+          <PublicSyncStatus />
         </div>
       </div>
     </footer>
