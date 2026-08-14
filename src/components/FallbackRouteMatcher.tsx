@@ -13,11 +13,10 @@ import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as st
 import Meta from './Meta';
 import AppDetailsSkeleton from './public/AppDetailsSkeleton';
 
-// Lazy load pages directly with retry to avoid chunk load errors
-const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
-const NewsDetailPage = lazyWithRetry(() => import('../pages/NewsDetailPage'));
-const BlogDetailPage = lazyWithRetry(() => import('../pages/BlogDetailPage'));
-const VideoDetailPage = lazyWithRetry(() => import('../pages/VideoDetailPage'));
+import AppDetails from '../pages/AppDetails';
+import NewsDetailPage from '../pages/NewsDetailPage';
+import BlogDetailPage from '../pages/BlogDetailPage';
+import VideoDetailPage from '../pages/VideoDetailPage';
 
 function InlineLoading() {
   return (
@@ -120,27 +119,15 @@ export default function FallbackRouteMatcher() {
   }
 
   if (resolvedType === 'news') {
-    return (
-      <Suspense fallback={<InlineLoading />}>
-        <NewsDetailPage />
-      </Suspense>
-    );
+    return <NewsDetailPage />;
   }
 
   if (resolvedType === 'blog') {
-    return (
-      <Suspense fallback={<InlineLoading />}>
-        <BlogDetailPage />
-      </Suspense>
-    );
+    return <BlogDetailPage />;
   }
 
   if (resolvedType === 'video') {
-    return (
-      <Suspense fallback={<InlineLoading />}>
-        <VideoDetailPage />
-      </Suspense>
-    );
+    return <VideoDetailPage />;
   }
 
 
