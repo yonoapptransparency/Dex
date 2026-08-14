@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { ArticleSkeleton } from '../components/public/PageSkeletonLoader';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
@@ -48,12 +49,7 @@ export default function BlogDetailPage() {
   }, [slug, mockBlogs, triedRefresh, isRefreshing, refreshAll]);
 
   if (loading && !blog) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
-        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading...</p>
-      </div>
-    );
+    return <ArticleSkeleton />;
   }
 
   // Graceful interstitial for slow database cold-starts or deep links on first visit
