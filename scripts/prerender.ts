@@ -98,10 +98,7 @@ async function prerender() {
     await generateRoute('/disclaimer');
 
     // 6. Generate Sitemap and Robots.txt
-    let rawDomain = process.env.PUBLIC_DOMAIN || 'https://www.rummydex.com';
-    if (!rawDomain.startsWith('http://') && !rawDomain.startsWith('https://')) {
-      rawDomain = `https://${rawDomain}`;
-    }
+    let rawDomain = 'https://www.rummydex.com';
     const host = rawDomain.replace(/\/$/, '');
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
