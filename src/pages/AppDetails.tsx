@@ -46,18 +46,64 @@ export default function AppDetails() {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [shareToast, setShareToast] = useState(false);
 
+  // Helper to extract clean specific category for this app (e.g., 'Card Apps', 'Yono Apps', 'Funny games')
+  const specificCategory = useMemo(() => {
+    if (!app?.category) return 'All Apps';
+    const parts = app.category.split(',').map(c => c.trim()).filter(Boolean);
+    const nonGeneric = parts.filter(c => {
+      const lower = c.toLowerCase();
+      return lower !== 'all apps' && lower !== 'all' && lower !== 'apps' && lower !== 'general';
+    });
+    return nonGeneric.length > 0 ? nonGeneric[0] : (parts[0] || 'All Apps');
+  }, [app?.category]);
+
   const relatedApps = useMemo(() => {
     if (!app) return [];
-    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
     const sourceApps = mockApps.length > 0 ? mockApps : staticMockApps;
-    return sourceApps
-      .filter(a => {
-        if (a.id === app.id) return false;
-        const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
-        return appCats.some(cat => currentCats.includes(cat));
-      })
-      .slice(0, 10);
-  }, [mockApps, app?.category, app?.id]);
+    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()).filter(Boolean) : [];
+    
+    // Extract non-generic specific categories (e.g. 'yono apps', 'card apps', 'funny games', 'yono')
+    const specificCats = currentCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+    
+    // Multi-level bucket matching for high relevance
+    const exactMatches: typeof sourceApps = [];
+    const tokenMatches: typeof sourceApps = [];
+    const fallbackApps: typeof sourceApps = [];
+
+    sourceApps.forEach(a => {
+      if (a.id === app.id || (a.slug && a.slug.toLowerCase() === app.slug?.toLowerCase())) return;
+      const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()).filter(Boolean) : [];
+      const appSpecificCats = appCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+
+      // 1. Direct specific category match
+      const hasExact = specificCats.some(sc => appSpecificCats.includes(sc));
+      if (hasExact) {
+        exactMatches.push(a);
+        return;
+      }
+
+      // 2. Token overlap match (e.g. 'yono' in 'yono apps' vs 'yono', or 'card' in 'card apps')
+      const hasTokenMatch = specificCats.some(sc => {
+        const tokens = sc.split(/\s+/);
+        return appSpecificCats.some(asc => {
+          const aTokens = asc.split(/\s+/);
+          return tokens.some(t => t.length > 2 && aTokens.includes(t));
+        });
+      });
+      if (hasTokenMatch) {
+        tokenMatches.push(a);
+        return;
+      }
+
+      fallbackApps.push(a);
+    });
+
+    const combined = [...exactMatches, ...tokenMatches];
+    if (combined.length < 5) {
+      return [...combined, ...fallbackApps].slice(0, 10);
+    }
+    return combined.slice(0, 16);
+  }, [mockApps, app?.category, app?.id, app?.slug]);
 
   const relatedUpdates = useMemo(() => {
     if (!slug) return [];
@@ -356,13 +402,25 @@ export default function AppDetails() {
           <section aria-labelledby="related-apps-heading" className="my-6 px-0">
             <div className="flex items-center justify-between mb-3 px-1 sm:px-4 md:px-6">
               <h2 id="related-apps-heading" className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-                Similar Applications
+                <span>Similar Applications</span>
+                {specificCategory && specificCategory !== 'All Apps' && (
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">
+                    {specificCategory}
+                  </span>
+                )}
               </h2>
-              <span className="text-xs text-zinc-400 font-medium">{relatedApps.length} apps</span>
+              <Link 
+                to={`/?tab=${encodeURIComponent(specificCategory)}`}
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors group"
+                title={`Explore all ${specificCategory} apps`}
+              >
+                <span>View all ({relatedApps.length})</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
             </div>
             <div className="space-y-2">
               {relatedApps.map((relatedApp, index) => (
-                <AppListItem key={`${relatedApp.id}-${index}`} app={relatedApp} index={relatedApp.serial_number} />
+                <AppListItem key={`${relatedApp.id}-${index}`} app={relatedApp} index={relatedApp.serial_number || index + 1} />
               ))}
             </div>
           </section>

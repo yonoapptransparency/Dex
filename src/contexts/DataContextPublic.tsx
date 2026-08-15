@@ -70,15 +70,21 @@ function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], d
   if (!Array.isArray(dynamicList) || dynamicList.length === 0) return staticList;
   const map = new Map<string, T>();
   
+  const getKey = (item: T) => {
+    if (item.slug) return `slug:${item.slug.toLowerCase().trim()}`;
+    if (item.id) return `id:${item.id}`;
+    return null;
+  };
+
   // 1. Add static base items
   staticList.forEach(item => {
-    if (item.id) map.set(item.id, item);
-    if (item.slug) map.set(item.slug.toLowerCase(), item);
+    const key = getKey(item);
+    if (key) map.set(key, item);
   });
 
   // 2. Overlay dynamic/cached items (merging properties)
   dynamicList.forEach(item => {
-    const key = item.id || (item.slug ? item.slug.toLowerCase() : null);
+    const key = getKey(item);
     if (key) {
       const existing = map.get(key);
       map.set(key, existing ? { ...existing, ...item } : item);
@@ -86,16 +92,7 @@ function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], d
   });
 
   // 3. Return combined unique list
-  const result: T[] = [];
-  const seen = new Set<string>();
-  for (const item of map.values()) {
-    const uid = item.id || item.slug || JSON.stringify(item);
-    if (!seen.has(uid)) {
-      seen.add(uid);
-      result.push(item);
-    }
-  }
-  return result.length > 0 ? result : staticList;
+  return Array.from(map.values());
 }
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
