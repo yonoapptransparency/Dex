@@ -46,7 +46,7 @@ export default function FallbackRouteMatcher() {
   }, [slug]);
 
   useEffect(() => {
-    if (!slug) {
+    if (!slug || slug.match(/\.(xml|json|txt|php|png|jpg|jpeg|gif|svg|ico|webp|js|css|map|webmanifest)$/i)) {
       setResolvedType('not_found');
       return;
     }

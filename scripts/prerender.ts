@@ -168,6 +168,95 @@ async function prerender() {
     fs.writeFileSync(path.join(distPath, 'sitemap.xml'), xml, 'utf-8');
     console.log('Generated sitemap.xml');
 
+    // Generate Sub-Sitemaps
+    const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>${host}/sitemap-apps.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-static.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-news.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-blogs.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-videos.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-developers.xml</loc><lastmod>${today}</lastmod></sitemap>
+</sitemapindex>`;
+    fs.writeFileSync(path.join(distPath, 'sitemap_index.xml'), sitemapIndexXml, 'utf-8');
+
+    let appsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const app of data.apps || []) {
+      const slug = getField(app, 'slug');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        const appDate = getFormattedDate(app);
+        appsXml += `  <url>\n    <loc>${host}/app/${cSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+      }
+    }
+    appsXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-apps.xml'), appsXml, 'utf-8');
+
+    let staticXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    const staticPages = [
+      { path: '/', priority: '1.0', changefreq: 'daily' },
+      { path: '/new-apps', priority: '0.9', changefreq: 'daily' },
+      { path: '/news', priority: '0.8', changefreq: 'daily' },
+      { path: '/blogs', priority: '0.8', changefreq: 'daily' },
+      { path: '/videos', priority: '0.7', changefreq: 'weekly' },
+      { path: '/developers', priority: '0.7', changefreq: 'weekly' },
+      { path: '/about', priority: '0.5', changefreq: 'monthly' },
+      { path: '/contact', priority: '0.5', changefreq: 'monthly' },
+      { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
+      { path: '/terms', priority: '0.3', changefreq: 'monthly' },
+      { path: '/disclaimer', priority: '0.3', changefreq: 'monthly' },
+      { path: '/notice', priority: '0.3', changefreq: 'monthly' },
+      { path: '/ethics', priority: '0.3', changefreq: 'monthly' },
+      { path: '/responsibility', priority: '0.3', changefreq: 'monthly' },
+      { path: '/report-removal', priority: '0.3', changefreq: 'monthly' }
+    ];
+    for (const page of staticPages) {
+      staticXml += `  <url>\n    <loc>${host}${page.path === '/' ? '/' : page.path}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+    }
+    staticXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXml, 'utf-8');
+
+    let newsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const item of data.news || []) {
+      const slug = getField(item, 'slug');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        const itemDate = getFormattedDate(item);
+        newsXml += `  <url>\n    <loc>${host}/news/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+      }
+    }
+    newsXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-news.xml'), newsXml, 'utf-8');
+
+    let blogsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const item of data.blogs || []) {
+      const slug = getField(item, 'slug') || getField(item, 'id');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        const itemDate = getFormattedDate(item);
+        blogsXml += `  <url>\n    <loc>${host}/blog/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+      }
+    }
+    blogsXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-blogs.xml'), blogsXml, 'utf-8');
+
+    let videosXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const item of data.videos || []) {
+      const slug = getField(item, 'slug') || getField(item, 'id');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        const itemDate = getFormattedDate(item);
+        videosXml += `  <url>\n    <loc>${host}/videos/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+      }
+    }
+    videosXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-videos.xml'), videosXml, 'utf-8');
+
+    let developersXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    developersXml += `  <url>\n    <loc>${host}/developers</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+    developersXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-developers.xml'), developersXml, 'utf-8');
+
     let robots = `User-agent: *
 Allow: /$
 Allow: /app/
@@ -199,6 +288,13 @@ Disallow: /ethics
 Disallow: /disclaimer
 
 Sitemap: ${host}/sitemap.xml
+Sitemap: ${host}/sitemap_index.xml
+Sitemap: ${host}/sitemap-apps.xml
+Sitemap: ${host}/sitemap-static.xml
+Sitemap: ${host}/sitemap-news.xml
+Sitemap: ${host}/sitemap-blogs.xml
+Sitemap: ${host}/sitemap-videos.xml
+Sitemap: ${host}/sitemap-developers.xml
 `;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
     console.log('Generated robots.txt');
