@@ -75,17 +75,8 @@ async function prerender() {
       }
     }
 
-    // 4. Generate Blog Routes
-    for (const blogItem of data.blogs || []) {
-      if (blogItem.slug) {
-        await generateRoute(`/blogs/${blogItem.slug}`);
-      }
-    }
-
     // 5. Generate Other Static Routes
     await generateRoute('/news');
-    if (data.blogs && data.blogs.length > 0) await generateRoute('/blogs');
-    if (data.videos && data.videos.length > 0) await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
     await generateRoute('/contact');
