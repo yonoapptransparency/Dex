@@ -10,7 +10,7 @@ interface AppAboutSectionProps {
 }
 
 export default function AppAboutSection({ app, relatedUpdates }: AppAboutSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
   const richHtmlContentStyle = `
