@@ -104,7 +104,7 @@ async function prerender() {
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString();
 
     const escapeXml = (unsafe: any) => {
       if (typeof unsafe !== 'string') unsafe = String(unsafe || '');
@@ -128,14 +128,14 @@ async function prerender() {
       if (dateStr) {
         try {
           if (typeof dateStr === 'object' && dateStr !== null && (dateStr as any).seconds) {
-            return new Date((dateStr as any).seconds * 1000).toISOString().split('T')[0];
+            return new Date((dateStr as any).seconds * 1000).toISOString();
           }
           if (typeof dateStr === 'object' && dateStr !== null && (dateStr as any)._seconds) {
-            return new Date((dateStr as any)._seconds * 1000).toISOString().split('T')[0];
+            return new Date((dateStr as any)._seconds * 1000).toISOString();
           }
           const date = new Date(dateStr);
           if (!isNaN(date.getTime())) {
-            return date.toISOString().split('T')[0];
+            return date.toISOString();
           }
         } catch(e) {}
       }
@@ -174,8 +174,6 @@ async function prerender() {
   <sitemap><loc>${host}/sitemap-apps.xml</loc><lastmod>${today}</lastmod></sitemap>
   <sitemap><loc>${host}/sitemap-static.xml</loc><lastmod>${today}</lastmod></sitemap>
   <sitemap><loc>${host}/sitemap-news.xml</loc><lastmod>${today}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-blogs.xml</loc><lastmod>${today}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-videos.xml</loc><lastmod>${today}</lastmod></sitemap>
   <sitemap><loc>${host}/sitemap-developers.xml</loc><lastmod>${today}</lastmod></sitemap>
 </sitemapindex>`;
     fs.writeFileSync(path.join(distPath, 'sitemap_index.xml'), sitemapIndexXml, 'utf-8');
@@ -228,29 +226,6 @@ async function prerender() {
     newsXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-news.xml'), newsXml, 'utf-8');
 
-    let blogsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const item of data.blogs || []) {
-      const slug = getField(item, 'slug') || getField(item, 'id');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const itemDate = getFormattedDate(item);
-        blogsXml += `  <url>\n    <loc>${host}/blog/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-      }
-    }
-    blogsXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-blogs.xml'), blogsXml, 'utf-8');
-
-    let videosXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const item of data.videos || []) {
-      const slug = getField(item, 'slug') || getField(item, 'id');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const itemDate = getFormattedDate(item);
-        videosXml += `  <url>\n    <loc>${host}/videos/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
-      }
-    }
-    videosXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-videos.xml'), videosXml, 'utf-8');
 
     let developersXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     developersXml += `  <url>\n    <loc>${host}/developers</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
@@ -292,8 +267,6 @@ Sitemap: ${host}/sitemap_index.xml
 Sitemap: ${host}/sitemap-apps.xml
 Sitemap: ${host}/sitemap-static.xml
 Sitemap: ${host}/sitemap-news.xml
-Sitemap: ${host}/sitemap-blogs.xml
-Sitemap: ${host}/sitemap-videos.xml
 Sitemap: ${host}/sitemap-developers.xml
 `;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
