@@ -271,8 +271,8 @@ export default function AppDetails() {
     "operatingSystem": "Android, iOS, Windows",
     "softwareVersion": app.version,
     "fileSize": app.file_size,
-    "image": app.og_image_url || app.icon_url,
-    "logo": app.og_image_url || app.icon_url,
+    "image": app.icon_url || app.og_image_url,
+    "logo": app.icon_url || app.og_image_url,
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -370,7 +370,7 @@ export default function AppDetails() {
         description={desc}
         keywords={app.seo_keywords}
         image={ogImage}
-        canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
+        canonical={`https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
       />

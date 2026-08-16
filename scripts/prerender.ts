@@ -150,34 +150,10 @@ async function prerender() {
       }
     };
 
-    const staticRoutes = [
-      { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/news', priority: '0.8', changefreq: 'daily' },
-      { path: '/about', priority: '0.5', changefreq: 'monthly' },
-      { path: '/developers', priority: '0.5', changefreq: 'monthly' },
-      { path: '/contact', priority: '0.5', changefreq: 'monthly' },
-      { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
-      { path: '/report-removal', priority: '0.3', changefreq: 'monthly' },
-      { path: '/terms', priority: '0.3', changefreq: 'monthly' },
-      { path: '/responsibility', priority: '0.3', changefreq: 'monthly' },
-      { path: '/notice', priority: '0.3', changefreq: 'monthly' },
-      { path: '/ethics', priority: '0.3', changefreq: 'monthly' },
-      { path: '/disclaimer', priority: '0.3', changefreq: 'monthly' }
-    ];
+    // 1. Homepage ONLY
+    addUrl(`${host}/`, today, 'daily', '1.0');
 
-    if (data.videos && Array.isArray(data.videos) && data.videos.length > 0) {
-      staticRoutes.splice(3, 0, { path: '/videos', priority: '0.7', changefreq: 'weekly' });
-    }
-    if (data.blogs && Array.isArray(data.blogs) && data.blogs.length > 0) {
-      staticRoutes.splice(3, 0, { path: '/blogs', priority: '0.7', changefreq: 'weekly' });
-    }
-
-    const reservedSlugs = new Set(['app', 'news', 'blogs', 'videos', 'new-apps', 'about', 'developers', 'contact', 'privacy', 'terms', 'responsibility', 'notice', 'ethics', 'disclaimer', 'submit-app', 'admin', 'login', 'api']);
-
-    for (const route of staticRoutes) {
-      addUrl(`${host}${route.path}`, today, route.changefreq, route.priority);
-    }
-
+    // 2. Apps (canonical app detail URLs) ONLY
     for (const app of data.apps || []) {
       const slug = getField(app, 'slug');
       if (slug) {
@@ -188,41 +164,42 @@ async function prerender() {
       }
     }
 
-    for (const newsItem of data.news || []) {
-      const slug = getField(newsItem, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        addUrl(`${host}/news/${cSlug}`, getFormattedDate(newsItem), 'weekly', '0.8');
-      }
-    }
-
-    for (const blogItem of data.blogs || []) {
-      const slug = getField(blogItem, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        addUrl(`${host}/blogs/${cSlug}`, getFormattedDate(blogItem), 'weekly', '0.7');
-      }
-    }
-
-    for (const videoItem of data.videos || []) {
-      const slug = getField(videoItem, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        addUrl(`${host}/videos/${cSlug}`, getFormattedDate(videoItem), 'weekly', '0.6');
-      }
-    }
-
     xml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap.xml'), xml, 'utf-8');
     console.log('Generated sitemap.xml');
 
-    let robots = `User-agent: *\nAllow: /\n\nSitemap: ${host}/sitemap.xml\n`;
-    if (data.settings && data.settings.robots_txt) {
-      robots = data.settings.robots_txt;
-      if (!robots.includes('Sitemap:')) {
-        robots += `\nSitemap: ${host}/sitemap.xml\n`;
-      }
-    }
+    let robots = `User-agent: *
+Allow: /$
+Allow: /app/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /masterworld/
+Disallow: /s/
+Disallow: /dl/
+Disallow: /out/
+Disallow: /download/
+Disallow: /gateway/
+Disallow: /info/
+Disallow: /moreinfo/
+Disallow: /moredetail/
+Disallow: /news
+Disallow: /blogs
+Disallow: /blog/
+Disallow: /videos
+Disallow: /about
+Disallow: /contact
+Disallow: /developers
+Disallow: /privacy
+Disallow: /terms
+Disallow: /report-removal
+Disallow: /responsibility
+Disallow: /notice
+Disallow: /ethics
+Disallow: /disclaimer
+
+Sitemap: ${host}/sitemap.xml
+`;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
     console.log('Generated robots.txt');
 

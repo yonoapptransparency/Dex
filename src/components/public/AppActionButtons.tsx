@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Share2, Flag } from 'lucide-react';
 import { AppConfig } from '../../types';
 
@@ -16,6 +16,8 @@ export default function AppActionButtons({
   timeRemaining,
   handleShare
 }: AppActionButtonsProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-5 px-1 sm:px-4 md:px-6">
       <motion.div
@@ -55,14 +57,15 @@ export default function AppActionButtons({
             )}
           </div>
         ) : (
-          <Link 
-            to={`/moreinfo/${app.slug}`}
-            className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]"
+          <button 
+            type="button"
+            onClick={() => navigate(`/moreinfo/${app.slug}`)}
+            className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px] cursor-pointer"
           >
             <span className="flex items-center gap-1.5 font-bold text-white !text-white">
               Download <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" />
             </span>
-          </Link>
+          </button>
         )}
       </motion.div>
 

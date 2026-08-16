@@ -297,7 +297,7 @@ export default function GatewayPage() {
         title={`${app.name} - Download Portal`}
         description={`Direct clearance download portal for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
-        canonical={app.canonical_url || `${window.location.origin}/app/${app.slug}`}
+        canonical={`https://www.rummydex.com/app/${app.slug}`}
         noindex={true}
       />
       
