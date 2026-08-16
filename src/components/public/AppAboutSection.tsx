@@ -10,7 +10,7 @@ interface AppAboutSectionProps {
 }
 
 export default function AppAboutSection({ app, relatedUpdates }: AppAboutSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
   const richHtmlContentStyle = `
@@ -70,9 +70,8 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
           </div>
         </button>
 
-        {/* Expandable Content Body */}
-        {isExpanded && (
-          <div className="p-3.5 sm:p-6 border-t border-black/5 dark:border-white/5 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-top-2 duration-200 bg-white/50 dark:bg-zinc-950/40">
+        {/* Expandable Content Body - Always in DOM for SEO, hidden via CSS */}
+        <div className={`p-3.5 sm:p-6 border-t border-black/5 dark:border-white/5 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40 transition-all duration-300 ${isExpanded ? 'block animate-in fade-in slide-in-from-top-2' : 'hidden'}`}>
             
             {app.custom_admin_box_html && (
               <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 rounded-xl p-3.5 sm:p-5 shadow-xs">
@@ -151,7 +150,6 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
             )}
 
           </div>
-        )}
       </div>
     </section>
   );
