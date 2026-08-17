@@ -9,6 +9,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { getOptimizedImageUrl } from "../seo/utils";
 import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -394,10 +395,7 @@ export default function AppDetails() {
           handleShare={handleShare} 
         />
 
-        {/* Industrial Application Overview & Technical Specifications (Directly below action buttons) */}
-        <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
-
-        {/* Similar & Related Apps Section (Placed right after Application Overview) */}
+        {/* Similar & Related Apps Section (Placed directly below action buttons) */}
         {relatedApps.length > 0 && (
           <section aria-labelledby="related-apps-heading" className="my-6 px-0">
             <div className="flex items-center justify-between mb-3 px-1 sm:px-4 md:px-6">
@@ -418,13 +416,30 @@ export default function AppDetails() {
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-rows-2 grid-flow-col gap-x-6 gap-y-6 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
               {relatedApps.map((relatedApp, index) => (
-                <AppListItem key={`${relatedApp.id}-${index}`} app={relatedApp} index={relatedApp.serial_number || index + 1} />
+                <Link
+                  key={`${relatedApp.id}-${index}`}
+                  to={`/app/${relatedApp.slug}`}
+                  className="flex flex-col items-center justify-start gap-2 w-[92px] sm:w-[110px] snap-start active:scale-95 transition-transform"
+                >
+                  <img
+                    src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
+                    alt={relatedApp.name}
+                    className="w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
+                    {relatedApp.name}
+                  </span>
+                </Link>
               ))}
             </div>
           </section>
         )}
+
+        {/* Industrial Application Overview & Technical Specifications (Placed after Similar Apps) */}
+        <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
 
         {/* Modular Screenshots Gallery */}
         <AppScreenshots app={app} />

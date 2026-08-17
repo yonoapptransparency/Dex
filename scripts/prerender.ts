@@ -64,7 +64,7 @@ async function prerender() {
     // 2. Generate Application Routes
     for (const app of data.apps || []) {
       if (app.slug) {
-        await generateRoute(`/${app.slug}`);
+        await generateRoute(`/app/${app.slug}`);
       }
     }
 

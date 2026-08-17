@@ -1,6 +1,6 @@
-import { useState } from 'react';
+
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronUp, FileText, Sparkles } from 'lucide-react';
+import { FileText, Sparkles } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
 import { AppConfig, BlogPost } from '../../types';
 
@@ -10,7 +10,7 @@ interface AppAboutSectionProps {
 }
 
 export default function AppAboutSection({ app, relatedUpdates }: AppAboutSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
   const richHtmlContentStyle = `
@@ -35,14 +35,9 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
       <div className="bg-slate-50/90 dark:bg-zinc-900/80 border border-black/5 dark:border-white/5 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 shadow-xs">
         
         {/* Industrial Header & Trigger Bar */}
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors cursor-pointer select-none group"
-          aria-expanded={isExpanded}
-        >
+        <div className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left select-none group border-b border-black/5 dark:border-white/5">
           <div className="flex items-center gap-2.5 sm:gap-3 flex-1 pr-2 sm:pr-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
@@ -55,23 +50,14 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {isExpanded ? 'Full architecture, features & security benchmarks' : 'Tap to expand full architecture, features & rules'}
+                Full architecture, features & security benchmarks
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 hidden xs:inline">
-              {isExpanded ? 'Collapse' : 'View Details'}
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-zinc-200/60 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-              {isExpanded ? <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-            </div>
-          </div>
-        </button>
-
-        {/* Expandable Content Body - Always in DOM for SEO, hidden via CSS */}
-        <div className={`p-3.5 sm:p-6 border-t border-black/5 dark:border-white/5 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40 transition-all duration-300 ${isExpanded ? 'block animate-in fade-in slide-in-from-top-2' : 'hidden'}`}>
+        {/* Content Body - Always visible for SEO & UX */}
+        <div className="p-3.5 sm:p-6 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40">
             
             {app.custom_admin_box_html && (
               <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 rounded-xl p-3.5 sm:p-5 shadow-xs">

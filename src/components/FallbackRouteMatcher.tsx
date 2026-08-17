@@ -51,12 +51,6 @@ export default function FallbackRouteMatcher() {
       return;
     }
 
-    const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
-    if (matchedApp) {
-      setResolvedType('app');
-      return;
-    }
-
     const newsExists = news.some(n => n.slug?.toLowerCase() === slug) || staticMockNews.some(n => n.slug?.toLowerCase() === slug);
     if (newsExists) {
       setResolvedType('news');
@@ -110,12 +104,6 @@ export default function FallbackRouteMatcher() {
         <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Resolving URL...</p>
       </div>
     );
-  }
-
-  if (resolvedType === 'app') {
-    const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
-    const targetSlug = matchedApp?.slug || slug;
-    return <Navigate to={`/app/${targetSlug}`} replace />;
   }
 
   if (resolvedType === 'news') {
