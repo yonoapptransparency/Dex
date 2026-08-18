@@ -16,29 +16,23 @@ export function WelcomeAdminPopup() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Only show once per session to avoid annoying the admin on every hot reload
-    const hasSeenWelcome = sessionStorage.getItem('hasSeenAdminWelcome');
+    const randomMessage = MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+    setMessage(randomMessage);
     
-    if (!hasSeenWelcome) {
-      const randomMessage = MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
-      setMessage(randomMessage);
-      
-      // Delay slightly for a nice entrance effect after page load
-      const showTimer = setTimeout(() => {
-        setIsVisible(true);
-        sessionStorage.setItem('hasSeenAdminWelcome', 'true');
-      }, 1500);
+    // Delay slightly for a nice entrance effect after page load
+    const showTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 1000);
 
-      // Auto dismiss after 8 seconds
-      const hideTimer = setTimeout(() => {
-        setIsVisible(false);
-      }, 9500);
+    // Auto dismiss after 8 seconds
+    const hideTimer = setTimeout(() => {
+      setIsVisible(false);
+    }, 9000);
 
-      return () => {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
-      };
-    }
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
   }, []);
 
   return (
