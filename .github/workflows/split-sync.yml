@@ -230,7 +230,7 @@ jobs:
             fi
             
             # Explicitly remove .github to prevent workflow nesting/looping
-            # rm -rf .github
+            rm -rf .github
 
             if [ "$TYPE" = "public" ]; then
               echo "Enforcing Public-Only Dex Isolation..."
@@ -301,7 +301,7 @@ jobs:
               if [ "$TYPE" = "admin" ]; then
                 git commit -m "Auto-sync ($TYPE) [skip ci]"
               else
-                git commit -m "Auto-sync ($TYPE) [skip ci]"
+                git commit -m "Auto-sync ($TYPE)"
               fi
               git push -u origin main
             else
