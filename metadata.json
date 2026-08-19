@@ -1,0 +1,8 @@
+{
+  "name": "RummyDex",
+  "description": "All-in-one transparency platform, app store catalog, news portal, and review hub for Rummy, Teen Patti, Yono, and card applications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

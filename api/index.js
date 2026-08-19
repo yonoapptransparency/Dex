@@ -835,7 +835,7 @@ app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], async (req, res) => {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
   
   const today = new Date().toISOString().split('T')[0];
-  const staticRoutes = ['/', '/new-apps', '/news', '/videos', '/about', '/developers', '/contact', '/privacy', '/report-removal', '/terms', '/responsibility', '/notice', '/ethics', '/disclaimer'];
+  const staticRoutes = ['/', '/news', '/videos', '/about', '/developers', '/contact', '/privacy', '/report-removal', '/terms', '/responsibility', '/notice', '/ethics', '/disclaimer'];
   
   let data = await fetchPublicDataFromFirestore();
   if (!data) {

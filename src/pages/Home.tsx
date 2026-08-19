@@ -12,7 +12,6 @@ import { cn } from '../lib/utilsPublic';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
-import NewAdditions from '../components/public/NewAdditions';
 import HomeFilterBar from '../components/public/HomeFilterBar';
 import HomeFaqSection from '../components/public/HomeFaqSection';
 
@@ -301,11 +300,6 @@ export default function Home() {
 
       {!deferredSearchTerm && deferredActiveTab.toLowerCase() !== 'categories' && deferredActiveTab.toLowerCase() !== 'top charts' && (
         <FeaturedBanner items={bannerItems} />
-      )}
-
-      {/* Modular New Additions Component */}
-      {!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps') && (
-        <NewAdditions loading={false} apps={filteredApps} />
       )}
 
       <PlayStoreTabs activeTab={activeTab} onTabChange={setActiveTab} hideOnSearch={!!deferredSearchTerm} />

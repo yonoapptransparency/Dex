@@ -21,13 +21,13 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
             className="flex-none w-[90px] sm:w-[125px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 select-none"
           >
             <img 
-              src={getOptimizedImageUrl(imgUrl, 300)} 
+              src={getOptimizedImageUrl(imgUrl, 400)} 
               alt={`App screenshot ${i + 1}`} 
               loading="lazy" 
               decoding="async"
               width={125} 
               height={222} 
-              className="w-full h-full object-cover select-none pointer-events-none" 
+              className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-300 hover:scale-105" 
               referrerPolicy="no-referrer"
             />
           </div>

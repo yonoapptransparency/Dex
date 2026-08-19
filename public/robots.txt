@@ -1,6 +1,5 @@
 User-agent: *
-Allow: /$
-Allow: /app/
+Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
@@ -13,20 +12,6 @@ Disallow: /gateway/
 Disallow: /info/
 Disallow: /moreinfo/
 Disallow: /moredetail/
-Disallow: /news
-Disallow: /blogs
-Disallow: /blog/
-Disallow: /videos
-Disallow: /about
-Disallow: /contact
-Disallow: /developers
-Disallow: /privacy
-Disallow: /terms
-Disallow: /report-removal
-Disallow: /responsibility
-Disallow: /notice
-Disallow: /ethics
-Disallow: /disclaimer
 
 Sitemap: https://www.rummydex.com/sitemap.xml
 Sitemap: https://www.rummydex.com/sitemap_index.xml

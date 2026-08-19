@@ -230,14 +230,14 @@ async function getPagePreRender(urlPath: string, data: any): Promise<string> {
     }
   } else {
     const possibleSlug = cleanPathLower.replace(/^\/|\/$/g, '');
+    const appItem = resolveAppSlug(possibleSlug, apps);
     const newsItem = news.find((n: any) => getField(n, 'slug')?.toLowerCase() === possibleSlug);
-    const blogItem = (blogs || []).find((b: any) => getField(b, 'slug')?.toLowerCase() === possibleSlug || getField(b, 'id')?.toLowerCase() === possibleSlug);
     const videoItem = videos.find((v: any) => getField(v, 'slug')?.toLowerCase() === possibleSlug);
 
-    if (newsItem) {
+    if (appItem) {
+      bodyContent = renderers.renderAppDetails(getField(appItem, 'slug') || possibleSlug, apps, settings);
+    } else if (newsItem) {
       bodyContent = renderers.renderNewsDetail(possibleSlug, news, settings);
-    } else if (blogItem) {
-      bodyContent = renderers.renderBlogDetail(possibleSlug, blogs, settings);
     } else if (videoItem) {
       bodyContent = renderers.renderVideoDetail(possibleSlug, videos, settings);
     } else {
@@ -303,23 +303,19 @@ function buildJsonLdSchema(params: {
     });
 
     if (params.settings?.website_faqs && Array.isArray(params.settings.website_faqs) && params.settings.website_faqs.length > 0) {
-      const faqList = params.settings.website_faqs
-        .filter((faq: any) => getField(faq, 'question')?.trim() && getField(faq, 'answer')?.trim())
-        .map((faq: any) => ({
-          "@type": "Question",
-          "name": stripHtml(getField(faq, 'question')),
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": stripHtml(getField(faq, 'answer'))
-          }
-        }));
-      if (faqList.length > 0) {
-        schemas.push({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqList
-        });
-      }
+      const faqList = params.settings.website_faqs.map((faq: any) => ({
+        "@type": "Question",
+        "name": getField(faq, 'question'),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": stripHtml(getField(faq, 'answer'))
+        }
+      }));
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqList
+      });
     }
   }
 
@@ -328,7 +324,7 @@ function buildJsonLdSchema(params: {
     const name = getField(app, 'name');
     let category = getField(app, 'category') || 'GameApplication';
     if (!category.includes('Application')) {
-      category = 'GameApplication';
+      category = 'GameApplication'; // Schema.org valid category fallback
     }
     const realRating = parseFloat(getField(app, 'rating'));
     const realCount = parseInt(getField(app, 'review_count'), 10);
@@ -346,7 +342,7 @@ function buildJsonLdSchema(params: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": name,
-      "operatingSystem": "Android",
+      "operatingSystem": "Android, iOS",
       "applicationCategory": category,
       "image": appSquareIcon,
       "logo": appSquareIcon,
@@ -364,11 +360,12 @@ function buildJsonLdSchema(params: {
       }
     };
 
-    if (!isNaN(realRating) && realRating > 0 && !isNaN(realCount) && realCount > 0) {
+    const aggregateCount = (!isNaN(realCount) && realCount > 0) ? realCount : 1;
+    if (!isNaN(realRating) && realRating > 0) {
       softwareAppSchema["aggregateRating"] = {
         "@type": "AggregateRating",
         "ratingValue": realRating.toString(),
-        "ratingCount": realCount.toString(),
+        "ratingCount": aggregateCount.toString(),
         "bestRating": "5",
         "worstRating": "1"
       };
@@ -433,23 +430,19 @@ function buildJsonLdSchema(params: {
     });
 
     if (app.faqs && Array.isArray(app.faqs) && app.faqs.length > 0) {
-      const faqList = app.faqs
-        .filter((faq: any) => getField(faq, 'question')?.trim() && getField(faq, 'answer')?.trim())
-        .map((faq: any) => ({
-          "@type": "Question",
-          "name": stripHtml(getField(faq, 'question')),
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": stripHtml(getField(faq, 'answer'))
-          }
-        }));
-      if (faqList.length > 0) {
-        schemas.push({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqList
-        });
-      }
+      const faqList = app.faqs.map((faq: any) => ({
+        "@type": "Question",
+        "name": getField(faq, 'question'),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": getField(faq, 'answer')
+        }
+      }));
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqList
+      });
     }
   } else if (params.pageType === 'blog' && params.blogItem) {
     const blog = params.blogItem;
@@ -782,21 +775,21 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     }
   } else {
     const appSlug = cleanPathLower.replace(/^\/|\/$/g, '');
+    const appItem = resolveAppSlug(appSlug, apps);
     const newsItem = news.find((n: any) => getField(n, 'slug')?.toLowerCase() === appSlug || getField(n, 'slug')?.toLowerCase() === appSlug.replace(/[-_]+$/g, ''));
-    const blogItem = (blogs || []).find((b: any) => getField(b, 'slug')?.toLowerCase() === appSlug || getField(b, 'id')?.toLowerCase() === appSlug);
     const videoItem = videos.find((v: any) => getField(v, 'slug')?.toLowerCase() === appSlug || getField(v, 'slug')?.toLowerCase() === appSlug.replace(/[-_]+$/g, ''));
 
-    if (newsItem) {
+    if (appItem) {
+      title = getField(appItem, 'seo_title') || `${getField(appItem, 'name')} - Features, Specs & Review | ${siteTitle}`;
+      description = cleanSeoDescription(getField(appItem, 'seo_description') || getField(appItem, 'meta_description') || stripHtml(getField(appItem, 'description_html')).substring(0, 160));
+      customCanonicalUrl = `https://www.rummydex.com/app/${getField(appItem, 'slug')}`;
+      pageType = 'app';
+      targetApp = appItem;
+    } else if (newsItem) {
       title = `${getField(newsItem, 'title')} | ${siteTitle}`;
       description = getField(newsItem, 'description', '').substring(0, 160);
       pageType = 'news';
       targetNews = newsItem;
-    } else if (blogItem) {
-      title = getField(blogItem, 'seo_title') || `${getField(blogItem, 'title')} | ${siteTitle}`;
-      description = getField(blogItem, 'seo_description') || getField(blogItem, 'description') || getField(blogItem, 'content', '').substring(0, 160);
-      customCanonicalUrl = getField(blogItem, 'canonical_url');
-      pageType = 'blog';
-      targetBlog = blogItem;
     } else if (videoItem) {
       title = `${getField(videoItem, 'title')} | ${siteTitle}`;
       description = getField(videoItem, 'description', '').substring(0, 160);
@@ -874,16 +867,6 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     videoItem: targetVideo,
     settings
   });
-
-  // Ensure meta description is clean and within 160 characters for Google SERP
-  if (description) {
-    description = stripHtml(description).replace(/\s+/g, ' ').trim();
-    if (description.length > 160) {
-      const truncated = description.substring(0, 157);
-      const lastSpace = truncated.lastIndexOf(' ');
-      description = (lastSpace > 100 ? truncated.substring(0, lastSpace) : truncated) + '...';
-    }
-  }
 
   const isNoIndexPage = isNotFound ||
     cleanPathLower.startsWith('/s/') ||
