@@ -51,15 +51,15 @@ export default function FallbackRouteMatcher() {
       return;
     }
 
-    const appMatch = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
-    if (appMatch) {
-      setResolvedType('app');
-      return;
-    }
-
     const newsExists = news.some(n => n.slug?.toLowerCase() === slug) || staticMockNews.some(n => n.slug?.toLowerCase() === slug);
     if (newsExists) {
       setResolvedType('news');
+      return;
+    }
+
+    const blogExists = blogs.some(b => b.slug?.toLowerCase() === slug) || staticMockBlogs.some(b => b.slug?.toLowerCase() === slug);
+    if (blogExists) {
+      setResolvedType('blog');
       return;
     }
 
@@ -104,10 +104,6 @@ export default function FallbackRouteMatcher() {
         <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Resolving URL...</p>
       </div>
     );
-  }
-
-  if (resolvedType === 'app') {
-    return <AppDetails />;
   }
 
   if (resolvedType === 'news') {

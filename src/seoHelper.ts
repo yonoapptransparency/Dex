@@ -230,14 +230,14 @@ async function getPagePreRender(urlPath: string, data: any): Promise<string> {
     }
   } else {
     const possibleSlug = cleanPathLower.replace(/^\/|\/$/g, '');
-    const appItem = resolveAppSlug(possibleSlug, apps);
     const newsItem = news.find((n: any) => getField(n, 'slug')?.toLowerCase() === possibleSlug);
+    const blogItem = (blogs || []).find((b: any) => getField(b, 'slug')?.toLowerCase() === possibleSlug || getField(b, 'id')?.toLowerCase() === possibleSlug);
     const videoItem = videos.find((v: any) => getField(v, 'slug')?.toLowerCase() === possibleSlug);
 
-    if (appItem) {
-      bodyContent = renderers.renderAppDetails(getField(appItem, 'slug') || possibleSlug, apps, settings);
-    } else if (newsItem) {
+    if (newsItem) {
       bodyContent = renderers.renderNewsDetail(possibleSlug, news, settings);
+    } else if (blogItem) {
+      bodyContent = renderers.renderBlogDetail(possibleSlug, blogs, settings);
     } else if (videoItem) {
       bodyContent = renderers.renderVideoDetail(possibleSlug, videos, settings);
     } else {
@@ -775,21 +775,21 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     }
   } else {
     const appSlug = cleanPathLower.replace(/^\/|\/$/g, '');
-    const appItem = resolveAppSlug(appSlug, apps);
     const newsItem = news.find((n: any) => getField(n, 'slug')?.toLowerCase() === appSlug || getField(n, 'slug')?.toLowerCase() === appSlug.replace(/[-_]+$/g, ''));
+    const blogItem = (blogs || []).find((b: any) => getField(b, 'slug')?.toLowerCase() === appSlug || getField(b, 'id')?.toLowerCase() === appSlug);
     const videoItem = videos.find((v: any) => getField(v, 'slug')?.toLowerCase() === appSlug || getField(v, 'slug')?.toLowerCase() === appSlug.replace(/[-_]+$/g, ''));
 
-    if (appItem) {
-      title = getField(appItem, 'seo_title') || `${getField(appItem, 'name')} - Features, Specs & Review | ${siteTitle}`;
-      description = cleanSeoDescription(getField(appItem, 'seo_description') || getField(appItem, 'meta_description') || stripHtml(getField(appItem, 'description_html')).substring(0, 160));
-      customCanonicalUrl = `https://www.rummydex.com/app/${getField(appItem, 'slug')}`;
-      pageType = 'app';
-      targetApp = appItem;
-    } else if (newsItem) {
+    if (newsItem) {
       title = `${getField(newsItem, 'title')} | ${siteTitle}`;
       description = getField(newsItem, 'description', '').substring(0, 160);
       pageType = 'news';
       targetNews = newsItem;
+    } else if (blogItem) {
+      title = getField(blogItem, 'seo_title') || `${getField(blogItem, 'title')} | ${siteTitle}`;
+      description = getField(blogItem, 'seo_description') || getField(blogItem, 'description') || getField(blogItem, 'content', '').substring(0, 160);
+      customCanonicalUrl = getField(blogItem, 'canonical_url');
+      pageType = 'blog';
+      targetBlog = blogItem;
     } else if (videoItem) {
       title = `${getField(videoItem, 'title')} | ${siteTitle}`;
       description = getField(videoItem, 'description', '').substring(0, 160);
@@ -869,6 +869,7 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
   });
 
   const isNoIndexPage = isNotFound ||
+    pageType !== 'home' && (pageType !== 'app' || !targetApp) ||
     cleanPathLower.startsWith('/s/') ||
     cleanPathLower.startsWith('/dl/') ||
     cleanPathLower.startsWith('/out/') ||
@@ -879,7 +880,13 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
     cleanPathLower.startsWith('/download/') ||
     cleanPathLower.startsWith('/admin') ||
     cleanPathLower.startsWith('/login') ||
-    cleanPathLower.startsWith('/masterworld');
+    cleanPathLower.startsWith('/masterworld') ||
+    cleanPathLower.startsWith('/news') ||
+    cleanPathLower.startsWith('/blogs') ||
+    cleanPathLower.startsWith('/blog/') ||
+    cleanPathLower.startsWith('/article/') ||
+    cleanPathLower.startsWith('/videos') ||
+    ['/about', '/contact', '/privacy', '/report-removal', '/terms', '/notice', '/ethics', '/disclaimer', '/responsibility', '/developers'].includes(cleanPathLower);
 
   const robotsTag = isNoIndexPage 
     ? '<meta data-rh="true" name="robots" content="noindex, nofollow, noarchive, nosnippet">\n    <meta data-rh="true" name="googlebot" content="noindex, nofollow, noarchive, nosnippet">' 
