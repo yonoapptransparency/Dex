@@ -294,8 +294,8 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Download Portal`}
-        description={`Direct clearance download portal for ${app.name}.`}
+        title={`${app.name} - Verification Portal`}
+        description={`Technical details and verified mirror gateway for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={`https://www.rummydex.com/app/${app.slug}`}
         noindex={true}

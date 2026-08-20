@@ -6,8 +6,21 @@ Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
 Disallow: /s/
+Disallow: /s/*
 Disallow: /dl/
+Disallow: /dl/*
 Disallow: /out/
+Disallow: /out/*
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
 Disallow: /news
 Disallow: /blogs
 Disallow: /blog/
@@ -22,6 +35,119 @@ Disallow: /responsibility
 Disallow: /notice
 Disallow: /ethics
 Disallow: /disclaimer
+
+User-agent: Googlebot
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+Disallow: /s/
+Disallow: /dl/
+Disallow: /out/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /api/
+
+User-agent: Bingbot
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+Disallow: /s/
+Disallow: /dl/
+Disallow: /out/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /api/
+
+User-agent: Applebot
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+
+User-agent: DuckDuckBot
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+
+User-agent: Baiduspider
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+
+User-agent: YandexBot
+Disallow: /moreinfo/
+Disallow: /moreinfo/*
+Disallow: /info/
+Disallow: /info/*
+Disallow: /gateway/
+Disallow: /gateway/*
+Disallow: /download/
+Disallow: /download/*
+Disallow: /moredetail/
+Disallow: /moredetail/*
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /moreinfo/
+Disallow: /info/
+Disallow: /gateway/
+Disallow: /download/
+Disallow: /moredetail/
+
+User-agent: AhrefsBot
+Disallow: /moreinfo/
+Disallow: /info/
+Disallow: /gateway/
+Disallow: /download/
+Disallow: /moredetail/
 
 Sitemap: https://www.rummydex.com/sitemap.xml
 Sitemap: https://www.rummydex.com/sitemap_index.xml
