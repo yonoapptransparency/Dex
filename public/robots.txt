@@ -8,11 +8,6 @@ Disallow: /masterworld/
 Disallow: /s/
 Disallow: /dl/
 Disallow: /out/
-Disallow: /download/
-Disallow: /gateway/
-Disallow: /info/
-Disallow: /moreinfo/
-Disallow: /moredetail/
 Disallow: /news
 Disallow: /blogs
 Disallow: /blog/

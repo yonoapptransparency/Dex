@@ -1,7 +1,9 @@
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Share2, Flag } from 'lucide-react';
+import { ArrowRight, Share2, Flag, Loader2, Lock, AlertCircle } from 'lucide-react';
 import { AppConfig } from '../../types';
+import { solveChallenge } from '../../lib/security/pow';
+import { generateFingerprint } from '../../lib/security/fingerprint';
 
 interface AppActionButtonsProps {
   app: AppConfig;
@@ -16,7 +18,85 @@ export default function AppActionButtons({
   timeRemaining,
   handleShare
 }: AppActionButtonsProps) {
-  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [statusText, setStatusText] = useState<string>('Verifying Link...');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const clickedRef = useRef<boolean>(false);
+
+  const handleDownload = async () => {
+    if (clickedRef.current || isProcessing) return;
+
+    clickedRef.current = true;
+    setIsProcessing(true);
+    setErrorMessage(null);
+    setStatusText('Verifying Security...');
+
+    try {
+      const targetId = app.slug || app.id;
+      const fingerprint = await generateFingerprint().catch(() => 'fallback_fp');
+
+      // Request challenge from server
+      const startRes = await fetch(`/api/v1/_chal?appId=${encodeURIComponent(targetId)}&_t=${Date.now()}`, {
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
+
+      if (!startRes.ok) {
+        throw new Error('Verification gateway busy. Tap to retry.');
+      }
+
+      const challengeData = await startRes.json();
+      if (!challengeData || !challengeData.nonce) {
+        throw new Error('Security verification failed. Tap to retry.');
+      }
+
+      // Solve Proof-of-Work challenge
+      setStatusText('Authorizing...');
+      const solution = await solveChallenge(challengeData.nonce, challengeData.difficulty || '0');
+
+      // Complete clearance and get token
+      const completeRes = await fetch('/api/v1/_proc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          nonce: challengeData.nonce,
+          solution,
+          fingerprint,
+          appId: targetId,
+          sid: challengeData.sid
+        })
+      });
+
+      if (!completeRes.ok) {
+        const errorData = await completeRes.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Clearance check failed.');
+      }
+
+      const result = await completeRes.json();
+      if (!result.token) {
+        throw new Error('Authorization response incomplete.');
+      }
+
+      setStatusText('Opening...');
+
+      // Redirect directly to destination via server clearance resolver
+      const finalRedirect = `/api/v1/moreinfo-resolve?appId=${encodeURIComponent(targetId)}&token=${encodeURIComponent(result.token)}&fp=${encodeURIComponent(fingerprint)}`;
+      try {
+        if (window.top && window.self !== window.top) {
+          window.top.location.href = finalRedirect;
+        } else {
+          window.location.href = finalRedirect;
+        }
+      } catch (_) {
+        window.location.href = finalRedirect;
+      }
+    } catch (err: any) {
+      console.warn('[DOWNLOAD] Clearance notice:', err?.message || err);
+      setErrorMessage(err?.message || 'Download failed. Tap to retry.');
+      setIsProcessing(false);
+      clickedRef.current = false;
+    }
+  };
 
   return (
     <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-5 px-1 sm:px-4 md:px-6">
@@ -57,15 +137,34 @@ export default function AppActionButtons({
             )}
           </div>
         ) : (
-          <button 
-            type="button"
-            onClick={() => navigate(`/moreinfo/${app.slug}`)}
-            className="w-full premium-action-btn premium-action-btn-blowing text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px] cursor-pointer"
-          >
-            <span className="flex items-center gap-1.5 font-bold text-white !text-white">
-              Download <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" />
-            </span>
-          </button>
+          <div className="w-full flex flex-col items-center gap-1.5">
+            <button 
+              type="button"
+              id={`download-btn-${app.slug || app.id}`}
+              onClick={handleDownload}
+              disabled={isProcessing}
+              className={`w-full premium-action-btn ${isProcessing ? 'opacity-90 cursor-wait' : 'premium-action-btn-blowing cursor-pointer'} text-white !text-white font-bold py-2.5 px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-sm shadow-md h-[44px]`}
+            >
+              <span className="flex items-center gap-1.5 font-bold text-white !text-white">
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                    <span>{statusText}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Download</span>
+                    <ArrowRight className="w-4 h-4 arrow-icon arrow-icon-loop text-white !text-white" />
+                  </>
+                )}
+              </span>
+            </button>
+            {errorMessage && (
+              <span className="text-xs text-rose-500 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5" /> {errorMessage}
+              </span>
+            )}
+          </div>
         )}
       </motion.div>
 

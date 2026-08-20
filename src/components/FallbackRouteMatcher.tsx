@@ -1,31 +1,14 @@
 /**
  * FallbackRouteMatcher wildcard resolver
- * Directs dynamic routes to target dynamic content without hardcoded router tables.
+ * Directs dynamic routes to canonical paths without allowing non-canonical root URLs to render.
  */
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { Helmet } from 'react-helmet-async';
-import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { resolveAppSlug } from '../seoHelper';
 import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as staticMockBlogs, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
-import AppDetailsSkeleton from './public/AppDetailsSkeleton';
-
-const AppDetails = lazyWithRetry(() => import('../pages/AppDetails'));
-const NewsDetailPage = lazyWithRetry(() => import('../pages/NewsDetailPage'));
-const BlogDetailPage = lazyWithRetry(() => import('../pages/BlogDetailPage'));
-const VideoDetailPage = lazyWithRetry(() => import('../pages/VideoDetailPage'));
-
-function InlineLoading() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
-      <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-      <p className="text-sm font-medium tracking-wide text-zinc-500">Loading Content...</p>
-    </div>
-  );
-}
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
@@ -33,9 +16,8 @@ export default function FallbackRouteMatcher() {
   
   // Clean pathname into a lowercase slug
   const rawPath = decodeURIComponent(location.pathname);
-  const slug = rawPath.replace(/^\/(app|download|moreinfo)\//i, '/').replace(/^\/|\/$/g, '').toLowerCase().trim();
+  const slug = rawPath.replace(/^\/(app|download|moreinfo|info|moredetail|gateway)\//i, '/').replace(/^\/|\/$/g, '').toLowerCase().trim();
   
-  const [resolvedType, setResolvedType] = useState<'app' | 'news' | 'blog' | 'video' | 'loading' | 'not_found'>('loading');
   const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
@@ -45,59 +27,43 @@ export default function FallbackRouteMatcher() {
     setIsRefreshing(false);
   }, [slug]);
 
-  useEffect(() => {
-    if (!slug || slug.match(/\.(xml|json|txt|php|png|jpg|jpeg|gif|svg|ico|webp|js|css|map|webmanifest)$/i)) {
-      setResolvedType('not_found');
-      return;
-    }
+  if (!slug || slug.match(/\.(xml|json|txt|php|png|jpg|jpeg|gif|svg|ico|webp|js|css|map|webmanifest)$/i)) {
+    return (
+      <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
+        <Meta title="404 - Page Not Found | RummyDex" description="Page not found." noindex={true} />
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Page Not Found</h1>
+        <Link to="/" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[16px] font-semibold text-sm">Return to Home</Link>
+      </div>
+    );
+  }
 
-    const newsExists = news.some(n => n.slug?.toLowerCase() === slug) || staticMockNews.some(n => n.slug?.toLowerCase() === slug);
-    if (newsExists) {
-      setResolvedType('news');
-      return;
-    }
+  // 1. Check if slug matches an app -> Always 301 Redirect to canonical /app/:slug
+  const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
+  if (matchedApp && (matchedApp.slug || matchedApp.id)) {
+    const targetSlug = matchedApp.slug || matchedApp.id;
+    return <Navigate to={`/app/${targetSlug}`} replace />;
+  }
 
-    const blogExists = blogs.some(b => b.slug?.toLowerCase() === slug) || staticMockBlogs.some(b => b.slug?.toLowerCase() === slug);
-    if (blogExists) {
-      setResolvedType('blog');
-      return;
-    }
+  // 2. Check if slug matches news -> Redirect to /news/:slug
+  const matchedNews = news.find(n => n.slug?.toLowerCase() === slug) || staticMockNews.find(n => n.slug?.toLowerCase() === slug);
+  if (matchedNews && matchedNews.slug) {
+    return <Navigate to={`/news/${matchedNews.slug}`} replace />;
+  }
 
-    const videoExists = videos.some(v => v.slug?.toLowerCase() === slug) || staticMockVideos.some(v => v.slug?.toLowerCase() === slug);
-    if (videoExists) {
-      setResolvedType('video');
-      return;
-    }
+  // 3. Check if slug matches blog -> Redirect to /blog/:slug
+  const matchedBlog = blogs.find(b => b.slug?.toLowerCase() === slug) || staticMockBlogs.find(b => b.slug?.toLowerCase() === slug);
+  if (matchedBlog && (matchedBlog.slug || matchedBlog.id)) {
+    return <Navigate to={`/blog/${matchedBlog.slug || matchedBlog.id}`} replace />;
+  }
 
-    if (loading) {
-      setResolvedType('loading');
-      return;
-    }
+  // 4. Check if slug matches video -> Redirect to /videos/:slug
+  const matchedVideo = videos.find(v => v.slug?.toLowerCase() === slug) || staticMockVideos.find(v => v.slug?.toLowerCase() === slug);
+  if (matchedVideo && matchedVideo.slug) {
+    return <Navigate to={`/videos/${matchedVideo.slug}`} replace />;
+  }
 
-    // Trigger on-demand sync from servers if we haven't found a match yet in local cache
-    if (!syncAttemptedRef.current[slug] && !triedRefresh && !isRefreshing) {
-      syncAttemptedRef.current[slug] = true;
-      setIsRefreshing(true);
-      console.log(`Fallback Match: Slug "${slug}" not found in cache. Triggering full sync...`);
-      refreshAll(true)
-        .catch(err => console.warn("Fallback route match auto-sync failed:", err.message || err))
-        .finally(() => {
-          setTriedRefresh(true);
-          setIsRefreshing(false);
-        });
-      setResolvedType('loading');
-      return;
-    }
-
-    if (isRefreshing || !triedRefresh) {
-      setResolvedType('loading');
-      return;
-    }
-
-    setResolvedType('not_found');
-  }, [slug, apps, news, blogs, videos, loading, triedRefresh, isRefreshing, refreshAll]);
-
-  if (resolvedType === 'loading') {
+  // 5. If data is still loading
+  if (loading || isRefreshing) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
@@ -106,18 +72,23 @@ export default function FallbackRouteMatcher() {
     );
   }
 
-  if (resolvedType === 'news') {
-    return <NewsDetailPage />;
+  // 6. Trigger background refresh if not found in cache
+  if (!syncAttemptedRef.current[slug] && !triedRefresh) {
+    syncAttemptedRef.current[slug] = true;
+    setIsRefreshing(true);
+    refreshAll(true)
+      .catch(err => console.warn("Fallback route match auto-sync failed:", err.message || err))
+      .finally(() => {
+        setTriedRefresh(true);
+        setIsRefreshing(false);
+      });
+    return (
+      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
+        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Resolving URL...</p>
+      </div>
+    );
   }
-
-  if (resolvedType === 'blog') {
-    return <BlogDetailPage />;
-  }
-
-  if (resolvedType === 'video') {
-    return <VideoDetailPage />;
-  }
-
 
   return (
     <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
@@ -127,7 +98,6 @@ export default function FallbackRouteMatcher() {
         noindex={true} 
       />
       <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
-
         <span className="text-2xl font-bold">404</span>
       </div>
       <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Page Not Found</h1>
