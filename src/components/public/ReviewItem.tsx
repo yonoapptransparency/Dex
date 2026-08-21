@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShieldCheck, ThumbsUp, Flag, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, ThumbsUp, Flag, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface Review {
@@ -79,10 +79,6 @@ export function ReviewItem({
           <div className="flex items-center gap-2 min-w-0">
             <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate">
               {rev.username}
-            </span>
-            <span className="inline-flex items-center gap-1 bg-[#01875f]/10 text-[#01875f] dark:text-[#00a170] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#01875f]/10 shrink-0 select-none">
-              <ShieldCheck className="w-2.5 h-2.5 text-[#01875f]" />
-              <span>Verified Player</span>
             </span>
             {(isReported || rev.reported) && (
               <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-600 dark:text-rose-450 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/10 shrink-0 select-none uppercase tracking-wide animate-pulse">

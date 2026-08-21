@@ -48,44 +48,49 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
 
     setSubmitting(true);
 
-    const generatedId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const newSubmission: Review = {
-      id: generatedId,
-      app_id: appId,
-      username: cleanUsername,
-      rating: rating,
-      comment: cleanComment,
-      created_at: new Date().toISOString(),
-      helpful_count: 0,
-      source: 'community'
-    };
-
     try {
+      const response = await fetch('/api/v1/public/community/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appId: appId,
+          userName: cleanUsername,
+          rating: rating,
+          reviewText: cleanComment,
+          turnstileToken: 'frontend_token_placeholder'
+        })
+      });
+
+      const resData = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setErrorText(resData.error || 'Failed to submit review. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      const reviewId = resData.id || `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const newSubmission: Review = {
+        id: reviewId,
+        app_id: appId,
+        username: cleanUsername,
+        rating: rating,
+        comment: cleanComment,
+        created_at: new Date().toISOString(),
+        helpful_count: 0,
+        source: 'community'
+      };
+
       onSuccess(newSubmission);
 
       let storedReviews: Review[] = [];
-      const stored = localStorage.getItem(`local_user_reviews_${appId}`);
-      if (stored) {
-        storedReviews = JSON.parse(stored);
-      }
-      localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
-
       try {
-        await fetch('/api/v1/public/review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            app_id: appId,
-            username: cleanUsername,
-            rating: rating,
-            comment: cleanComment,
-            created_at: newSubmission.created_at,
-            helpful_count: 0,
-            is_approved: false,
-            source: newSubmission.source
-          })
-        }).catch(() => {});
+        const stored = localStorage.getItem(`local_user_reviews_${appId}`);
+        if (stored) {
+          storedReviews = JSON.parse(stored);
+        }
       } catch (e) {}
+      localStorage.setItem(`local_user_reviews_${appId}`, JSON.stringify([newSubmission, ...storedReviews]));
 
       setSuccess(true);
       setUsername('');
@@ -93,6 +98,9 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
       setRating(5);
       
       setTimeout(() => setSuccess(false), 5000);
+    } catch (err: any) {
+      console.error('Error submitting review:', err);
+      setErrorText('Network error submitting review. Please check your connection.');
     } finally {
       setSubmitting(false);
     }
@@ -136,20 +144,21 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="sm:col-span-1">
-            <span className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Your Name</span>
+            <span className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Your Name</span>
             <input
               type="text"
               required
               maxLength={30}
-              placeholder="Name"
+              placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full text-xs font-semibold p-2.5 bg-white dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] text-zinc-900 dark:text-zinc-100 transition-all h-[46px]"
+              className="w-full text-xs font-semibold p-2.5 bg-zinc-50 focus:bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 transition-all h-[46px]"
+              style={{ color: 'inherit' }}
             />
           </div>
           
           <div className="sm:col-span-2">
-            <label htmlFor="comment" className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
+            <label htmlFor="comment" className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
             <textarea
               id="comment"
               required
@@ -158,7 +167,8 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={2}
-              className="w-full bg-zinc-50 focus:bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs font-medium text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none min-h-[46px]"
+              className="w-full bg-zinc-50 focus:bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl p-3 text-xs font-medium text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] transition-all resize-none min-h-[46px]"
+              style={{ color: 'inherit' }}
             />
           </div>
         </div>
@@ -181,7 +191,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
                   className="flex items-center gap-1.5 text-xs font-bold text-emerald-500"
                 >
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                  <span>Review submitted!</span>
+                  <span>Review submitted! Pending moderation.</span>
                 </motion.div>
               )}
             </AnimatePresence>

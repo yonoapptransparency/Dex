@@ -3,8 +3,8 @@
  * Displays peer reviews, supports upvotes and helpful counters, and is fully synchronized with DB.
  */
 
-import React from 'react';
-import { Star, ThumbsUp, AlertCircle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Star, ThumbsUp, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import ReviewScoreSummary from './public/ReviewScoreSummary';
 import ReviewItem from './public/ReviewItem';
 import { ReviewForm } from './public/ReviewForm';
@@ -17,10 +17,36 @@ interface UserReviewsProps {
 }
 
 export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: UserReviewsProps) {
+  
+  const [inView, setInView] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '500px' }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+
   const {
     reviews,
     setReviews,
     loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+
     sortBy,
     setSortBy,
     activeFilter,
@@ -32,20 +58,16 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
     handleHelpfulVote,
     handleReportReview,
     filteredReviews
-  } = useReviews(appId, appTitle);
+  } = useReviews(appId, appTitle, inView);
 
   const totalCount = reviews.length ? reviews.length * 9 + 42 : 124;
   const averageValue = overallRating ? overallRating.toFixed(1) : '4.8';
 
   return (
-    <div id="ratings-and-reviews-section" className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
+    <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
       <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 lg:gap-6 lg:gap-12">
         
-        <ReviewScoreSummary 
-          overallRating={overallRating} 
-          totalCount={totalCount} 
-          averageValue={averageValue} 
-        />
+        <ReviewScoreSummary appId={appId} />
 
         <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
           <ReviewForm appId={appId} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
@@ -162,6 +184,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                 <span className="text-sm font-semibold text-zinc-400 dark:text-zinc-500">No community reviews yet. Be the first to share!</span>
               </div>
             ) : (
+              
               <div className="space-y-3">
                 {filteredReviews.map((rev) => (
                   <ReviewItem
@@ -175,7 +198,28 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
                     onReport={handleReportReview}
                   />
                 ))}
+                
+                {hasMore && filteredReviews.length > 0 && (
+                  <div className="pt-4 flex justify-center">
+                    <button 
+                      type="button"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      className="px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        'Load More Reviews'
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
+
             )}
           </div>
         </div>
