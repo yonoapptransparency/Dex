@@ -1,115 +1,30 @@
-/**
- * GatewayPage redirection portal
- * Secure countdown and verification interface before serving high-priority mirror links.
- */
-
-import { safeHtml } from '../lib/safeHtmlPublic';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { Shield, ShieldAlert, ShieldCheck, MessageSquare, AlertTriangle, Info, CheckCircle2, ChevronRight, ChevronLeft, Fingerprint, Lock, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
-import { cn } from '../lib/utilsPublic';
-import { useState, useEffect, FormEvent, useRef, useMemo } from 'react';
+import { ShieldAlert, ShieldCheck, ArrowLeft, Shield } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
-import AccordionItem from '../components/AccordionItem';
 import { mockApps as staticMockApps } from '../lib/staticData';
 
 export default function GatewayPage() {
-  const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll } = useData();
+  const { apps: mockApps, settings: mockSettings, loading, serverAppsFetched, refreshAll } = useData();
   const { slug } = useParams();
   const allApps = mockApps.length > 0 ? mockApps : staticMockApps;
   const app = allApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase()) || staticMockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase());
-  const [isClearing, setIsClearing] = useState(false);
-  
-  const sliderRef = useRef<HTMLDivElement>(null);
-
-  const scrollPrev = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: -280, behavior: 'smooth' });
-    }
-  };
-
-  const scrollNext = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: 280, behavior: 'smooth' });
-    }
-  };
-
-  const similarApps = useMemo(() => {
-    if (!app) return [];
-    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
-    
-    // 1. Get apps sharing at least one category
-    const categoryMatches = mockApps.filter(a => {
-      if (a.id === app.id) return false;
-      const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()) : [];
-      return appCats.some(cat => currentCats.includes(cat));
-    });
-
-    // 2. Fallback to other apps if we don't have enough matches (to make a rich scrollable list)
-    if (categoryMatches.length < 8) {
-      const matchedIds = new Set(categoryMatches.map(a => a.id));
-      const fallbackApps = mockApps.filter(a => a.id !== app.id && !matchedIds.has(a.id));
-      return [...categoryMatches, ...fallbackApps];
-    }
-
-    return categoryMatches;
-  }, [mockApps, app]);
   
   const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [verifyInterval, setVerifyInterval] = useState<ReturnType<typeof setInterval> | null>(null);
-
-  const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(false);
-
-  const [username, setUsername] = useState('');
-  const [rating, setRating] = useState('5');
-  const [review, setReview] = useState('');
-
   const isActuallyComingSoon = app?.is_coming_soon;
-
-  useEffect(() => {
-    // Auth check removed to reduce Firebase quotas.
-  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
     setIsRefreshing(false);
-    // Reset verification states on transition to another application
-    setIsVerified(false);
-    setIsVerifying(false);
-    setProgress(0);
-    if (verifyInterval) {
-      clearInterval(verifyInterval);
-      setVerifyInterval(null);
-    }
   }, [slug]);
-
-  // Handle browser Back-Forward Cache (Bfcache) restorative states to guarantee fresh, re-executable moreinfo handshake
-  useEffect(() => {
-    const handlePageShow = () => {
-      setIsVerified(false);
-      setIsVerifying(false);
-      setProgress(0);
-      if (verifyInterval) {
-        clearInterval(verifyInterval);
-        setVerifyInterval(null);
-      }
-    };
-    window.addEventListener('pageshow', handlePageShow);
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow);
-    };
-  }, [verifyInterval]);
 
   // Automatically trigger a silent cloud sync if the requested app is not found in local cache
   useEffect(() => {
@@ -120,7 +35,6 @@ export default function GatewayPage() {
     if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      console.log(`Deep Link Sync: Verification moreinfo index for "${slug}" not found in local cache. Syncing latest indices...`);
       refreshAll(true)
         .catch((e: any) => {
           console.warn("Deep Link Auto-Sync failed (quota or net):", e.message || e);
@@ -131,46 +45,6 @@ export default function GatewayPage() {
         });
     }
   }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll]);
-
-  useEffect(() => {
-    return () => {
-      if (verifyInterval) {
-        clearInterval(verifyInterval);
-      }
-    };
-  }, [verifyInterval]);
-
-  const playSoftClick = () => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    audio.volume = 0.4;
-    audio.play().catch(e => console.log("Audio play blocked", e));
-  };
-
-  const startVerification = () => {
-    if (isVerifying || isVerified) return;
-    
-    playSoftClick();
-    setIsVerifying(true);
-    setProgress(0);
-    
-    if (verifyInterval) {
-      clearInterval(verifyInterval);
-    }
-
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setVerifyInterval(null);
-          setIsVerified(true);
-          setIsVerifying(false);
-          return 100;
-        }
-        return prev + 10; // smooth 10-step verification (0.5 second overall)
-      });
-    }, 50);
-    setVerifyInterval(interval);
-  };
 
   if (loading && !app) {
     return (
@@ -214,19 +88,6 @@ export default function GatewayPage() {
     );
   }
 
-  const faqSchema = app.faqs && app.faqs.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": app.faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer
-      }
-    }))
-  } : null;
-
   const stripHtml = (html: string) => {
     if (!html) return '';
     const stripped = html.replace(/<[^>]*>?/gm, ' ');
@@ -268,18 +129,6 @@ export default function GatewayPage() {
     }
   };
 
-  const handleReviewSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!username.trim() || !review.trim()) {
-      alert("Please provide both name and review.");
-      return;
-    }
-    alert("Review submitted and awaiting moderation.");
-    setUsername('');
-    setRating('5');
-    setReview('');
-  };
-
   return (
     <div className="animate-fade-in select-none pb-40 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
       {/* Sleek Premium Back Button */}
@@ -298,6 +147,7 @@ export default function GatewayPage() {
         description={`Technical details and verified mirror gateway for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={`https://www.rummydex.com/app/${app.slug}`}
+        schema={softwareSchema}
         noindex={true}
       />
       
@@ -336,10 +186,14 @@ export default function GatewayPage() {
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
               <div className="flex flex-wrap justify-center items-center gap-1.5">
                 <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
-                  ID: {app.serial_number}
+                  ID: {app.serial_number || app.id}
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   Ver: {app.version}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
+                  <Shield className="w-3 h-3 mr-1 inline" />
+                  Verified Mirror
                 </span>
               </div>
             </div>
@@ -362,7 +216,7 @@ export default function GatewayPage() {
         </div>
       </div>
 
-      {/* Strict Section Order 4: Helpline Block */}
+      {/* Helpline Block */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6 max-w-4xl mx-auto w-full mt-12 mb-20 px-4 sm:px-6">
         {mockSettings.helpline_whatsapp && (
           <a href={`https://wa.me/${mockSettings.helpline_whatsapp.replace('+','')}`} target="_blank" rel="nofollow noopener noreferrer" className="flex items-center justify-center gap-2 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-bold text-xs uppercase tracking-wider bg-white dark:bg-zinc-900 px-6 py-3.5 rounded-full border border-black/[0.05] dark:border-white/[0.05] shadow-sm hover:shadow">
