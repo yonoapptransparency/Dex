@@ -185,8 +185,8 @@ export default function NewsDetailPage() {
         </header>
 
         {newsItem.logo_url && (
-            <div className="w-full aspect-video mb-12 rounded-3xl overflow-hidden shadow-sm border border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900">
-                <img src={newsItem.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} alt={newsItem.title} loading="eager" fetchPriority="high" decoding="async" width={800} height={450} className="w-full h-full object-cover" />
+            <div className="w-full aspect-video mb-12 rounded-2xl overflow-hidden shadow-sm border border-black/5 dark:border-white/10 bg-zinc-950 flex items-center justify-center">
+                <img src={newsItem.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} alt={newsItem.title} loading="eager" fetchPriority="high" decoding="async" width={800} height={450} className="w-full h-full object-contain" />
             </div>
         )}
         
