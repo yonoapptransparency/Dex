@@ -153,7 +153,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
           <h3 className="font-semibold text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
           <div className="text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
           <div className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
-            <span>{app.rating ? app.rating.toFixed(1) : '10.0'}</span>
+            <span>{app.rating ? app.rating.toFixed(1) : '5.0'}</span>
             <Star className="w-3 h-3 fill-current text-zinc-400" />
             {app.safety_status === 'Verified' && <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0 ml-1" />}
           </div>
@@ -218,7 +218,7 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
             </div>
           ) : app.is_new ? (
             <div className="absolute -top-1.5 -right-2.5 z-20 pointer-events-none">
-              <span className="bg-[#008738] text-white text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
+              <span className="bg-[#008738] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
             </div>
           ) : null}
         </div>
@@ -227,7 +227,7 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
           <h3 className="font-semibold text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
           <div className="text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
           <div className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
-            <span>{app.rating ? app.rating.toFixed(1) : '10.0'}</span>
+            <span>{app.rating ? app.rating.toFixed(1) : '5.0'}</span>
             <Star className="w-3 h-3 fill-current text-zinc-400" />
             {app.safety_status === 'Verified' && <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0 ml-1" />}
           </div>

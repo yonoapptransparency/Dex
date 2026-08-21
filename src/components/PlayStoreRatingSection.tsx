@@ -111,20 +111,35 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       localStorage.setItem(`playstore_rating_val_${appId}`, rating.toString());
 
       try {
-        await fetch('/api/v1/public/rating', {
+        await fetch('/api/v1/public/community/reviews', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            app_id: appId,
-            username: cleanName,
+            appId: appId,
+            userName: cleanName,
             rating: rating,
-            comment: cleanComment,
-            created_at: newReview.created_at,
-            helpful_count: 0,
-            is_approved: false,
-            source: 'community'
+            reviewText: cleanComment
           })
         }).catch(() => {});
+      } catch (e) {}
+
+      // Dispatch global event for instant reactivity
+      try {
+        window.dispatchEvent(new CustomEvent('community-review-added', {
+          detail: {
+            newReview: {
+              id: newReview.id,
+              app_id: appId,
+              username: cleanName,
+              rating: rating,
+              comment: cleanComment,
+              created_at: newReview.created_at,
+              helpful_count: 0,
+              source: 'community',
+              reported: false
+            }
+          }
+        }));
       } catch (e) {}
 
       setSubmitted(true);

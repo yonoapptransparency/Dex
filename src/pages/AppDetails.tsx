@@ -449,7 +449,13 @@ export default function AppDetails() {
 
       {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 sm:px-4 md:px-6 mb-8">
-        <UserReviews key={reviewsRefreshKey} appId={app.id} appTitle={app.name} overallRating={app.rating} />
+        <UserReviews 
+          key={reviewsRefreshKey} 
+          appId={app.id} 
+          appTitle={app.name} 
+          overallRating={app.rating} 
+          totalReviewCount={app.review_count} 
+        />
       </div>
       
       {/* Modular FAQ Section */}

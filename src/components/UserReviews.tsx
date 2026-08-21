@@ -14,9 +14,10 @@ interface UserReviewsProps {
   appId: string;
   appTitle: string;
   overallRating?: number;
+  totalReviewCount?: number | string;
 }
 
-export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: UserReviewsProps) {
+export default function UserReviews({ appId, appTitle, overallRating = 5.0, totalReviewCount }: UserReviewsProps) {
   
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,11 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0 }: Us
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
       <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 lg:gap-6 lg:gap-12">
         
-        <ReviewScoreSummary appId={appId} />
+        <ReviewScoreSummary 
+          appId={appId} 
+          overallRating={overallRating} 
+          totalReviewCount={totalReviewCount} 
+        />
 
         <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
           <ReviewForm appId={appId} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />

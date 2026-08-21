@@ -83,6 +83,13 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
 
       onSuccess(newSubmission);
 
+      // Dispatch global event for instant reactivity across all widgets
+      try {
+        window.dispatchEvent(new CustomEvent('community-review-added', {
+          detail: { newReview: newSubmission }
+        }));
+      } catch (e) {}
+
       let storedReviews: Review[] = [];
       try {
         const stored = localStorage.getItem(`local_user_reviews_${appId}`);
@@ -152,8 +159,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
               placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full text-xs font-semibold p-2.5 bg-zinc-50 focus:bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 transition-all h-[46px]"
-              style={{ color: 'inherit' }}
+              className="w-full text-xs font-semibold p-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 transition-all h-[46px]"
             />
           </div>
           
@@ -167,8 +173,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={2}
-              className="w-full bg-zinc-50 focus:bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl p-3 text-xs font-medium text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-[#01875f]/20 focus:border-[#01875f] transition-all resize-none min-h-[46px]"
-              style={{ color: 'inherit' }}
+              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none min-h-[46px]"
             />
           </div>
         </div>
@@ -191,7 +196,7 @@ export function ReviewForm({ appId, onSuccess }: ReviewFormProps) {
                   className="flex items-center gap-1.5 text-xs font-bold text-emerald-500"
                 >
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                  <span>Review submitted! Pending moderation.</span>
+                  <span>Review published successfully! Visible in community reviews below.</span>
                 </motion.div>
               )}
             </AnimatePresence>
