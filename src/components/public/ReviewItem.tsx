@@ -11,8 +11,14 @@ export interface Review {
   created_at: string;
   helpful_count: number;
   source?: 'google' | 'community' | string;
+  isPinned?: boolean;
   reported?: boolean;
   report_count?: number;
+  adminReply?: {
+    text: string;
+    author: string;
+    timestamp: string;
+  } | null;
 }
 
 const AVATAR_COLORS = [

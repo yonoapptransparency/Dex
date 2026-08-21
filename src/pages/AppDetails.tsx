@@ -453,6 +453,8 @@ export default function AppDetails() {
           key={reviewsRefreshKey} 
           appId={app.id} 
           appTitle={app.name} 
+          appSlug={app.slug}
+          category={app.category}
           overallRating={app.rating} 
           totalReviewCount={app.review_count} 
         />

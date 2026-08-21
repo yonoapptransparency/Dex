@@ -13,11 +13,20 @@ import { useReviews } from '../hooks/useReviews';
 interface UserReviewsProps {
   appId: string;
   appTitle: string;
+  appSlug?: string;
+  category?: string;
   overallRating?: number;
   totalReviewCount?: number | string;
 }
 
-export default function UserReviews({ appId, appTitle, overallRating = 5.0, totalReviewCount }: UserReviewsProps) {
+export default function UserReviews({ 
+  appId, 
+  appTitle, 
+  appSlug,
+  category,
+  overallRating = 5.0, 
+  totalReviewCount 
+}: UserReviewsProps) {
   
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,7 +68,7 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0, tota
     handleHelpfulVote,
     handleReportReview,
     filteredReviews
-  } = useReviews(appId, appTitle, inView);
+  } = useReviews(appId, appTitle, appSlug, category, overallRating, inView);
 
   const totalCount = reviews.length ? reviews.length * 9 + 42 : 124;
   const averageValue = overallRating ? overallRating.toFixed(1) : '4.8';
@@ -70,12 +79,13 @@ export default function UserReviews({ appId, appTitle, overallRating = 5.0, tota
         
         <ReviewScoreSummary 
           appId={appId} 
+          appSlug={appSlug}
           overallRating={overallRating} 
           totalReviewCount={totalReviewCount} 
         />
 
         <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
-          <ReviewForm appId={appId} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
+          <ReviewForm appId={appId} appSlug={appSlug} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
 
           <div className="space-y-4">
             {!loading && reviews.length > 0 && (
