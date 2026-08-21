@@ -67,16 +67,14 @@ export default function NewsPage() {
             <Link 
               to={`/news/${item.slug}`} 
               aria-label={`Read full news article: ${item.title}`}
-              className="block w-full aspect-video rounded-2xl overflow-hidden mb-6 shadow-sm border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800 relative"
+              className="flex w-full justify-center items-center rounded-2xl overflow-hidden mb-6 shadow-sm border border-black/5 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900/30 p-2 sm:p-0"
             >
               <img 
                 src={item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80'} 
                 alt={item.title} 
                 loading="lazy" 
                 decoding="async" 
-                width={800} 
-                height={450} 
-                className="w-full h-full object-cover" 
+                className="max-w-full h-auto max-h-[400px] object-contain rounded-xl sm:rounded-none group-hover:scale-[1.02] transition-transform duration-300" 
               />
             </Link>
             <div className="flex flex-col">
