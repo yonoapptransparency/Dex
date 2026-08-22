@@ -1,23 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { AppConfig, GlobalSettings, NewsItem, BlogPost, VideoItem } from '../typesPublic';
-import { mockApps, mockSettings, mockNews, mockBlogs, mockVideos } from '../lib/staticData';
+import { AppConfig, GlobalSettings, NewsItem, VideoItem } from '../typesPublic';
+import { mockApps, mockSettings, mockNews, mockVideos } from '../lib/staticData';
 
 interface DataContextType {
   apps: AppConfig[];
   settings: GlobalSettings;
   news: NewsItem[];
-  blogs: BlogPost[];
   videos: VideoItem[];
   loading: boolean;
   loadedFromServer: boolean;
   appsSyncedWithServer: boolean;
   settingsSyncedWithServer: boolean;
   newsSyncedWithServer: boolean;
-  blogsSyncedWithServer?: boolean;
   videosSyncedWithServer?: boolean;
   serverAppsFetched?: boolean;
   serverNewsFetched?: boolean;
-  serverBlogsFetched?: boolean;
   serverVideosFetched?: boolean;
   isConnected?: boolean;
   isLive?: boolean;
@@ -31,15 +28,12 @@ interface DataContextType {
   deleteApp: (id: string) => Promise<void>;
   saveNews: (n: NewsItem) => Promise<void>;
   deleteNews: (id: string) => Promise<void>;
-  saveBlog: (b: BlogPost) => Promise<void>;
-  deleteBlog: (id: string) => Promise<void>;
   saveVideo: (v: VideoItem) => Promise<void>;
   deleteVideo: (id: string) => Promise<void>;
   syncDataToGithub: () => Promise<{ success: boolean; log: string }>;
   fetchApps: () => void;
   fetchSettings: () => void;
   fetchNews: () => void;
-  fetchBlogs: () => void;
   fetchVideos: () => void;
   updateAppDetail?: (app: AppConfig) => void;
 }
@@ -117,13 +111,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return mockNews;
   });
   
-  const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    if (initialCache?.blogs && Array.isArray(initialCache.blogs) && initialCache.blogs.length > 0) {
-      return mergeLists(mockBlogs, initialCache.blogs);
-    }
-    return mockBlogs;
-  });
-  
   const [videos, setVideos] = useState<VideoItem[]>(() => {
     if (initialCache?.videos && Array.isArray(initialCache.videos) && initialCache.videos.length > 0) {
       return mergeLists(mockVideos, initialCache.videos);
@@ -157,9 +144,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           if (backup.news && Array.isArray(backup.news)) {
             setNews(mergeLists(mockNews, backup.news));
-          }
-          if (backup.blogs && Array.isArray(backup.blogs)) {
-            setBlogs(mergeLists(mockBlogs, backup.blogs));
           }
           if (backup.videos && Array.isArray(backup.videos)) {
             setVideos(mergeLists(mockVideos, backup.videos));
@@ -236,13 +220,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     apps,
     settings: resolvedSettings,
     news,
-    blogs,
     videos,
     loading,
     loadedFromServer,
     serverAppsFetched: true,
     serverNewsFetched: true,
-    serverBlogsFetched: true,
     serverVideosFetched: true,
     appsSyncedWithServer: true,
     settingsSyncedWithServer: true,
@@ -257,17 +239,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     deleteApp: async () => {},
     saveNews: async () => {},
     deleteNews: async () => {},
-    saveBlog: async () => {},
-    deleteBlog: async () => {},
     saveVideo: async () => {},
     deleteVideo: async () => {},
     syncDataToGithub: async () => ({ success: false, log: 'Not available in public repo' }),
     fetchApps: fetchBackupData,
     fetchSettings: fetchBackupData,
     fetchNews: fetchBackupData,
-    fetchBlogs: fetchBackupData,
     fetchVideos: fetchBackupData,
-  }), [apps, resolvedSettings, news, blogs, videos, loading, loadedFromServer, isLive, fetchBackupData, updateAppDetail]);
+  }), [apps, resolvedSettings, news, videos, loading, loadedFromServer, isLive, fetchBackupData, updateAppDetail]);
 
   return (
     <DataContext.Provider value={value}>
@@ -283,18 +262,15 @@ export const useData = (): DataContextType => {
       apps: mockApps,
       settings: mockSettings,
       news: mockNews,
-      blogs: mockBlogs,
       videos: mockVideos,
       loading: false,
       loadedFromServer: true,
       appsSyncedWithServer: true,
       settingsSyncedWithServer: true,
       newsSyncedWithServer: true,
-      blogsSyncedWithServer: true,
       videosSyncedWithServer: true,
       serverAppsFetched: true,
       serverNewsFetched: true,
-      serverBlogsFetched: true,
       serverVideosFetched: true,
       isConnected: true,
       isLive: true,
@@ -307,15 +283,12 @@ export const useData = (): DataContextType => {
       deleteApp: async () => {},
       saveNews: async () => {},
       deleteNews: async () => {},
-      saveBlog: async () => {},
-      deleteBlog: async () => {},
       saveVideo: async () => {},
       deleteVideo: async () => {},
       syncDataToGithub: async () => ({ success: false, log: '' }),
       fetchApps: () => {},
       fetchSettings: () => {},
       fetchNews: () => {},
-      fetchBlogs: () => {},
       fetchVideos: () => {},
       updateAppDetail: () => {},
     };

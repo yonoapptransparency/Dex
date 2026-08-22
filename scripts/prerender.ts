@@ -224,37 +224,30 @@ async function prerender() {
     fs.writeFileSync(path.join(distPath, 'sitemap-developers.xml'), developersXml, 'utf-8');
 
     let robots = `User-agent: *
-Allow: /$
-Allow: /app/
+Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
 Disallow: /s/
+Disallow: /s/*
 Disallow: /dl/
+Disallow: /dl/*
 Disallow: /out/
+Disallow: /out/*
 Disallow: /download/
+Disallow: /download/*
 Disallow: /gateway/
+Disallow: /gateway/*
 Disallow: /info/
+Disallow: /info/*
 Disallow: /moreinfo/
+Disallow: /moreinfo/*
 Disallow: /moredetail/
-Disallow: /news
-Disallow: /blogs
-Disallow: /blog/
-Disallow: /videos
-Disallow: /about
-Disallow: /contact
-Disallow: /developers
-Disallow: /privacy
-Disallow: /terms
-Disallow: /report-removal
-Disallow: /responsibility
-Disallow: /notice
-Disallow: /ethics
-Disallow: /disclaimer
+Disallow: /moredetail/*
 
-Sitemap: ${host}/sitemap.xml
 Sitemap: ${host}/sitemap_index.xml
+Sitemap: ${host}/sitemap.xml
 Sitemap: ${host}/sitemap-apps.xml
 Sitemap: ${host}/sitemap-static.xml
 Sitemap: ${host}/sitemap-news.xml

@@ -31,7 +31,7 @@ import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
 export { AppDetailsSkeleton };
 
 export default function AppDetails() {
-  const { apps: mockApps, settings: mockSettings, blogs: mockBlogs, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
+  const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
@@ -105,11 +105,6 @@ export default function AppDetails() {
     }
     return combined.slice(0, 16);
   }, [mockApps, app?.category, app?.id, app?.slug]);
-
-  const relatedUpdates = useMemo(() => {
-    if (!slug) return [];
-    return mockBlogs?.filter(b => b.related_app_slug?.toLowerCase() === slug?.toLowerCase()) || [];
-  }, [mockBlogs, slug]);
 
   useEffect(() => {
     if (!app?.is_coming_soon || !app?.publish_date) {
@@ -439,7 +434,7 @@ export default function AppDetails() {
         )}
 
         {/* Industrial Application Overview & Technical Specifications (Placed after Similar Apps) */}
-        <AppAboutSection app={app} relatedUpdates={relatedUpdates} />
+        <AppAboutSection app={app} />
 
         {/* Modular Screenshots Gallery */}
         <AppScreenshots app={app} />

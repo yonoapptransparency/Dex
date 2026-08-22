@@ -7,12 +7,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { resolveAppSlug } from '../lib/slugResolver';
-import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as staticMockBlogs, mockVideos as staticMockVideos } from '../lib/staticData';
+import { mockApps as staticMockApps, mockNews as staticMockNews, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
-  const { apps, news, blogs, videos, loading, refreshAll } = useData();
+  const { apps, news, videos, loading, refreshAll } = useData();
   
   // Clean pathname into a lowercase slug
   const rawPath = decodeURIComponent(location.pathname);
@@ -50,13 +50,7 @@ export default function FallbackRouteMatcher() {
     return <Navigate to={`/news/${matchedNews.slug}`} replace />;
   }
 
-  // 3. Check if slug matches blog -> Redirect to /blog/:slug
-  const matchedBlog = blogs.find(b => b.slug?.toLowerCase() === slug) || staticMockBlogs.find(b => b.slug?.toLowerCase() === slug);
-  if (matchedBlog && (matchedBlog.slug || matchedBlog.id)) {
-    return <Navigate to={`/blog/${matchedBlog.slug || matchedBlog.id}`} replace />;
-  }
-
-  // 4. Check if slug matches video -> Redirect to /videos/:slug
+  // 3. Check if slug matches video -> Redirect to /videos/:slug
   const matchedVideo = videos.find(v => v.slug?.toLowerCase() === slug) || staticMockVideos.find(v => v.slug?.toLowerCase() === slug);
   if (matchedVideo && matchedVideo.slug) {
     return <Navigate to={`/videos/${matchedVideo.slug}`} replace />;
@@ -94,7 +88,7 @@ export default function FallbackRouteMatcher() {
     <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
       <Meta 
         title="404 - Page Not Found | RummyDex" 
-        description="We could not resolve this link to any application listing, news bulletin, or blog post." 
+        description="We could not resolve this link to any application listing or news bulletin." 
         noindex={true} 
       />
       <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
@@ -102,7 +96,7 @@ export default function FallbackRouteMatcher() {
       </div>
       <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Page Not Found</h1>
       <p className="max-w-md mx-auto text-sm text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed font-medium">
-        We could not resolve this link to any application listing, news bulletin, or blog post.
+        We could not resolve this link to any application listing or news bulletin.
       </p>
       <Link 
         to="/" 

@@ -1,15 +1,13 @@
 
-import { Link } from 'react-router-dom';
 import { FileText, Sparkles } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
-import { AppConfig, BlogPost } from '../../types';
+import { AppConfig } from '../../types';
 
 interface AppAboutSectionProps {
   app: AppConfig;
-  relatedUpdates: BlogPost[];
 }
 
-export default function AppAboutSection({ app, relatedUpdates }: AppAboutSectionProps) {
+export default function AppAboutSection({ app }: AppAboutSectionProps) {
   
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
@@ -105,32 +103,6 @@ export default function AppAboutSection({ app, relatedUpdates }: AppAboutSection
                 </h3>
                 <div className="bg-slate-50 dark:bg-zinc-900 rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap border border-black/5 dark:border-white/5">
                   {app.release_notes}
-                </div>
-              </div>
-            )}
-            
-            {/* Related Updates */}
-            {relatedUpdates && relatedUpdates.length > 0 && (
-              <div className="pt-5 sm:pt-6 border-t border-black/5 dark:border-white/5">
-                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 sm:mb-4">
-                  Official Game News & Updates
-                </h3>
-                <div className="space-y-2.5 sm:space-y-3">
-                  {relatedUpdates.map((update, idx) => (
-                    <Link key={`update-${update.id || idx}`} to={`/blog/${update.slug || update.id}`} className="block p-3 sm:p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100/80 dark:border-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
-                      <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-blue-600 mb-1">
-                        <span>Update</span>
-                        <span className="text-zinc-300">•</span>
-                        <span className="text-zinc-500 dark:text-zinc-400">{new Date(update.published_at!).toLocaleDateString()}</span>
-                      </div>
-                      <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 transition-colors">
-                        {update.title}
-                      </h4>
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1">
-                        {update.content.replace(/<[^>]+>/g, '').substring(0, 140)}...
-                      </p>
-                    </Link>
-                  ))}
                 </div>
               </div>
             )}
