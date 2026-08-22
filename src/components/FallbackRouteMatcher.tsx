@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { resolveAppSlug } from '../seoHelper';
+import { resolveAppSlug } from '../lib/slugResolver';
 import { mockApps as staticMockApps, mockNews as staticMockNews, mockBlogs as staticMockBlogs, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
 

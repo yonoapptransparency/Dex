@@ -17,7 +17,7 @@ import UserReviews from '../components/UserReviews';
 import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
 
-import { resolveAppSlug } from '../seoHelper';
+import { resolveAppSlug } from '../lib/slugResolver';
 import { mockApps as staticMockApps } from '../lib/staticData';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
