@@ -262,9 +262,7 @@ export default function AppDetails() {
   } : null;
 
   const realRatingVal = parseFloat(String(app.rating));
-  const realReviewCount = parseInt(String((app as any)?.review_count || ''), 10);
-  const ratingVal = (!isNaN(realRatingVal) && realRatingVal > 0) ? realRatingVal : 4.5;
-  const reviewCountVal = (!isNaN(realReviewCount) && realReviewCount > 0) ? realReviewCount : 120;
+  const realReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
 
   const softwareSchema: any = {
     "@context": "https://schema.org",
@@ -280,15 +278,18 @@ export default function AppDetails() {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "INR"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": String(ratingVal),
-      "ratingCount": String(reviewCountVal),
-      "bestRating": "5",
-      "worstRating": "1"
     }
   };
+
+  if (realReviewCount > 0 && realRatingVal > 0) {
+    softwareSchema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": String(realRatingVal),
+      "ratingCount": String(realReviewCount),
+      "bestRating": "5",
+      "worstRating": "1"
+    };
+  }
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",

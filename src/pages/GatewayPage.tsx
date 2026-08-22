@@ -118,7 +118,7 @@ export default function GatewayPage() {
   const ratingVal = (!isNaN(realRatingVal) && realRatingVal > 0) ? realRatingVal : 4.5;
   const reviewCountVal = (!isNaN(realReviewCount) && realReviewCount > 0) ? realReviewCount : 120;
 
-  const softwareSchema = {
+  const softwareSchema: any = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": app.name,
@@ -131,15 +131,18 @@ export default function GatewayPage() {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "INR"
-    },
-    "aggregateRating": {
+    }
+  };
+
+  if (reviewCountVal > 0 && ratingVal > 0) {
+    softwareSchema.aggregateRating = {
       "@type": "AggregateRating",
       "ratingValue": String(ratingVal),
       "ratingCount": String(reviewCountVal),
       "bestRating": "5",
       "worstRating": "1"
-    }
-  };
+    };
+  }
 
   return (
     <div className="animate-fade-in select-none pb-40 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
