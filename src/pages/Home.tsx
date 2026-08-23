@@ -279,7 +279,7 @@ export default function Home() {
   return (
     <div className="select-none min-h-screen">
       <Meta 
-        title={mockSettings.site_title}
+        title={mockSettings.seo_title || mockSettings.site_title}
         description={mockSettings.meta_description}
         keywords={mockSettings.seo_keywords}
         faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {

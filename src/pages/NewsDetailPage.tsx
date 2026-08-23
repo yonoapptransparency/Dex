@@ -139,7 +139,7 @@ export default function NewsDetailPage() {
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 plain-content mb-20">
       <Meta 
-        title={newsItem.seo_title || newsItem.title}
+        title={newsItem.seo_title || `${newsItem.title} | ${mockSettings.site_title}`}
         description={newsItem.seo_description || newsItem.description}
         keywords={newsItem.seo_keywords}
         image={newsItem.og_image_url || newsItem.logo_url}

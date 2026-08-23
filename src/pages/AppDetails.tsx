@@ -215,7 +215,7 @@ export default function AppDetails() {
     );
   }
 
-  const title = app.seo_title || app.name;
+  const title = app.seo_title || `${app.name} | ${mockSettings?.site_title || 'RummyDex'}`;
   
   const stripHtml = (html: string) => {
     if (!html) return '';
@@ -369,6 +369,7 @@ export default function AppDetails() {
         canonical={`https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
+        breadcrumbSchema={breadcrumbSchema}
       />
       <div className="w-full">
         
