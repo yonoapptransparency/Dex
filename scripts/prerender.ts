@@ -76,8 +76,16 @@ async function prerender() {
       }
     }
 
+    // 4. Generate Video Routes
+    for (const videoItem of data.videos || []) {
+      if (videoItem.slug) {
+        await generateRoute(`/videos/${videoItem.slug}`);
+      }
+    }
+
     // 5. Generate Other Static Routes
     await generateRoute('/news');
+    await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
     await generateRoute('/contact');

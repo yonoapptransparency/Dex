@@ -16,8 +16,8 @@ export default function Developers() {
       >
         <div className="min-h-screen pt-32 px-4 pb-20 flex flex-col items-center justify-center text-center">
           <Meta 
-            title={`Meet Our Team | ${settings?.site_title || 'RummyDex'}`}
-            description="Our talented engineering and design teams developing high-performance secure platforms."
+            title={settings?.developers_meta_title || `Meet Our Team | ${settings?.site_title || 'RummyDex'}`}
+            description={settings?.developers_meta_description || "Our talented engineering and design teams developing high-performance secure platforms."}
             canonical={window.location.origin + "/developers"}
           />
           <div className="bg-white/50 dark:bg-zinc-900/50  border border-black/5 dark:border-white/5 p-12 rounded-[3rem] max-w-lg mx-auto shadow-2xl">
@@ -37,8 +37,8 @@ export default function Developers() {
     >
       <div className="min-h-screen pt-32 px-4 pb-20">
         <Meta 
-          title={`Meet Our Team | ${settings?.site_title || 'RummyDex'}`}
-          description={`Meet the brilliant developers behind our platform. Discover our team's expertise and passion.`}
+          title={settings?.developers_meta_title || `Meet Our Team | ${settings?.site_title || 'RummyDex'}`}
+          description={settings?.developers_meta_description || "Meet the brilliant developers behind our platform. Discover our team's expertise and passion."}
           canonical={window.location.origin + "/developers"}
         />
 

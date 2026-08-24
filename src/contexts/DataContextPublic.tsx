@@ -59,34 +59,54 @@ const getInitialCache = () => {
   return null;
 };
 
-// Helper to merge lists by ID or Slug so newly bundled items are always preserved
+// Helper to merge lists by ID and Slug so dynamic updates replace static items cleanly with zero duplicates
 function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], dynamicList?: T[]): T[] {
   if (!Array.isArray(dynamicList) || dynamicList.length === 0) return staticList;
-  const map = new Map<string, T>();
   
-  const getKey = (item: T) => {
-    if (item.slug) return `slug:${item.slug.toLowerCase().trim()}`;
-    if (item.id) return `id:${item.id}`;
-    return null;
-  };
+  const result: T[] = [];
+  const handledKeys = new Set<string>();
 
-  // 1. Add static base items
-  staticList.forEach(item => {
-    const key = getKey(item);
-    if (key) map.set(key, item);
-  });
+  // 1. Process dynamic items first (authoritative live updates)
+  dynamicList.forEach(dynamicItem => {
+    if (!dynamicItem) return;
+    const dynamicId = dynamicItem.id ? String(dynamicItem.id).trim() : '';
+    const dynamicSlug = dynamicItem.slug ? String(dynamicItem.slug).toLowerCase().trim() : '';
 
-  // 2. Overlay dynamic/cached items (merging properties)
-  dynamicList.forEach(item => {
-    const key = getKey(item);
-    if (key) {
-      const existing = map.get(key);
-      map.set(key, existing ? { ...existing, ...item } : item);
+    // Find any matching static item to preserve fields if needed
+    const matchingStatic = staticList.find(s => 
+      (dynamicId && s.id && String(s.id).trim() === dynamicId) ||
+      (dynamicSlug && s.slug && String(s.slug).toLowerCase().trim() === dynamicSlug)
+    );
+
+    const merged = matchingStatic ? { ...matchingStatic, ...dynamicItem } : dynamicItem;
+    result.push(merged);
+
+    if (dynamicId) handledKeys.add(`id:${dynamicId}`);
+    if (dynamicSlug) handledKeys.add(`slug:${dynamicSlug}`);
+    if (matchingStatic) {
+      if (matchingStatic.id) handledKeys.add(`id:${String(matchingStatic.id).trim()}`);
+      if (matchingStatic.slug) handledKeys.add(`slug:${String(matchingStatic.slug).toLowerCase().trim()}`);
     }
   });
 
-  // 3. Return combined unique list
-  return Array.from(map.values());
+  // 2. Append non-replaced static items
+  staticList.forEach(staticItem => {
+    if (!staticItem) return;
+    const staticId = staticItem.id ? String(staticItem.id).trim() : '';
+    const staticSlug = staticItem.slug ? String(staticItem.slug).toLowerCase().trim() : '';
+
+    const isHandled = 
+      (staticId && handledKeys.has(`id:${staticId}`)) || 
+      (staticSlug && handledKeys.has(`slug:${staticSlug}`));
+
+    if (!isHandled) {
+      result.push(staticItem);
+      if (staticId) handledKeys.add(`id:${staticId}`);
+      if (staticSlug) handledKeys.add(`slug:${staticSlug}`);
+    }
+  });
+
+  return result;
 }
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -204,9 +224,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [settings]);
 
   const updateAppDetail = useCallback((updatedApp: AppConfig) => {
-    if (!updatedApp || !updatedApp.slug) return;
+    if (!updatedApp || (!updatedApp.slug && !updatedApp.id)) return;
+    const updateId = updatedApp.id ? String(updatedApp.id).trim() : '';
+    const updateSlug = updatedApp.slug ? String(updatedApp.slug).toLowerCase().trim() : '';
+
     setApps(prevApps => {
-      const index = prevApps.findIndex(a => a.slug?.toLowerCase() === updatedApp.slug?.toLowerCase() || a.id === updatedApp.id);
+      const index = prevApps.findIndex(a => 
+        (updateId && a.id && String(a.id).trim() === updateId) ||
+        (updateSlug && a.slug && String(a.slug).toLowerCase().trim() === updateSlug)
+      );
       if (index >= 0) {
         const next = [...prevApps];
         next[index] = { ...next[index], ...updatedApp };

@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useMemo, useDeferredValue, useRef, useCallback } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
-import { Link, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { Link, useSearchParams, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
@@ -21,6 +21,7 @@ const STORAGE_KEY = 'home_feed_state';
 
 export default function Home() {
   const { apps: mockApps, settings: mockSettings } = useData();
+  const { category: categoryParam } = useParams<{ category?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -137,8 +138,26 @@ export default function Home() {
     const tab = searchParams.get('tab');
     if (tab) {
       setActiveTab(tab);
+    } else if (categoryParam) {
+      const rawCat = categoryParam.toLowerCase().replace(/[-_]+/g, ' ').trim();
+      const allKnownCats = (mockSettings?.categories && mockSettings.categories.length > 0)
+        ? mockSettings.categories
+        : ['All Apps', 'Rummy Apps', 'Yono Apps', 'Teen Patti', 'Casino', 'Slot Games', 'Arcade', 'Board', 'Casual'];
+      
+      const matched = allKnownCats.find(c => 
+        c.toLowerCase().trim() === rawCat || 
+        c.toLowerCase().replace(/[-_\s]+/g, '') === rawCat.replace(/\s+/g, '') ||
+        rawCat.includes(c.toLowerCase().trim())
+      );
+
+      if (matched) {
+        setActiveTab(matched);
+      } else {
+        const capitalized = rawCat.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        setActiveTab(capitalized);
+      }
     }
-  }, [searchParams, location, mockSettings.categories]);
+  }, [searchParams, categoryParam, location, mockSettings.categories]);
 
   // Reset pagination when filters or tab change
   useEffect(() => {

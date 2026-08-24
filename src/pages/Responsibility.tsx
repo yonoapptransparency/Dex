@@ -27,8 +27,8 @@ export default function Responsibility() {
         </Link>
       </div>
       <Meta 
-        title="Responsibility"
-        description="Official safety guidelines advising users on secure gaming techniques and safety benchmarks."
+        title={mockSettings?.responsibility_meta_title || "Responsibility & Safety"}
+        description={mockSettings?.responsibility_meta_description || "Official safety guidelines advising users on secure gaming techniques and safety benchmarks."}
         canonical={window.location.origin + "/responsibility"}
       />
 

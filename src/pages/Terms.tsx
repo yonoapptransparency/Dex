@@ -27,8 +27,8 @@ export default function Terms() {
         </Link>
       </div>
       <Meta 
-        title="Terms & Conditions"
-        description="Official user agreement protocols, cookies consent directives, and listing responsibility guidelines."
+        title={mockSettings?.terms_meta_title || "Terms & Conditions"}
+        description={mockSettings?.terms_meta_description || "Official user agreement protocols, cookies consent directives, and listing responsibility guidelines."}
         canonical={window.location.origin + "/terms"}
       />
 

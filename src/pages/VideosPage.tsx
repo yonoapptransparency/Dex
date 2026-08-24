@@ -60,8 +60,8 @@ export default function VideosPage() {
       </div>
 
       <Meta 
-        title="Video Transmissions"
-        description="Watch high-quality video walkthroughs and tutorials of our catalog applications."
+        title={mockSettings?.videos_meta_title || "Video Transmissions"}
+        description={mockSettings?.videos_meta_description || "Watch high-quality video walkthroughs and tutorials of our catalog applications."}
         canonical={window.location.origin + "/videos"}
       />
 

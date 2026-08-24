@@ -26,8 +26,8 @@ export default function ReportRemoval() {
         </Link>
       </div>
       <Meta 
-        title="Report & Removal Policy"
-        description="Our official report and removal policy regarding intellectual property, copyrighted works, and DMCA content guidelines."
+        title={mockSettings?.report_removal_meta_title || "Report & Removal Policy"}
+        description={mockSettings?.report_removal_meta_description || "Our official report and removal policy regarding intellectual property, copyrighted works, and DMCA content guidelines."}
         canonical={window.location.origin + "/report-removal"}
       />
 

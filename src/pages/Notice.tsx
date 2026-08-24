@@ -20,8 +20,8 @@ export default function Notice() {
         </Link>
       </div>
       <Meta 
-        title={mockSettings.important_notice_heading || 'Important Notice'}
-        description="Official notices, critical safety parameters, and legal transparency alerts."
+        title={mockSettings?.notice_meta_title || mockSettings?.important_notice_heading || 'Important Notice'}
+        description={mockSettings?.notice_meta_description || "Official notices, critical safety parameters, and legal transparency alerts."}
         canonical={window.location.origin + "/notice"}
       />
 

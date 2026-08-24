@@ -27,8 +27,8 @@ export default function Privacy() {
         </Link>
       </div>
       <Meta 
-        title="Privacy Policy"
-        description="Our official privacy guidelines explaining cookie protection, device logs, and storage obfuscation criteria."
+        title={mockSettings?.privacy_meta_title || "Privacy Policy"}
+        description={mockSettings?.privacy_meta_description || "Our official privacy guidelines explaining cookie protection, device logs, and storage obfuscation criteria."}
         canonical={window.location.origin + "/privacy"}
       />
 

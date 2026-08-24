@@ -26,8 +26,8 @@ export default function About() {
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
       <Meta 
-        title="About Us"
-        description="Learn more about our platform mission, safe verification frameworks, threat monitoring standards, and stable node guidelines."
+        title={mockSettings?.about_meta_title || "About Us"}
+        description={mockSettings?.about_meta_description || "Learn more about our platform mission, safe verification frameworks, threat monitoring standards, and stable node guidelines."}
         canonical={window.location.origin + "/about"}
       />
       <div className="mb-10">

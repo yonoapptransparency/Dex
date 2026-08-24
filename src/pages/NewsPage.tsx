@@ -35,8 +35,8 @@ export default function NewsPage() {
         </Link>
       </div>
       <Meta 
-        title="Latest News & Updates"
-        description="Stay updated with the latest news, transmissions, and intel from our secure network."
+        title={mockSettings?.news_meta_title || "Latest News & Updates"}
+        description={mockSettings?.news_meta_description || "Stay updated with the latest news, transmissions, and intel from our secure network."}
         canonical={window.location.origin + "/news"}
       />
 
