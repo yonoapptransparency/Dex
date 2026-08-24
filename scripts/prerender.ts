@@ -62,10 +62,11 @@ async function prerender() {
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
     // 2. Generate Application Routes
-    for (const app of data.apps || []) {
-      if (app.slug) {
-        await generateRoute(`/app/${app.slug}`);
-      }
+    const appsToPrerender = (data.apps || []).filter((a: any) => a.slug);
+    const BATCH_SIZE = 25;
+    for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
+      const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
     }
 
     // 3. Generate News Routes
