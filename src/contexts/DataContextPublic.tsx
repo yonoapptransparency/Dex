@@ -184,22 +184,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoadedFromServer(true);
     }
 
-    // Do NOT fire background XHR for search engine crawlers or if initial data is already present and fresh
-    if (isCrawler || hasInitialData) {
+    // Do NOT fire background XHR for search engine crawlers
+    if (isCrawler) {
       return;
     }
 
     let timerId: any;
     let idleId: any;
 
+    // Fetch fresh data in the background to ensure new apps and updates appear seamlessly
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       idleId = (window as any).requestIdleCallback(() => {
         fetchBackupData();
-      }, { timeout: 4000 });
+      }, { timeout: 3000 });
     } else {
       timerId = setTimeout(() => {
         fetchBackupData();
-      }, 2500);
+      }, 1500);
     }
 
     return () => {
