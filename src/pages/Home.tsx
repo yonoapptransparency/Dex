@@ -298,9 +298,10 @@ export default function Home() {
   return (
     <div className="select-none min-h-screen">
       <Meta 
-        title={mockSettings.seo_title || mockSettings.site_title}
+        title={categoryParam ? `${activeTab} - ${mockSettings.seo_title || mockSettings.site_title}` : (mockSettings.seo_title || mockSettings.site_title)}
         description={mockSettings.meta_description}
         keywords={mockSettings.seo_keywords}
+        canonical={categoryParam ? `https://www.rummydex.com/category/${categoryParam}` : `https://www.rummydex.com`}
         faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",

@@ -1,4 +1,6 @@
 
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileText, Sparkles } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
 import { AppConfig } from '../../types';
@@ -8,6 +10,29 @@ interface AppAboutSectionProps {
 }
 
 export default function AppAboutSection({ app }: AppAboutSectionProps) {
+  const navigate = useNavigate();
+
+  const handleHtmlClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+    if (!href) return;
+
+    // Check if link is internal
+    if (href.startsWith('/') && !href.startsWith('//')) {
+      e.preventDefault();
+      navigate(href);
+    } else if (href.startsWith('https://www.rummydex.com') || href.startsWith('http://www.rummydex.com')) {
+      try {
+        const url = new URL(href);
+        e.preventDefault();
+        navigate(url.pathname + url.search + url.hash);
+      } catch (err) {
+        // Fallback to normal navigation
+      }
+    }
+  };
   
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
@@ -55,7 +80,7 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
         </div>
 
         {/* Content Body - Always visible for SEO & UX */}
-        <div className="p-3.5 sm:p-6 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40">
+        <div onClick={handleHtmlClick} className="p-3.5 sm:p-6 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40">
             
             {app.custom_admin_box_html && (
               <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 rounded-xl p-3.5 sm:p-5 shadow-xs">

@@ -97,13 +97,9 @@ async function prerender() {
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
 
-    // 6. Generate Sitemap and Robots.txt
+    // 6. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
     let rawDomain = 'https://www.rummydex.com';
     const host = rawDomain.replace(/\/$/, '');
-
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
     const today = new Date().toISOString();
 
     const escapeXml = (unsafe: any) => {
@@ -142,62 +138,104 @@ async function prerender() {
       return today;
     };
 
-    const seenUrls = new Set<string>();
-    const addUrl = (loc: string, lastmod: string, changefreq: string, priority: string) => {
-      if (!seenUrls.has(loc)) {
-        seenUrls.add(loc);
-        xml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
+    // Calculate latest dates
+    let latestAppDate = today;
+    if (data.apps && data.apps.length > 0) {
+      let maxTs = 0;
+      for (const a of data.apps) {
+        const d = new Date(getFormattedDate(a)).getTime();
+        if (d > maxTs) maxTs = d;
       }
-    };
+      if (maxTs > 0) latestAppDate = new Date(maxTs).toISOString();
+    }
 
-    // 1. Homepage ONLY
-    addUrl(`${host}/`, today, 'daily', '1.0');
+    let latestNewsDate = today;
+    if (data.news && data.news.length > 0) {
+      let maxTs = 0;
+      for (const n of data.news) {
+        const d = new Date(getFormattedDate(n)).getTime();
+        if (d > maxTs) maxTs = d;
+      }
+      if (maxTs > 0) latestNewsDate = new Date(maxTs).toISOString();
+    }
 
-    // 2. Apps (canonical app detail URLs) ONLY
-    for (const app of data.apps || []) {
-      const slug = getField(app, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const appDate = getFormattedDate(app);
+    let latestVideoDate = today;
+    if (data.videos && data.videos.length > 0) {
+      let maxTs = 0;
+      for (const v of data.videos) {
+        const d = new Date(getFormattedDate(v)).getTime();
+        if (d > maxTs) maxTs = d;
+      }
+      if (maxTs > 0) latestVideoDate = new Date(maxTs).toISOString();
+    }
 
-        addUrl(`${host}/app/${cSlug}`, appDate, 'daily', '0.9');
+    // 1. One Main Master Sitemap Index: sitemap.xml
+    const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>${host}/sitemap-apps.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-static.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-news.xml</loc><lastmod>${latestNewsDate}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-videos.xml</loc><lastmod>${latestVideoDate}</lastmod></sitemap>
+  <sitemap><loc>${host}/sitemap-developers.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
+</sitemapindex>`;
+    fs.writeFileSync(path.join(distPath, 'sitemap.xml'), sitemapIndexXml, 'utf-8');
+
+    // Remove unwanted duplicate/unwanted sitemap files if present in dist
+    const unwantedFiles = [
+      'sitemap_index.xml', 'sitemap-index.xml', 'sitemapindex.xml',
+      'sitemap_apps.xml', 'sitemap-app.xml', 'sitemap_app.xml',
+      'sitemap-categories.xml', 'sitemap_categories.xml', 'sitemap-category.xml', 'sitemap_category.xml',
+      'sitemap_static.xml', 'sitemap-pages.xml', 'sitemap_pages.xml',
+      'sitemap_news.xml', 'sitemap-posts.xml', 'sitemap_posts.xml',
+      'sitemap_videos.xml', 'sitemap-video.xml', 'sitemap_video.xml',
+      'sitemap_developers.xml', 'sitemap-blogs.xml', 'sitemap_blogs.xml'
+    ];
+    for (const u of unwantedFiles) {
+      const uPath = path.join(distPath, u);
+      if (fs.existsSync(uPath)) {
+        try { fs.unlinkSync(uPath); } catch (e) {}
+      }
+      const gzPath = path.join(distPath, `${u}.gz`);
+      if (fs.existsSync(gzPath)) {
+        try { fs.unlinkSync(gzPath); } catch (e) {}
+      }
+      const brPath = path.join(distPath, `${u}.br`);
+      if (fs.existsSync(brPath)) {
+        try { fs.unlinkSync(brPath); } catch (e) {}
       }
     }
 
-    xml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap.xml'), xml, 'utf-8');
-    console.log('Generated sitemap.xml');
-
-    // Generate Sub-Sitemaps
-    const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap><loc>${host}/sitemap-apps.xml</loc><lastmod>${today}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-static.xml</loc><lastmod>${today}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-news.xml</loc><lastmod>${today}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-developers.xml</loc><lastmod>${today}</lastmod></sitemap>
-</sitemapindex>`;
-    fs.writeFileSync(path.join(distPath, 'sitemap_index.xml'), sitemapIndexXml, 'utf-8');
-
+    // 2. Apps Sub-Sitemap: sitemap-apps.xml
     let appsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const app of data.apps || []) {
+    const sortedApps = [...(data.apps || [])].sort((a: any, b: any) => {
+      const ta = new Date(getFormattedDate(a)).getTime();
+      const tb = new Date(getFormattedDate(b)).getTime();
+      return tb - ta;
+    });
+
+    const seenAppUrls = new Set<string>();
+    for (const app of sortedApps) {
       const slug = getField(app, 'slug');
       if (slug) {
         const cSlug = cleanSlug(slug);
-        const appDate = getFormattedDate(app);
-        appsXml += `  <url>\n    <loc>${host}/app/${cSlug}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        const appLoc = `${host}/app/${cSlug}`;
+        if (!seenAppUrls.has(appLoc)) {
+          seenAppUrls.add(appLoc);
+          const appDate = getFormattedDate(app);
+          appsXml += `  <url>\n    <loc>${appLoc}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        }
       }
     }
     appsXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-apps.xml'), appsXml, 'utf-8');
 
+    // 3. Static & Footer Sub-Sitemap: sitemap-static.xml
     let staticXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     const staticPages = [
       { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/new-apps', priority: '0.9', changefreq: 'daily' },
       { path: '/news', priority: '0.8', changefreq: 'daily' },
-      { path: '/blogs', priority: '0.8', changefreq: 'daily' },
-      { path: '/videos', priority: '0.7', changefreq: 'weekly' },
       { path: '/developers', priority: '0.7', changefreq: 'weekly' },
+      { path: '/videos', priority: '0.7', changefreq: 'weekly' },
       { path: '/about', priority: '0.5', changefreq: 'monthly' },
       { path: '/contact', priority: '0.5', changefreq: 'monthly' },
       { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
@@ -209,11 +247,12 @@ async function prerender() {
       { path: '/report-removal', priority: '0.3', changefreq: 'monthly' }
     ];
     for (const page of staticPages) {
-      staticXml += `  <url>\n    <loc>${host}${page.path === '/' ? '/' : page.path}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+      staticXml += `  <url>\n    <loc>${host}${page.path === '/' ? '/' : page.path}</loc>\n    <lastmod>${latestAppDate}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
     }
     staticXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXml, 'utf-8');
 
+    // 5. News Sub-Sitemap: sitemap-news.xml
     let newsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     for (const item of data.news || []) {
       const slug = getField(item, 'slug');
@@ -226,12 +265,26 @@ async function prerender() {
     newsXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-news.xml'), newsXml, 'utf-8');
 
+    // 6. Videos Sub-Sitemap: sitemap-videos.xml
+    let videosXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const item of data.videos || []) {
+      const slug = getField(item, 'slug') || getField(item, 'id');
+      if (slug) {
+        const cSlug = cleanSlug(slug);
+        const itemDate = getFormattedDate(item);
+        videosXml += `  <url>\n    <loc>${host}/videos/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+      }
+    }
+    videosXml += `</urlset>\n`;
+    fs.writeFileSync(path.join(distPath, 'sitemap-videos.xml'), videosXml, 'utf-8');
 
+    // 7. Developers Sub-Sitemap: sitemap-developers.xml
     let developersXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    developersXml += `  <url>\n    <loc>${host}/developers</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+    developersXml += `  <url>\n    <loc>${host}/developers</loc>\n    <lastmod>${latestAppDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
     developersXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-developers.xml'), developersXml, 'utf-8');
 
+    // 8. Clean Robots.txt with only one master sitemap entry
     let robots = `User-agent: *
 Allow: /
 Disallow: /api/
@@ -255,15 +308,10 @@ Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
 
-Sitemap: ${host}/sitemap_index.xml
 Sitemap: ${host}/sitemap.xml
-Sitemap: ${host}/sitemap-apps.xml
-Sitemap: ${host}/sitemap-static.xml
-Sitemap: ${host}/sitemap-news.xml
-Sitemap: ${host}/sitemap-developers.xml
 `;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
-    console.log('Generated robots.txt');
+    console.log('Generated robots.txt and lightweight sitemaps');
 
     console.log('Successfully injected static HTML and metadata into dist routes for Firebase Hosting.');
   } catch (err) {

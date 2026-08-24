@@ -365,7 +365,7 @@ export default function AppDetails() {
         description={desc}
         keywords={app.seo_keywords}
         image={ogImage}
-        canonical={`https://www.rummydex.com/app/${app.slug}`}
+        canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
         faqSchema={faqSchema}
         breadcrumbSchema={breadcrumbSchema}

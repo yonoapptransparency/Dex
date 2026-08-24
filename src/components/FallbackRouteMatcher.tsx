@@ -56,6 +56,12 @@ export default function FallbackRouteMatcher() {
     return <Navigate to={`/videos/${matchedVideo.slug}`} replace />;
   }
 
+  // 4. Check if slug matches a category -> Redirect to /category/:slug
+  const matchedCategory = apps.some(a => (a.category || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug) || ['rummy-apps', 'yono-apps', 'teen-patti', 'all-apps', 'casino', 'slots'].includes(slug);
+  if (matchedCategory) {
+    return <Navigate to={`/category/${slug}`} replace />;
+  }
+
   // 5. If data is still loading
   if (loading || isRefreshing) {
     return (
