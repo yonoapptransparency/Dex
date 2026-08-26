@@ -139,11 +139,12 @@ export function ReviewForm({ appId, appSlug, onSuccess }: ReviewFormProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" role="group" aria-label="Star rating selector">
               {[1, 2, 3, 4, 5].map((s) => (
                 <motion.button
                   key={s}
                   type="button"
+                  aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
                   whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
                   onMouseEnter={() => setHoveredRating(s)}
@@ -166,8 +167,10 @@ export function ReviewForm({ appId, appSlug, onSuccess }: ReviewFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="sm:col-span-1">
-            <span className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Your Name</span>
+            <label htmlFor="reviewer-name" className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Your Name</label>
             <input
+              id="reviewer-name"
+              name="reviewerName"
               type="text"
               required
               maxLength={30}
@@ -182,6 +185,7 @@ export function ReviewForm({ appId, appSlug, onSuccess }: ReviewFormProps) {
             <label htmlFor="comment" className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
             <textarea
               id="comment"
+              name="comment"
               required
               maxLength={500}
               placeholder="Write a constructive, honest review of the gameplay experience..."

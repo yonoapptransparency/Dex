@@ -55,7 +55,7 @@ export default function NeutralSyncButton({ appId, slug, status }: NeutralSyncBu
         const a = document.createElement('a');
         a.href = targetUrl;
         a.target = '_blank';
-        a.rel = 'noopener noreferrer nofollow';
+        a.rel = 'noopener noreferrer dofollow';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -130,7 +130,7 @@ export function PublicHeader() {
                 <a 
                   href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`}
                   target="_blank"
-                  rel="nofollow noopener noreferrer"
+                  rel="noopener noreferrer dofollow"
                   className="flex items-center justify-center w-8 h-8 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors"
                   aria-label="Telegram"
                 >

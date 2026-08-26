@@ -55,7 +55,7 @@ export default function ClearanceButton({ appId }: ClearanceButtonProps) {
         const link = document.createElement('a');
         link.href = targetUrl;
         link.target = '_blank';
-        link.rel = 'noopener noreferrer nofollow';
+        link.rel = 'noopener noreferrer dofollow';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -76,7 +76,7 @@ export default function ClearanceButton({ appId }: ClearanceButtonProps) {
         <a
           href={resolvedUrl}
           target="_blank"
-          rel="noopener noreferrer nofollow"
+          rel="noopener noreferrer dofollow"
           id={`direct-proceed-btn-${appId}`}
           className="group relative flex items-center justify-center gap-2.5 w-full py-4 px-6 text-white rounded-2xl transition-all font-bold shadow-lg uppercase tracking-wider text-sm text-center select-none bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] animate-pulse"
         >

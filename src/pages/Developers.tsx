@@ -89,7 +89,7 @@ export default function Developers() {
                     <a 
                       href={dev.github} 
                       target="_blank" 
-                      rel="nofollow noopener noreferrer" 
+                      rel="noopener noreferrer dofollow" 
                       className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white"
                       title="GitHub"
                     >
@@ -100,7 +100,7 @@ export default function Developers() {
                     <a 
                       href={dev.twitter} 
                       target="_blank" 
-                      rel="nofollow noopener noreferrer" 
+                      rel="noopener noreferrer dofollow" 
                       className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-blue-400"
                       title="Twitter"
                     >

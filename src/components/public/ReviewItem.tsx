@@ -1,6 +1,5 @@
 import React from 'react';
 import { Star, ThumbsUp, Flag, ChevronDown, ChevronUp } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export interface Review {
   id: string;
@@ -61,13 +60,9 @@ export function ReviewItem({
     : rev.comment;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
+    <div
       key={rev.id}
-      className={`p-5 border rounded-2xl flex gap-4 transition-all text-left ${
+      className={`cv-auto p-5 border rounded-2xl flex gap-4 transition-all text-left ${
         isReported || rev.reported
           ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'
           : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10'
@@ -111,9 +106,8 @@ export function ReviewItem({
           ))}
         </div>
 
-        {/* Expandable Review Text using Framer Motion */}
-        <motion.div 
-          layout="position"
+        {/* Expandable Review Text */}
+        <div 
           className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed break-words whitespace-pre-wrap flex flex-col relative select-text"
         >
           <p>{displayedComment}</p>
@@ -128,7 +122,7 @@ export function ReviewItem({
               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
           )}
-        </motion.div>
+        </div>
 
         {/* Footer Help voting Panel */}
         <div className="flex items-center gap-4 mt-4 pt-3.5 border-t border-black/[0.03] dark:border-white/[0.03]">
@@ -163,7 +157,7 @@ export function ReviewItem({
         </div>
 
       </div>
-    </motion.div>
+    </div>
   );
 }
 

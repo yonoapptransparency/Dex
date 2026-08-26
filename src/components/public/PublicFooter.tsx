@@ -120,19 +120,19 @@ export function PublicFooter() {
 
         <div className="flex items-center gap-3">
           {settings?.social_links?.facebook && (
-            <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="nofollow noopener noreferrer" className="w-9 h-9 rounded-full bg-white/15 hover:bg-blue-600 text-white border border-white/20 hover:border-blue-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Facebook className="w-4 h-4 text-white" /></a>
+            <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer dofollow" className="w-9 h-9 rounded-full bg-white/15 hover:bg-blue-600 text-white border border-white/20 hover:border-blue-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Facebook className="w-4 h-4 text-white" /></a>
           )}
           {settings?.social_links?.instagram && (
-            <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="nofollow noopener noreferrer" className="w-9 h-9 rounded-full bg-white/15 hover:bg-pink-600 text-white border border-white/20 hover:border-pink-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Instagram className="w-4 h-4 text-white" /></a>
+            <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer dofollow" className="w-9 h-9 rounded-full bg-white/15 hover:bg-pink-600 text-white border border-white/20 hover:border-pink-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Instagram className="w-4 h-4 text-white" /></a>
           )}
           {settings?.social_links?.twitter && (
-            <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="nofollow noopener noreferrer" className="w-9 h-9 rounded-full bg-white/15 hover:bg-sky-500 text-white border border-white/20 hover:border-sky-400 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Twitter className="w-4 h-4 text-white" /></a>
+            <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer dofollow" className="w-9 h-9 rounded-full bg-white/15 hover:bg-sky-500 text-white border border-white/20 hover:border-sky-400 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Twitter className="w-4 h-4 text-white" /></a>
           )}
           {settings?.social_links?.linkedin && (
-            <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="nofollow noopener noreferrer" className="w-9 h-9 rounded-full bg-white/15 hover:bg-blue-700 text-white border border-white/20 hover:border-blue-600 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Linkedin className="w-4 h-4 text-white" /></a>
+            <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer dofollow" className="w-9 h-9 rounded-full bg-white/15 hover:bg-blue-700 text-white border border-white/20 hover:border-blue-600 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Linkedin className="w-4 h-4 text-white" /></a>
           )}
           {settings?.social_links?.youtube && (
-            <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="nofollow noopener noreferrer" className="w-9 h-9 rounded-full bg-white/15 hover:bg-red-600 text-white border border-white/20 hover:border-red-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Youtube className="w-4 h-4 text-white" /></a>
+            <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer dofollow" className="w-9 h-9 rounded-full bg-white/15 hover:bg-red-600 text-white border border-white/20 hover:border-red-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Youtube className="w-4 h-4 text-white" /></a>
           )}
         </div>
 

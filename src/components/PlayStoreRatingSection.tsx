@@ -241,7 +241,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
                         id="play-stars-google-cta"
                         href="https://g.page/r/Cd8k-znwB0BDEBI/review"
                         target="_blank"
-                        rel="nofollow noopener noreferrer"
+                        rel="noopener noreferrer dofollow"
                         onClick={() => setGoogleOpened(true)}
                         className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-3.5 rounded-lg transition-transform active:scale-95 text-[11px] shadow-sm uppercase tracking-wider font-mono cursor-pointer"
                       >
@@ -343,7 +343,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
                   id="google-review-redirect-final-btn"
                   href="https://g.page/r/Cd8k-znwB0BDEBI/review"
                   target="_blank"
-                  rel="nofollow noopener noreferrer"
+                  rel="noopener noreferrer dofollow"
                   className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-3 rounded-lg text-[10px] sm:text-xs tracking-wider transition-all"
                 >
                   Post on Google Business

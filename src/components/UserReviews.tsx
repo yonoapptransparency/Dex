@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Star, ThumbsUp, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
-import ReviewScoreSummary from './public/ReviewScoreSummary';
+import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
 import { ReviewForm } from './public/ReviewForm';
 import { useReviews } from '../hooks/useReviews';
+
+import { ReviewScoreSummary } from './public/ReviewScoreSummary';
 
 interface UserReviewsProps {
   appId: string;
@@ -75,30 +76,21 @@ export default function UserReviews({
 
   return (
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
-      <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 lg:gap-6 lg:gap-12">
+      <div className="flex flex-col gap-5 sm:gap-8">
         
         <ReviewScoreSummary 
           appId={appId} 
-          appSlug={appSlug}
+          appSlug={appSlug} 
           overallRating={overallRating} 
           totalReviewCount={totalReviewCount} 
         />
 
-        <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
+        <div className="w-full flex flex-col gap-4 sm:gap-6">
           <ReviewForm appId={appId} appSlug={appSlug} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
 
           <div className="space-y-4">
             {!loading && reviews.length > 0 && (
               <div className="flex flex-col gap-3 pb-3 border-b border-black/5 dark:border-white/5">
-                <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-3.5 mb-2">
-                  <div className="flex gap-2 items-start">
-                    <Sparkles className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-450 leading-normal font-semibold">
-                      <strong>Google Review Integration Info:</strong> Officially submitted Google Business & Play Store reviews are hosted in Google's closed database sandbox and do not sync automatically with third-party sites. To see your feedback directly on this portal immediately, please write/post user reviews in this designated community panel!
-                    </p>
-                  </div>
-                </div>
-
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                     <button

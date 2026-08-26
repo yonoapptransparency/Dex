@@ -269,18 +269,16 @@ export default function Home() {
       (entries) => {
         if (entries[0].isIntersecting) {
           setIsLoadingMore(true);
-          // Trigger the page load cleanly with smooth pacing
-          setTimeout(() => {
-            setVisibleCount((prev) => {
-              const nextCount = prev + ITEMS_PER_PAGE;
-              const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
-              const url = new URL(window.location.href);
-              url.searchParams.set('page', String(nextPage));
-              window.history.replaceState(null, '', url.toString());
-              return nextCount;
-            });
-            setIsLoadingMore(false);
-          }, 350);
+          // Trigger the page load cleanly
+          setVisibleCount((prev) => {
+            const nextCount = prev + ITEMS_PER_PAGE;
+            const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', String(nextPage));
+            window.history.replaceState(null, '', url.toString());
+            return nextCount;
+          });
+          setIsLoadingMore(false);
         }
       },
       { rootMargin: '0px 0px 50px 0px', threshold: 0.1 }
