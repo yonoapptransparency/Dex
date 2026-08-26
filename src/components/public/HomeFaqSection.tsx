@@ -14,28 +14,8 @@ interface HomeFaqSectionProps {
 export default function HomeFaqSection({ faqs, searchTerm }: HomeFaqSectionProps) {
   if (searchTerm || !faqs || faqs.length === 0) return null;
 
-  // Generate Google FAQPage structured data (JSON-LD) for SEO
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer.replace(/<[^>]+>/g, '') // strip HTML for safe schema text
-      }
-    }))
-  };
-
   return (
     <section aria-labelledby="home-faq-heading" className="mt-8 mb-6 px-2 max-w-5xl mx-auto w-full">
-      {/* Inject JSON-LD Schema directly into the DOM */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      
       <div className="bg-slate-50/80 dark:bg-zinc-900/60 border border-black/5 dark:border-white/5 rounded-2xl p-5 sm:p-8 shadow-xs">
         <div className="flex items-center justify-between mb-6 sm:mb-8 pb-4 border-b border-black/5 dark:border-white/5">
           <div className="flex items-center gap-3">

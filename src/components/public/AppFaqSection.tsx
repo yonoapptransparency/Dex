@@ -12,28 +12,8 @@ interface AppFaqSectionProps {
 export default function AppFaqSection({ faqs }: AppFaqSectionProps) {
   if (!faqs || faqs.length === 0) return null;
 
-  // Generate Google FAQPage structured data (JSON-LD) for SEO
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer.replace(/<[^>]+>/g, '') // strip HTML for safe schema text
-      }
-    }))
-  };
-
   return (
     <section aria-labelledby="faq-heading" className="mb-20 px-1 sm:px-4 md:px-6">
-      {/* Inject JSON-LD Schema directly into the DOM */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      
       <div className="py-8 border-t border-black/5 dark:border-white/5">
         <h2 id="faq-heading" className="text-xl sm:text-2xl font-bold mb-6 text-zinc-900 dark:text-zinc-100">
           Frequently Asked Questions

@@ -153,7 +153,10 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
           <h3 className="font-semibold text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
           <div className="text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
           <div className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
-            <span>{app.rating ? app.rating.toFixed(1) : '5.0'}</span>
+            <span>{(() => {
+              const r = typeof app.rating === 'number' ? app.rating : parseFloat(String(app.rating || ''));
+              return !isNaN(r) && r > 0 ? r.toFixed(1) : '5.0';
+            })()}</span>
             <Star className="w-3 h-3 fill-current text-zinc-400" />
             {app.safety_status === 'Verified' && <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0 ml-1" />}
           </div>
@@ -227,7 +230,10 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
           <h3 className="font-semibold text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
           <div className="text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
           <div className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
-            <span>{app.rating ? app.rating.toFixed(1) : '5.0'}</span>
+            <span>{(() => {
+              const r = typeof app.rating === 'number' ? app.rating : parseFloat(String(app.rating || ''));
+              return !isNaN(r) && r > 0 ? r.toFixed(1) : '5.0';
+            })()}</span>
             <Star className="w-3 h-3 fill-current text-zinc-400" />
             {app.safety_status === 'Verified' && <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0 ml-1" />}
           </div>

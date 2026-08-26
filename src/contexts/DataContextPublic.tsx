@@ -79,6 +79,15 @@ function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], d
     );
 
     const merged = matchingStatic ? { ...matchingStatic, ...dynamicItem } : dynamicItem;
+    if ((dynamicItem as any)?.seo_title !== undefined) {
+      (merged as any).meta_title = (dynamicItem as any).seo_title;
+    }
+    if ((dynamicItem as any)?.seo_description !== undefined) {
+      (merged as any).meta_description = (dynamicItem as any).seo_description;
+    }
+    if ((dynamicItem as any)?.review_count !== undefined) {
+      (merged as any).reviews = (dynamicItem as any).review_count;
+    }
     result.push(merged);
 
     if (dynamicId) handledKeys.add(`id:${dynamicId}`);

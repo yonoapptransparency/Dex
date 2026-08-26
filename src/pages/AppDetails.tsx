@@ -9,7 +9,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { getOptimizedImageUrl } from "../seo/utils";
+import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
 import Meta from '../components/Meta';
 import { AppListItem } from '../components/PlayStoreUI';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -215,7 +215,8 @@ export default function AppDetails() {
     );
   }
 
-  const title = app.seo_title || `${app.name} | ${mockSettings?.site_title || 'RummyDex'}`;
+  const siteTitle = mockSettings?.site_title || 'RummyDex';
+  const title = app.seo_title || app.meta_title || `${app.name} | ${siteTitle}`;
   
   const stripHtml = (html: string) => {
     if (!html) return '';
@@ -235,7 +236,7 @@ export default function AppDetails() {
       if (ogMatch && ogMatch[1]) {
         return ogMatch[1].trim();
       }
-      return stripHtml(trimmed).substring(0, 160);
+      return stripHtml(trimmed);
     }
     return trimmed;
   };
@@ -243,20 +244,35 @@ export default function AppDetails() {
   const desc = cleanSeoDescription(app.seo_description || app.meta_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} application specifications`);
   const ogImage = app.og_image_url || app.icon_url;
 
-  const faqSchema = app.faqs && app.faqs.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": app.faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer
-      }
-    }))
-  } : null;
+  const faqSchema = useMemo(() => {
+    if (!app.faqs || !Array.isArray(app.faqs) || app.faqs.length === 0) return null;
+    const seen = new Set<string>();
+    const validFaqs = app.faqs
+      .filter(faq => {
+        const q = String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim();
+        const a = String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').trim();
+        if (!q || !a || q.length < 5 || seen.has(q.toLowerCase())) return false;
+        seen.add(q.toLowerCase());
+        return true;
+      })
+      .map(faq => ({
+        "@type": "Question",
+        "name": String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim(),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
+        }
+      }));
 
-  const realRatingVal = parseFloat(String(app.rating)) || 4.5;
+    if (validFaqs.length === 0) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": validFaqs
+    };
+  }, [app.faqs]);
+
+  const realRatingVal = Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
   const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
   const realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
 
@@ -264,12 +280,17 @@ export default function AppDetails() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": app.name,
+    "url": `https://www.rummydex.com/app/${app.slug}`,
     "description": desc,
-    "applicationCategory": app.category || 'GameApplication',
+    "applicationCategory": normalizeSchemaCategory(app.category),
     "operatingSystem": "Android",
     "softwareVersion": app.version || '1.0.0',
     "fileSize": app.file_size || '45 MB',
     "image": app.icon_url || app.og_image_url,
+    "author": {
+      "@type": "Organization",
+      "name": app.developer || 'RummyDex'
+    },
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -293,13 +314,13 @@ export default function AppDetails() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": window.location.origin
+        "item": "https://www.rummydex.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": app.name,
-        "item": window.location.href
+        "item": `https://www.rummydex.com/app/${app.slug}`
       }
     ]
   };
