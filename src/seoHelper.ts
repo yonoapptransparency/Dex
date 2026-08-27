@@ -82,17 +82,6 @@ export function clearSeoCache() {
 
 async function doFetchStoreData() {
   const now = Date.now();
-  try {
-    const liveData = await syncFromFirestore();
-    if (liveData && Array.isArray(liveData.apps) && liveData.apps.length > 0) {
-      cachedData = liveData;
-      lastFetchTime = now;
-      return liveData;
-    }
-  } catch (e) {
-    console.warn("Live Firestore sync failed in seoHelper, falling back to backup/static data:", e);
-  }
-
   const freshStatic = getStaticData();
   const data = {
     apps: freshStatic.apps || freshStatic.mockApps || [],
