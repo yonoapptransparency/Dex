@@ -903,7 +903,9 @@ export async function injectSeoTags(template: string, urlPath: string, hostUrl?:
 
   // Optimize initial data payload size by stripping heavy HTML descriptions and inner app data from non-target apps for ultra-fast page loads
   let initialDataPayload = data;
-  if (data) {
+  const isAdminRoute = cleanPathLower.startsWith('/admin');
+
+  if (data && !isAdminRoute) {
     const targetAppSlug = targetApp ? getField(targetApp, 'slug')?.toLowerCase() : null;
     const optimizedApps = Array.isArray(data.apps) ? data.apps.map((app: any) => {
       const sanitizedApp = { ...app };
