@@ -41,16 +41,17 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | null>(null);
 
 const DATA_CACHE_KEY = 'yd_public_data_cache';
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
 
 const getInitialCache = () => {
   try {
-    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) return (window as any).__INITIAL_DATA__;
+    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
+      return (window as any).__INITIAL_DATA__;
+    }
     if (typeof window !== 'undefined' && window.localStorage) {
       const cached = localStorage.getItem(DATA_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed && parsed._timestamp && (Date.now() - parsed._timestamp < CACHE_TTL_MS)) {
+        if (parsed && parsed._timestamp && (Date.now() - parsed._timestamp < 30000)) { // 30s cache TTL
           return parsed.data || parsed;
         }
       }
@@ -59,90 +60,33 @@ const getInitialCache = () => {
   return null;
 };
 
-// Helper to merge lists by ID and Slug so dynamic updates replace static items cleanly with zero duplicates
-function mergeLists<T extends { id?: string; slug?: string }>(staticList: T[], dynamicList?: T[]): T[] {
-  if (!Array.isArray(dynamicList) || dynamicList.length === 0) return staticList;
-  
-  const result: T[] = [];
-  const handledKeys = new Set<string>();
-
-  // 1. Process dynamic items first (authoritative live updates)
-  dynamicList.forEach(dynamicItem => {
-    if (!dynamicItem) return;
-    const dynamicId = dynamicItem.id ? String(dynamicItem.id).trim() : '';
-    const dynamicSlug = dynamicItem.slug ? String(dynamicItem.slug).toLowerCase().trim() : '';
-
-    // Find any matching static item to preserve fields if needed
-    const matchingStatic = staticList.find(s => 
-      (dynamicId && s.id && String(s.id).trim() === dynamicId) ||
-      (dynamicSlug && s.slug && String(s.slug).toLowerCase().trim() === dynamicSlug)
-    );
-
-    const merged = matchingStatic ? { ...matchingStatic, ...dynamicItem } : dynamicItem;
-    if ((dynamicItem as any)?.seo_title !== undefined) {
-      (merged as any).meta_title = (dynamicItem as any).seo_title;
-    }
-    if ((dynamicItem as any)?.seo_description !== undefined) {
-      (merged as any).meta_description = (dynamicItem as any).seo_description;
-    }
-    if ((dynamicItem as any)?.review_count !== undefined) {
-      (merged as any).reviews = (dynamicItem as any).review_count;
-    }
-    result.push(merged);
-
-    if (dynamicId) handledKeys.add(`id:${dynamicId}`);
-    if (dynamicSlug) handledKeys.add(`slug:${dynamicSlug}`);
-    if (matchingStatic) {
-      if (matchingStatic.id) handledKeys.add(`id:${String(matchingStatic.id).trim()}`);
-      if (matchingStatic.slug) handledKeys.add(`slug:${String(matchingStatic.slug).toLowerCase().trim()}`);
-    }
-  });
-
-  // 2. Append non-replaced static items
-  staticList.forEach(staticItem => {
-    if (!staticItem) return;
-    const staticId = staticItem.id ? String(staticItem.id).trim() : '';
-    const staticSlug = staticItem.slug ? String(staticItem.slug).toLowerCase().trim() : '';
-
-    const isHandled = 
-      (staticId && handledKeys.has(`id:${staticId}`)) || 
-      (staticSlug && handledKeys.has(`slug:${staticSlug}`));
-
-    if (!isHandled) {
-      result.push(staticItem);
-      if (staticId) handledKeys.add(`id:${staticId}`);
-      if (staticSlug) handledKeys.add(`slug:${staticSlug}`);
-    }
-  });
-
-  return result;
-}
-
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
     if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
-      return mergeLists(mockApps, initialCache.apps);
+      return initialCache.apps;
     }
     return mockApps;
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    if (initialCache?.settings?.site_title) return { ...mockSettings, ...initialCache.settings };
+    if (initialCache?.settings && Object.keys(initialCache.settings).length > 0) {
+      return { ...mockSettings, ...initialCache.settings };
+    }
     return mockSettings;
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
     if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) {
-      return mergeLists(mockNews, initialCache.news);
+      return initialCache.news;
     }
     return mockNews;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
     if (initialCache?.videos && Array.isArray(initialCache.videos) && initialCache.videos.length > 0) {
-      return mergeLists(mockVideos, initialCache.videos);
+      return initialCache.videos;
     }
     return mockVideos;
   });
@@ -154,7 +98,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch from server backup endpoint which is backed by live Firestore sync
   const fetchBackupData = useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/public/backup-data');
+      const res = await fetch('/api/v1/public/backup-data', {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       if (res.ok) {
         const backup = await res.json();
         if (backup) {
@@ -165,17 +111,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }));
           } catch (e) {}
 
-          if (backup.apps && Array.isArray(backup.apps)) {
-            setApps(mergeLists(mockApps, backup.apps));
+          if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
+            setApps(backup.apps);
           }
-          if (backup.settings) {
-            setSettings(prev => ({ ...prev, ...backup.settings }));
+          if (backup.settings && Object.keys(backup.settings).length > 0) {
+            setSettings(prev => ({ ...mockSettings, ...backup.settings }));
           }
           if (backup.news && Array.isArray(backup.news)) {
-            setNews(mergeLists(mockNews, backup.news));
+            setNews(backup.news);
           }
           if (backup.videos && Array.isArray(backup.videos)) {
-            setVideos(mergeLists(mockVideos, backup.videos));
+            setVideos(backup.videos);
           }
           setLoadedFromServer(true);
         }
@@ -186,39 +132,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    const hasInitialData = typeof window !== 'undefined' && !!(window as any).__INITIAL_DATA__;
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
+    if (isCrawler) return;
 
-    if (hasInitialData) {
-      setLoadedFromServer(true);
-    }
+    // Fetch immediately on mount
+    fetchBackupData();
 
-    // Do NOT fire background XHR for search engine crawlers
-    if (isCrawler) {
-      return;
-    }
+    // Auto-refresh when tab gains focus or user returns to phone screen
+    const handleFocus = () => {
+      fetchBackupData();
+    };
 
-    let timerId: any;
-    let idleId: any;
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        handleFocus();
+      }
+    });
 
-    // Fetch fresh data in the background to ensure new apps and updates appear seamlessly
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      idleId = (window as any).requestIdleCallback(() => {
+    // Periodic check every 30 seconds for live updates
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
         fetchBackupData();
-      }, { timeout: 3000 });
-    } else {
-      timerId = setTimeout(() => {
-        fetchBackupData();
-      }, 1500);
-    }
+      }
+    }, 30000);
 
     return () => {
-      if (idleId && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
-        (window as any).cancelIdleCallback(idleId);
-      }
-      if (timerId) {
-        clearTimeout(timerId);
-      }
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
     };
   }, [fetchBackupData]);
 
