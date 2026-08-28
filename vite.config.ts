@@ -23,7 +23,7 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.FIREBASE_PROJECT_ID': JSON.stringify(firebaseConfig.projectId || env.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID),
@@ -159,15 +159,7 @@ export default defineConfig(({mode}) => {
                 return 'vendor-core';
               }
             }
-            // Isolate Legal subpages into a standalone chunk so initial visitor bundle remains tiny
-            if (id.includes('/pages/Privacy') || id.includes('/pages/Terms') || id.includes('/pages/Disclaimer') || id.includes('/pages/Notice') || id.includes('/pages/Ethics') || id.includes('/pages/Responsibility') || id.includes('/pages/ReportRemoval')) {
-              return 'subpages-legal';
             }
-            // Isolate Media & Editorial subpages
-            if (id.includes('/pages/NewsDetailPage') || id.includes('/pages/VideosPage') || id.includes('/pages/VideoDetailPage') || id.includes('/pages/Developers') || id.includes('/pages/SafetyStatus')) {
-              return 'subpages-media';
-            }
-          }
         }
       }
     },

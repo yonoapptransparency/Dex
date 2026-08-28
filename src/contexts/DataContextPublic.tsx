@@ -138,27 +138,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Fetch immediately on mount
     fetchBackupData();
 
-    // Auto-refresh when tab gains focus or user returns to phone screen
-    const handleFocus = () => {
-      fetchBackupData();
-    };
-
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        handleFocus();
-      }
-    });
-
-    // Periodic check every 30 seconds for live updates
+    // Periodic check every 30 minutes for live updates
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchBackupData();
       }
-    }, 30000);
+    }, 1800000);
 
     return () => {
-      window.removeEventListener('focus', handleFocus);
       clearInterval(interval);
     };
   }, [fetchBackupData]);

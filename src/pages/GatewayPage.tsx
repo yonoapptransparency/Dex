@@ -158,8 +158,8 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Verification Portal`}
-        description={`Technical details and verified mirror gateway for ${app.name}.`}
+        title={`${app.name} - Gateway`}
+        description={`Technical details and mirror gateway for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={`https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
@@ -192,7 +192,7 @@ export default function GatewayPage() {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <ShieldCheck className="w-12 h-12 text-emerald-500 animate-pulse" />
+                  <div className="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
                 )}
               </motion.div>
             </div>
@@ -208,7 +208,7 @@ export default function GatewayPage() {
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
                   <Shield className="w-3 h-3 mr-1 inline" />
-                  Verified Mirror
+                  Mirror
                 </span>
               </div>
             </div>
