@@ -348,6 +348,24 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-19T18:48:38.416Z"
   },
   {
+    "id": "rev_1788085742893_6nl14",
+    "appId": "ealj6s0fm",
+    "appSlug": "kuku-tv",
+    "appName": "Kuku TV",
+    "userName": "Gautam_D",
+    "rating": 5,
+    "reviewText": "Honestly impressed with Kuku TV! The gameplay feels very responsive and go video streaming is super smooth. 🔥",
+    "timestamp": "2026-08-26",
+    "status": "published",
+    "helpful_count": 2,
+    "isPinned": false,
+    "reported": false,
+    "report_count": 0,
+    "source": "ai_generated",
+    "adminReply": null,
+    "updated_at": "2026-08-30T10:29:02.893Z"
+  },
+  {
     "id": "rev_1787474016900_3pwxn",
     "appId": "lzcn7ehst",
     "appSlug": "789-jackports",
@@ -13924,6 +13942,24 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-24T17:17:04.110Z"
   },
   {
+    "id": "rev_1788085742894_55thc",
+    "appId": "ealj6s0fm",
+    "appSlug": "kuku-tv",
+    "appName": "Kuku TV",
+    "userName": "rahul_sharma_3501",
+    "rating": 3,
+    "reviewText": "Nice table design and concept, but battery consumption could be slightly better during long sessions.",
+    "timestamp": "2026-08-10",
+    "status": "published",
+    "helpful_count": 3,
+    "isPinned": false,
+    "reported": false,
+    "report_count": 0,
+    "source": "ai_generated",
+    "adminReply": null,
+    "updated_at": "2026-08-30T10:29:02.894Z"
+  },
+  {
     "id": "rev_1787591707140_mj6vj",
     "appId": "yh9toduxk",
     "appSlug": "spin-crush",
@@ -16966,6 +17002,24 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-24T17:17:04.112Z"
   },
   {
+    "id": "rev_1788085742894_pue7b",
+    "appId": "ealj6s0fm",
+    "appSlug": "kuku-tv",
+    "appName": "Kuku TV",
+    "userName": "SunilChoudhary36",
+    "rating": 4,
+    "reviewText": "Enjoyed playing Kuku TV with friends. Very fast card dealing and clean table layouts.",
+    "timestamp": "2026-07-23",
+    "status": "published",
+    "helpful_count": 2,
+    "isPinned": false,
+    "reported": false,
+    "report_count": 0,
+    "source": "ai_generated",
+    "adminReply": null,
+    "updated_at": "2026-08-30T10:29:02.894Z"
+  },
+  {
     "id": "rev_1787591709268_m0w9h",
     "appId": "i5uw2apum",
     "appSlug": "rummy-77",
@@ -19952,6 +20006,24 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-08-23T11:59:05.692Z"
+  },
+  {
+    "id": "rev_1788085742894_sibro",
+    "appId": "ealj6s0fm",
+    "appSlug": "kuku-tv",
+    "appName": "Kuku TV",
+    "userName": "Arun Varma",
+    "rating": 3,
+    "reviewText": "Nice table design and concept, but battery consumption could be slightly better during long sessions.",
+    "timestamp": "2026-07-06",
+    "status": "published",
+    "helpful_count": 0,
+    "isPinned": false,
+    "reported": false,
+    "report_count": 0,
+    "source": "ai_generated",
+    "adminReply": null,
+    "updated_at": "2026-08-30T10:29:02.894Z"
   },
   {
     "id": "rev_1787591707143_bmhqr",
@@ -23066,6 +23138,24 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-08-24T17:17:04.113Z"
+  },
+  {
+    "id": "rev_1788085742895_2f4d3",
+    "appId": "ealj6s0fm",
+    "appSlug": "kuku-tv",
+    "appName": "Kuku TV",
+    "userName": "Cute_Munda75",
+    "rating": 5,
+    "reviewText": "Best app for casual card gaming! Clean design, zero lag, and very intuitive interface.",
+    "timestamp": "2026-06-18",
+    "status": "published",
+    "helpful_count": 5,
+    "isPinned": false,
+    "reported": false,
+    "report_count": 0,
+    "source": "ai_generated",
+    "adminReply": null,
+    "updated_at": "2026-08-30T10:29:02.895Z"
   },
   {
     "id": "rev_1787591709270_34gq0",
