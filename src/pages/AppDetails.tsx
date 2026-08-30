@@ -298,11 +298,11 @@ export default function AppDetails() {
     },
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": realRatingVal.toFixed(1),
-      "ratingCount": String(realReviewCount),
-      "reviewCount": String(realReviewCount),
-      "bestRating": "5",
-      "worstRating": "1"
+      "ratingValue": parseFloat(realRatingVal.toFixed(1)),
+      "ratingCount": Math.round(realReviewCount),
+      "reviewCount": Math.round(realReviewCount),
+      "bestRating": 5,
+      "worstRating": 1
     }
   };
 

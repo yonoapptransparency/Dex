@@ -137,10 +137,11 @@ export default function GatewayPage() {
   if (reviewCountVal > 0 && ratingVal > 0) {
     softwareSchema.aggregateRating = {
       "@type": "AggregateRating",
-      "ratingValue": String(ratingVal),
-      "ratingCount": String(reviewCountVal),
-      "bestRating": "5",
-      "worstRating": "1"
+      "ratingValue": parseFloat(ratingVal.toFixed(1)),
+      "ratingCount": Math.round(reviewCountVal),
+      "reviewCount": Math.round(reviewCountVal),
+      "bestRating": 5,
+      "worstRating": 1
     };
   }
 

@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /api/v1/public/
 Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
@@ -22,6 +23,8 @@ Disallow: /moredetail/
 Disallow: /moredetail/*
 
 User-agent: Googlebot
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -40,6 +43,8 @@ Disallow: /login/
 Disallow: /api/
 
 User-agent: Bingbot
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -58,6 +63,8 @@ Disallow: /login/
 Disallow: /api/
 
 User-agent: Applebot
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -70,6 +77,8 @@ Disallow: /moredetail/
 Disallow: /moredetail/*
 
 User-agent: DuckDuckBot
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -82,6 +91,8 @@ Disallow: /moredetail/
 Disallow: /moredetail/*
 
 User-agent: Baiduspider
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -94,6 +105,8 @@ Disallow: /moredetail/
 Disallow: /moredetail/*
 
 User-agent: YandexBot
+Allow: /
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /info/
@@ -121,6 +134,7 @@ User-agent: PerplexityBot
 Disallow: /
 
 User-agent: SemrushBot
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /info/
 Disallow: /gateway/
@@ -128,6 +142,7 @@ Disallow: /download/
 Disallow: /moredetail/
 
 User-agent: AhrefsBot
+Allow: /api/v1/public/
 Disallow: /moreinfo/
 Disallow: /info/
 Disallow: /gateway/
@@ -135,4 +150,5 @@ Disallow: /download/
 Disallow: /moredetail/
 
 Sitemap: https://www.rummydex.com/sitemap.xml
+
 
