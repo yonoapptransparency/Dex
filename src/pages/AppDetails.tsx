@@ -40,7 +40,6 @@ export default function AppDetails() {
   
   const navigate = useNavigate();
   const [triedRefresh, setTriedRefresh] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
   const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
 
@@ -127,10 +126,9 @@ export default function AppDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
-    setIsRefreshing(false);
   }, [slug]);
 
-  // On-demand single-app fetch: Only loads the complete details for THIS specific app
+  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
@@ -138,9 +136,9 @@ export default function AppDetails() {
     const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
-    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+    // Only trigger background fetch if we truly have zero description_html
+    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
       syncAttemptedRef.current[slugKey] = true;
-      setIsRefreshing(true);
 
       fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
         .then(res => {
@@ -154,31 +152,24 @@ export default function AppDetails() {
             return refreshAll(true);
           }
         })
-        .catch((e: any) => {
+        .catch(() => {
           // Fallback to static data if on-demand fetch fails
           const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
           if (fallbackApp && updateAppDetail) {
             updateAppDetail(fallbackApp);
-          } else if (refreshAll) {
-            return refreshAll(true);
           }
         })
         .finally(() => {
           setTriedRefresh(true);
-          setIsRefreshing(false);
         });
     } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
       updateAppDetail(resolved);
     }
-  }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll, updateAppDetail]);
+  }, [slug, mockApps, triedRefresh, refreshAll, updateAppDetail]);
 
-  // If app is not yet available, show clean minimal loader rather than heavy skeleton flashing
-  if (!app && isRefreshing) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 min-h-[40vh]">
-        <div className="w-8 h-8 border-2 border-zinc-300 dark:border-zinc-700 border-t-blue-500 rounded-full animate-spin"></div>
-      </div>
-    );
+  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
+  if (!app && loading) {
+    return <AppDetailsSkeleton />;
   }
 
   if (!app) {
