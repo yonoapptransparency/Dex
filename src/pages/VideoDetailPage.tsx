@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
+import { mockVideos as staticMockVideos } from '../lib/staticData';
 import { ArrowLeft, MessageSquare, Send, Calendar, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -20,7 +21,8 @@ interface Comment {
 export default function VideoDetailPage() {
   const { videos: mockVideos, settings: mockSettings, loading, videosSyncedWithServer, serverVideosFetched, refreshAll } = useData();
   const { slug } = useParams();
-  const videoItem = mockVideos.find(v => v.slug?.toLowerCase() === slug?.toLowerCase() || v.id?.toLowerCase() === slug?.toLowerCase());
+  const videoItem = mockVideos.find(v => v.slug?.toLowerCase() === slug?.toLowerCase() || v.id?.toLowerCase() === slug?.toLowerCase()) ||
+                    staticMockVideos.find(v => v.slug?.toLowerCase() === slug?.toLowerCase() || v.id?.toLowerCase() === slug?.toLowerCase());
   const [commentText, setCommentText] = useState('');
   
   const [triedRefresh, setTriedRefresh] = useState(false);
@@ -154,7 +156,7 @@ export default function VideoDetailPage() {
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 pb-12">
       <Meta 
         title={videoItem.seo_title || `${videoItem.title} | ${mockSettings.site_title}`}
-        description={videoItem.seo_description || videoItem.meta_description || videoItem.description}
+        description={videoItem.seo_description || videoItem.description}
         keywords={videoItem.seo_keywords}
         image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
         url={window.location.href}

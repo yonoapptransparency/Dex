@@ -40,7 +40,8 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
-const DATA_CACHE_KEY = 'yd_public_data_cache';
+// Polished, high-performance DataProvider with multi-tier caching (Memory -> window.__INITIAL_DATA__ -> localStorage -> instant background sync)
+const DATA_CACHE_KEY = 'yd_public_data_cache_v2';
 
 const getInitialCache = () => {
   try {
@@ -51,8 +52,8 @@ const getInitialCache = () => {
       const cached = localStorage.getItem(DATA_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed && parsed._timestamp && (Date.now() - parsed._timestamp < 30000)) { // 30s cache TTL
-          return parsed.data || parsed;
+        if (parsed && parsed.data) {
+          return parsed.data;
         }
       }
     }
@@ -93,13 +94,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [loading, setLoading] = useState(false);
   const [loadedFromServer, setLoadedFromServer] = useState(false);
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(true);
 
-  // Fetch from server backup endpoint which is backed by live Firestore sync
-  const fetchBackupData = useCallback(async () => {
+  // Fetch from server backup endpoint with fast memory caching and local storage persistence
+  const fetchBackupData = useCallback(async (silent = false) => {
     try {
+      if (!silent && apps.length === 0) setLoading(true);
       const res = await fetch('/api/v1/public/backup-data', {
-        headers: { 'Cache-Control': 'no-cache' }
+        headers: { 'Accept': 'application/json' }
       });
       if (res.ok) {
         const backup = await res.json();
@@ -117,10 +119,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (backup.settings && Object.keys(backup.settings).length > 0) {
             setSettings(prev => ({ ...mockSettings, ...backup.settings }));
           }
-          if (backup.news && Array.isArray(backup.news)) {
+          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
             setNews(backup.news);
           }
-          if (backup.videos && Array.isArray(backup.videos)) {
+          if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
             setVideos(backup.videos);
           }
           setLoadedFromServer(true);
@@ -128,8 +130,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (e) {
       console.warn("Public backup data fetch failed:", e);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [apps.length]);
 
   useEffect(() => {
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
