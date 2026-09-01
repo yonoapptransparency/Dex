@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { BadgeCheck } from 'lucide-react';
 import { AppConfig } from '../../types';
 import { getOptimizedImageUrl } from '../../seo/utils';
-import { preloadAppDetails } from '../../AppPublic';
+import { preloadAppDetails } from '../../lib/preloadHelper';
 
 interface NewAdditionsProps {
   loading?: boolean;

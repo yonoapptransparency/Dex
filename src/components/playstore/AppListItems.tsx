@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, ShieldCheck, MoreVertical, Share2, Flag } from 'lucide-react';
 import { cn, safeVibrate } from '../../lib/utilsPublic';
 import { getOptimizedImageUrl } from '../../seo/utils';
-import { preloadAppDetails } from '../../AppPublic';
+import { preloadAppDetails } from '../../lib/preloadHelper';
 
 const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpen: boolean) => void }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
