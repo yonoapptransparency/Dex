@@ -56,15 +56,8 @@ if (vIdx !== -1 && eIdx !== -1) {
     content = content.substring(0, vIdx) + '\n\n' + content.substring(eIdx);
 }
 
-// 5. Strip admin routes so the built API is safe for public distribution
-console.log('Stripping Admin routes...');
-content = content.replace(/import\s+\{\s*adminAuthRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-content = content.replace(/import\s+\{\s*adminVaultRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-content = content.replace(/import\s+\{\s*githubSyncRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-
-content = content.replace(/app\.use\(\s*adminAuthRouter\s*\);?/g, '');
-content = content.replace(/app\.use\(\s*adminVaultRouter\s*\);?/g, '');
-content = content.replace(/app\.use\(\s*githubSyncRouter\s*\);?/g, '');
+// 5. Keep all admin and public routes intact for full Vercel serverless support
+console.log('Preserving all API routers for Vercel deployment...');
 
 fs.writeFileSync('api_temp.ts', content);
 
