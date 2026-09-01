@@ -3,7 +3,6 @@ import { Search, X, Loader2, Zap, TrendingUp } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { useNavigate } from 'react-router-dom';
 import { getOptimizedImageUrl } from '../seo/utils';
-import { preloadAppDetails } from '../AppPublic';
 
 interface LightSearchProps {
   isOpen: boolean;
@@ -196,8 +195,6 @@ export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
                 {results.map((app) => (
                   <div
                     key={app.id}
-                    onMouseEnter={preloadAppDetails}
-                    onTouchStart={preloadAppDetails}
                     onClick={() => {
                       saveToHistory(app.name);
                       document.body.style.overflow = '';

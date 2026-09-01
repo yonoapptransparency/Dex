@@ -36,33 +36,7 @@ export default function AppDetails() {
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
-  
-  // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
-  const app = useMemo(() => {
-    if (!slug) return null;
-    const staticApp = resolveAppSlug(slug, staticMockApps);
-    const dynamicApp = resolveAppSlug(slug, mockApps);
-    if (!dynamicApp && !staticApp) return null;
-
-    return {
-      ...staticApp,
-      ...dynamicApp,
-      description_html: dynamicApp?.description_html || staticApp?.description_html || '',
-      features_html: dynamicApp?.features_html || staticApp?.features_html || '',
-      screenshots: (dynamicApp?.screenshots && dynamicApp.screenshots.length > 0) ? dynamicApp.screenshots : (staticApp?.screenshots || []),
-      faqs: (dynamicApp?.faqs && dynamicApp.faqs.length > 0) ? dynamicApp.faqs : (staticApp?.faqs || []),
-      custom_admin_box_html: dynamicApp?.custom_admin_box_html || staticApp?.custom_admin_box_html || '',
-      custom_admin_box_heading: dynamicApp?.custom_admin_box_heading || staticApp?.custom_admin_box_heading || '',
-      release_notes: dynamicApp?.release_notes || staticApp?.release_notes || '',
-      yellow_box_msg: dynamicApp?.yellow_box_msg || staticApp?.yellow_box_msg || '',
-      red_box_msg: dynamicApp?.red_box_msg || staticApp?.red_box_msg || '',
-      idea_box_msg: dynamicApp?.idea_box_msg || staticApp?.idea_box_msg || '',
-      file_size: dynamicApp?.file_size || staticApp?.file_size || '45 MB',
-      version: dynamicApp?.version || staticApp?.version || '1.0.0',
-      developer: dynamicApp?.developer || staticApp?.developer || 'Developer',
-      safety_status: dynamicApp?.safety_status || staticApp?.safety_status || 'Verified',
-    };
-  }, [slug, mockApps]);
+  const app = resolveAppSlug(slug, mockApps) || resolveAppSlug(slug, staticMockApps);
   
   const navigate = useNavigate();
   const [triedRefresh, setTriedRefresh] = useState(false);
@@ -86,50 +60,49 @@ export default function AppDetails() {
   const relatedApps = useMemo(() => {
     if (!app) return [];
     const sourceApps = mockApps.length > 0 ? mockApps : staticMockApps;
-    const currentCats = (app.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
+    const currentCats = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()).filter(Boolean) : [];
+    
+    // Extract non-generic specific categories (e.g. 'yono apps', 'card apps', 'funny games', 'yono')
     const specificCats = currentCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
     
+    // Multi-level bucket matching for high relevance
     const exactMatches: typeof sourceApps = [];
     const tokenMatches: typeof sourceApps = [];
     const fallbackApps: typeof sourceApps = [];
 
-    const appId = String(app.id || '');
-    const appSlug = String(app.slug || '').toLowerCase();
-
-    for (let i = 0; i < sourceApps.length; i++) {
-      const a = sourceApps[i];
-      if (String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug)) continue;
-      
-      const appCats = (a.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
+    sourceApps.forEach(a => {
+      if (a.id === app.id || (a.slug && a.slug.toLowerCase() === app.slug?.toLowerCase())) return;
+      const appCats = a.category ? a.category.toLowerCase().split(',').map(c => c.trim()).filter(Boolean) : [];
       const appSpecificCats = appCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
 
-      if (specificCats.some(sc => appSpecificCats.includes(sc))) {
+      // 1. Direct specific category match
+      const hasExact = specificCats.some(sc => appSpecificCats.includes(sc));
+      if (hasExact) {
         exactMatches.push(a);
-        if (exactMatches.length >= 12) break;
-        continue;
+        return;
       }
 
-      if (tokenMatches.length < 8) {
-        const hasTokenMatch = specificCats.some(sc => {
-          const tokens = sc.split(/\s+/);
-          return appSpecificCats.some(asc => tokens.some(t => t.length > 2 && asc.includes(t)));
+      // 2. Token overlap match (e.g. 'yono' in 'yono apps' vs 'yono', or 'card' in 'card apps')
+      const hasTokenMatch = specificCats.some(sc => {
+        const tokens = sc.split(/\s+/);
+        return appSpecificCats.some(asc => {
+          const aTokens = asc.split(/\s+/);
+          return tokens.some(t => t.length > 2 && aTokens.includes(t));
         });
-        if (hasTokenMatch) {
-          tokenMatches.push(a);
-          continue;
-        }
+      });
+      if (hasTokenMatch) {
+        tokenMatches.push(a);
+        return;
       }
 
-      if (fallbackApps.length < 8) {
-        fallbackApps.push(a);
-      }
-    }
+      fallbackApps.push(a);
+    });
 
     const combined = [...exactMatches, ...tokenMatches];
-    if (combined.length < 6) {
+    if (combined.length < 5) {
       return [...combined, ...fallbackApps].slice(0, 10);
     }
-    return combined.slice(0, 12);
+    return combined.slice(0, 16);
   }, [mockApps, app?.category, app?.id, app?.slug]);
 
   useEffect(() => {
@@ -472,7 +445,7 @@ export default function AppDetails() {
           </section>
         )}
 
-        {/* Industrial Application Overview (Placed after Similar Apps) */}
+        {/* Industrial Application Overview & Technical Specifications (Placed after Similar Apps) */}
         <AppAboutSection app={app} />
 
         {/* Modular Screenshots Gallery */}
