@@ -2,7 +2,7 @@ import React from 'react';
 
 export function AppDetailsSkeleton() {
   return (
-    <div className="w-full select-none px-2 py-6 animate-fade-in">
+    <div className="w-full select-none px-2 py-6">
       {/* Back button skeleton */}
       <div className="mb-6 flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse" />

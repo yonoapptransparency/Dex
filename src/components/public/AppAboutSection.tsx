@@ -128,27 +128,6 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
               </div>
             )}
 
-            {/* App FAQs */}
-            {Array.isArray(app.faqs) && app.faqs.length > 0 && (
-              <div className="pt-5 sm:pt-6 border-t border-black/5 dark:border-white/5">
-                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 sm:mb-4 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" /> Frequently Asked Questions
-                </h3>
-                <div className="space-y-3">
-                  {app.faqs.map((faq, idx) => (
-                    <div key={`faq-${idx}`} className="p-3.5 sm:p-4 rounded-xl bg-slate-50/80 dark:bg-zinc-900/60 border border-black/5 dark:border-white/5">
-                      <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                        {faq.question}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        {faq.answer}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
           </div>
       </div>
     </section>

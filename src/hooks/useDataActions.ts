@@ -203,6 +203,10 @@ export function useDataActions(
     saveSettings,
     saveNews,
     saveVideos,
-    updateLocalContainerBackup: saveSettings
+    updateLocalContainerBackup: async (apps: any[], settings: any, news: any[], videos: any[]) => {
+      // Background sync is handled by GitHub sync internally and server-side saves.
+      // This is a no-op placeholder to prevent the settings corruption bug.
+      console.log('Local container backup triggered.');
+    }
   };
 }
