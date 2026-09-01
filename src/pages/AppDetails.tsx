@@ -472,7 +472,7 @@ export default function AppDetails() {
           </section>
         )}
 
-        {/* Industrial Application Overview & Technical Specifications (Placed after Similar Apps) */}
+        {/* Industrial Application Overview (Placed after Similar Apps) */}
         <AppAboutSection app={app} />
 
         {/* Modular Screenshots Gallery */}

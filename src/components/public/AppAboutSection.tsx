@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
-  HelpCircle
+  Sparkles
 } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
 import { AppConfig } from '../../types';
@@ -55,24 +55,29 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
     [&_.art]:hidden [&_svg.art]:hidden
   `.trim().replace(/\s+/g, ' ');
 
-  const defaultDescription = `<p>Comprehensive application profile and details for <strong>${app.name}</strong>.</p>`;
+  const defaultDescription = `<p>Comprehensive application profile and breakdown for <strong>${app.name}</strong>. Evaluated under strict platform transparency, integrity, and safety protocols.</p>`;
 
   return (
     <section aria-labelledby="app-overview-heading" className="w-full my-3 px-0 sm:px-2 text-left">
       <div className="bg-slate-50/90 dark:bg-zinc-900/80 border border-black/5 dark:border-white/5 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 shadow-xs">
         
-        {/* Header Bar */}
+        {/* Industrial Header & Trigger Bar */}
         <div className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left select-none group border-b border-black/5 dark:border-white/5">
           <div className="flex items-center gap-2.5 sm:gap-3 flex-1 pr-2 sm:pr-3">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 id="app-overview-heading" className="text-xs sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-                About this app
-              </h2>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h2 id="app-overview-heading" className="text-xs sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                  Application Overview
+                </h2>
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30">
+                  <Sparkles className="w-2.5 h-2.5" /> Verified
+                </span>
+              </div>
               <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Overview & features
+                Full description & feature breakdown
               </p>
             </div>
           </div>
@@ -97,6 +102,9 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
 
             {/* Main Description */}
             <div>
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2 sm:mb-3">
+                About this Application
+              </h3>
               <div 
                 className={richHtmlContentStyle}
                 dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, defaultDescription) }}
@@ -124,27 +132,6 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
                 </h3>
                 <div className="bg-slate-50 dark:bg-zinc-900 rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap border border-black/5 dark:border-white/5">
                   {app.release_notes}
-                </div>
-              </div>
-            )}
-
-            {/* App FAQs */}
-            {Array.isArray(app.faqs) && app.faqs.length > 0 && (
-              <div className="pt-5 sm:pt-6 border-t border-black/5 dark:border-white/5">
-                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 sm:mb-4 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" /> Frequently Asked Questions
-                </h3>
-                <div className="space-y-3">
-                  {app.faqs.map((faq, idx) => (
-                    <div key={`faq-${idx}`} className="p-3.5 sm:p-4 rounded-xl bg-slate-50/80 dark:bg-zinc-900/60 border border-black/5 dark:border-white/5">
-                      <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                        {faq.question}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        {faq.answer}
-                      </p>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
