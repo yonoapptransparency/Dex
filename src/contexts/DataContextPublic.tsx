@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AppConfig, GlobalSettings, NewsItem, VideoItem } from '../typesPublic';
-import { mockApps, mockSettings, mockNews, mockVideos } from '../lib/staticData';
+import { mockApps, mockApps as staticMockApps, mockSettings, mockNews, mockVideos } from '../lib/staticData';
 
 interface DataContextType {
   apps: AppConfig[];
@@ -41,18 +41,28 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | null>(null);
 
 // Polished, high-performance DataProvider with multi-tier caching (Memory -> window.__INITIAL_DATA__ -> localStorage -> instant background sync)
-const DATA_CACHE_KEY = 'yd_public_data_cache_v2';
+const DATA_CACHE_KEY = 'yd_public_data_cache_v3';
 
 const getInitialCache = () => {
   try {
     if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
-      return (window as any).__INITIAL_DATA__;
+      const initData = (window as any).__INITIAL_DATA__;
+      if (initData && Array.isArray(initData.apps) && initData.apps.length > 0) {
+        return initData;
+      }
     }
     if (typeof window !== 'undefined' && window.localStorage) {
       const cached = localStorage.getItem(DATA_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed && parsed.data) {
+        if (parsed && parsed.data && Array.isArray(parsed.data.apps) && parsed.data.apps.length > 0) {
+          // If cached data has missing descriptions while staticMockApps has descriptions, discard stripped cache
+          const sample = parsed.data.apps[0];
+          const staticSample = mockApps[0];
+          if (!sample?.description_html && staticSample?.description_html) {
+            localStorage.removeItem(DATA_CACHE_KEY);
+            return null;
+          }
           return parsed.data;
         }
       }
@@ -65,10 +75,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
+    // If staticMockApps has more or newer content than initialCache, prefer staticMockApps
+    if (staticMockApps && staticMockApps.length > 0) {
+      if (!initialCache?.apps || initialCache.apps.length < staticMockApps.length) {
+        return staticMockApps;
+      }
+    }
     if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
       return initialCache.apps;
     }
-    return mockApps;
+    return staticMockApps || mockApps;
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {

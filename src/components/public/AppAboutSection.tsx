@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Sparkles } from 'lucide-react';
+import { 
+  FileText 
+} from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
 import { AppConfig } from '../../types';
 
@@ -33,7 +35,6 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
       }
     }
   };
-  
 
   // Shared rich HTML typography class string for clean, professional rendering with bold blue highlights
   const richHtmlContentStyle = `
@@ -53,33 +54,30 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
     [&_.art]:hidden [&_svg.art]:hidden
   `.trim().replace(/\s+/g, ' ');
 
+  const defaultDescription = `<p>Comprehensive application profile and details for <strong>${app.name}</strong>.</p>`;
+
   return (
-    <section aria-labelledby="app-overview-heading" className="w-full my-3 px-0 sm:px-2">
+    <section aria-labelledby="app-overview-heading" className="w-full my-3 px-0 sm:px-2 text-left">
       <div className="bg-slate-50/90 dark:bg-zinc-900/80 border border-black/5 dark:border-white/5 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 shadow-xs">
         
-        {/* Industrial Header & Trigger Bar */}
+        {/* Header Bar */}
         <div className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left select-none group border-b border-black/5 dark:border-white/5">
           <div className="flex items-center gap-2.5 sm:gap-3 flex-1 pr-2 sm:pr-3">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <h2 id="app-overview-heading" className="text-xs sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-                  Application Overview & Technical Specifications
-                </h2>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30">
-                  <Sparkles className="w-2.5 h-2.5" /> Verified
-                </span>
-              </div>
+              <h2 id="app-overview-heading" className="text-xs sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                About this app
+              </h2>
               <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Full architecture, features & security benchmarks
+                Overview & features
               </p>
             </div>
           </div>
         </div>
 
-        {/* Content Body - Always visible for SEO & UX */}
+        {/* Content Body */}
         <div onClick={handleHtmlClick} className="p-3.5 sm:p-6 space-y-6 sm:space-y-8 bg-white/50 dark:bg-zinc-950/40">
             
             {app.custom_admin_box_html && (
@@ -98,12 +96,9 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
 
             {/* Main Description */}
             <div>
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2 sm:mb-3">
-                About this Application
-              </h3>
               <div 
                 className={richHtmlContentStyle}
-                dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, '<p>No details available.</p>') }}
+                dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, defaultDescription) }}
               />
             </div>
 

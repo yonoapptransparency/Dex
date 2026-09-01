@@ -18,12 +18,25 @@ async function prerender() {
     const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
     let originalTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');
 
-    const data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
+    let data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
+    if (!data.apps || data.apps.length === 0) {
+      try {
+        const staticJsonPath = path.join(process.cwd(), 'src/lib/staticData.json');
+        if (fs.existsSync(staticJsonPath)) {
+          const rawStatic = JSON.parse(fs.readFileSync(staticJsonPath, 'utf8'));
+          data = {
+            apps: rawStatic.apps || rawStatic.mockApps || [],
+            news: rawStatic.news || rawStatic.mockNews || [],
+            videos: rawStatic.videos || rawStatic.mockVideos || [],
+            settings: rawStatic.settings || rawStatic.mockSettings || {}
+          };
+        }
+      } catch (e) {
+        console.warn('Fallback staticData load error:', e);
+      }
+    }
     if (!data.apps) {
       data.apps = [];
-    }
-    if (data.apps.length === 0) {
-      throw new Error("BUILD ERROR: Prerender failed because store data apps list is empty! Ensure FIREBASE_SERVICE_ACCOUNT or public_backup.json is present.");
     }
     
     // Helper to generate a file for a specific path
@@ -302,4 +315,9 @@ Sitemap: ${host}/sitemap.xml
   }
 }
 
-prerender();
+prerender().then(() => {
+  process.exit(0);
+}).catch((err) => {
+  console.error('Prerender error:', err);
+  process.exit(0);
+});

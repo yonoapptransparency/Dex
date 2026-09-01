@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { BadgeCheck } from 'lucide-react';
 import { AppConfig } from '../../types';
 import { getOptimizedImageUrl } from '../../seo/utils';
+import { preloadAppDetails } from '../../AppPublic';
 
 interface NewAdditionsProps {
   loading?: boolean;
@@ -23,7 +24,13 @@ export default function NewAdditions({ apps }: NewAdditionsProps) {
             key={`${app.id}-${index}`}
             className="flex-none w-[80px] sm:w-[96px] snap-start"
           >
-            <Link to={`/app/${app.slug}`} className="flex flex-col gap-2 group active:scale-[0.98] transition-transform">
+            <Link 
+              to={`/app/${app.slug}`} 
+              onMouseEnter={preloadAppDetails}
+              onTouchStart={preloadAppDetails}
+              onFocus={preloadAppDetails}
+              className="flex flex-col gap-2 group active:scale-[0.98] transition-transform"
+            >
               <div className="relative w-full aspect-square">
                 <div className="w-full h-full rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
                   <img 
