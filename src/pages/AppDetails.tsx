@@ -374,7 +374,7 @@ export default function AppDetails() {
   };
 
   return (
-    <div className="w-full select-none">
+    <div className="animate-fade-in w-full select-none">
       <AnimatePresence>
         {shareToast && (
           <motion.div

@@ -56,22 +56,10 @@ if (vIdx !== -1 && eIdx !== -1) {
     content = content.substring(0, vIdx) + '\n\n' + content.substring(eIdx);
 }
 
-// 5. Strip admin routes so the built API is safe for public distribution
-console.log('Stripping Admin routes...');
-content = content.replace(/import\s+\{\s*adminAuthRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-content = content.replace(/import\s+\{\s*adminVaultRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-content = content.replace(/import\s+\{\s*githubSyncRouter\s*\}\s+from\s+['"].*?['"];?/g, '');
-
-content = content.replace(/app\.use\(\s*adminAuthRouter\s*\);?/g, '');
-content = content.replace(/app\.use\(\s*adminVaultRouter\s*\);?/g, '');
-content = content.replace(/app\.use\(\s*githubSyncRouter\s*\);?/g, '');
-
 fs.writeFileSync('api_temp.ts', content);
 
 console.log("Compiling api_temp.ts to api/index.js...");
 // Use --minify to ensure validity and smaller size
 execSync('npx esbuild api_temp.ts --bundle --platform=node --format=cjs --define:import.meta.env=process.env --packages=external --minify --outfile=api/index.js', { stdio: 'inherit' });
 console.log("api/index.js generated successfully.");
-if (fs.existsSync('api_temp.ts')) {
-    fs.unlinkSync('api_temp.ts');
-}
+console.log('api_temp.ts');

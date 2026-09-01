@@ -1932,24 +1932,6 @@ adminVaultRouter.post("/api/v1/admin/seal-vault", verifyAdminToken, async (req, 
   }
 });
 
-adminVaultRouter.post("/api/v1/admin/build-public-api", verifyAdminToken, async (req, res) => {
-  try {
-    const { ciphertext } = req.body;
-    if (ciphertext) {
-      fs.writeFileSync(path.join(process.cwd(), 'src/lib/secureVault.ts'), `export const ENCRYPTED_LINKS = "${ciphertext}";\n`);
-    }
-    require('child_process').execSync('node scripts/build-api.js', { stdio: 'inherit', cwd: process.cwd() });
-    const apiPath = path.join(process.cwd(), 'api', 'index.js');
-    if (!fs.existsSync(apiPath)) {
-      return res.status(500).json({ error: "API build failed" });
-    }
-    const content = fs.readFileSync(apiPath, 'utf8');
-    res.json({ success: true, content });
-  } catch(err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 adminVaultRouter.post("/api/v1/admin/save-links-direct", verifyAdminToken, (req, res) => {
   try {
     const { items } = req.body;

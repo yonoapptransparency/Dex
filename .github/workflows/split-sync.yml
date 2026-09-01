@@ -16,14 +16,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm ci
-
       - name: Sync and Split Repositories
         env:
           PAT: ${{ secrets.PAT }}
@@ -186,15 +178,13 @@ jobs:
             "src/pages/Privacy.tsx"
             "src/pages/ReportRemoval.tsx"
             "src/pages/Responsibility.tsx"
-            "src/pages/SafetyStatus.tsx"
             "src/pages/Terms.tsx"
             "src/pages/VideoDetailPage.tsx"
             "src/pages/VideosPage.tsx"
             "src/components/AccordionItem.tsx"
             "src/components/FallbackRouteMatcher.tsx"
-            "src/components/GlobalErrorBoundary.tsx"
+            "src/components/GlobalSearch.tsx"
             "src/components/LanguageSelector.tsx"
-            "src/components/Meta.tsx"
             "src/components/PlayStoreRatingSection.tsx"
             "src/components/PlayStoreUI.tsx"
             "src/components/playstore/"
@@ -247,13 +237,6 @@ jobs:
             if [ "$TYPE" = "public" ]; then
               echo "Enforcing Public-Only Dex Isolation..."
               cp "$SOURCE_DIR/vercel.json" vercel.json
-              
-              # Build the public-only API from the latest source BEFORE stripping server files
-              echo "Building clean public API..."
-              (cd "$SOURCE_DIR" && node scripts/build-api.js || echo "API build failed")
-              mkdir -p public-api
-              cp "$SOURCE_DIR/api/index.js" public-api/index.js || echo "Warning: public-api/index.js not found after build"
-
               for file in "${ADMIN_ONLY_FILES[@]}"; do
                 rm -rf "$file"
               done
