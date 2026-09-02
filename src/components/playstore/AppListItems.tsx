@@ -30,10 +30,11 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
     e.preventDefault();
     e.stopPropagation();
     const appUrl = `${window.location.origin}/app/${app.slug}`;
+    const shareText = `Download ${app.name} - Version ${app.version || '1.0.0'} | ${app.file_size || 'Unknown size'}\n\n${app.red_box_msg ? `⚠️ ${app.red_box_msg}\n` : ''}Get it now on RummyDex:`;
     if (navigator.share) {
       navigator.share({
-        title: app.name,
-        text: `Check out ${app.name}!`,
+        title: `Download ${app.name}`,
+        text: shareText,
         url: appUrl,
       })
       .then(() => {
@@ -116,9 +117,9 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
     >
       <Link 
         to={`/app/${app.slug}`}
-        onMouseEnter={preloadAppDetails}
-        onTouchStart={preloadAppDetails}
-        onFocus={preloadAppDetails}
+        onMouseEnter={() => preloadAppDetails(app.slug)}
+        onTouchStart={() => preloadAppDetails(app.slug)}
+        onFocus={() => preloadAppDetails(app.slug)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
         <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
@@ -196,9 +197,9 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
     >
       <Link 
         to={`/app/${app.slug}`}
-        onMouseEnter={preloadAppDetails}
-        onTouchStart={preloadAppDetails}
-        onFocus={preloadAppDetails}
+        onMouseEnter={() => preloadAppDetails(app.slug)}
+        onTouchStart={() => preloadAppDetails(app.slug)}
+        onFocus={() => preloadAppDetails(app.slug)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
         <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">

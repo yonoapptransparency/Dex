@@ -26,9 +26,9 @@ export default function NewAdditions({ apps }: NewAdditionsProps) {
           >
             <Link 
               to={`/app/${app.slug}`} 
-              onMouseEnter={preloadAppDetails}
-              onTouchStart={preloadAppDetails}
-              onFocus={preloadAppDetails}
+              onMouseEnter={() => preloadAppDetails(app.slug)}
+              onTouchStart={() => preloadAppDetails(app.slug)}
+              onFocus={() => preloadAppDetails(app.slug)}
               className="flex flex-col gap-2 group active:scale-[0.98] transition-transform"
             >
               <div className="relative w-full aspect-square">

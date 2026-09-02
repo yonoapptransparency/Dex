@@ -355,11 +355,12 @@ export default function AppDetails() {
   };
 
   const handleShare = async () => {
+    const shareText = `Download ${app.name} - Version ${app.version || '1.0.0'} | ${app.file_size || 'Unknown size'}\n\n${app.red_box_msg ? `⚠️ ${app.red_box_msg}\n` : ''}Get it now on RummyDex:`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: title || app.name,
-          text: desc || `Check out ${app.name} specification on our platform.`,
+          title: `Download ${app.name}`,
+          text: shareText,
           url: window.location.href,
         });
       } catch (err) {

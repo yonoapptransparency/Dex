@@ -196,8 +196,8 @@ export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
                 {results.map((app) => (
                   <div
                     key={app.id}
-                    onMouseEnter={preloadAppDetails}
-                    onTouchStart={preloadAppDetails}
+                    onMouseEnter={() => preloadAppDetails(app.slug)}
+                    onTouchStart={() => preloadAppDetails(app.slug)}
                     onClick={() => {
                       saveToHistory(app.name);
                       document.body.style.overflow = '';
