@@ -480,11 +480,11 @@ export default function AppDetails() {
           </section>
         )}
 
-        {/* Industrial Application Overview & Technical Specifications (Placed after Similar Apps) */}
-        <AppAboutSection app={app} />
-
-        {/* Modular Screenshots Gallery */}
+        {/* Modular Screenshots Gallery (Placed after Similar Apps for best UX/SEO) */}
         <AppScreenshots app={app} />
+
+        {/* Industrial Application Overview & Technical Specifications */}
+        <AppAboutSection app={app} />
       </div>
 
       {/* App Safety & Security Highlight Notices */}
