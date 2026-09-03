@@ -222,24 +222,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-21T20:02:47.464Z"
   },
   {
-    "id": "rev_1787407367464_wytlx_0",
-    "appId": "jl9bx9llw",
-    "appSlug": "777-game",
-    "appName": "777 GAME",
-    "userName": "Suresh Raina",
-    "rating": 5,
-    "reviewText": "One of the best apps in this category. Lightweight and fast matchmaking.",
-    "timestamp": "2026-08-21T19:02:47.464Z",
-    "status": "published",
-    "helpful_count": 4,
-    "isPinned": true,
-    "reported": false,
-    "report_count": 0,
-    "source": "community",
-    "adminReply": null,
-    "updated_at": "2026-08-21T19:02:47.464Z"
-  },
-  {
     "id": "rev_1787407367466_3bp1k_0",
     "appId": "dttfvdp67",
     "appSlug": "baccarist",
@@ -490,42 +472,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-09-02T12:28:47.186Z"
-  },
-  {
-    "id": "rev_1788352122747_2mf1s",
-    "appId": "i6wdxhzyj",
-    "appSlug": "jiohotstar",
-    "appName": "JioHotstar",
-    "userName": "Dark_Knight",
-    "rating": 4,
-    "reviewText": "Good experience overall with JioHotstar. The game runs nicely and local sports and television broadcasting power of the star india network is well designed. Hope for more themes soon.",
-    "timestamp": "2026-08-30",
-    "status": "published",
-    "helpful_count": 4,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.747Z"
-  },
-  {
-    "id": "rev_1788351956748_47l2z",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Kiran_L",
-    "rating": 5,
-    "reviewText": "Honestly impressed with Pluto TV! The gameplay feels very responsive and demand digital streaming is super smooth. 🔥",
-    "timestamp": "2026-08-30",
-    "status": "published",
-    "helpful_count": 2,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.748Z"
   },
   {
     "id": "rev_1788269894374_phoj8",
@@ -10252,24 +10198,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-02T12:28:36.080Z"
   },
   {
-    "id": "rev_1788352122760_hmxzl",
-    "appId": "i6wdxhzyj",
-    "appSlug": "jiohotstar",
-    "appName": "JioHotstar",
-    "userName": "Ritu_Sharma",
-    "rating": 2,
-    "reviewText": "Decent graphics, but needs better frame rate optimization for older budget devices.",
-    "timestamp": "2026-08-21",
-    "status": "published",
-    "helpful_count": 4,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.760Z"
-  },
-  {
     "id": "rev_1788352124973_bd5au",
     "appId": "hmxpnxb1p",
     "appSlug": "zee5",
@@ -11096,24 +11024,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-08-23T08:41:46.445Z"
-  },
-  {
-    "id": "rev_1788351956765_29hjq",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Rashmi_K29",
-    "rating": 5,
-    "reviewText": "Really smooth experience playing Pluto TV. in addition to its live channels, the app features a massive on makes it a joy to play every evening.",
-    "timestamp": "2026-08-20",
-    "status": "published",
-    "helpful_count": 6,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.765Z"
   },
   {
     "id": "rev_1787407367464_ja2y6_1",
@@ -12412,24 +12322,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-13T16:02:47.466Z"
   },
   {
-    "id": "rev_1788351956784_x6bmy",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "mohd_ali_2887",
-    "rating": 5,
-    "reviewText": "Extremely well optimized app! Tested for a few matches today and demand library filled with blockbuster films and binge worked flawlessly. Great job! 👍",
-    "timestamp": "2026-08-13",
-    "status": "published",
-    "helpful_count": 4,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.784Z"
-  },
-  {
     "id": "rev_1788352116086_rkjyj",
     "appId": "ealj6s0fm",
     "appSlug": "kuku-tv",
@@ -12628,24 +12520,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-02T12:28:40.538Z"
   },
   {
-    "id": "rev_1788352122770_ts3mo",
-    "appId": "i6wdxhzyj",
-    "appSlug": "jiohotstar",
-    "appName": "JioHotstar",
-    "userName": "karan_mehta_2318",
-    "rating": 4,
-    "reviewText": "Enjoyed playing JioHotstar with friends. Very fast card dealing and clean table layouts.",
-    "timestamp": "2026-08-12",
-    "status": "published",
-    "helpful_count": 5,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.770Z"
-  },
-  {
     "id": "rev_1788352124986_j41gm",
     "appId": "hmxpnxb1p",
     "appSlug": "zee5",
@@ -12736,24 +12610,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-01T13:38:14.395Z"
   },
   {
-    "id": "rev_1788351956806_75v0h",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "mohit_gamerx_3591",
-    "rating": 5,
-    "reviewText": "Super fluid performance on my device. Pluto TV loads fast and worthy tv series is really convenient. 5 stars!",
-    "timestamp": "2026-08-05",
-    "status": "published",
-    "helpful_count": 5,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.806Z"
-  },
-  {
     "id": "rev_1788352116091_odf9g",
     "appId": "ealj6s0fm",
     "appSlug": "kuku-tv",
@@ -12770,24 +12626,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-09-02T12:28:36.091Z"
-  },
-  {
-    "id": "rev_1788352122780_tzx8g",
-    "appId": "i6wdxhzyj",
-    "appSlug": "jiohotstar",
-    "appName": "JioHotstar",
-    "userName": "Beta_Tester",
-    "rating": 3,
-    "reviewText": "Nice table design and concept, but battery consumption could be slightly better during long sessions.",
-    "timestamp": "2026-08-04",
-    "status": "published",
-    "helpful_count": 6,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.780Z"
   },
   {
     "id": "rev_1788352127226_1b86h",
@@ -13978,24 +13816,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-02T12:28:58.342Z"
   },
   {
-    "id": "rev_1788351956829_r8e4v",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Waseem_Akram30",
-    "rating": 5,
-    "reviewText": "Best app for casual card gaming! Clean design, zero lag, and very intuitive interface.",
-    "timestamp": "2026-07-26",
-    "status": "published",
-    "helpful_count": 7,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.829Z"
-  },
-  {
     "id": "rev_1788352118294_mc5cv",
     "appId": "zadbjikq9",
     "appSlug": "amazon-mx-player",
@@ -14020,7 +13840,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "appName": "JioHotstar",
     "userName": "Bhavna_P",
     "rating": 4,
-    "reviewText": "Solid and reliable app! fidelity dolby audio for a cinema works well as described. Minor visual polish would make it 5 stars. 👌",
+    "reviewText": "Hi JioHotstar Team, The JioHotstar app is amazing and offers a huge variety of movies and shows. Watching at least one movie every day has almost become a daily routine for me! I would like to suggest one small but very useful feature. Sometimes I love rewatching movies, but I skip the ending credits. When I later try to watch the same movie again, the app automatically starts from where I previously stopped, which is usually somewhere near the ending. On mobile, it is\n\neasy to drag the pr",
     "timestamp": "2026-07-26",
     "status": "published",
     "helpful_count": 2,
@@ -14029,7 +13849,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "report_count": 0,
     "source": "ai_generated",
     "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.790Z"
+    "updated_at": "2026-09-03T06:58:40.767Z"
   },
   {
     "id": "rev_1788352125011_s8x6x",
@@ -14176,24 +13996,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-02T12:29:00.575Z"
   },
   {
-    "id": "rev_1788351956855_4itky",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Salman_K26",
-    "rating": 3,
-    "reviewText": "Nice table design and concept, but battery consumption could be slightly better during long sessions.",
-    "timestamp": "2026-07-18",
-    "status": "published",
-    "helpful_count": 3,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.855Z"
-  },
-  {
     "id": "rev_1788352120568_u812v",
     "appId": "nlg9zi69u",
     "appSlug": "jiocinema",
@@ -14213,12 +14015,12 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
   },
   {
     "id": "rev_1788352122800_d88ij",
-    "appId": "i6wdxhzyj",
+    "appId": "jiohotstar",
     "appSlug": "jiohotstar",
     "appName": "JioHotstar",
     "userName": "Bipin_R",
     "rating": 3,
-    "reviewText": "Nice table design and concept, but battery consumption could be slightly better during long sessions.",
+    "reviewText": "Great entertainment mix, especially for anime and kids! JioHotstar has an amazing library. The \"JioTadka\" adult movies and action series (like Kill and Shõgun) are top-tier and intense. It is also becoming the best place for anime lovers with hits like Dragon Ball Super and Demon Slayer. Plus, having the entire Disney and Pixar animation catalog makes it perfect for kids and family movie nights. The app interface could be a bit smoother, but the content variety is unbeatable!",
     "timestamp": "2026-07-18",
     "status": "published",
     "helpful_count": 4,
@@ -14227,7 +14029,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "report_count": 0,
     "source": "ai_generated",
     "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.800Z"
+    "updated_at": "2026-09-03T06:59:31.575Z"
   },
   {
     "id": "rev_1788352136137_2qrpv",
@@ -15382,24 +15184,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-08-23T08:41:44.357Z"
   },
   {
-    "id": "rev_1788351956869_s3frv",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "bhanu_pratap_1900",
-    "rating": 5,
-    "reviewText": "Really smooth experience playing Pluto TV. in addition to its live channels, the app features a massive on makes it a joy to play every evening.",
-    "timestamp": "2026-07-09",
-    "status": "published",
-    "helpful_count": 0,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.869Z"
-  },
-  {
     "id": "rev_1788352116107_e5c3j",
     "appId": "ealj6s0fm",
     "appSlug": "kuku-tv",
@@ -15423,8 +15207,8 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "appSlug": "jiohotstar",
     "appName": "JioHotstar",
     "userName": "Darshan_K",
-    "rating": 2,
-    "reviewText": "The interface looks fine, but text size on compact screens feels slightly small during fast matches.",
+    "rating": 5,
+    "reviewText": "JioHotstar is one of the best entertainment and streaming apps in India. It offers movies, web series, TV shows, cartoons, and live sports like cricket and football in one place. The app has a simple interface and smooth video playback with multiple quality options. It is great for binge-watching and live match streaming. Sometimes ads may interrupt, but overall it gives a very good experience. My rating: 5/5 Thanks Jiohotstar",
     "timestamp": "2026-07-09",
     "status": "published",
     "helpful_count": 7,
@@ -15433,7 +15217,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "report_count": 0,
     "source": "ai_generated",
     "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.811Z"
+    "updated_at": "2026-09-03T07:01:31.158Z"
   },
   {
     "id": "rev_1788352125030_tm5wb",
@@ -15632,24 +15416,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-09-02T12:28:47.258Z"
-  },
-  {
-    "id": "rev_1788351956888_6j16j",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Aftab_Alam",
-    "rating": 5,
-    "reviewText": "Extremely well optimized app! Tested for a few matches today and demand library filled with blockbuster films and binge worked flawlessly. Great job! 👍",
-    "timestamp": "2026-06-30",
-    "status": "published",
-    "helpful_count": 3,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.888Z"
   },
   {
     "id": "rev_1788352116112_i8jux",
@@ -16054,7 +15820,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "appName": "JioHotstar",
     "userName": "Sumit_Bhai31",
     "rating": 5,
-    "reviewText": "Extremely well optimized app! Tested for a few matches today and like experience on supported devices worked flawlessly. Great job! 👍",
+    "reviewText": "It's good for watching anime, movies, harry Potter and many more like cartoons in a better version.I feel it good for watching anime which is absolutely free and no cost. It's good and amazing for watching cricket matches live which is best for a cricket fan who cannot go to see match in the stadium. I liked it most with anime as I am anime fan and app has free anime and it gives good animation and has hindi language dubbed animes. This thing makes jiohotstar a better app or anime\n\nplatform.",
     "timestamp": "2026-06-29",
     "status": "published",
     "helpful_count": 4,
@@ -16063,7 +15829,7 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "report_count": 0,
     "source": "ai_generated",
     "adminReply": null,
-    "updated_at": "2026-09-02T12:28:42.820Z"
+    "updated_at": "2026-09-03T07:02:15.577Z"
   },
   {
     "id": "rev_1788352125040_rl5yq",
@@ -16966,24 +16732,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "updated_at": "2026-09-02T12:28:58.392Z"
   },
   {
-    "id": "rev_1788351956900_p46ck",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "Mohit_GamerX",
-    "rating": 5,
-    "reviewText": "Super fluid performance on my device. Pluto TV loads fast and worthy tv series is really convenient. 5 stars!",
-    "timestamp": "2026-06-20",
-    "status": "published",
-    "helpful_count": 5,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.900Z"
-  },
-  {
     "id": "rev_1788352116117_ub8nq",
     "appId": "ealj6s0fm",
     "appSlug": "kuku-tv",
@@ -17072,24 +16820,6 @@ export const STATIC_COMMUNITY_REVIEWS: StaticReviewRecord[] = [
     "source": "ai_generated",
     "adminReply": null,
     "updated_at": "2026-09-02T12:29:00.620Z"
-  },
-  {
-    "id": "rev_1788351956910_flkg1",
-    "appId": "ia8dnjrtm",
-    "appSlug": "pluto-tv",
-    "appName": "Pluto TV",
-    "userName": "AbhishekDubey22",
-    "rating": 5,
-    "reviewText": "Best app for casual card gaming! Clean design, zero lag, and very intuitive interface.",
-    "timestamp": "2026-06-13",
-    "status": "published",
-    "helpful_count": 2,
-    "isPinned": false,
-    "reported": false,
-    "report_count": 0,
-    "source": "ai_generated",
-    "adminReply": null,
-    "updated_at": "2026-09-02T12:25:56.910Z"
   },
   {
     "id": "rev_1788352129520_gpkit",
