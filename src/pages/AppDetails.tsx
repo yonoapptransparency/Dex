@@ -126,10 +126,17 @@ export default function AppDetails() {
     }
 
     const combined = [...exactMatches, ...tokenMatches];
-    if (combined.length < 6) {
-      return [...combined, ...fallbackApps].slice(0, 10);
-    }
-    return combined.slice(0, 12);
+    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
+    
+    // Crucial Performance Optimization: 
+    // Strip out the heavy description_html, features_html, and screenshots arrays 
+    // from recommended apps so they don't bloat the React tree on initial load.
+    return finalApps.map(a => ({
+      id: a.id,
+      name: a.name,
+      slug: a.slug,
+      icon_url: a.icon_url
+    }));
   }, [mockApps, app?.category, app?.id, app?.slug]);
 
   useEffect(() => {
