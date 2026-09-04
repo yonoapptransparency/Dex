@@ -57,17 +57,17 @@ async function prerender() {
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
-    // 2. Generate Application Routes
-    const appsToPrerender = (data.apps || []).filter((a: any) => a.slug);
+    // 2. Generate Application Routes (Only for public synced apps)
+    const appsToPrerender = (data.apps || []).filter((a: any) => a.slug && a.sync_to_public !== false);
     const BATCH_SIZE = 25;
     for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
       const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
     }
 
-    // 3. Generate News Routes
+    // 3. Generate News Routes (Only for public synced news)
     for (const newsItem of data.news || []) {
-      if (newsItem.slug) {
+      if (newsItem.slug && newsItem.sync_to_public !== false) {
         await generateRoute(`/news/${newsItem.slug}`);
       }
     }
@@ -201,9 +201,9 @@ async function prerender() {
       }
     }
 
-    // 2. Apps Sub-Sitemap: sitemap-apps.xml
+    // 2. Apps Sub-Sitemap: sitemap-apps.xml (Only public synced apps)
     let appsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    const sortedApps = [...(data.apps || [])].sort((a: any, b: any) => {
+    const sortedApps = [...(data.apps || []).filter((a: any) => a.sync_to_public !== false)].sort((a: any, b: any) => {
       const ta = new Date(getFormattedDate(a)).getTime();
       const tb = new Date(getFormattedDate(b)).getTime();
       return tb - ta;
@@ -248,9 +248,9 @@ async function prerender() {
     staticXml += `</urlset>\n`;
     fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXml, 'utf-8');
 
-    // 5. News Sub-Sitemap: sitemap-news.xml
+    // 5. News Sub-Sitemap: sitemap-news.xml (Only public synced news)
     let newsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const item of data.news || []) {
+    for (const item of (data.news || []).filter((n: any) => n.sync_to_public !== false)) {
       const slug = getField(item, 'slug');
       if (slug) {
         const cSlug = cleanSlug(slug);
