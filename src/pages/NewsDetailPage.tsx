@@ -90,11 +90,13 @@ export default function NewsDetailPage() {
   }, [slug, mockNews, triedRefresh, isRefreshing, refreshAll]);
 
   const handleShare = () => {
-    const url = window.location.href;
+    const url = newsItem?.canonical_url || window.location.href;
+    const shareTitle = newsItem?.seo_title || newsItem?.title || 'News Article';
+    const shareText = newsItem?.seo_description || newsItem?.description || '';
     if (navigator.share) {
       navigator.share({
-        title: newsItem?.title || 'News Article',
-        text: newsItem?.description || '',
+        title: shareTitle,
+        text: shareText,
         url: url
       }).catch(() => {});
     } else {

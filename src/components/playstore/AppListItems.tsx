@@ -29,11 +29,12 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const appUrl = `${window.location.origin}/app/${app.slug}`;
-    const shareText = `Download ${app.name} - Version ${app.version || '1.0.0'} | ${app.file_size || 'Unknown size'}\n\n${app.red_box_msg ? `⚠️ ${app.red_box_msg}\n` : ''}Get it now on RummyDex:`;
+    const appUrl = app.canonical_url || `${window.location.origin}/app/${app.slug}`;
+    const shareTitle = app.seo_title || app.meta_title || app.name;
+    const shareText = app.seo_description || app.meta_description || app.short_description || `Download ${app.name}`;
     if (navigator.share) {
       navigator.share({
-        title: `Download ${app.name}`,
+        title: shareTitle,
         text: shareText,
         url: appUrl,
       })

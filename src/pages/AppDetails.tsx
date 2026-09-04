@@ -362,13 +362,15 @@ export default function AppDetails() {
   };
 
   const handleShare = async () => {
-    const shareText = `Download ${app.name} - Version ${app.version || '1.0.0'} | ${app.file_size || 'Unknown size'}\n\n${app.red_box_msg ? `⚠️ ${app.red_box_msg}\n` : ''}Get it now on RummyDex:`;
+    const shareUrl = app.canonical_url || window.location.href;
+    const shareTitle = title;
+    const shareText = desc;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Download ${app.name}`,
+          title: shareTitle,
           text: shareText,
-          url: window.location.href,
+          url: shareUrl,
         });
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
