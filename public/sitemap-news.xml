@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.rummydex.com/news/entertainment-kukoo</loc>
+    <lastmod>2026-08-30T11:48:37+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/app-submit</loc>
+    <lastmod>2026-08-30T04:11:49+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/gold-rummy-is-live</loc>
+    <lastmod>2026-08-19T02:57:49+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/platform-updates</loc>
+    <lastmod>2026-08-19T02:10:23+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/callbreak-live-on-rummydex</loc>
+    <lastmod>2026-08-04T17:08:11+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/app-hub-is-live</loc>
+    <lastmod>2026-08-01T04:29:15+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png</image:loc>
+      <image:title>Application Hub is LIVE! The Ultimate App Portal is Here</image:title>
+    </image:image>
+  </url>
+</urlset>

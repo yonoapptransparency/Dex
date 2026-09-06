@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { injectSeoTags } from '../src/seoHelper';
 import { fetchStoreData } from '../src/seoHelper';
+import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
 
 async function prerender() {
   console.log('Static Prerendering started...');
@@ -201,86 +202,20 @@ async function prerender() {
       }
     }
 
-    // 2. Apps Sub-Sitemap: sitemap-apps.xml (Only public synced apps)
-    let appsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    const sortedApps = [...(data.apps || []).filter((a: any) => a.sync_to_public !== false)].sort((a: any, b: any) => {
-      const ta = new Date(getFormattedDate(a)).getTime();
-      const tb = new Date(getFormattedDate(b)).getTime();
-      return tb - ta;
-    });
+    // 2. Generate and write all sub-sitemaps
+    const sitemaps = generateAllSitemaps(data, host);
+    const publicPath = path.resolve(process.cwd(), 'public');
 
-    const seenAppUrls = new Set<string>();
-    for (const app of sortedApps) {
-      const slug = getField(app, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const appLoc = `${host}/app/${cSlug}`;
-        if (!seenAppUrls.has(appLoc)) {
-          seenAppUrls.add(appLoc);
-          const appDate = getFormattedDate(app);
-          appsXml += `  <url>\n    <loc>${appLoc}</loc>\n    <lastmod>${appDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
-        }
+    for (const [filename, xmlContent] of Object.entries(sitemaps)) {
+      fs.writeFileSync(path.join(distPath, filename), xmlContent, 'utf-8');
+      if (fs.existsSync(publicPath)) {
+        try {
+          fs.writeFileSync(path.join(publicPath, filename), xmlContent, 'utf-8');
+        } catch (e) {}
       }
     }
-    appsXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-apps.xml'), appsXml, 'utf-8');
 
-    // 3. Static & Footer Sub-Sitemap: sitemap-static.xml
-    let staticXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    const staticPages = [
-      { path: '/', priority: '1.0', changefreq: 'daily' },
-      { path: '/news', priority: '0.8', changefreq: 'daily' },
-      { path: '/developers', priority: '0.7', changefreq: 'weekly' },
-      { path: '/videos', priority: '0.7', changefreq: 'weekly' },
-      { path: '/about', priority: '0.5', changefreq: 'monthly' },
-      { path: '/contact', priority: '0.5', changefreq: 'monthly' },
-      { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
-      { path: '/terms', priority: '0.3', changefreq: 'monthly' },
-      { path: '/disclaimer', priority: '0.3', changefreq: 'monthly' },
-      { path: '/notice', priority: '0.3', changefreq: 'monthly' },
-      { path: '/ethics', priority: '0.3', changefreq: 'monthly' },
-      { path: '/responsibility', priority: '0.3', changefreq: 'monthly' },
-      { path: '/report-removal', priority: '0.3', changefreq: 'monthly' }
-    ];
-    for (const page of staticPages) {
-      staticXml += `  <url>\n    <loc>${host}${page.path === '/' ? '/' : page.path}</loc>\n    <lastmod>${latestAppDate}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
-    }
-    staticXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXml, 'utf-8');
-
-    // 5. News Sub-Sitemap: sitemap-news.xml (Only public synced news)
-    let newsXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const item of (data.news || []).filter((n: any) => n.sync_to_public !== false)) {
-      const slug = getField(item, 'slug');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const itemDate = getFormattedDate(item);
-        newsXml += `  <url>\n    <loc>${host}/news/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-      }
-    }
-    newsXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-news.xml'), newsXml, 'utf-8');
-
-    // 6. Videos Sub-Sitemap: sitemap-videos.xml
-    let videosXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    for (const item of data.videos || []) {
-      const slug = getField(item, 'slug') || getField(item, 'id');
-      if (slug) {
-        const cSlug = cleanSlug(slug);
-        const itemDate = getFormattedDate(item);
-        videosXml += `  <url>\n    <loc>${host}/videos/${cSlug}</loc>\n    <lastmod>${itemDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
-      }
-    }
-    videosXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-videos.xml'), videosXml, 'utf-8');
-
-    // 7. Developers Sub-Sitemap: sitemap-developers.xml
-    let developersXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    developersXml += `  <url>\n    <loc>${host}/developers</loc>\n    <lastmod>${latestAppDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
-    developersXml += `</urlset>\n`;
-    fs.writeFileSync(path.join(distPath, 'sitemap-developers.xml'), developersXml, 'utf-8');
-
-    // 8. Clean Robots.txt with only one master sitemap entry
+    // 3. Clean Robots.txt with only one master sitemap entry
     let robots = `User-agent: *
 Allow: /
 Disallow: /api/
@@ -307,7 +242,12 @@ Disallow: /moredetail/*
 Sitemap: ${host}/sitemap.xml
 `;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
-    console.log('Generated robots.txt and lightweight sitemaps');
+    if (fs.existsSync(publicPath)) {
+      try {
+        fs.writeFileSync(path.join(publicPath, 'robots.txt'), robots, 'utf-8');
+      } catch (e) {}
+    }
+    console.log('Generated robots.txt and standardized sitemaps in dist and public');
 
     console.log('Successfully injected static HTML and metadata into dist routes for Firebase Hosting.');
   } catch (err) {
