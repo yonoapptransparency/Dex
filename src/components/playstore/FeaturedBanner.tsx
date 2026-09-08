@@ -12,16 +12,27 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isHovered, setIsHovered] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(true);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!items || items.length <= 1 || isHovered || isDragging) return;
+    if (!containerRef.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting);
+    }, { rootMargin: '100px' });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    if (!items || items.length <= 1 || isHovered || isDragging || !isVisible) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % items.length);
     }, 4500); // 4.5s autoplay rotation
     
     return () => clearInterval(interval);
-  }, [items, isHovered, isDragging]);
+  }, [items, isHovered, isDragging, isVisible]);
 
   if (!items || items.length === 0) return null;
 
@@ -35,6 +46,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
 
   return (
     <div 
+      ref={containerRef}
       className="w-full relative px-0 sm:px-4 max-w-4xl mx-auto mb-5 group/carousel select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

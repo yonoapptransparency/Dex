@@ -115,16 +115,10 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
   }, [app.is_coming_soon, app.publish_date]);
   
   return (
-    <div
-      style={{
-        animationDelay: `${((index || 0) % 10) * 15}ms`,
-      }}
-      className={`animate-list-item-fade cv-auto relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}
-    >
+    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app.slug)}
-        onTouchStart={() => preloadAppDetails(app.slug)}
         onFocus={() => preloadAppDetails(app.slug)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
@@ -195,16 +189,10 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
   }, [app.is_coming_soon, app.publish_date]);
 
   return (
-    <div
-      style={{
-        animationDelay: `${(rank % 10) * 15}ms`,
-      }}
-      className={`animate-list-item-fade cv-auto relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}
-    >
+    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app.slug)}
-        onTouchStart={() => preloadAppDetails(app.slug)}
         onFocus={() => preloadAppDetails(app.slug)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >

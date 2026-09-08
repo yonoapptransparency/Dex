@@ -35,12 +35,12 @@ export function PublicHeader() {
   return (
     <>
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 ease-in-out    ${
-          isHeaderHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'
+        className={`sticky top-0 z-50 transition-transform duration-200 ease-out will-change-transform ${
+          isHeaderHidden ? '-translate-y-full pointer-events-none' : 'translate-y-0 pointer-events-auto'
         } ${
           scrolled 
-            ? 'bg-white/90 dark:bg-black/90 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
-            : 'bg-white/80 dark:bg-black/80 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
+            ? 'bg-white dark:bg-black sm:bg-white/90 sm:dark:bg-black/90 border-b border-black/10 dark:border-white/10 shadow-sm py-2' 
+            : 'bg-white dark:bg-black sm:bg-white/80 sm:dark:bg-black/80 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
         }`}
       >
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">

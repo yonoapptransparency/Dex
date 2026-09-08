@@ -5,22 +5,22 @@ export function PublicBackToTop() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let ticking = false;
+    let timer: any = null;
+    const checkScroll = () => {
+      const isVisible = window.scrollY > window.innerHeight / 2;
+      setVisible(prev => (prev !== isVisible ? isVisible : prev));
+      timer = null;
+    };
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const isVisible = window.scrollY > window.innerHeight / 2;
-          setVisible(prev => {
-            if (prev !== isVisible) return isVisible;
-            return prev;
-          });
-          ticking = false;
-        });
-        ticking = true;
+      if (!timer) {
+        timer = setTimeout(checkScroll, 150);
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const scrollToTop = () => {

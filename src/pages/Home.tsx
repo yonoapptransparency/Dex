@@ -101,32 +101,34 @@ export default function Home() {
     }
   }, [visibleCount, activeTab]);
 
-  // Track scroll position before navigating away (throttled with rAF)
+  // Track scroll position before navigating away (debounced so it never blocks scrolling)
   useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          try {
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-              visibleCount: feedStateRef.current.visibleCount,
-              scrollY: window.scrollY,
-              activeTab: feedStateRef.current.activeTab
-            }));
-          } catch (e) {
-            // Ignore storage errors
-          }
-          ticking = false;
-        });
-        ticking = true;
+    let scrollDebounceTimer: any = null;
+
+    const saveFeedState = () => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+          visibleCount: feedStateRef.current.visibleCount,
+          scrollY: window.scrollY,
+          activeTab: feedStateRef.current.activeTab
+        }));
+      } catch (e) {
+        // Ignore storage errors
       }
     };
 
+    const handleScroll = () => {
+      if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
+      scrollDebounceTimer = setTimeout(saveFeedState, 300);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('beforeunload', handleScroll);
+    window.addEventListener('beforeunload', saveFeedState);
     return () => {
+      if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
+      saveFeedState();
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('beforeunload', handleScroll);
+      window.removeEventListener('beforeunload', saveFeedState);
     };
   }, []);
 

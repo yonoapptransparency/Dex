@@ -465,7 +465,7 @@ export default function AppDetails() {
                 <Link
                   key={`${relatedApp.id}-${index}`}
                   to={`/app/${relatedApp.slug}`}
-                  className="flex flex-col items-center justify-start gap-2 w-[92px] sm:w-[110px] snap-start active:scale-95 transition-transform"
+                  className="flex flex-col items-center justify-start gap-2 w-[92px] sm:w-[110px] snap-start group"
                 >
                   <img
                     src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
