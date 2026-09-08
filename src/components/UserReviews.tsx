@@ -3,7 +3,7 @@
  * Displays peer reviews, supports upvotes and helpful counters, and is fully synchronized with DB.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
 import { ReviewForm } from './public/ReviewForm';
@@ -70,6 +70,30 @@ export default function UserReviews({
     handleReportReview,
     filteredReviews
   } = useReviews(appId, appTitle, appSlug, category, overallRating, inView);
+
+  const REVIEWS_PAGE_SIZE = 5;
+  const [visibleReviewCount, setVisibleReviewCount] = useState(REVIEWS_PAGE_SIZE);
+
+  // Reset pagination when switching filters, sorting, or target app
+  useEffect(() => {
+    setVisibleReviewCount(REVIEWS_PAGE_SIZE);
+  }, [activeFilter, sortBy, appId, appSlug]);
+
+  const displayedReviews = useMemo(() => {
+    return filteredReviews.slice(0, visibleReviewCount);
+  }, [filteredReviews, visibleReviewCount]);
+
+  const hasLocalMore = visibleReviewCount < filteredReviews.length;
+  const canLoadMore = hasLocalMore || hasMore;
+
+  const handleLoadMore = () => {
+    if (hasLocalMore) {
+      setVisibleReviewCount(prev => prev + REVIEWS_PAGE_SIZE);
+    } else if (hasMore && !loadingMore) {
+      loadMore();
+      setVisibleReviewCount(prev => prev + REVIEWS_PAGE_SIZE);
+    }
+  };
 
   const totalCount = reviews.length ? reviews.length * 9 + 42 : 124;
   const averageValue = overallRating ? overallRating.toFixed(1) : '4.8';
@@ -193,7 +217,7 @@ export default function UserReviews({
             ) : (
               
               <div className="space-y-3">
-                {filteredReviews.map((rev) => (
+                {displayedReviews.map((rev) => (
                   <ReviewItem
                     key={rev.id}
                     rev={rev}
@@ -206,13 +230,13 @@ export default function UserReviews({
                   />
                 ))}
                 
-                {hasMore && filteredReviews.length > 0 && (
+                {canLoadMore && filteredReviews.length > 0 && (
                   <div className="pt-4 flex justify-center">
                     <button 
                       type="button"
-                      onClick={loadMore}
+                      onClick={handleLoadMore}
                       disabled={loadingMore}
-                      className="px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]"
                     >
                       {loadingMore ? (
                         <>
