@@ -130,16 +130,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
-            setApps(backup.apps);
+            setApps(prev => {
+              if (prev.length === backup.apps.length && prev[0]?.id === backup.apps[0]?.id && prev[0]?.name === backup.apps[0]?.name && prev[prev.length - 1]?.id === backup.apps[backup.apps.length - 1]?.id) {
+                return prev;
+              }
+              return backup.apps;
+            });
           }
           if (backup.settings && Object.keys(backup.settings).length > 0) {
-            setSettings(prev => ({ ...mockSettings, ...backup.settings }));
+            setSettings(prev => {
+              if (JSON.stringify(prev) === JSON.stringify({ ...mockSettings, ...backup.settings })) {
+                return prev;
+              }
+              return { ...mockSettings, ...backup.settings };
+            });
           }
           if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
-            setNews(backup.news);
+            setNews(prev => {
+              if (prev.length === backup.news.length && prev[0]?.id === backup.news[0]?.id) {
+                return prev;
+              }
+              return backup.news;
+            });
           }
           if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
-            setVideos(backup.videos);
+            setVideos(prev => {
+              if (prev.length === backup.videos.length && prev[0]?.id === backup.videos[0]?.id) {
+                return prev;
+              }
+              return backup.videos;
+            });
           }
           setLoadedFromServer(true);
         }
