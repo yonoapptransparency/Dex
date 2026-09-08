@@ -32,9 +32,11 @@ export function YouTubePlayer({ videoUrl }: { videoUrl: string }) {
   }
 
   return (
-    <div 
+    <button 
+      type="button"
       onClick={() => setIsPlaying(true)}
-      className="flex-none w-[180px] sm:w-[250px] aspect-[16/9] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 cursor-pointer relative group flex items-center justify-center"
+      aria-label="Play video"
+      className="flex-none w-[180px] sm:w-[250px] aspect-[16/9] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 cursor-pointer relative group flex items-center justify-center text-left"
     >
       <img 
         src={thumbnailUrl} 
@@ -49,7 +51,7 @@ export function YouTubePlayer({ videoUrl }: { videoUrl: string }) {
           <Play className="w-5 h-5 fill-current ml-0.5" />
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 

@@ -47,6 +47,7 @@ export default function SupportWidget() {
             <div className="flex justify-between items-center mb-6 border-b border-black/5 dark:border-white/5 pb-4">
               <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">Contact Support</h3>
               <button 
+                type="button"
                 onClick={toggleWidget} 
                 className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-700 transition-colors"
                 aria-label="Close"
@@ -59,7 +60,7 @@ export default function SupportWidget() {
               <a 
                 href={`https://wa.me/${(settings.helpline_whatsapp || '').replace('+','')}`} 
                 target="_blank" 
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex items-center gap-4 p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-2xl transition-all group border border-transparent hover:border-black/5"
               >
                 <div className="bg-[#25D366]/10 p-2.5 rounded-xl text-[#25D366] group-hover:scale-105 transition-transform"><MessageCircle className="w-5 h-5"/></div>
@@ -73,7 +74,7 @@ export default function SupportWidget() {
                 <a 
                   href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`} 
                   target="_blank" 
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-4 p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-2xl transition-all group border border-transparent hover:border-black/5"
                 >
                   <div className="bg-[#0088cc]/10 p-2.5 rounded-xl text-[#0088cc] group-hover:scale-105 transition-transform"><Send className="w-5 h-5"/></div>

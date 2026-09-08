@@ -50,7 +50,8 @@ export function PublicBottomNav() {
               to={item.path} 
               onClick={triggerHaptic} 
               aria-label={item.label}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 active:scale-90 select-none min-h-[42px] ${
+              aria-current={active ? 'page' : undefined}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 active:scale-90 select-none min-h-[44px] min-w-[44px] ${
                 active 
                   ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-600/30' 
                   : 'text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-white'

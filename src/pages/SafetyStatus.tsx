@@ -11,6 +11,7 @@ import { ShieldCheck, ArrowLeft, Sparkles, LayoutGrid, Info, CheckCircle2 } from
 import { motion } from 'framer-motion';
 import NeutralSyncButton from '../components/NeutralSyncButton';
 import { useMemo } from 'react';
+import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function SafetyStatus() {
   const { apps = [], loading } = useData();
@@ -76,7 +77,7 @@ export default function SafetyStatus() {
             <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-800 rounded-[24px] p-1 border border-black/[0.05] dark:border-white/[0.05] mb-8 shadow-inner overflow-hidden">
               {app.icon_url ? (
                 <img 
-                  src={app.icon_url} 
+                  src={getOptimizedImageUrl(app.icon_url, 192) || app.icon_url} 
                   alt={app.name} 
                   loading="lazy"
                   decoding="async"

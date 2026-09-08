@@ -64,6 +64,10 @@ export function PublicHeader() {
             </Link>
             <div className="relative group/more" onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
               <button 
+                type="button"
+                aria-expanded={moreOpen}
+                aria-haspopup="true"
+                aria-label="More navigation links"
                 className={`transition-all p-2 tracking-wide flex items-center gap-1 relative ${['/videos', '/contact', '/privacy', '/report-removal', '/terms', '/about', '/responsibility'].includes(pathname) ? 'text-blue-600' : 'text-zinc-600 hover:text-blue-500 dark:text-zinc-300'}`}
                 onClick={triggerHaptic}
               >
@@ -114,6 +118,7 @@ export function PublicHeader() {
 
             <div className="flex items-center gap-3 ml-4 border-l border-zinc-200 dark:border-zinc-800 pl-4 h-6">
               <button 
+                type="button"
                 onClick={() => { triggerHaptic(); setSearchOpen(true); }}
                 className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-800/50 hover:bg-zinc-200/50 transition-all text-left px-4 py-1.5 w-44 lg:w-52 rounded-full group outline-none focus:ring-2 focus:ring-blue-500/20"
                 aria-label="Search Store"
@@ -143,6 +148,7 @@ export function PublicHeader() {
 
           <div className="md:hidden flex items-center gap-3">
             <button 
+              type="button"
               onClick={() => { triggerHaptic(); setSearchOpen(true); }}
               className="flex items-center justify-center w-9 h-9 bg-zinc-100 dark:bg-zinc-800 rounded-full active:scale-95 transition-all text-zinc-500"
               aria-label="Search"
@@ -154,7 +160,7 @@ export function PublicHeader() {
               <a 
                 href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center w-9 h-9 bg-blue-50 text-blue-500 rounded-full"
                 aria-label="Telegram"
               >
@@ -163,6 +169,7 @@ export function PublicHeader() {
             )}
             <SupportWidget />
             <button 
+              type="button"
               className="flex items-center justify-center w-9 h-9 bg-zinc-900 dark:bg-white rounded-full active:scale-95 transition-transform"
               onClick={() => { triggerHaptic(); setMenuOpen(true); }}
               aria-label="Open menu"

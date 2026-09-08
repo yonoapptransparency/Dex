@@ -74,6 +74,7 @@ export function PublicFooter() {
       {/* Desktop Curved Layout */}
       <div className="hidden lg:flex relative overflow-hidden w-full min-h-[460px]">
         <svg 
+          aria-hidden="true"
           className="absolute top-0 left-0 w-full h-full text-slate-900 dark:text-zinc-900 pointer-events-none z-0"
           preserveAspectRatio="none" 
           viewBox="0 0 100 100"
@@ -96,6 +97,7 @@ export function PublicFooter() {
       <div className="flex flex-col lg:hidden w-full">
         <div className="w-full bg-slate-900 dark:bg-zinc-900 text-white px-6 pt-14 pb-20 relative overflow-hidden">
              <svg 
+               aria-hidden="true"
                className="absolute -bottom-1 left-0 w-full h-12 sm:h-16 text-white dark:text-zinc-950 fill-current pointer-events-none" 
                preserveAspectRatio="none" 
                viewBox="0 0 100 20"

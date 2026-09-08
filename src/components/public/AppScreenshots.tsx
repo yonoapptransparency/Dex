@@ -75,6 +75,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
         )}
         {app.screenshots && app.screenshots.map((imgUrl, i) => (
           <button 
+            type="button"
             key={`screenshot-${i}`} 
             onClick={() => openLightbox(i)}
             className="flex-none w-[150px] sm:w-[220px] aspect-[9/16] rounded-xl overflow-hidden snap-center bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 active:scale-95 transition-transform"
@@ -95,13 +96,20 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
 
       {/* Fullscreen Swipeable Lightbox Modal */}
       {isModalOpen && app.screenshots && createPortal(
-        <div className="fixed inset-0 z-[99999] bg-white/98 dark:bg-zinc-950/98 backdrop-blur-sm animate-in fade-in duration-200 overflow-hidden overscroll-none w-screen h-[100dvh]" style={{ position: 'fixed' }}>
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-label="Screenshot preview gallery"
+          className="fixed inset-0 z-[99999] bg-white/98 dark:bg-zinc-950/98 backdrop-blur-sm animate-in fade-in duration-200 overflow-hidden overscroll-none w-screen h-[100dvh]" 
+          style={{ position: 'fixed' }}
+        >
           {/* Header */}
           <div className="absolute top-0 inset-x-0 flex justify-between items-center p-4 text-zinc-900 dark:text-zinc-100 z-10 pointer-events-none">
             <span className="font-medium text-sm drop-shadow-sm">
               {currentIndex + 1} / {app.screenshots.length}
             </span>
             <button 
+              type="button"
               onClick={closeLightbox}
               className="p-2 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors pointer-events-auto"
               aria-label="Close gallery"

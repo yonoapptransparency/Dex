@@ -470,6 +470,9 @@ export default function AppDetails() {
                   <img
                     src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
                     alt={relatedApp.name}
+                    width={100}
+                    height={100}
+                    decoding="async"
                     className="w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
                     loading="lazy"
                   />

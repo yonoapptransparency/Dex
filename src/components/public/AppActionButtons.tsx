@@ -33,6 +33,7 @@ export default function AppActionButtons({
         {isActuallyComingSoon ? (
           <div className="flex flex-col items-center">
             <button 
+              type="button"
               disabled
               className="w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 font-bold py-2.5 px-5 rounded-xl flex items-center justify-center gap-1.5 cursor-not-allowed text-sm shadow-sm"
             >
@@ -85,6 +86,7 @@ export default function AppActionButtons({
           className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
         >
           <button 
+            type="button"
             onClick={handleShare}
             className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm h-[44px] truncate"
           >
@@ -98,6 +100,7 @@ export default function AppActionButtons({
           className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
         >
           <button 
+            type="button"
             onClick={() => {
               window.dispatchEvent(new CustomEvent('open-report-modal', { detail: { app } }));
             }}

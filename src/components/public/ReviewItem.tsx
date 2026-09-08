@@ -114,6 +114,7 @@ export function ReviewItem({
           
           {isLong && (
             <button
+              type="button"
               onClick={() => onToggleExpand(rev.id)}
               aria-label={isExpanded ? 'Show less review text' : `Read full review by ${rev.username || 'user'}`}
               className="self-start inline-flex items-center gap-0.5 text-[11px] font-black text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-2 cursor-pointer transition-all uppercase tracking-wide select-none outline-none"
@@ -130,8 +131,10 @@ export function ReviewItem({
             Was this review helpful?
           </span>
           <button
+            type="button"
             onClick={() => onHelpfulVote(rev.id)}
             disabled={isVoted}
+            aria-label={`Vote helpful for review by ${rev.username || 'user'}`}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${
               isVoted
                 ? 'bg-blue-500/10 text-blue-500 cursor-default'
@@ -143,8 +146,10 @@ export function ReviewItem({
           </button>
 
           <button
+            type="button"
             onClick={() => onReport(rev.id)}
             disabled={isReported || rev.reported}
+            aria-label={`Report review by ${rev.username || 'user'}`}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ml-auto ${
               isReported || rev.reported
                 ? 'bg-rose-500/10 text-rose-650 dark:text-rose-400 cursor-default font-black'

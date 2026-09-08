@@ -34,6 +34,7 @@ export function PublicBackToTop() {
 
   return (
     <button
+      type="button"
       onClick={scrollToTop}
       className={`fixed bottom-6 right-6 z-[90] p-3.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full shadow-xl border border-black/10 dark:border-white/20 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer ${
         visible ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-5 scale-90 pointer-events-none'

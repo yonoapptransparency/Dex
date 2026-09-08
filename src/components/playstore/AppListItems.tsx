@@ -65,6 +65,9 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
       <button
+        type="button"
+        aria-expanded={menuOpen}
+        aria-haspopup="true"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -81,6 +84,7 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
           className="absolute right-0 top-full mt-1 w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[120] transition-all duration-150 animate-in fade-in zoom-in-95"
         >
           <button
+            type="button"
             onClick={handleShare}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left cursor-pointer"
           >
@@ -88,6 +92,7 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
             <span>{copied ? 'Link Copied!' : 'Share app'}</span>
           </button>
           <button
+            type="button"
             onClick={handleOpenReport}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left border-t border-zinc-800/60 h-[44px] cursor-pointer"
           >

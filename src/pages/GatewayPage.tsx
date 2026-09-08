@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import { mockApps as staticMockApps } from '../lib/staticData';
+import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, serverAppsFetched, refreshAll } = useData();
@@ -182,7 +183,7 @@ export default function GatewayPage() {
               >
                 {app.icon_url ? (
                   <img 
-                    src={app.icon_url} 
+                    src={getOptimizedImageUrl(app.icon_url, 256) || app.icon_url} 
                     alt={app.name} 
                     loading="eager"
                     fetchPriority="high"
