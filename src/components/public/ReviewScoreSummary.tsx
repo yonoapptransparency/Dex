@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, MessageSquare } from 'lucide-react';
+import { fetchLiveReviews } from '../../lib/communityFirebase';
 
 interface ReviewScoreSummaryProps {
   appId: string;
@@ -22,6 +23,8 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
+    let isMounted = true;
+
     const query = new URLSearchParams();
     if (overallRating) query.set('rating', String(overallRating));
     if (appSlug) query.set('slug', appSlug);
@@ -30,14 +33,30 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     fetch(`/api/v1/public/community/stats/${encodeURIComponent(target)}?${query.toString()}`)
       .then(res => {
         if (res.ok) return res.json();
-        throw new Error('Stats fetch error');
+        throw new Error('Stats API fetch error');
       })
       .then(data => {
-        if (data && data.stats) {
+        if (isMounted && data && data.stats) {
           setStats(data.stats);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback: fetch live reviews from Firestore directly to compute stats
+        fetchLiveReviews({
+          appId,
+          appSlug,
+          rating: overallRating,
+          limit: 50
+        }).then(res => {
+          if (isMounted && res.stats) {
+            setStats(res.stats);
+          }
+        }).catch(() => {});
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [appId, appSlug, overallRating]);
 
   const ratingVal = (stats?.averageRating !== undefined && stats?.averageRating !== null && stats?.totalReviews > 0)

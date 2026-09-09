@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Flag, X, Check } from 'lucide-react';
+import { submitLiveReport } from '../lib/communityFirebase';
 
 interface ReportAppModalProps {
   app: {
@@ -29,17 +30,12 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
     setSubmitting(true);
     
     try {
-      await fetch('/api/v1/public/reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'app_flag',
-          appId: app.id || app.slug || 'unknown',
-          appName: app.name,
-          reason: reason,
-          description: comment,
-          turnstileToken: 'frontend_token_placeholder'
-        })
+      await submitLiveReport({
+        type: 'app_flag',
+        appId: app.id || app.slug || 'unknown',
+        appName: app.name,
+        reason: reason,
+        description: comment
       });
     } catch (err) {
       console.error('Error submitting report:', err);
