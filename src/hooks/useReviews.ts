@@ -18,7 +18,41 @@ export function useReviews(
   overallRating: number = 4.8,
   inView: boolean = true
 ) {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const cleanAppId = String(appId || '').trim();
+  const cleanAppSlug = String(appSlug || '').trim();
+  const cleanAppTitle = String(appTitle || '').trim();
+
+  const getStaticFallbackReviews = useCallback((): Review[] => {
+    const targetId = (cleanAppId || '').toLowerCase().trim();
+    const targetSlug = (cleanAppSlug || '').toLowerCase().trim();
+    const targetTitle = (cleanAppTitle || '').toLowerCase().trim();
+
+    return STATIC_COMMUNITY_REVIEWS.filter(r => {
+      if (r.status && r.status !== 'published' && r.status !== 'approved') return false;
+      const rAppId = String(r.appId || '').toLowerCase().trim();
+      const rAppSlug = String(r.appSlug || '').toLowerCase().trim();
+      const rAppName = String(r.appName || '').toLowerCase().trim();
+
+      return (targetId && rAppId === targetId) ||
+             (targetSlug && rAppSlug === targetSlug) ||
+             (targetTitle && (rAppName === targetTitle || rAppName.includes(targetTitle) || targetTitle.includes(rAppName)));
+    }).map((r: any) => ({
+      id: r.id || `rev_${Math.random()}`,
+      app_id: r.appId || cleanAppId,
+      username: r.userName || 'Verified Player',
+      rating: Number(r.rating) || 5,
+      comment: r.reviewText || '',
+      created_at: r.timestamp || new Date().toISOString(),
+      helpful_count: Number(r.helpful_count) || 0,
+      reported: Boolean(r.reported),
+      report_count: Number(r.report_count) || 0,
+      source: r.source || 'community',
+      isPinned: Boolean(r.isPinned),
+      adminReply: r.adminReply || null
+    }));
+  }, [cleanAppId, cleanAppSlug, cleanAppTitle]);
+
+  const [reviews, setReviews] = useState<Review[]>(() => getStaticFallbackReviews());
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -32,39 +66,6 @@ export function useReviews(
   const [votedReviews, setVotedReviews] = useState<Record<string, boolean>>({});
   const [reportedReviews, setReportedReviews] = useState<Record<string, boolean>>({});
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
-
-  const cleanAppId = String(appId || '').trim();
-  const cleanAppSlug = String(appSlug || '').trim();
-  const cleanAppTitle = String(appTitle || '').trim();
-
-  const getStaticFallbackReviews = useCallback((): Review[] => {
-    const targetId = (cleanAppId || '').toLowerCase().trim();
-    const targetSlug = (cleanAppSlug || '').toLowerCase().trim();
-    const targetTitle = (cleanAppTitle || '').toLowerCase().trim();
-
-    return STATIC_COMMUNITY_REVIEWS.filter(r => {
-      const rAppId = String(r.appId || '').toLowerCase().trim();
-      const rAppSlug = String(r.appSlug || '').toLowerCase().trim();
-      const rAppName = String(r.appName || '').toLowerCase().trim();
-
-      return (targetId && rAppId === targetId) ||
-             (targetSlug && rAppSlug === targetSlug) ||
-             (targetTitle && rAppName === targetTitle);
-    }).map((r: any) => ({
-      id: r.id || `rev_${Math.random()}`,
-      app_id: r.appId || cleanAppId,
-      username: r.userName || 'Verified Player',
-      rating: Number(r.rating) || 5,
-      comment: r.reviewText || '',
-      created_at: r.timestamp || new Date().toISOString(),
-      helpful_count: Number(r.helpful_count) || 0,
-      reported: Boolean(r.reported),
-      report_count: Number(r.report_count) || 0,
-      source: r.source || 'admin_created',
-      isPinned: Boolean(r.isPinned),
-      adminReply: r.adminReply || null
-    }));
-  }, [cleanAppId, cleanAppSlug, cleanAppTitle]);
 
   // Multi-tier resilient review fetcher
   const fetchReviews = useCallback(async (isLoadMore = false) => {
@@ -143,7 +144,11 @@ export function useReviews(
           const newUnique = fetchedReviews.filter(r => !existingIds.has(r.id));
           return [...prev, ...newUnique];
         } else {
-          return fetchedReviews;
+          if (fetchedReviews.length > 0) {
+            return fetchedReviews;
+          }
+          // Retain static fallback reviews if server returned 0 reviews
+          return prev.length > 0 ? prev : getStaticFallbackReviews();
         }
       });
 
@@ -154,14 +159,14 @@ export function useReviews(
     } catch (err) {
       console.error('Reviews load pipeline error:', err);
       if (!isLoadMore) {
-        setReviews([]);
+        setReviews(getStaticFallbackReviews());
       }
     } finally {
       if (isLoadMore) setLoadingMore(false);
       else setLoading(false);
       setInitialLoadDone(true);
     }
-  }, [cleanAppId, cleanAppSlug, cleanAppTitle, category, overallRating, nextCursor]);
+  }, [cleanAppId, cleanAppSlug, cleanAppTitle, category, overallRating, nextCursor, getStaticFallbackReviews]);
 
   const prevAppRef = useRef<string | null>(null);
 
@@ -169,7 +174,7 @@ export function useReviews(
   useEffect(() => {
     const targetKey = cleanAppId || cleanAppSlug;
     if (prevAppRef.current !== null && prevAppRef.current !== targetKey) {
-      setReviews([]);
+      setReviews(getStaticFallbackReviews());
       setNextCursor(null);
       nextCursorRef.current = null;
       setHasMore(false);
@@ -179,7 +184,7 @@ export function useReviews(
     setInitialLoadDone(false);
     
     fetchReviews(false);
-  }, [cleanAppId, cleanAppSlug]);
+  }, [cleanAppId, cleanAppSlug, getStaticFallbackReviews]);
 
   // Listen to community review events across tabs/components
   useEffect(() => {
