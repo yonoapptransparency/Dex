@@ -6,10 +6,11 @@ import { Review } from './ReviewItem';
 interface ReviewFormProps {
   appId: string;
   appSlug?: string;
+  appName?: string;
   onSuccess: (newReview: Review) => void;
 }
 
-export function ReviewForm({ appId, appSlug, onSuccess }: ReviewFormProps) {
+export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormProps) {
   const [username, setUsername] = useState('');
   const [rating, setRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
@@ -69,6 +70,7 @@ export function ReviewForm({ appId, appSlug, onSuccess }: ReviewFormProps) {
         body: JSON.stringify({
           appId: appId,
           appSlug: appSlug,
+          appName: appName,
           userName: cleanUsername,
           rating: rating,
           reviewText: cleanComment,

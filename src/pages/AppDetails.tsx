@@ -498,7 +498,7 @@ export default function AppDetails() {
       {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 sm:px-4 md:px-6 mb-8">
         <UserReviews 
-          key={reviewsRefreshKey} 
+          key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
           appId={app.id} 
           appTitle={app.name} 
           appSlug={app.slug}

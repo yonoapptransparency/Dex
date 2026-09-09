@@ -22,7 +22,12 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    fetch(`/api/v1/public/community/stats/${encodeURIComponent(target)}?rating=${overallRating}`)
+    const query = new URLSearchParams();
+    if (overallRating) query.set('rating', String(overallRating));
+    if (appSlug) query.set('slug', appSlug);
+    if (appId) query.set('appId', appId);
+
+    fetch(`/api/v1/public/community/stats/${encodeURIComponent(target)}?${query.toString()}`)
       .then(res => {
         if (res.ok) return res.json();
         throw new Error('Stats fetch error');

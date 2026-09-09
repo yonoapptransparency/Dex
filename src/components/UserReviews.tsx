@@ -103,6 +103,7 @@ export default function UserReviews({
       <div className="flex flex-col gap-5 sm:gap-8">
         
         <ReviewScoreSummary 
+          key={`stats_${appId}_${appSlug || ''}`}
           appId={appId} 
           appSlug={appSlug} 
           overallRating={overallRating} 
@@ -110,7 +111,12 @@ export default function UserReviews({
         />
 
         <div className="w-full flex flex-col gap-4 sm:gap-6">
-          <ReviewForm appId={appId} appSlug={appSlug} onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} />
+          <ReviewForm 
+            appId={appId} 
+            appSlug={appSlug} 
+            appName={appTitle}
+            onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} 
+          />
 
           <div className="space-y-4">
             {!loading && reviews.length > 0 && (
