@@ -33,9 +33,11 @@ export function useReviews(
       const rAppSlug = String(r.appSlug || '').toLowerCase().trim();
       const rAppName = String(r.appName || '').toLowerCase().trim();
 
-      return (targetId && rAppId === targetId) ||
-             (targetSlug && rAppSlug === targetSlug) ||
-             (targetTitle && (rAppName === targetTitle || rAppName.includes(targetTitle) || targetTitle.includes(rAppName)));
+      const matchesId = Boolean(targetId && rAppId && rAppId === targetId);
+      const matchesSlug = Boolean(targetSlug && rAppSlug && rAppSlug === targetSlug);
+      const matchesTitle = Boolean(targetTitle && rAppName && rAppName === targetTitle);
+
+      return matchesId || matchesSlug || matchesTitle;
     }).map((r: any) => ({
       id: r.id || `rev_${Math.random()}`,
       app_id: r.appId || cleanAppId,
@@ -137,18 +139,18 @@ export function useReviews(
         // Network or offline fallback
       }
 
-      // Merge remote reviews smoothly without resurrecting deleted items
+      // Update reviews state strictly for the current app context
       setReviews(prev => {
         if (isLoadMore) {
           const existingIds = new Set(prev.map(p => p.id));
           const newUnique = fetchedReviews.filter(r => !existingIds.has(r.id));
           return [...prev, ...newUnique];
         } else {
+          // Strictly return fetched reviews for this app (or static fallback for this exact app if server empty)
           if (fetchedReviews.length > 0) {
             return fetchedReviews;
           }
-          // Retain static fallback reviews if server returned 0 reviews
-          return prev.length > 0 ? prev : getStaticFallbackReviews();
+          return getStaticFallbackReviews();
         }
       });
 
@@ -172,19 +174,22 @@ export function useReviews(
 
   // Initial load trigger on mount or appId change
   useEffect(() => {
-    const targetKey = cleanAppId || cleanAppSlug;
+    const targetKey = cleanAppId || cleanAppSlug || cleanAppTitle;
     if (prevAppRef.current !== null && prevAppRef.current !== targetKey) {
       setReviews(getStaticFallbackReviews());
       setNextCursor(null);
       nextCursorRef.current = null;
       setHasMore(false);
+      setVotedReviews({});
+      setReportedReviews({});
+      setExpandedReviews({});
     }
     prevAppRef.current = targetKey;
 
     setInitialLoadDone(false);
     
     fetchReviews(false);
-  }, [cleanAppId, cleanAppSlug, getStaticFallbackReviews]);
+  }, [cleanAppId, cleanAppSlug, cleanAppTitle, getStaticFallbackReviews]);
 
   // Listen to community review events across tabs/components
   useEffect(() => {
