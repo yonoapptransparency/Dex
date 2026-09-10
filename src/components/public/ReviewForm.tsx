@@ -63,26 +63,21 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
     };
 
     try {
-      // 1. Try sending to backend API
-      const response = await fetch('/api/v1/public/community/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          appId: appId,
-          appSlug: appSlug,
-          appName: appName,
-          userName: cleanUsername,
-          rating: rating,
-          reviewText: cleanComment,
-          turnstileToken: 'frontend_token_placeholder'
-        })
-      }).catch(() => null);
-
-      if (response && response.ok) {
-        const resData = await response.json().catch(() => ({}));
-        if (resData?.id) {
-          newSubmission.id = resData.id;
-        }
+      const { submitLiveReview } = await import('../../lib/communityFirebase');
+      const res = await submitLiveReview({
+        appId: appId,
+        appSlug: appSlug,
+        appName: appName,
+        userName: cleanUsername,
+        rating: rating,
+        reviewText: cleanComment,
+      });
+      
+      if (res.success && res.review) {
+        newSubmission.id = res.review.id;
+        newSubmission.created_at = res.review.created_at;
+      } else {
+        console.warn("Live submission warning:", res.error);
       }
 
       // 2. Always persist locally & trigger real-time UI update
