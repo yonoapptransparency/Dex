@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, MessageSquare } from 'lucide-react';
-import { fetchLiveReviews } from '../../lib/communityFirebase';
+import { fetchLiveReviews, getCachedLiveReviews } from '../../lib/communityFirebase';
 
 interface ReviewScoreSummaryProps {
   appId: string;
@@ -11,13 +10,24 @@ interface ReviewScoreSummaryProps {
 }
 
 export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalReviewCount }: ReviewScoreSummaryProps) {
-  const [stats, setStats] = useState<any>(null);
+  const cleanId = String(appId || '').trim();
+  const cleanSlug = String(appSlug || '').trim();
+  const target = cleanId || cleanSlug;
+
+  // Initialize immediately from SWR cache if present
+  const [stats, setStats] = useState<any>(() => {
+    const cached = getCachedLiveReviews(cleanId, cleanSlug);
+    return cached?.stats || null;
+  });
 
   useEffect(() => {
-    const target = appId || appSlug;
     if (!target) return;
 
-    setStats(null);
+    // Check SWR cache immediately
+    const cached = getCachedLiveReviews(cleanId, cleanSlug);
+    if (cached?.stats) {
+      setStats(cached.stats);
+    }
 
     // Bots and crawlers skip dynamic stats fetch to keep page render fast & lightweight
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
@@ -25,39 +35,22 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
 
     let isMounted = true;
 
-    const query = new URLSearchParams();
-    if (overallRating) query.set('rating', String(overallRating));
-    if (appSlug) query.set('slug', appSlug);
-    if (appId) query.set('appId', appId);
-
-    fetch(`/api/v1/public/community/stats/${encodeURIComponent(target)}?${query.toString()}`)
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error('Stats API fetch error');
-      })
-      .then(data => {
-        if (isMounted && data && data.stats) {
-          setStats(data.stats);
-        }
-      })
-      .catch(() => {
-        // Fallback: fetch live reviews from Firestore directly to compute stats
-        fetchLiveReviews({
-          appId,
-          appSlug,
-          rating: overallRating,
-          limit: 50
-        }).then(res => {
-          if (isMounted && res.stats) {
-            setStats(res.stats);
-          }
-        }).catch(() => {});
-      });
+    // Fetch live reviews and compute live stats
+    fetchLiveReviews({
+      appId: cleanId,
+      appSlug: cleanSlug,
+      rating: overallRating,
+      limit: 100
+    }).then(res => {
+      if (isMounted && res.stats) {
+        setStats(res.stats);
+      }
+    }).catch(() => {});
 
     return () => {
       isMounted = false;
     };
-  }, [appId, appSlug, overallRating]);
+  }, [cleanId, cleanSlug, overallRating, target]);
 
   const ratingVal = (stats?.averageRating !== undefined && stats?.averageRating !== null && stats?.totalReviews > 0)
     ? stats.averageRating
@@ -71,7 +64,7 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
         ? totalReviewCount
         : Math.round(Number(ratingVal) * 350 + 120));
 
-  // Calculate or fallback star distribution
+  // Calculate star distribution
   const starCounts: Record<string, number> = React.useMemo(() => {
     if (stats?.starCounts && stats?.totalReviews > 0) {
       return stats.starCounts;

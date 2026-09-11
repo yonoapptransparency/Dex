@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { submitLiveReview } from '../lib/communityFirebase';
 
 interface PlayStoreRatingSectionProps {
   appId: string;
@@ -111,16 +112,12 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       localStorage.setItem(`playstore_rating_val_${appId}`, rating.toString());
 
       try {
-        await fetch('/api/v1/public/community/reviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            appId: appId,
-            userName: cleanName,
-            rating: rating,
-            reviewText: cleanComment
-          })
-        }).catch(() => {});
+        await submitLiveReview({
+          appId: appId,
+          userName: cleanName,
+          rating: rating,
+          reviewText: cleanComment
+        });
       } catch (e) {}
 
       // Dispatch global event for instant reactivity

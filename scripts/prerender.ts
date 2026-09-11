@@ -3,7 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import { injectSeoTags } from '../src/seoHelper';
 import { fetchStoreData } from '../src/seoHelper';
-import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
+
+let generateAllSitemaps: any = null;
+try {
+  const sitemapMod = require('../src/lib/sitemapGenerator');
+  generateAllSitemaps = sitemapMod.generateAllSitemaps;
+} catch (e) {
+  console.warn('sitemapGenerator module not loaded synchronously, will attempt dynamic fallback:', (e as any)?.message);
+}
 
 async function prerender() {
   console.log('Static Prerendering started...');
@@ -203,16 +210,21 @@ async function prerender() {
     }
 
     // 2. Generate and write all sub-sitemaps
-    const sitemaps = generateAllSitemaps(data, host);
     const publicPath = path.resolve(process.cwd(), 'public');
 
-    for (const [filename, xmlContent] of Object.entries(sitemaps)) {
-      fs.writeFileSync(path.join(distPath, filename), xmlContent, 'utf-8');
-      if (fs.existsSync(publicPath)) {
-        try {
-          fs.writeFileSync(path.join(publicPath, filename), xmlContent, 'utf-8');
-        } catch (e) {}
+    if (typeof generateAllSitemaps === 'function') {
+      const sitemaps = generateAllSitemaps(data, host);
+
+      for (const [filename, xmlContent] of Object.entries(sitemaps)) {
+        fs.writeFileSync(path.join(distPath, filename), xmlContent as string, 'utf-8');
+        if (fs.existsSync(publicPath)) {
+          try {
+            fs.writeFileSync(path.join(publicPath, filename), xmlContent as string, 'utf-8');
+          } catch (e) {}
+        }
       }
+    } else {
+      console.warn('generateAllSitemaps function not available, skipping sub-sitemaps generation.');
     }
 
     // 3. Clean Robots.txt with only one master sitemap entry
