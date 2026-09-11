@@ -16,7 +16,7 @@ import NewAdditions from '../components/public/NewAdditions';
 import HomeFilterBar from '../components/public/HomeFilterBar';
 import HomeFaqSection from '../components/public/HomeFaqSection';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 24;
 const STORAGE_KEY = 'home_feed_state';
 
 export default function Home() {
@@ -270,20 +270,19 @@ export default function Home() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setIsLoadingMore(true);
-          // Trigger the page load cleanly
           setVisibleCount((prev) => {
-            const nextCount = prev + ITEMS_PER_PAGE;
+            const nextCount = Math.min(prev + ITEMS_PER_PAGE, filteredApps.length);
             const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', String(nextPage));
-            window.history.replaceState(null, '', url.toString());
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.set('page', String(nextPage));
+              window.history.replaceState(null, '', url.toString());
+            } catch (_) {}
             return nextCount;
           });
-          setIsLoadingMore(false);
         }
       },
-      { rootMargin: '0px 0px 50px 0px', threshold: 0.1 }
+      { rootMargin: '0px 0px 800px 0px', threshold: 0 }
     );
 
     observer.observe(sentinelRef.current);
@@ -299,7 +298,7 @@ export default function Home() {
     <div className="select-none min-h-screen">
       <Meta 
         title={categoryParam ? `${activeTab} - ${mockSettings.seo_title || mockSettings.site_title}` : (mockSettings.seo_title || mockSettings.site_title)}
-        description={mockSettings.meta_description}
+        description={mockSettings.seo_description || mockSettings.meta_description}
         keywords={mockSettings.seo_keywords}
         canonical={categoryParam ? `https://www.rummydex.com/category/${categoryParam}` : `https://www.rummydex.com`}
         faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {

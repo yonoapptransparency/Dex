@@ -29,8 +29,23 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  const [inView, setInView] = useState(true);
+  const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '700px' });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [appId, appSlug]);
 
   const {
     reviews,

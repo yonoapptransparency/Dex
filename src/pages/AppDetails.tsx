@@ -474,7 +474,9 @@ export default function AppDetails() {
                     height={100}
                     decoding="async"
                     className="w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
-                    loading="lazy"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchPriority={index < 4 ? "high" : "low"}
+                    referrerPolicy="no-referrer"
                   />
                   <span className="text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
                     {relatedApp.name}

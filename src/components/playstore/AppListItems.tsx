@@ -115,7 +115,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
   }, [app.is_coming_soon, app.publish_date]);
   
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app.slug)}
@@ -133,8 +133,8 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               alt={`${app.name} app icon`} 
               width={84}
               height={84}
-              loading={index !== undefined && index <= 4 ? "eager" : "lazy"}
-              fetchPriority={index !== undefined && index <= 4 ? "high" : "low"}
+              loading={index !== undefined && index <= 6 ? "eager" : "lazy"}
+              fetchPriority={index !== undefined && index <= 6 ? "high" : "low"}
               decoding="async"
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
@@ -189,7 +189,7 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
   }, [app.is_coming_soon, app.publish_date]);
 
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'}`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app.slug)}
@@ -207,8 +207,8 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
               alt={`${app.name} app icon`} 
               width={84}
               height={84}
-              loading={rank <= 4 ? "eager" : "lazy"}
-              fetchPriority={rank <= 4 ? "high" : "low"}
+              loading={rank <= 6 ? "eager" : "lazy"}
+              fetchPriority={rank <= 6 ? "high" : "low"}
               decoding="async"
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"

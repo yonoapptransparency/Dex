@@ -14,7 +14,7 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
   const cleanSlug = String(appSlug || '').trim();
   const target = cleanId || cleanSlug;
 
-  // Initialize immediately from SWR cache if present
+  // Initialize immediately from SWR cache or static fallback if present (0 network calls)
   const [stats, setStats] = useState<any>(() => {
     const cached = getCachedLiveReviews(cleanId, cleanSlug);
     return cached?.stats || null;
@@ -22,35 +22,11 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
 
   useEffect(() => {
     if (!target) return;
-
-    // Check SWR cache immediately
     const cached = getCachedLiveReviews(cleanId, cleanSlug);
     if (cached?.stats) {
       setStats(cached.stats);
     }
-
-    // Bots and crawlers skip dynamic stats fetch to keep page render fast & lightweight
-    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
-    if (isCrawler) return;
-
-    let isMounted = true;
-
-    // Fetch live reviews and compute live stats
-    fetchLiveReviews({
-      appId: cleanId,
-      appSlug: cleanSlug,
-      rating: overallRating,
-      limit: 100
-    }).then(res => {
-      if (isMounted && res.stats) {
-        setStats(res.stats);
-      }
-    }).catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
-  }, [cleanId, cleanSlug, overallRating, target]);
+  }, [cleanId, cleanSlug, target]);
 
   const ratingVal = (stats?.averageRating !== undefined && stats?.averageRating !== null && stats?.totalReviews > 0)
     ? stats.averageRating
