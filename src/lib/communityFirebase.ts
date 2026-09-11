@@ -18,19 +18,17 @@ const getEnvVal = (key: string): string | undefined => {
 };
 
 export const getResolvedCommunityFirebaseConfig = () => {
-  const projectId = getEnvVal('VITE_COMMUNITY_FIREBASE_PROJECT_ID') || "gen-lang-client-0825832493";
-  const defaultDbId = projectId === 'gen-lang-client-0825832493' 
-    ? 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a' 
-    : '(default)';
+  const projectId = getEnvVal('VITE_COMMUNITY_FIREBASE_PROJECT_ID') || "rummydexcommunity";
+  const defaultDbId = '(default)';
 
   return {
     projectId,
-    appId: getEnvVal('VITE_COMMUNITY_FIREBASE_APP_ID') || "1:103973989874:web:733a6afd8e837224900f6b",
+    appId: getEnvVal('VITE_COMMUNITY_FIREBASE_APP_ID') || "1:104684954157:web:communityapp",
     apiKey: getEnvVal('VITE_COMMUNITY_FIREBASE_API_KEY') || getEnvVal('VITE_FIREBASE_API_KEY') || "AIzaSyBey9sUbeWrcXS2kl4ewOzkTy4arg03Ok",
     authDomain: getEnvVal('VITE_COMMUNITY_FIREBASE_AUTH_DOMAIN') || `${projectId}.firebaseapp.com`,
     firestoreDatabaseId: getEnvVal('VITE_COMMUNITY_FIREBASE_DATABASE_ID') || defaultDbId,
     storageBucket: getEnvVal('VITE_COMMUNITY_FIREBASE_STORAGE_BUCKET') || `${projectId}.firebasestorage.app`,
-    messagingSenderId: getEnvVal('VITE_COMMUNITY_FIREBASE_MESSAGING_ID') || "103973989874",
+    messagingSenderId: getEnvVal('VITE_COMMUNITY_FIREBASE_MESSAGING_ID') || "104684954157",
   };
 };
 
@@ -131,7 +129,7 @@ export async function fetchReviewsDirectFromFirestoreRest(
     const cleanTargets = targets.filter(Boolean).map(t => String(t).trim()).filter(Boolean);
     if (cleanTargets.length === 0) return { reviews: [], hasMore: false, nextCursor: null };
 
-    const dbId = cfg.firestoreDatabaseId || 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    const dbId = cfg.firestoreDatabaseId || '(default)';
     const url = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${dbId}/documents:runQuery?key=${encodeURIComponent(cfg.apiKey)}`;
 
     // Build optimized OR filter across all target identifiers
@@ -404,7 +402,7 @@ export async function submitLiveReview(data: {
   // Direct Firestore REST write
   try {
     const cfg = resolvedConfig;
-    const dbId = cfg.firestoreDatabaseId || 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    const dbId = cfg.firestoreDatabaseId || '(default)';
     const writeUrl = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${dbId}/documents/reviews?documentId=${generatedId}&key=${encodeURIComponent(cfg.apiKey)}`;
 
     const fields = {
@@ -475,7 +473,7 @@ export async function voteLiveReviewHelpful(reviewId: string): Promise<boolean> 
   // 2. Direct Firestore REST field transform / update
   try {
     const cfg = resolvedConfig;
-    const dbId = cfg.firestoreDatabaseId || 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    const dbId = cfg.firestoreDatabaseId || '(default)';
     const patchUrl = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${dbId}/documents/reviews/${reviewId}?updateMask.fieldPaths=helpful_count&key=${encodeURIComponent(cfg.apiKey)}`;
 
     // Read current helpful count and increment
@@ -526,7 +524,7 @@ export async function reportLiveReview(data: {
 
   try {
     const cfg = resolvedConfig;
-    const dbId = cfg.firestoreDatabaseId || 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    const dbId = cfg.firestoreDatabaseId || '(default)';
     const reportId = `rep_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const writeUrl = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${dbId}/documents/reports?documentId=${reportId}&key=${encodeURIComponent(cfg.apiKey)}`;
 
@@ -567,7 +565,7 @@ export async function submitLiveReport(data: {
 }): Promise<boolean> {
   try {
     const cfg = resolvedConfig;
-    const dbId = cfg.firestoreDatabaseId || 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+    const dbId = cfg.firestoreDatabaseId || '(default)';
     const reportId = `rep_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const writeUrl = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${dbId}/documents/reports?documentId=${reportId}&key=${encodeURIComponent(cfg.apiKey)}`;
 
