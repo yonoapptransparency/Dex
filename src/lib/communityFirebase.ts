@@ -315,54 +315,79 @@ export async function fetchLiveReviews(options: {
 
   const targets = [targetId, targetSlug, targetTitle].filter(Boolean);
 
-  // If local or dev server environment with active Express backend, attempt backend proxy
-  const isDevOrLocal = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname.includes('run.app'));
+  // 1. Attempt backend API endpoint first (with fast 2s timeout) if available
+  try {
+    const effectiveId = targetId || targetSlug || targetTitle;
+    const queryParams = new URLSearchParams();
+    if (targetSlug) queryParams.append('appSlug', targetSlug);
+    if (appTitle) queryParams.append('appTitle', appTitle);
+    if (cursor) queryParams.append('cursor', String(cursor));
+    queryParams.append('limit', String(limit));
+    if (rating) queryParams.append('rating', String(rating));
 
-  if (isDevOrLocal) {
-    try {
-      const effectiveId = targetId || targetSlug || targetTitle;
-      const queryParams = new URLSearchParams();
-      if (targetSlug) queryParams.append('appSlug', targetSlug);
-      if (appTitle) queryParams.append('appTitle', appTitle);
-      if (cursor) queryParams.append('cursor', String(cursor));
-      queryParams.append('limit', String(limit));
-      if (rating) queryParams.append('rating', String(rating));
+    const path = `/api/v1/public/community/reviews/${encodeURIComponent(effectiveId)}?${queryParams.toString()}`;
+    
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 2500) : null;
 
-      const path = `/api/v1/public/community/reviews/${encodeURIComponent(effectiveId)}?${queryParams.toString()}`;
-      
-      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timeoutId = controller ? setTimeout(() => controller.abort(), 2000) : null;
+    const res = await fetch(path, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      signal: controller?.signal
+    });
 
-      const res = await fetch(path, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        signal: controller?.signal
-      });
+    if (timeoutId) clearTimeout(timeoutId);
 
-      if (timeoutId) clearTimeout(timeoutId);
-
-      const contentType = res.headers.get('content-type') || '';
-      if (res.ok && contentType.includes('application/json')) {
-        const data = await res.json();
-        if (data && Array.isArray(data.reviews) && data.reviews.length > 0) {
-          const result: ReviewFetchResult = {
-            reviews: data.reviews,
-            hasMore: Boolean(data.hasMore),
-            nextCursor: data.nextCursor || null,
-            stats: data.stats || null
-          };
-          targets.forEach(t => setCachedLiveReviews(t, result));
-          return result;
-        }
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('application/json')) {
+      const data = await res.json();
+      if (data && Array.isArray(data.reviews) && data.reviews.length > 0) {
+        const result: ReviewFetchResult = {
+          reviews: data.reviews,
+          hasMore: Boolean(data.hasMore),
+          nextCursor: data.nextCursor || null,
+          stats: data.stats || null
+        };
+        targets.forEach(t => setCachedLiveReviews(t, result));
+        return result;
       }
-    } catch (err) {
-      // Fall through to Direct Firestore REST
     }
+  } catch (err) {
+    // Fall through to Direct Firestore REST edge query
   }
 
-  // Direct Firestore REST worldwide edge query (Works 100% on Dex, Vercel, GitHub Pages, Netlify)
+  // 2. Direct Firestore REST worldwide edge query (Works 100% on Dex, Vercel, GitHub Pages, Netlify)
   const firestoreRes = await fetchReviewsDirectFromFirestoreRest(targets, limit, cursor, rating);
+  if (firestoreRes && firestoreRes.reviews.length > 0) {
+    return firestoreRes;
+  }
+
+  // 3. Check for any locally saved user reviews in browser storage
+  if (typeof window !== 'undefined') {
+    try {
+      const localReviews: PublicReview[] = [];
+      targets.forEach(t => {
+        const stored = localStorage.getItem(`local_user_reviews_${t}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            localReviews.push(...parsed);
+          }
+        }
+      });
+      if (localReviews.length > 0) {
+        const uniqueLocal = Array.from(new Map(localReviews.map(r => [r.id, r])).values());
+        const localResult: ReviewFetchResult = {
+          reviews: uniqueLocal,
+          hasMore: false,
+          nextCursor: null
+        };
+        targets.forEach(t => setCachedLiveReviews(t, localResult));
+        return localResult;
+      }
+    } catch (e) {}
+  }
+
   return firestoreRes;
 }
 
