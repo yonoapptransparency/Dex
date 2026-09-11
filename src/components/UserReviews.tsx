@@ -97,7 +97,7 @@ export default function UserReviews({
             appId={appId} 
             appSlug={appSlug} 
             appName={appTitle}
-            onSuccess={(newReview) => setReviews(prev => [newReview, ...prev])} 
+            onSuccess={(newReview) => setReviews(prev => prev.some(r => r.id === newReview.id) ? prev : [newReview, ...prev])} 
           />
 
           <div className="space-y-4">
