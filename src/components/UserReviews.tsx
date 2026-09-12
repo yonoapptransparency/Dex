@@ -3,7 +3,7 @@
  * Displays peer reviews, supports upvotes and helpful counters, and is fully synchronized with DB.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
 import { ReviewForm } from './public/ReviewForm';
@@ -69,7 +69,16 @@ export default function UserReviews({
     stats
   } = useReviews(appId, appTitle, appSlug, category, overallRating, inView);
 
-  const displayedReviews = filteredReviews;
+  const displayedReviews = useMemo(() => {
+    const map = new Map<string, typeof filteredReviews[0]>();
+    for (const r of filteredReviews) {
+      if (r && r.id && !map.has(r.id)) {
+        map.set(r.id, r);
+      }
+    }
+    return Array.from(map.values());
+  }, [filteredReviews]);
+
   const canLoadMore = hasMore;
   const handleLoadMore = () => {
     if (hasMore && !loadingMore) {

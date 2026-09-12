@@ -61,7 +61,6 @@ export function ReviewItem({
 
   return (
     <div
-      key={rev.id}
       className={`cv-auto p-5 border rounded-2xl flex gap-4 transition-all text-left ${
         isReported || rev.reported
           ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'

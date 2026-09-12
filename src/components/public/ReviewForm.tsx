@@ -27,24 +27,22 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
     const cleanComment = comment.trim().replace(/<[^>]*>?/gm, '');
 
     if (!cleanUsername || cleanUsername.length < 2) {
-      setErrorText('Please specify a valid display name (min 2 chars).');
+      setErrorText('Please enter your name (at least 2 characters).');
       return;
     }
 
-    const usernameRegex = /^[a-zA-Z0-9 ]+$/;
-    if (!usernameRegex.test(cleanUsername)) {
-      setErrorText('Username can only contain letters, numbers, and spaces.');
+    if (cleanUsername.length > 50) {
+      setErrorText('Display name must be 50 characters or less.');
       return;
     }
 
-    if (!cleanComment || cleanComment.length < 10) {
-      setErrorText('Your review must contain at least 10 characters.');
+    if (!cleanComment || cleanComment.length < 3) {
+      setErrorText('Please write a review comment (at least 3 characters).');
       return;
     }
 
-    const wordCount = cleanComment.split(/\s+/).filter(w => w.trim().length > 0).length;
-    if (wordCount < 4) {
-      setErrorText('Your review must contain at least 4 words.');
+    if (cleanComment.length > 1000) {
+      setErrorText('Review text cannot exceed 1000 characters.');
       return;
     }
 
@@ -92,16 +90,18 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
 
       // Store in localStorage for persistent client hydration
       try {
-        const storeKey1 = `local_user_reviews_${appId}`;
-        const stored1 = localStorage.getItem(storeKey1);
-        const list1 = stored1 ? JSON.parse(stored1) : [];
-        localStorage.setItem(storeKey1, JSON.stringify([newSubmission, ...list1]));
+        const saveToKey = (key: string) => {
+          try {
+            const stored = localStorage.getItem(key);
+            const list = stored ? JSON.parse(stored) : [];
+            const filtered = Array.isArray(list) ? list.filter((r: any) => r && r.id !== newSubmission.id) : [];
+            localStorage.setItem(key, JSON.stringify([newSubmission, ...filtered]));
+          } catch (e) {}
+        };
 
+        if (appId) saveToKey(`local_user_reviews_${appId}`);
         if (appSlug && appSlug !== appId) {
-          const storeKey2 = `local_user_reviews_${appSlug}`;
-          const stored2 = localStorage.getItem(storeKey2);
-          const list2 = stored2 ? JSON.parse(stored2) : [];
-          localStorage.setItem(storeKey2, JSON.stringify([newSubmission, ...list2]));
+          saveToKey(`local_user_reviews_${appSlug}`);
         }
       } catch (e) {}
 
