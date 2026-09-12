@@ -3,7 +3,7 @@
  * Displays peer reviews, supports upvotes and helpful counters, and is fully synchronized with DB.
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
 import { ReviewForm } from './public/ReviewForm';
@@ -65,35 +65,25 @@ export default function UserReviews({
     toggleExpandReview,
     handleHelpfulVote,
     handleReportReview,
-    filteredReviews
+    filteredReviews,
+    stats
   } = useReviews(appId, appTitle, appSlug, category, overallRating, inView);
 
-  const REVIEWS_PAGE_SIZE = 5;
-  const [visibleReviewCount, setVisibleReviewCount] = useState(REVIEWS_PAGE_SIZE);
-
-  // Reset pagination when switching filters, sorting, or target app
-  useEffect(() => {
-    setVisibleReviewCount(REVIEWS_PAGE_SIZE);
-  }, [activeFilter, sortBy, appId, appSlug]);
-
-  const displayedReviews = useMemo(() => {
-    return filteredReviews.slice(0, visibleReviewCount);
-  }, [filteredReviews, visibleReviewCount]);
-
-  const hasLocalMore = visibleReviewCount < filteredReviews.length;
-  const canLoadMore = hasLocalMore || hasMore;
-
+  const displayedReviews = filteredReviews;
+  const canLoadMore = hasMore;
   const handleLoadMore = () => {
-    if (hasLocalMore) {
-      setVisibleReviewCount(prev => prev + REVIEWS_PAGE_SIZE);
-    } else if (hasMore && !loadingMore) {
+    if (hasMore && !loadingMore) {
       loadMore();
-      setVisibleReviewCount(prev => prev + REVIEWS_PAGE_SIZE);
     }
   };
 
-  const totalCount = reviews.length ? reviews.length * 9 + 42 : 124;
-  const averageValue = overallRating ? overallRating.toFixed(1) : '4.8';
+  const countAll = stats?.totalReviews ?? reviews.length;
+  const countPositive = stats?.starCounts 
+    ? ((stats.starCounts[4] || 0) + (stats.starCounts[5] || 0)) 
+    : reviews.filter(r => r.rating >= 4).length;
+  const countCritical = stats?.starCounts 
+    ? ((stats.starCounts[1] || 0) + (stats.starCounts[2] || 0) + (stats.starCounts[3] || 0)) 
+    : reviews.filter(r => r.rating <= 3).length;
 
   return (
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
@@ -129,7 +119,7 @@ export default function UserReviews({
                           : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-750 text-zinc-500 dark:text-zinc-400'
                       }`}
                     >
-                      All ({reviews.length})
+                      All ({countAll})
                     </button>
                     <button
                       type="button"
@@ -141,7 +131,7 @@ export default function UserReviews({
                       }`}
                     >
                       <Star className="w-3 h-3 fill-current" />
-                      Positive ({reviews.filter(r => r.rating >= 4).length})
+                      Positive ({countPositive})
                     </button>
                     <button
                       type="button"
@@ -153,7 +143,7 @@ export default function UserReviews({
                       }`}
                     >
                       <AlertCircle className="w-3 h-3" />
-                      Critical ({reviews.filter(r => r.rating <= 3).length})
+                      Critical ({countCritical})
                     </button>
                   </div>
 
