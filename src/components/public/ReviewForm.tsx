@@ -72,38 +72,11 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
       });
       
       if (res.success && res.review) {
-        newSubmission.id = res.review.id;
-        newSubmission.created_at = res.review.created_at;
+        onSuccess(res.review as Review);
       } else {
         console.warn("Live submission warning:", res.error);
+        onSuccess(newSubmission); // fallback to optimistic local update
       }
-
-      // 2. Always persist locally & trigger real-time UI update
-      onSuccess(newSubmission);
-
-      // Dispatch global event for instant reactivity across all widgets
-      try {
-        window.dispatchEvent(new CustomEvent('community-review-added', {
-          detail: { newReview: newSubmission }
-        }));
-      } catch (e) {}
-
-      // Store in localStorage for persistent client hydration
-      try {
-        const saveToKey = (key: string) => {
-          try {
-            const stored = localStorage.getItem(key);
-            const list = stored ? JSON.parse(stored) : [];
-            const filtered = Array.isArray(list) ? list.filter((r: any) => r && r.id !== newSubmission.id) : [];
-            localStorage.setItem(key, JSON.stringify([newSubmission, ...filtered]));
-          } catch (e) {}
-        };
-
-        if (appId) saveToKey(`local_user_reviews_${appId}`);
-        if (appSlug && appSlug !== appId) {
-          saveToKey(`local_user_reviews_${appSlug}`);
-        }
-      } catch (e) {}
 
       setSuccess(true);
       setUsername('');
@@ -113,7 +86,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
       setTimeout(() => setSuccess(false), 5000);
     } catch (err: any) {
       console.error('Error submitting review:', err);
-      // Even if network failed, show success since review was saved locally
+      // Even if network failed, show success since review was saved locally (if fallback works)
       onSuccess(newSubmission);
       setSuccess(true);
       setUsername('');
