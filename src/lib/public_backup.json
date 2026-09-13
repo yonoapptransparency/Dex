@@ -1808,8 +1808,10 @@
       "review_count": 10,
       "meta_title": "Rummy Rush - Classic Card Game",
       "meta_description": "Play Rummy Rush, a free multiplayer classic card game! Compete globally in Rummy 0, Rummy 30, Kalooki, and Contract Rummy modes with friends online.",
-      "more_information_url": "U2FsdGVkX1+mPP6i8PTQCPtbgXCO3zIKG+KUNPSLSA1CtzmonRV0zJtqWy828+uvDFybCDNgXNa6c+p296YAog==",
-      "encrypted_link": "U2FsdGVkX1+mPP6i8PTQCPtbgXCO3zIKG+KUNPSLSA1CtzmonRV0zJtqWy828+uvDFybCDNgXNa6c+p296YAog=="
+      "encrypted_link": "U2FsdGVkX1+mPP6i8PTQCPtbgXCO3zIKG+KUNPSLSA1CtzmonRV0zJtqWy828+uvDFybCDNgXNa6c+p296YAog==",
+      "reviews": "",
+      "sync_to_public": true,
+      "more_information_url": "U2FsdGVkX1+mPP6i8PTQCPtbgXCO3zIKG+KUNPSLSA1CtzmonRV0zJtqWy828+uvDFybCDNgXNa6c+p296YAog=="
     },
     {
       "slug": "rum-rummy",
