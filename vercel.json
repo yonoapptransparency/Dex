@@ -118,10 +118,5 @@
         }
       ]
     }
-  ],
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "src/lib/*.json"
-    }
-  }
+  ]
 }
