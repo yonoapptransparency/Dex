@@ -120,7 +120,7 @@
     }
   ],
   "functions": {
-    "api/**/*": {
+    "api/index.js": {
       "includeFiles": "src/lib/*.json"
     }
   }
