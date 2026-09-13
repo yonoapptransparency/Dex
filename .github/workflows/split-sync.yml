@@ -309,6 +309,7 @@ jobs:
               if [ -f "vite.config.ts" ]; then
                 sed -i 's/__ADMIN_ENABLED__:.*/__ADMIN_ENABLED__: false,/g' vite.config.ts
               fi
+              rm -f vercel.admin.json
               rm -f strip-admin-from-dex.js
               rm -f strip-public-from-masterworld.js
             fi
@@ -323,52 +324,9 @@ jobs:
               # Force remove api to prevent Vercel serverless function pattern mismatches
               rm -rf api/
               
-              # Generate dedicated SPA vercel.json for Masterworld (Admin)
-              cat > vercel.json << 'EOF'
-{
-  "version": 2,
-  "outputDirectory": "dist",
-  "buildCommand": "npm run build",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
-  ]
-}
-EOF
+              # Copy dedicated SPA vercel.json for Masterworld (Admin)
+              cp "$SOURCE_DIR/vercel.admin.json" vercel.json
+              rm -f vercel.admin.json
               
               # 2. Strict Allowlist enforcement for pages and components
               echo "Purging non-admin pages..."
