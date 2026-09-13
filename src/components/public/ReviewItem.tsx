@@ -54,10 +54,12 @@ export function ReviewItem({
   onHelpfulVote,
   onReport,
 }: ReviewItemProps) {
-  const isLong = rev.comment.length > 150;
+  const commentText = rev.comment || (rev as any).reviewText || '';
+  const username = rev.username || (rev as any).userName || 'Player';
+  const isLong = commentText.length > 150;
   const displayedComment = isLong && !isExpanded 
-    ? `${rev.comment.substring(0, 150)}...` 
-    : rev.comment;
+    ? `${commentText.substring(0, 150)}...` 
+    : commentText;
 
   return (
     <div
@@ -68,8 +70,8 @@ export function ReviewItem({
       }`}
     >
       {/* Avatar */}
-      <div className={`w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(rev.username)}`}>
-        {rev.username ? rev.username.charAt(0) : 'G'}
+      <div className={`w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(username)}`}>
+        {username ? username.charAt(0).toUpperCase() : 'P'}
       </div>
 
       {/* Content column */}
@@ -78,7 +80,7 @@ export function ReviewItem({
         <div className="flex items-center justify-between gap-4 mb-1">
           <div className="flex items-center gap-2 min-w-0">
             <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate">
-              {rev.username}
+              {username}
             </span>
             {(isReported || rev.reported) && (
               <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-600 dark:text-rose-450 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/10 shrink-0 select-none uppercase tracking-wide animate-pulse">
@@ -87,11 +89,14 @@ export function ReviewItem({
             )}
           </div>
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase shrink-0">
-            {new Date(rev.created_at).toLocaleDateString(undefined, {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })}
+            {(() => {
+              const d = rev.created_at || (rev as any).timestamp;
+              return d ? new Date(d).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              }) : 'Recently';
+            })()}
           </span>
         </div>
 

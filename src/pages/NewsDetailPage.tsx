@@ -4,12 +4,12 @@
  * Enhanced with optimized image loading, reading time, share tools, and related news.
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockNews as staticMockNews } from '../lib/staticData';
-import { ArrowLeft, ArrowRight, MessageSquare, Send, ShieldAlert, Clock, Calendar, Share2, Check, Sparkles } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, ShieldAlert, Clock, Calendar, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { getOptimizedImageUrl } from '../seo/utils';
@@ -60,14 +60,6 @@ export default function NewsDetailPage() {
     setIsRefreshing(false);
     setCopied(false);
   }, [slug]);
-
-  // Related / Latest other news stories
-  const relatedNews = useMemo(() => {
-    if (!newsItem) return [];
-    return mockNews
-      .filter(n => n.slug?.toLowerCase() !== newsItem.slug?.toLowerCase())
-      .slice(0, 3);
-  }, [mockNews, newsItem]);
 
   // Automatically trigger a silent cloud sync if the requested item is not found in local cache
   useEffect(() => {
@@ -193,7 +185,7 @@ export default function NewsDetailPage() {
   const articleImage = getOptimizedImageUrl(newsItem.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 1000);
 
   return (
-    <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 plain-content mb-20">
+    <div className="animate-fade-in max-w-4xl mx-auto px-4 sm:px-6 md:px-8 plain-content mb-20">
       <Meta 
         title={newsItem.seo_title || `${newsItem.title} | ${mockSettings?.site_title || 'RummyDex'}`}
         description={newsItem.seo_description || newsItem.description}
@@ -304,48 +296,6 @@ export default function NewsDetailPage() {
               Get App Details & Downloads
             </a>
           </div>
-        )}
-
-        {/* Related Recent News Section */}
-        {relatedNews.length > 0 && (
-          <section className="border-t border-black/5 dark:border-white/5 pt-12 mb-16">
-            <div className="flex items-center gap-2 mb-8">
-              <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                More Intelligence & Updates
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {relatedNews.map((item) => (
-                <Link
-                  key={item.id || item.slug}
-                  to={`/news/${item.slug}`}
-                  className="group flex flex-col p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-black/5 dark:border-white/10 hover:border-blue-500/30 transition-all shadow-sm"
-                >
-                  <div className="aspect-[16/9] rounded-xl overflow-hidden mb-4 bg-zinc-200 dark:bg-zinc-800 relative">
-                    <img
-                      src={getOptimizedImageUrl(item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 400)}
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">
-                    {item.category || 'Update'}
-                  </span>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-3">
-                    {item.title}
-                  </h3>
-                  <div className="mt-auto flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                    <span>Read update</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
         )}
 
         {/* Discussion Section */}

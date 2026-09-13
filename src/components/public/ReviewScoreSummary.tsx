@@ -26,6 +26,35 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     if (cached?.stats) {
       setStats(cached.stats);
     }
+
+    const handleUpdate = (e: any) => {
+      const addedReview = e?.detail?.newReview;
+      if (addedReview) {
+        setStats((prev: any) => {
+          if (!prev) {
+            return {
+              averageRating: addedReview.rating,
+              totalReviews: 1,
+              starCounts: { [String(addedReview.rating)]: 1 }
+            };
+          }
+          const starKey = String(addedReview.rating);
+          const starCounts = { ...(prev.starCounts || {}) };
+          starCounts[starKey] = (starCounts[starKey] || 0) + 1;
+          const total = (prev.totalReviews || 0) + 1;
+          return {
+            ...prev,
+            totalReviews: total,
+            starCounts
+          };
+        });
+      }
+    };
+
+    window.addEventListener('community-review-added', handleUpdate);
+    return () => {
+      window.removeEventListener('community-review-added', handleUpdate);
+    };
   }, [cleanId, cleanSlug, target]);
 
   const ratingVal = (stats?.averageRating !== undefined && stats?.averageRating !== null && stats?.totalReviews > 0)

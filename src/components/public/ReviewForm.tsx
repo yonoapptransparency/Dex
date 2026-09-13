@@ -71,12 +71,20 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
         reviewText: cleanComment,
       });
       
-      if (res.success && res.review) {
-        onSuccess(res.review as Review);
-      } else {
-        console.warn("Live submission warning:", res.error);
-        onSuccess(newSubmission); // fallback to optimistic local update
-      }
+      const returned: any = res?.review;
+      const finalRev: Review = {
+        id: returned?.id || reviewId,
+        app_id: returned?.app_id || returned?.appId || appId,
+        username: returned?.username || returned?.userName || cleanUsername,
+        rating: Number(returned?.rating) || rating,
+        comment: returned?.comment || returned?.reviewText || cleanComment,
+        created_at: returned?.created_at || returned?.timestamp || new Date().toISOString(),
+        helpful_count: Number(returned?.helpful_count) || 0,
+        source: returned?.source || 'community',
+        isPinned: false
+      };
+      
+      onSuccess(finalRev);
 
       setSuccess(true);
       setUsername('');

@@ -29,8 +29,10 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  const [inView, setInView] = useState(false);
+  // Initialize inView to true so per-app review fetching begins immediately in the background
+  const [inView, setInView] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current || typeof IntersectionObserver === 'undefined') {
@@ -86,6 +88,18 @@ export default function UserReviews({
     }
   };
 
+  // Automated scroll trigger for lightning fast lazy loading ("laser loading")
+  useEffect(() => {
+    if (!canLoadMore || loadingMore || !loadMoreSentinelRef.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && canLoadMore && !loadingMore) {
+        handleLoadMore();
+      }
+    }, { rootMargin: '300px' });
+    observer.observe(loadMoreSentinelRef.current);
+    return () => observer.disconnect();
+  }, [canLoadMore, loadingMore, hasMore]);
+
   const countAll = stats?.totalReviews ?? reviews.length;
   const countPositive = stats?.starCounts 
     ? ((stats.starCounts[4] || 0) + (stats.starCounts[5] || 0)) 
@@ -111,7 +125,16 @@ export default function UserReviews({
             appId={appId} 
             appSlug={appSlug} 
             appName={appTitle}
-            onSuccess={(newReview) => setReviews(prev => prev.some(r => r.id === newReview.id) ? prev : [newReview, ...prev])} 
+            onSuccess={(newReview) => {
+              setReviews(prev => [newReview, ...prev.filter(r => r.id !== newReview.id)]);
+              if (stats) {
+                const starKey = String(newReview.rating);
+                const starCounts = { ...(stats.starCounts || {}) };
+                starCounts[starKey] = (starCounts[starKey] || 0) + 1;
+                stats.totalReviews = (stats.totalReviews || 0) + 1;
+                stats.starCounts = starCounts;
+              }
+            }} 
           />
 
           <div className="space-y-4">
@@ -245,7 +268,8 @@ export default function UserReviews({
                 ))}
                 
                 {canLoadMore && filteredReviews.length > 0 && (
-                  <div className="pt-4 flex justify-center">
+                  <div className="pt-4 flex flex-col items-center gap-2">
+                    <div ref={loadMoreSentinelRef} className="h-4 w-full pointer-events-none" />
                     <button 
                       type="button"
                       onClick={handleLoadMore}
