@@ -194,6 +194,8 @@ export default function NewsDetailPage() {
         image={newsItem.og_image_url || newsItem.logo_url || newsItem.image_url}
         url={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
         type="article"
+        publishedTime={newsItem.published_at || newsItem.date}
+        author={newsItem.author || mockSettings?.site_title || 'RummyDex'}
         canonical={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
       />
       

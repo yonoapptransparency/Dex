@@ -297,8 +297,8 @@ export default function Home() {
   return (
     <div className="select-none min-h-screen">
       <Meta 
-        title={categoryParam ? `${activeTab} - ${mockSettings.seo_title || mockSettings.site_title}` : (mockSettings.seo_title || mockSettings.site_title)}
-        description={mockSettings.seo_description || mockSettings.meta_description}
+        title={categoryParam ? `${activeTab} - Download & Reviews | ${mockSettings.site_title || 'RummyDex'}` : (mockSettings.seo_title || mockSettings.site_title)}
+        description={categoryParam ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates on ${mockSettings.site_title || 'RummyDex'}.` : (mockSettings.seo_description || mockSettings.meta_description)}
         keywords={mockSettings.seo_keywords}
         canonical={categoryParam ? `https://www.rummydex.com/category/${categoryParam}` : `https://www.rummydex.com`}
         faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {
