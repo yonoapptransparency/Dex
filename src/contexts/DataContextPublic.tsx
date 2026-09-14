@@ -135,7 +135,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (backup.settings && Object.keys(backup.settings).length > 0) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
-          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
+          if (backup.news && Array.isArray(backup.news)) {
             setNews(backup.news);
           }
           if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
