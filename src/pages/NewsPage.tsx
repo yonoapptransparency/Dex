@@ -6,7 +6,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
  */
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Newspaper, Search, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Clock, User, Calendar, Tag, Sparkles, X, Pin } from 'lucide-react';
+import { Newspaper, Search, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Clock, User, Calendar, Tag, Sparkles, X } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useSearchParams } from 'react-router-dom';
 import Meta from '../components/Meta';
@@ -47,33 +47,20 @@ export default function NewsPage() {
   const activeCategory = searchParams.get('category') || 'All';
   const searchTerm = searchParams.get('q') || '';
 
-  // Filter and sort public news items (pinned items first, then latest date first)
-  const publicNewsList = useMemo(() => {
-    return (mockNews || [])
-      .filter(item => item && item.sync_to_public !== false)
-      .sort((a, b) => {
-        if (a.is_pinned && !b.is_pinned) return -1;
-        if (!a.is_pinned && b.is_pinned) return 1;
-        const dateA = new Date(a.date || a.published_at || a.created_at || 0).getTime();
-        const dateB = new Date(b.date || b.published_at || b.created_at || 0).getTime();
-        return dateB - dateA;
-      });
-  }, [mockNews]);
-
   // Extract all unique categories dynamically
   const categories = useMemo(() => {
     const set = new Set<string>();
-    publicNewsList.forEach(item => {
+    mockNews.forEach(item => {
       if (item.category && item.category.trim()) {
         set.add(item.category.trim());
       }
     });
     return ['All', ...Array.from(set)];
-  }, [publicNewsList]);
+  }, [mockNews]);
 
   // Filtered news items
   const filteredNews = useMemo(() => {
-    return publicNewsList.filter(item => {
+    return mockNews.filter(item => {
       const matchesCategory = activeCategory === 'All' || 
         (item.category && item.category.toLowerCase() === activeCategory.toLowerCase());
       
@@ -86,7 +73,7 @@ export default function NewsPage() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [publicNewsList, activeCategory, searchTerm]);
+  }, [mockNews, activeCategory, searchTerm]);
 
   // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
@@ -283,25 +270,8 @@ export default function NewsPage() {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
               />
-              <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/90 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-md">
-                  <Sparkles className="w-3.5 h-3.5" /> Featured Spotlight
-                </div>
-                {spotlightItem.is_pinned && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-bold uppercase tracking-wider shadow-md">
-                    <Pin className="w-3 h-3" /> Pinned
-                  </span>
-                )}
-                {spotlightItem.is_breaking && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold uppercase tracking-wider shadow-md animate-pulse">
-                    Breaking
-                  </span>
-                )}
-                {spotlightItem.is_new && !spotlightItem.is_breaking && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider shadow-md">
-                    New
-                  </span>
-                )}
+              <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/90 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-md">
+                <Sparkles className="w-3.5 h-3.5" /> Featured Spotlight
               </div>
             </Link>
 
@@ -387,25 +357,8 @@ export default function NewsPage() {
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
-                <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
-                  {item.is_pinned && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
-                      <Pin className="w-2.5 h-2.5" /> Pinned
-                    </span>
-                  )}
-                  {item.is_breaking && (
-                    <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
-                      Breaking
-                    </span>
-                  )}
-                  {item.is_new && !item.is_breaking && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                      New
-                    </span>
-                  )}
-                  <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
-                    {item.category || 'Report'}
-                  </span>
+                <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
+                  {item.category || 'Report'}
                 </div>
               </Link>
 

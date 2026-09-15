@@ -180,10 +180,9 @@ export default function NewsDetailPage() {
     );
   }
 
-  const readTime = newsItem.read_time || calculateReadingTime((newsItem.description || '') + ' ' + (newsItem.content || newsItem.description_html || ''));
+  const readTime = calculateReadingTime((newsItem.description || '') + ' ' + (newsItem.content || ''));
   const formattedDate = formatNewsDate(newsItem.date, newsItem.published_at);
-  const rawImage = newsItem.logo_url || (newsItem as any).image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e';
-  const articleImage = getOptimizedImageUrl(rawImage, 1000);
+  const articleImage = getOptimizedImageUrl(newsItem.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 1000);
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto px-4 sm:px-6 md:px-8 plain-content mb-20">
@@ -191,11 +190,9 @@ export default function NewsDetailPage() {
         title={newsItem.seo_title || `${newsItem.title} | ${mockSettings?.site_title || 'RummyDex'}`}
         description={newsItem.seo_description || newsItem.description}
         keywords={newsItem.seo_keywords}
-        image={newsItem.og_image_url || newsItem.logo_url || (newsItem as any).image_url}
+        image={newsItem.og_image_url || newsItem.logo_url}
         url={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
         type="article"
-        publishedTime={newsItem.published_at || newsItem.date}
-        author={newsItem.author || mockSettings?.site_title || 'RummyDex'}
         canonical={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
       />
       
@@ -230,18 +227,6 @@ export default function NewsDetailPage() {
         </button>
       </div>
 
-      {(newsItem as any).sync_to_public === false && (
-        <div className="mb-8 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-            Draft Preview: This article is set to Admin Only and is not published to the public website yet.
-          </div>
-          <Link to="/admin?tab=news" className="text-xs font-bold underline hover:no-underline">
-            Manage in Admin
-          </Link>
-        </div>
-      )}
-
       <motion.article 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -266,20 +251,16 @@ export default function NewsDetailPage() {
           
           <div className="flex items-center gap-4 pb-8 border-b border-black/5 dark:border-white/5">
             <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xl m-0 shrink-0">
-              {newsItem.ceo_name ? newsItem.ceo_name.charAt(0) : (newsItem.author ? newsItem.author.charAt(0) : 'A')}
+              {newsItem.ceo_name ? newsItem.ceo_name.charAt(0) : 'A'}
             </div>
             <div>
-              <p className="font-bold text-base sm:text-lg text-zinc-900 dark:text-zinc-100 leading-tight">
-                {newsItem.ceo_name || newsItem.author || 'Admin Team'}
-              </p>
-              <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-0.5">
-                {newsItem.ceo_description || 'Transparency & Security Analyst'}
-              </p>
+              <p className="font-bold text-base sm:text-lg text-zinc-900 dark:text-zinc-100 leading-tight">{newsItem.ceo_name || 'Admin Team'}</p>
+              <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-0.5">{newsItem.ceo_description || 'Transparency & Security Analyst'}</p>
             </div>
           </div>
         </header>
 
-        {Boolean(newsItem.logo_url || (newsItem as any).image_url) && (
+        {newsItem.logo_url && (
           <div className="w-full rounded-3xl overflow-hidden mb-12 shadow-sm border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 aspect-[16/9] max-h-[550px] relative">
             <img 
               src={articleImage} 

@@ -67,23 +67,6 @@ class FallbackCommunityStore implements CommunityStoreInterface {
 
   constructor(initialReviews: ReviewRecord[] = STATIC_COMMUNITY_REVIEWS) {
     this.reviews = initialReviews;
-    this.loadFromDisk();
-  }
-
-  private loadFromDisk() {
-    if (typeof process !== 'undefined' && process.cwd) {
-      try {
-        const fs = require('fs');
-        const path = require('path');
-        const backupPath = path.join(process.cwd(), 'community_local_backup.json');
-        if (fs.existsSync(backupPath)) {
-          const raw = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-          if (raw && Array.isArray(raw.reviews) && raw.reviews.length > 0) {
-            this.reviews = raw.reviews;
-          }
-        }
-      } catch (_) {}
-    }
   }
 
   public setReviews(newReviews: ReviewRecord[]) {
@@ -102,24 +85,16 @@ class FallbackCommunityStore implements CommunityStoreInterface {
     rating: number = 4.8,
     appSlug?: string
   ): Promise<ReviewsResponse> {
-    if (this.reviews.length === 0) {
-      this.loadFromDisk();
-    }
-    const cleanId = (appId || '').trim().toLowerCase();
-    const cleanSlug = (appSlug || '').trim().toLowerCase();
-    const cleanName = (_appName || '').trim().toLowerCase();
+    const cleanId = (appId || '').trim();
+    const cleanSlug = (appSlug || '').trim();
 
     const matched = this.reviews.filter(r => {
-      const rId = (r.appId || '').toLowerCase();
-      const rSlug = (r.appSlug || '').toLowerCase();
-      const rName = (r.appName || '').toLowerCase();
-      const matchId = cleanId && (rId === cleanId || rSlug === cleanId);
-      const matchSlug = cleanSlug && (rId === cleanSlug || rSlug === cleanSlug);
-      const matchName = cleanName && (rName === cleanName || (cleanName.length >= 4 && rName.includes(cleanName)));
-      return matchId || matchSlug || matchName;
+      const matchId = cleanId && (r.appId === cleanId || r.appSlug === cleanId);
+      const matchSlug = cleanSlug && (r.appId === cleanSlug || r.appSlug === cleanSlug);
+      return matchId || matchSlug;
     });
 
-    const stats = this.getAppStats(appId, rating, appSlug, _appName);
+    const stats = this.getAppStats(appId, rating, appSlug);
 
     let startIndex = 0;
     if (cursor) {
@@ -138,22 +113,14 @@ class FallbackCommunityStore implements CommunityStoreInterface {
     };
   }
 
-  public getAppStats(appId: string, fallbackRating: number = 4.8, appSlug?: string, appName?: string): AppReviewStats {
-    if (this.reviews.length === 0) {
-      this.loadFromDisk();
-    }
-    const cleanId = (appId || '').trim().toLowerCase();
-    const cleanSlug = (appSlug || '').trim().toLowerCase();
-    const cleanName = (appName || '').trim().toLowerCase();
+  public getAppStats(appId: string, fallbackRating: number = 4.8, appSlug?: string): AppReviewStats {
+    const cleanId = (appId || '').trim();
+    const cleanSlug = (appSlug || '').trim();
 
     const matched = this.reviews.filter(r => {
-      const rId = (r.appId || '').toLowerCase();
-      const rSlug = (r.appSlug || '').toLowerCase();
-      const rName = (r.appName || '').toLowerCase();
-      const matchId = cleanId && (rId === cleanId || rSlug === cleanId);
-      const matchSlug = cleanSlug && (rId === cleanSlug || rSlug === cleanSlug);
-      const matchName = cleanName && (rName === cleanName || (cleanName.length >= 4 && rName.includes(cleanName)));
-      return matchId || matchSlug || matchName;
+      const matchId = cleanId && (r.appId === cleanId || r.appSlug === cleanId);
+      const matchSlug = cleanSlug && (r.appId === cleanSlug || r.appSlug === cleanSlug);
+      return matchId || matchSlug;
     });
 
     if (matched.length === 0) {
@@ -178,10 +145,6 @@ class FallbackCommunityStore implements CommunityStoreInterface {
       totalReviews: matched.length,
       starCounts
     };
-  }
-
-  public getAppStatsSync(appId: string, fallbackRating: number = 4.8, appName?: string, appSlug?: string): AppReviewStats {
-    return this.getAppStats(appId, fallbackRating, appSlug, appName);
   }
 
   public addReview(data: Partial<ReviewRecord>): ReviewRecord {
