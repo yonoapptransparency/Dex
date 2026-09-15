@@ -298,7 +298,7 @@ export default function AppDetails() {
   }, [app.faqs]);
 
   const realRatingVal = Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
-  const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
+  const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || (app as any)?.reviews_count || '0'), 10);
   const realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
 
   const softwareSchema: any = {
@@ -505,8 +505,8 @@ export default function AppDetails() {
           appTitle={app.name} 
           appSlug={app.slug}
           category={app.category}
-          overallRating={app.rating} 
-          totalReviewCount={app.review_count} 
+          overallRating={realRatingVal} 
+          totalReviewCount={realReviewCount} 
         />
       </div>
       
