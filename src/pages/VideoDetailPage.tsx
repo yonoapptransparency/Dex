@@ -161,7 +161,7 @@ export default function VideoDetailPage() {
         image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
         url={window.location.href}
         type="website"
-        canonical={videoItem.canonical_url || (window.location.origin + "/videos/" + encodeURIComponent(videoItem.slug || videoItem.id))}
+        canonical={(videoItem as any).canonical_url || (window.location.origin + "/videos/" + encodeURIComponent(videoItem.slug || videoItem.id))}
       />
       
       <div className="mb-6 pt-4">

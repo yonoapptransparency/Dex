@@ -316,7 +316,10 @@ async function buildJsonLdSchema(params: {
     
     // Admin configured rating is the primary authority for the catalog
     const appIdentifier = getField(app, 'slug') || getField(app, 'id');
-    const liveStats = communityStore.getAppStats(appIdentifier, !isNaN(configuredRating) && configuredRating > 0 ? configuredRating : 4.5);
+    const storeAny = communityStore as any;
+    const liveStats = typeof storeAny.getAppStatsSync === 'function'
+      ? storeAny.getAppStatsSync(appIdentifier, !isNaN(configuredRating) && configuredRating > 0 ? configuredRating : 4.5, name, getField(app, 'slug'))
+      : (typeof communityStore.getAppStats === 'function' ? communityStore.getAppStats(appIdentifier, !isNaN(configuredRating) && configuredRating > 0 ? configuredRating : 4.5, getField(app, 'slug')) : { totalReviews: 0, averageRating: 4.5 });
     
     const finalRating = !isNaN(configuredRating) && configuredRating > 0 
       ? configuredRating 
@@ -325,7 +328,7 @@ async function buildJsonLdSchema(params: {
 
     const finalCount = !isNaN(configuredCount) && configuredCount > 0
       ? configuredCount
-      : (liveStats.totalReviews > 0 ? liveStats.totalReviews : Math.floor(clampedRating * 35 + 20));
+      : (liveStats.totalReviews > 0 ? liveStats.totalReviews : 0);
 
     const appRawIcon = getField(app, 'icon_url') || getField(app, 'og_image_url') || params.logoUrl;
     const appSquareIcon = optimizeImageUrl(appRawIcon, 512) || appRawIcon;
@@ -357,22 +360,15 @@ async function buildJsonLdSchema(params: {
         "price": "0",
         "priceCurrency": "INR",
         "availability": "https://schema.org/InStock"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": parseFloat(clampedRating.toFixed(1)),
-        "ratingCount": Math.round(finalCount),
-        "reviewCount": Math.round(finalCount),
-        "bestRating": 5,
-        "worstRating": 1
       }
     };
 
     // Include sample reviews if available to boost Google Rich Snippet compliance (without nested itemReviewed)
+    let validReviews: any[] = [];
     try {
       const feed = await communityStore.getReviewsForApp(appIdentifier, undefined, 5, name, clampedRating, getField(app, 'slug'));
       if (feed && Array.isArray(feed.reviews) && feed.reviews.length > 0) {
-        const validReviews = feed.reviews
+        validReviews = feed.reviews
           .filter((rev: any) => rev && stripHtml(rev.reviewText || '').trim().length >= 3)
           .slice(0, 5)
           .map((rev: any) => ({
@@ -390,12 +386,41 @@ async function buildJsonLdSchema(params: {
               "worstRating": 1
             }
           }));
-
-        if (validReviews.length > 0) {
-          softwareAppSchema["review"] = validReviews;
-        }
       }
     } catch (revErr) {}
+
+    // Calculate effective review count and ratingValue that guarantees web crawlers receive AggregateRating with stars
+    const effectiveReviewCount = Math.max(
+      validReviews.length,
+      finalCount > 0 ? finalCount : 0,
+      liveStats.totalReviews > 0 ? liveStats.totalReviews : 0,
+      1
+    );
+
+    // Calculate matching rating from reviews if available, else clamped rating
+    let effectiveRating = clampedRating;
+    if (validReviews.length > 0) {
+      const reviewRatingSum = validReviews.reduce((sum: number, r: any) => sum + (r.reviewRating?.ratingValue || 5), 0);
+      const reviewAverage = reviewRatingSum / validReviews.length;
+      effectiveRating = (liveStats.totalReviews > 0 && liveStats.averageRating > 0)
+        ? liveStats.averageRating
+        : reviewAverage;
+    }
+    const finalDisplayRating = Math.max(1.0, Math.min(5.0, effectiveRating));
+
+    // Web crawlers require aggregateRating to display rich snippet stars in Google Search
+    softwareAppSchema["aggregateRating"] = {
+      "@type": "AggregateRating",
+      "ratingValue": parseFloat(finalDisplayRating.toFixed(1)),
+      "ratingCount": Math.round(effectiveReviewCount),
+      "reviewCount": Math.round(effectiveReviewCount),
+      "bestRating": 5,
+      "worstRating": 1
+    };
+
+    if (validReviews.length > 0) {
+      softwareAppSchema["review"] = validReviews;
+    }
 
     const appScreenshots = getField(app, 'screenshots');
     if (Array.isArray(appScreenshots) && appScreenshots.length > 0) {

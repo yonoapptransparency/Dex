@@ -182,7 +182,7 @@ export default function NewsDetailPage() {
 
   const readTime = newsItem.read_time || calculateReadingTime((newsItem.description || '') + ' ' + (newsItem.content || newsItem.description_html || ''));
   const formattedDate = formatNewsDate(newsItem.date, newsItem.published_at);
-  const rawImage = newsItem.logo_url || newsItem.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e';
+  const rawImage = newsItem.logo_url || (newsItem as any).image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e';
   const articleImage = getOptimizedImageUrl(rawImage, 1000);
 
   return (
@@ -191,7 +191,7 @@ export default function NewsDetailPage() {
         title={newsItem.seo_title || `${newsItem.title} | ${mockSettings?.site_title || 'RummyDex'}`}
         description={newsItem.seo_description || newsItem.description}
         keywords={newsItem.seo_keywords}
-        image={newsItem.og_image_url || newsItem.logo_url || newsItem.image_url}
+        image={newsItem.og_image_url || newsItem.logo_url || (newsItem as any).image_url}
         url={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
         type="article"
         publishedTime={newsItem.published_at || newsItem.date}
@@ -230,7 +230,7 @@ export default function NewsDetailPage() {
         </button>
       </div>
 
-      {newsItem.sync_to_public === false && (
+      {(newsItem as any).sync_to_public === false && (
         <div className="mb-8 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -279,7 +279,7 @@ export default function NewsDetailPage() {
           </div>
         </header>
 
-        {(newsItem.logo_url || newsItem.image_url) && (
+        {Boolean(newsItem.logo_url || (newsItem as any).image_url) && (
           <div className="w-full rounded-3xl overflow-hidden mb-12 shadow-sm border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 aspect-[16/9] max-h-[550px] relative">
             <img 
               src={articleImage} 

@@ -117,7 +117,8 @@ export default function UserReviews({
           appId={appId} 
           appSlug={appSlug} 
           overallRating={overallRating} 
-          totalReviewCount={totalReviewCount} 
+          totalReviewCount={countAll > 0 ? countAll : totalReviewCount} 
+          initialStats={stats}
         />
 
         <div className="w-full flex flex-col gap-4 sm:gap-6">

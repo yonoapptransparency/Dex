@@ -7,18 +7,26 @@ interface ReviewScoreSummaryProps {
   appSlug?: string;
   overallRating?: number;
   totalReviewCount?: number | string;
+  initialStats?: any;
 }
 
-export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalReviewCount }: ReviewScoreSummaryProps) {
+export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalReviewCount, initialStats }: ReviewScoreSummaryProps) {
   const cleanId = String(appId || '').trim();
   const cleanSlug = String(appSlug || '').trim();
   const target = cleanId || cleanSlug;
 
-  // Initialize immediately from SWR cache or static fallback if present (0 network calls)
+  // Initialize immediately from initialStats, SWR cache, or null
   const [stats, setStats] = useState<any>(() => {
+    if (initialStats) return initialStats;
     const cached = getCachedLiveReviews(cleanId, cleanSlug);
     return cached?.stats || null;
   });
+
+  useEffect(() => {
+    if (initialStats) {
+      setStats(initialStats);
+    }
+  }, [initialStats]);
 
   useEffect(() => {
     if (!target) return;
@@ -77,13 +85,13 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     : (overallRating || 4.8);
   const averageValue = Number(ratingVal).toFixed(1);
 
-  // Total rating count calculation - handle both numeric and string review counts
+  // Total rating count calculation - prioritize live stats, then parsed prop count
   const parsedPropCount = parseInt(String(totalReviewCount || '0'), 10);
-  const totalCount = (stats?.totalReviews !== undefined && stats?.totalReviews > 0)
+  const totalCount = (stats?.totalReviews !== undefined && stats?.totalReviews !== null)
     ? stats.totalReviews
     : (parsedPropCount > 0
         ? parsedPropCount
-        : Math.floor(Number(ratingVal) * 35 + 20));
+        : 0);
 
   // Calculate star distribution
   const starCounts: Record<string, number> = React.useMemo(() => {

@@ -314,7 +314,7 @@ export function renderAppDetails(slug: string, apps: any[], settings: any, sampl
   const size = getField(app, 'file_size', 'Variable');
   const rawRating = parseFloat(getField(app, 'rating')) || 4.5;
   const rawCount = parseInt(getField(app, 'review_count') || getField(app, 'reviews') || getField(app, 'reviews_count') || '0', 10);
-  const ratingCountVal = rawCount > 0 ? rawCount : (sampleReviews.length > 0 ? sampleReviews.length : Math.floor(rawRating * 35 + 20));
+  const ratingCountVal = Math.max(1, rawCount > 0 ? rawCount : (sampleReviews.length > 0 ? sampleReviews.length : 1));
   const rating = rawRating.toFixed(1);
   const rawIcon = getField(app, 'icon_url') || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&fit=crop';
   const icon = optimizeImageUrl(rawIcon, 256);
