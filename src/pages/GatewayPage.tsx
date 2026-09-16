@@ -226,7 +226,7 @@ export default function GatewayPage() {
               </div>
             ) : (
                <div className="w-full sm:w-72">
-                 <ClearanceButton appId={app.slug || app.id} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
+                 <ClearanceButton appId={app.slug || app.id} appSlug={app.slug} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
                </div>
             )}
           </div>

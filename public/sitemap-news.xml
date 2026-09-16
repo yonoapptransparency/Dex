@@ -1,73 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://www.rummydex.com/news/abc-rummy</loc>
-    <lastmod>2026-09-15T01:35:24+00:00</lastmod>
+    <loc>https://www.rummydex.com/news</loc>
+    <lastmod>2026-09-16T10:17:58+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/v1789436164/rummydex_uploads/aaqqpym322ayx1sc4tlm.webp</image:loc>
-      <image:title>ABC RUMMY NEWS </image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/entertainment-kukoo</loc>
-    <lastmod>2026-08-30T11:48:37+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1788085425/1000137321_11zon_j7xvcd.webp</image:loc>
-      <image:title>Top Free Streaming Apps (Featuring Kukoo TV) | RummyDex</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/app-submit</loc>
-    <lastmod>2026-08-30T04:11:49+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1788063003/1000137271_11zon_d5z29n.webp</image:loc>
-      <image:title>Submit Your App for Review &amp; Listing | RummyDex</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/gold-rummy-is-live</loc>
-    <lastmod>2026-08-19T02:57:49+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1787108250/1000135341_11zon_dxkxmo.webp</image:loc>
-      <image:title>GOLD RUMMY IS LIVE NOW</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/platform-updates</loc>
-    <lastmod>2026-08-19T02:10:23+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1787105383/1000135329_11zon_yn76r1.webp</image:loc>
-      <image:title>New update for platform</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/callbreak-live-on-rummydex</loc>
-    <lastmod>2026-08-04T17:08:11+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1785865490/1000133006_11zon_fvsjpe.webp</image:loc>
-      <image:title>Callbreak is Now Live on RummyDex: Read Our Full Hands-On Review</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/news/app-hub-is-live</loc>
-    <lastmod>2026-08-01T04:29:15+00:00</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/v1786556304/1000134161_11zon_fgqzz6.png</image:loc>
-      <image:title>Application Hub is LIVE! The Ultimate App Portal is Here</image:title>
-    </image:image>
   </url>
 </urlset>
