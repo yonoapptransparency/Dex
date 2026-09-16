@@ -297,8 +297,8 @@ export default function Home() {
   return (
     <div className="select-none min-h-screen">
       <Meta 
-        title={categoryParam ? `${activeTab} - ${mockSettings.seo_title || mockSettings.site_title}` : (mockSettings.seo_title || mockSettings.site_title)}
-        description={mockSettings.seo_description || mockSettings.meta_description}
+        title={categoryParam ? `${activeTab} - Download & Reviews | ${mockSettings.site_title || 'RummyDex'}` : (mockSettings.seo_title || mockSettings.site_title)}
+        description={categoryParam ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates on ${mockSettings.site_title || 'RummyDex'}.` : (mockSettings.seo_description || mockSettings.meta_description)}
         keywords={mockSettings.seo_keywords}
         canonical={categoryParam ? `https://www.rummydex.com/category/${categoryParam}` : `https://www.rummydex.com`}
         faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {
@@ -444,10 +444,17 @@ export default function Home() {
         <div className="animate-fade-in space-y-2 px-0 sm:px-1">
           {(() => {
             const currentTabLower = deferredActiveTab.toLowerCase().trim();
+            const currentTabNormalized = currentTabLower.replace(/[^a-z0-9]+/g, '');
             const tabApps = filteredApps.filter(app => {
               if (deferredSearchTerm) return true;
               const appCategories = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
-              return appCategories.some(cat => cat === currentTabLower || cat.includes(currentTabLower) || currentTabLower.includes(cat));
+              return appCategories.some(cat => {
+                const normCat = cat.replace(/[^a-z0-9]+/g, '');
+                return cat === currentTabLower || 
+                       cat.includes(currentTabLower) || 
+                       currentTabLower.includes(cat) ||
+                       (currentTabNormalized && (normCat === currentTabNormalized || normCat.includes(currentTabNormalized) || currentTabNormalized.includes(normCat)));
+              });
             });
             return tabApps.length > 0 ? (
               tabApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
