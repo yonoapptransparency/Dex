@@ -160,8 +160,8 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Gateway`}
-        description={`Technical details and mirror gateway for ${app.name}.`}
+        title={`${app.name} - Information`}
+        description={`Specifications and details for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={`https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
