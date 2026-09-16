@@ -1,0 +1,518 @@
+/**
+ * AppDetails deep overview
+ * Renders technical and design features of individual applications with peer user reviews.
+ */
+
+import { safeHtml } from '../lib/safeHtmlPublic';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useData } from '../contexts/DataContextPublic';
+import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
+import { cn } from '../lib/utilsPublic';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
+import Meta from '../components/Meta';
+import { AppListItem } from '../components/PlayStoreUI';
+import { motion, AnimatePresence } from 'framer-motion';
+import UserReviews from '../components/UserReviews';
+import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
+import AccordionItem from '../components/AccordionItem';
+
+import { resolveAppSlug } from '../lib/slugResolver';
+import { mockApps as staticMockApps } from '../lib/staticData';
+import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
+import AppHeader from '../components/public/AppHeader';
+import AppActionButtons from '../components/public/AppActionButtons';
+import AppScreenshots from '../components/public/AppScreenshots';
+import AppAboutSection from '../components/public/AppAboutSection';
+import AppFaqSection from '../components/public/AppFaqSection';
+import AppSpecsBar from '../components/public/AppSpecsBar';
+import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
+
+export { AppDetailsSkeleton };
+
+export default function AppDetails() {
+  const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
+  const { slug: routeSlug, "*": splat } = useParams();
+  const decodedSplat = splat ? decodeURIComponent(splat) : '';
+  const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
+  const slug = routeSlug || splatStripped;
+  
+  // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
+  const app = useMemo(() => {
+    if (!slug) return null;
+    const staticApp = resolveAppSlug(slug, staticMockApps);
+    const dynamicApp = resolveAppSlug(slug, mockApps);
+    if (!dynamicApp && !staticApp) return null;
+
+    return {
+      ...staticApp,
+      ...dynamicApp,
+      description_html: dynamicApp?.description_html || staticApp?.description_html || '',
+      features_html: dynamicApp?.features_html || staticApp?.features_html || '',
+      screenshots: (dynamicApp?.screenshots && dynamicApp.screenshots.length > 0) ? dynamicApp.screenshots : (staticApp?.screenshots || []),
+      faqs: (dynamicApp?.faqs && dynamicApp.faqs.length > 0) ? dynamicApp.faqs : (staticApp?.faqs || []),
+      custom_admin_box_html: dynamicApp?.custom_admin_box_html || staticApp?.custom_admin_box_html || '',
+      custom_admin_box_heading: dynamicApp?.custom_admin_box_heading || staticApp?.custom_admin_box_heading || '',
+      release_notes: dynamicApp?.release_notes || staticApp?.release_notes || '',
+      yellow_box_msg: dynamicApp?.yellow_box_msg || staticApp?.yellow_box_msg || '',
+      red_box_msg: dynamicApp?.red_box_msg || staticApp?.red_box_msg || '',
+      idea_box_msg: dynamicApp?.idea_box_msg || staticApp?.idea_box_msg || '',
+      file_size: dynamicApp?.file_size || staticApp?.file_size || '45 MB',
+      version: dynamicApp?.version || staticApp?.version || '1.0.0',
+      developer: dynamicApp?.developer || staticApp?.developer || 'Developer',
+      safety_status: dynamicApp?.safety_status || staticApp?.safety_status || 'Verified',
+    };
+  }, [slug, mockApps]);
+  
+  const navigate = useNavigate();
+  const [triedRefresh, setTriedRefresh] = useState(false);
+  const syncAttemptedRef = useRef<Record<string, boolean>>({});
+  const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
+
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [shareToast, setShareToast] = useState(false);
+
+  // Helper to extract clean specific category for this app (e.g., 'Card Apps', 'Yono Apps', 'Funny games')
+  const specificCategory = useMemo(() => {
+    if (!app?.category) return 'All Apps';
+    const parts = app.category.split(',').map(c => c.trim()).filter(Boolean);
+    const nonGeneric = parts.filter(c => {
+      const lower = c.toLowerCase();
+      return lower !== 'all apps' && lower !== 'all' && lower !== 'apps' && lower !== 'general';
+    });
+    return nonGeneric.length > 0 ? nonGeneric[0] : (parts[0] || 'All Apps');
+  }, [app?.category]);
+
+  const relatedApps = useMemo(() => {
+    if (!app) return [];
+    const sourceApps = mockApps.length > 0 ? mockApps : staticMockApps;
+    const currentCats = (app.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
+    const specificCats = currentCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+    
+    const exactMatches: typeof sourceApps = [];
+    const tokenMatches: typeof sourceApps = [];
+    const fallbackApps: typeof sourceApps = [];
+
+    const appId = String(app.id || '');
+    const appSlug = String(app.slug || '').toLowerCase();
+
+    for (let i = 0; i < sourceApps.length; i++) {
+      const a = sourceApps[i];
+      if (String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug)) continue;
+      
+      const appCats = (a.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
+      const appSpecificCats = appCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+
+      if (specificCats.some(sc => appSpecificCats.includes(sc))) {
+        exactMatches.push(a);
+        if (exactMatches.length >= 12) break;
+        continue;
+      }
+
+      if (tokenMatches.length < 8) {
+        const hasTokenMatch = specificCats.some(sc => {
+          const tokens = sc.split(/\s+/);
+          return appSpecificCats.some(asc => tokens.some(t => t.length > 2 && asc.includes(t)));
+        });
+        if (hasTokenMatch) {
+          tokenMatches.push(a);
+          continue;
+        }
+      }
+
+      if (fallbackApps.length < 8) {
+        fallbackApps.push(a);
+      }
+    }
+
+    const combined = [...exactMatches, ...tokenMatches];
+    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
+    
+    // Crucial Performance Optimization: 
+    // Strip out the heavy description_html, features_html, and screenshots arrays 
+    // from recommended apps so they don't bloat the React tree on initial load.
+    return finalApps.map(a => ({
+      id: a.id,
+      name: a.name,
+      slug: a.slug,
+      icon_url: a.icon_url
+    }));
+  }, [mockApps, app?.category, app?.id, app?.slug]);
+
+  useEffect(() => {
+    if (!app?.is_coming_soon || !app?.publish_date) {
+      setTimeRemaining(null);
+      return;
+    }
+
+    const calculateRemaining = () => {
+      const remaining = new Date(app.publish_date!).getTime() - new Date().getTime();
+      setTimeRemaining(remaining > 0 ? remaining : 0);
+    };
+
+    calculateRemaining();
+    const interval = setInterval(calculateRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [app?.is_coming_soon, app?.publish_date]);
+
+  const isActuallyComingSoon = app?.is_coming_soon && (timeRemaining === null || timeRemaining > 0);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setTriedRefresh(false);
+  }, [slug]);
+
+  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache
+  useEffect(() => {
+    const slugKey = slug?.toLowerCase() || '';
+    if (!slugKey) return;
+
+    const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
+    const isMissingDetails = !resolved || !resolved.description_html;
+
+    // Only trigger background fetch if we truly have zero description_html
+    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
+      syncAttemptedRef.current[slugKey] = true;
+
+      fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
+        .then(res => {
+          if (res.ok) return res.json();
+          throw new Error(`HTTP ${res.status}`);
+        })
+        .then(data => {
+          if (data?.status === 'OK' && data?.app && updateAppDetail) {
+            updateAppDetail(data.app);
+          } else if (refreshAll) {
+            return refreshAll(true);
+          }
+        })
+        .catch(() => {
+          // Fallback to static data if on-demand fetch fails
+          const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
+          if (fallbackApp && updateAppDetail) {
+            updateAppDetail(fallbackApp);
+          }
+        })
+        .finally(() => {
+          setTriedRefresh(true);
+        });
+    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
+      updateAppDetail(resolved);
+    }
+  }, [slug, mockApps, triedRefresh, refreshAll, updateAppDetail]);
+
+  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
+  if (!app && loading) {
+    return <AppDetailsSkeleton />;
+  }
+
+  if (!app) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
+        <Meta 
+          title="404 - App Not Found | RummyDex" 
+          description="The requested application could not be located on RummyDex." 
+          noindex={true} 
+        />
+        <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">App Not Found</h1>
+        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-3 leading-relaxed mb-6">
+          The requested application "<span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">{slug}</span>" could not be located.
+          If you just created it, it might still be propagating. Try refreshing.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <button 
+            onClick={() => window.location.reload()}
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-zinc-800 hover:bg-zinc-900 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-white rounded-[16px] font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+          >
+            Refresh Data
+          </button>
+          <Link 
+            to="/" 
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[16px] font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4" /> Go to Store
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const siteTitle = mockSettings?.site_title || 'RummyDex';
+  const title = app.seo_title || app.meta_title || `${app.name} | ${siteTitle}`;
+  
+  const stripHtml = (html: string) => {
+    if (!html) return '';
+    const stripped = html.replace(/<[^>]*>?/gm, ' ');
+    return stripped.replace(/\s+/g, ' ').trim();
+  };
+
+  const cleanSeoDescription = (rawDesc: string) => {
+    if (!rawDesc) return '';
+    const trimmed = rawDesc.trim();
+    if (trimmed.startsWith('<') || trimmed.includes('<meta ')) {
+      const metaMatch = trimmed.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
+      if (metaMatch && metaMatch[1]) {
+        return metaMatch[1].trim();
+      }
+      const ogMatch = trimmed.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i);
+      if (ogMatch && ogMatch[1]) {
+        return ogMatch[1].trim();
+      }
+      return stripHtml(trimmed);
+    }
+    return trimmed;
+  };
+  
+  const desc = cleanSeoDescription(app.seo_description || app.meta_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} application specifications`);
+  const ogImage = app.og_image_url || app.icon_url;
+
+  const faqSchema = useMemo(() => {
+    if (!app.faqs || !Array.isArray(app.faqs) || app.faqs.length === 0) return null;
+    const seen = new Set<string>();
+    const validFaqs = app.faqs
+      .filter(faq => {
+        const q = String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim();
+        const a = String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').trim();
+        if (!q || !a || q.length < 5 || seen.has(q.toLowerCase())) return false;
+        seen.add(q.toLowerCase());
+        return true;
+      })
+      .map(faq => ({
+        "@type": "Question",
+        "name": String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim(),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
+        }
+      }));
+
+    if (validFaqs.length === 0) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": validFaqs
+    };
+  }, [app.faqs]);
+
+  const realRatingVal = Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
+  const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
+  const realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
+
+  const softwareSchema: any = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": app.name,
+    "url": `https://www.rummydex.com/app/${app.slug}`,
+    "description": desc,
+    "applicationCategory": normalizeSchemaCategory(app.category),
+    "operatingSystem": "Android",
+    "softwareVersion": app.version || '1.0.0',
+    "fileSize": app.file_size || '45 MB',
+    "image": app.icon_url || app.og_image_url,
+    "author": {
+      "@type": "Organization",
+      "name": app.developer || 'RummyDex'
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": parseFloat(realRatingVal.toFixed(1)),
+      "ratingCount": Math.round(realReviewCount),
+      "reviewCount": Math.round(realReviewCount),
+      "bestRating": 5,
+      "worstRating": 1
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.rummydex.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": app.name,
+        "item": `https://www.rummydex.com/app/${app.slug}`
+      }
+    ]
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        setShareToast(true);
+        setTimeout(() => setShareToast(false), 2050);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
+  };
+
+  const handleShare = async () => {
+    const shareUrl = app.canonical_url || window.location.href;
+    const shareTitle = title;
+    const shareText = desc;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+          copyToClipboard();
+        }
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  return (
+    <div className="animate-fade-in w-full select-none">
+      <AnimatePresence>
+        {shareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-5 py-3 rounded-full shadow-xl flex items-center gap-2 border border-white/10 dark:border-black/5"
+          >
+            <Check className="w-4 h-4 text-green-500 font-bold animate-bounce" />
+            <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="px-1 sm:px-4 md:px-6 mb-4">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
+        >
+          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          Back to storefront
+        </Link>
+      </div>
+      <Meta 
+        title={title}
+        description={desc}
+        keywords={app.seo_keywords}
+        image={ogImage}
+        canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
+        schema={softwareSchema}
+        faqSchema={faqSchema}
+        breadcrumbSchema={breadcrumbSchema}
+      />
+      <div className="w-full">
+        
+        {/* Modular Header */}
+        <AppHeader app={app} />
+
+        <AppSpecsBar 
+          rating={app.rating} 
+          file_size={app.file_size} 
+          category={app.category} 
+          version={app.version} 
+        />
+
+        {/* Modular Action Buttons */}
+        <AppActionButtons 
+          app={app} 
+          isActuallyComingSoon={isActuallyComingSoon} 
+          timeRemaining={timeRemaining} 
+          handleShare={handleShare} 
+        />
+
+        {/* Similar & Related Apps Section (Placed directly below action buttons) */}
+        {relatedApps.length > 0 && (
+          <section aria-labelledby="related-apps-heading" className="my-6 px-0">
+            <div className="flex items-center justify-between mb-3 px-1 sm:px-4 md:px-6">
+              <h2 id="related-apps-heading" className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+                <span>Similar Applications</span>
+                {specificCategory && specificCategory !== 'All Apps' && (
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">
+                    {specificCategory}
+                  </span>
+                )}
+              </h2>
+              <Link 
+                to={`/?tab=${encodeURIComponent(specificCategory)}`}
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors group"
+                title={`Explore all ${specificCategory} apps`}
+              >
+                <span>View all ({relatedApps.length})</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+            <div className="grid grid-rows-2 grid-flow-col gap-x-6 gap-y-6 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+              {relatedApps.map((relatedApp, index) => (
+                <Link
+                  key={`${relatedApp.id}-${index}`}
+                  to={`/app/${relatedApp.slug}`}
+                  className="flex flex-col items-center justify-start gap-2 w-[92px] sm:w-[110px] snap-start group"
+                >
+                  <img
+                    src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
+                    alt={relatedApp.name}
+                    width={100}
+                    height={100}
+                    decoding="async"
+                    className="w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchPriority={index < 4 ? "high" : "low"}
+                    referrerPolicy="no-referrer"
+                  />
+                  <span className="text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
+                    {relatedApp.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Modular Screenshots Gallery (Placed after Similar Apps for best UX/SEO) */}
+        <AppScreenshots app={app} />
+
+        {/* Industrial Application Overview & Technical Specifications */}
+        <AppAboutSection app={app} />
+      </div>
+
+      {/* App Safety & Security Highlight Notices */}
+      <AppSafetyBoxes app={app} />
+
+      {/* Verified Peer Ratings & Reviews Section */}
+      <div className="px-1 sm:px-4 md:px-6 mb-8">
+        <UserReviews 
+          key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
+          appId={app.id} 
+          appTitle={app.name} 
+          appSlug={app.slug}
+          category={app.category}
+          overallRating={app.rating} 
+          totalReviewCount={app.review_count} 
+        />
+      </div>
+      
+      {/* Modular FAQ Section */}
+      <AppFaqSection faqs={app.faqs} />
+
+    </div>
+  );
+}
