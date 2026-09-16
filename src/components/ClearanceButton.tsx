@@ -47,24 +47,43 @@ export default function ClearanceButton({ appId }: ClearanceButtonProps) {
 
       const data = await res.json();
       if (!data || !data.success || !data.url) {
-        throw new Error('Information temporarily unavailable.');
+        throw new Error(data?.error || 'Information temporarily unavailable.');
       }
 
       const targetUrl = data.url;
 
-      // 1. Execute Zero-Referrer Airgap Dispatch
+      // 1. Immediately store resolved URL so user has guaranteed visible direct button
+      setResolvedUrl(targetUrl);
+
+      // 2. Execute Zero-Referrer Airgap Dispatch
+      let opened = false;
       try {
-        const link = document.createElement('a');
-        link.href = targetUrl;
-        link.target = '_blank';
-        link.rel = 'noreferrer noopener';
-        link.referrerPolicy = 'no-referrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (win && !win.closed && typeof win.closed !== 'undefined') {
+          opened = true;
+        }
       } catch (_) {
-        // If mobile browser blocks automated popup, provide manual direct tap
-        setResolvedUrl(targetUrl);
+        opened = false;
+      }
+
+      // If popup blocker silently blocked new tab, or on mobile device, navigate directly
+      if (!opened) {
+        try {
+          const link = document.createElement('a');
+          link.href = targetUrl;
+          link.target = '_blank';
+          link.rel = 'noreferrer noopener';
+          link.referrerPolicy = 'no-referrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (_) {
+          try {
+            window.location.assign(targetUrl);
+          } catch (navErr) {
+            window.location.href = targetUrl;
+          }
+        }
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Connection failed.');
@@ -75,10 +94,7 @@ export default function ClearanceButton({ appId }: ClearanceButtonProps) {
   };
 
   const handleManualFallbackClick = () => {
-    // Instantly wipe URL from memory once clicked
-    setTimeout(() => {
-      setResolvedUrl(null);
-    }, 100);
+    // Keep URL available in state
   };
 
   return (
