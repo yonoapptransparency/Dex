@@ -42,9 +42,12 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
           const starCounts = { ...(prev.starCounts || {}) };
           starCounts[starKey] = (starCounts[starKey] || 0) + 1;
           const total = (prev.totalReviews || 0) + 1;
+          const currentSum = (prev.averageRating || 4.8) * (prev.totalReviews || 0);
+          const newAvg = (currentSum + addedReview.rating) / total;
           return {
             ...prev,
             totalReviews: total,
+            averageRating: Math.max(1, Math.min(5, newAvg)),
             starCounts
           };
         });

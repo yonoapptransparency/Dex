@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import UserReviews from '../components/UserReviews';
 import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
 import AccordionItem from '../components/AccordionItem';
+import { useLiveAppStats } from '../hooks/useReviews';
 
 import { resolveAppSlug } from '../lib/slugResolver';
 import { mockApps as staticMockApps } from '../lib/staticData';
@@ -36,6 +37,8 @@ export default function AppDetails() {
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
+
+
   
   // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
@@ -68,6 +71,7 @@ export default function AppDetails() {
   const [triedRefresh, setTriedRefresh] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
   const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
+  const liveStats = useLiveAppStats(app?.id || '', app?.slug || '');
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [shareToast, setShareToast] = useState(false);
@@ -297,9 +301,20 @@ export default function AppDetails() {
     };
   }, [app.faqs]);
 
-  const realRatingVal = Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
-  const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
-  const realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
+  
+  const realRatingVal = liveStats?.averageRating !== undefined
+    ? Math.max(1.0, Math.min(5.0, parseFloat(String(liveStats.averageRating))))
+    : Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
+
+  
+  let realReviewCount = 0;
+  if (liveStats?.totalReviews !== undefined) {
+     realReviewCount = Number(liveStats.totalReviews);
+  } else {
+     const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
+     realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
+  }
+
 
   const softwareSchema: any = {
     "@context": "https://schema.org",
@@ -425,7 +440,7 @@ export default function AppDetails() {
         <AppHeader app={app} />
 
         <AppSpecsBar 
-          rating={app.rating} 
+          rating={realRatingVal} 
           file_size={app.file_size} 
           category={app.category} 
           version={app.version} 
@@ -506,7 +521,7 @@ export default function AppDetails() {
           appSlug={app.slug}
           category={app.category}
           overallRating={app.rating} 
-          totalReviewCount={app.review_count} 
+          totalReviewCount={realReviewCount} 
         />
       </div>
       
