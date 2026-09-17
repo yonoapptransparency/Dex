@@ -110,7 +110,21 @@ async function prerender() {
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
 
-    // 6. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
+    // 6. Generate Category Routes
+    const categories = new Set<string>();
+    (data.apps || []).forEach((app: any) => {
+      if (app.category && app.sync_to_public !== false) {
+        app.category.split(',').forEach((c: string) => {
+          const slug = c.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          if (slug) categories.add(slug);
+        });
+      }
+    });
+    for (const catSlug of categories) {
+      await generateRoute(`/category/${catSlug}`);
+    }
+
+    // 7. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
     let rawDomain = 'https://www.rummydex.com';
     const host = rawDomain.replace(/\/$/, '');
     const today = new Date().toISOString();

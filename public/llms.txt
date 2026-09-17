@@ -1,10 +1,9 @@
-# Application Hub
-
-> Application Hub is a digital platform providing a verified application catalog, technical specifications, industry news, and developer information.
+# RummyDex
+> RummyDex is a digital platform providing a verified application catalog, technical specifications, industry news, and developer information for Rummy, Teen Patti, and card games.
 
 ## Core Pages
 - [Home](https://www.rummydex.com/): Primary application directory and search.
 - [News](https://www.rummydex.com/news): Industry news and platform updates.
 - [Blogs](https://www.rummydex.com/blogs): Technical articles and guides.
 - [Developers](https://www.rummydex.com/developers): Developer portal and submission guidelines.
-- [About Us](https://www.rummydex.com/about): Information about Application Hub platform.
+- [About Us](https://www.rummydex.com/about): Information about RummyDex platform.
