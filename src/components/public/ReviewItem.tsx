@@ -63,12 +63,15 @@ export function ReviewItem({
 
   return (
     <div
+      itemScope itemType="https://schema.org/Review"
       className={`cv-auto p-5 border rounded-2xl flex gap-4 transition-all text-left ${
         isReported || rev.reported
           ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'
           : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10'
       }`}
     >
+      <meta itemProp="datePublished" content={rev.created_at ? new Date(rev.created_at).toISOString().split('T')[0] : ''} />
+      
       {/* Avatar */}
       <div className={`w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(username)}`}>
         {username ? username.charAt(0).toUpperCase() : 'P'}
@@ -78,8 +81,8 @@ export function ReviewItem({
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate">
+          <div className="flex items-center gap-2 min-w-0" itemProp="author" itemScope itemType="https://schema.org/Person">
+            <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate" itemProp="name">
               {username}
             </span>
             {(isReported || rev.reported) && (
@@ -101,7 +104,10 @@ export function ReviewItem({
         </div>
 
         {/* Stars */}
-        <div className="flex items-center gap-0.5 mb-2.5 text-amber-500">
+        <div className="flex items-center gap-0.5 mb-2.5 text-amber-500" itemProp="reviewRating" itemScope itemType="https://schema.org/Rating">
+          <meta itemProp="ratingValue" content={String(rev.rating)} />
+          <meta itemProp="bestRating" content="5" />
+          <meta itemProp="worstRating" content="1" />
           {[1, 2, 3, 4, 5].map((s) => (
             <Star 
               key={`star-${rev.id}-${s}`} 
@@ -114,7 +120,7 @@ export function ReviewItem({
         <div 
           className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed break-words whitespace-pre-wrap flex flex-col relative select-text"
         >
-          <p>{displayedComment}</p>
+          <p itemProp="reviewBody">{displayedComment}</p>
           
           {isLong && (
             <button

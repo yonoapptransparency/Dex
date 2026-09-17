@@ -49,15 +49,24 @@ async function prerender() {
     
     // Helper to generate a file for a specific path
     const generateRoute = async (routePath: string) => {
-      console.log(`Prerendering route: ${routePath}`);
-      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
-      const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
-      
-      const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
+      try {
+        console.log(`Prerendering route: ${routePath}`);
+        const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
+        const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
+        
+        const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+        const finalIndexHtmlPath = path.join(targetDir, 'index.html');
+        fs.writeFileSync(finalIndexHtmlPath, template, 'utf-8');
+
+        if (template.includes('<title>RummyDex</title>') && routePath !== '/') {
+          console.error(`⚠️ TITLE NOT REPLACED for route: ${routePath}`);
+        }
+      } catch (err) {
+        console.error(`❌ Prerender failed for ${routePath}:`, err);
       }
-      fs.writeFileSync(path.join(targetDir, 'index.html'), template, 'utf-8');
     };
 
     // 1. Generate Home Route

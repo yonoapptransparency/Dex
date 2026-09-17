@@ -116,7 +116,11 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
         <MessageSquare className="w-5 h-5 text-blue-500" />
         <span>Ratings and reviews</span>
       </h2>
-      <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/10">
+      <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/10" itemScope itemType="https://schema.org/AggregateRating">
+        <meta itemProp="ratingValue" content={String(ratingVal)} />
+        <meta itemProp="reviewCount" content={String(totalCount)} />
+        <meta itemProp="bestRating" content="5" />
+        <meta itemProp="worstRating" content="1" />
         <div className="text-center shrink-0">
           <div className="text-5xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none mb-1">
             {averageValue}

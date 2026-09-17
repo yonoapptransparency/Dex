@@ -205,8 +205,11 @@ export default function AppDetails() {
     }
   }, [slug, mockApps, triedRefresh, refreshAll, updateAppDetail]);
 
-  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
-  if (!app && loading) {
+  // If app is not found or we are waiting for rich details to load, show skeleton to prevent CLS
+  const isMissingDetails = !app || !app.description_html;
+  const isActivelyFetching = isMissingDetails && !triedRefresh;
+
+  if (isActivelyFetching || (!app && loading)) {
     return <AppDetailsSkeleton />;
   }
 
