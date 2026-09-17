@@ -126,14 +126,8 @@ export default function UserReviews({
             appSlug={appSlug} 
             appName={appTitle}
             onSuccess={(newReview) => {
-              setReviews(prev => [newReview, ...prev.filter(r => r.id !== newReview.id)]);
-              if (stats) {
-                const starKey = String(newReview.rating);
-                const starCounts = { ...(stats.starCounts || {}) };
-                starCounts[starKey] = (starCounts[starKey] || 0) + 1;
-                stats.totalReviews = (stats.totalReviews || 0) + 1;
-                stats.starCounts = starCounts;
-              }
+              // The new review will be added via community-review-added event listener in useReviews
+              // We don't need to mutate stats here since ReviewScoreSummary listens to the same event.
             }} 
           />
 
