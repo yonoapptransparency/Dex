@@ -20,4 +20,5 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
+
 Sitemap: https://www.rummydex.com/sitemap.xml
