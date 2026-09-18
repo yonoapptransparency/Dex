@@ -87,6 +87,11 @@ export function ReviewItem({
                 Flagged
               </span>
             )}
+            {rev.isPinned && (
+              <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/20 shrink-0 select-none uppercase tracking-wide">
+                Pinned
+              </span>
+            )}
           </div>
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase shrink-0">
             {(() => {
@@ -126,6 +131,23 @@ export function ReviewItem({
               <span>{isExpanded ? 'Show less' : 'Read more'}</span>
               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
+          )}
+
+          {rev.adminReply && rev.adminReply.text && (
+            <div className="mt-3 p-3 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-xl border border-black/5 dark:border-white/5 text-[11px] text-zinc-700 dark:text-zinc-300">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  {rev.adminReply.author || 'Developer Response'}
+                </span>
+                {rev.adminReply.timestamp && (
+                  <span className="text-[9px] text-zinc-400">
+                    {new Date(rev.adminReply.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+              <p className="leading-relaxed whitespace-pre-wrap">{rev.adminReply.text}</p>
+            </div>
           )}
         </div>
 
