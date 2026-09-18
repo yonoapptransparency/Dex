@@ -4,8 +4,6 @@
   "scope": "/",
   "name": "RummyDex",
   "short_name": "RummyDex",
-  "description": "Verified directory of Rummy and card game apps for Indian players",
-  "categories": ["games", "utilities"],
   "display": "standalone",
   "orientation": "portrait",
   "lang": "en-IN",
@@ -14,25 +12,13 @@
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#dc2626",

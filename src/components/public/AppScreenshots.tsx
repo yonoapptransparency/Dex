@@ -83,7 +83,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
           >
             <img 
               src={getOptimizedImageUrl(imgUrl, 400)} 
-              alt={`${app.name} screenshot ${i + 1} - gameplay preview`} 
+              alt={`App screenshot ${i + 1}`} 
               loading={i === 0 ? "eager" : "lazy"} 
               fetchPriority={i === 0 ? "high" : "auto"}
               decoding="async"
@@ -131,7 +131,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
               >
                 <img 
                   src={getOptimizedImageUrl(imgUrl, 1200)} 
-                  alt={`${app.name} full screenshot ${i + 1} - gameplay preview`} 
+                  alt={`Full App screenshot ${i + 1}`} 
                   className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-sm border border-black/5 dark:border-white/5"
                   loading={i === currentIndex ? "eager" : "lazy"}
                   referrerPolicy="no-referrer"

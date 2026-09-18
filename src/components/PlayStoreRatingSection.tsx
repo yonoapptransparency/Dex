@@ -118,14 +118,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
           rating: rating,
           reviewText: cleanComment
         });
-      } catch (e) {
-        console.error('[PlayStoreRating] Review submission failed:', e);
-        try {
-          const pendingReviews = JSON.parse(localStorage.getItem('pending_reviews') || '[]');
-          pendingReviews.push({ appId, userName: cleanName, rating, reviewText: cleanComment, ts: Date.now() });
-          localStorage.setItem('pending_reviews', JSON.stringify(pendingReviews));
-        } catch(err) {}
-      }
+      } catch (e) {}
 
       // Dispatch global event for instant reactivity
       try {

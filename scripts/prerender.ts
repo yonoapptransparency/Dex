@@ -49,24 +49,15 @@ async function prerender() {
     
     // Helper to generate a file for a specific path
     const generateRoute = async (routePath: string) => {
-      try {
-        console.log(`Prerendering route: ${routePath}`);
-        const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
-        const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
-        
-        const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-        const finalIndexHtmlPath = path.join(targetDir, 'index.html');
-        fs.writeFileSync(finalIndexHtmlPath, template, 'utf-8');
-
-        if (template.includes('<title>RummyDex</title>') && routePath !== '/') {
-          console.error(`⚠️ TITLE NOT REPLACED for route: ${routePath}`);
-        }
-      } catch (err) {
-        console.error(`❌ Prerender failed for ${routePath}:`, err);
+      console.log(`Prerendering route: ${routePath}`);
+      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
+      const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
+      
+      const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
       }
+      fs.writeFileSync(path.join(targetDir, 'index.html'), template, 'utf-8');
     };
 
     // 1. Generate Home Route
@@ -110,21 +101,7 @@ async function prerender() {
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
 
-    // 6. Generate Category Routes
-    const categories = new Set<string>();
-    (data.apps || []).forEach((app: any) => {
-      if (app.category && app.sync_to_public !== false) {
-        app.category.split(',').forEach((c: string) => {
-          const slug = c.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          if (slug) categories.add(slug);
-        });
-      }
-    });
-    for (const catSlug of categories) {
-      await generateRoute(`/category/${catSlug}`);
-    }
-
-    // 7. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
+    // 6. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
     let rawDomain = 'https://www.rummydex.com';
     const host = rawDomain.replace(/\/$/, '');
     const today = new Date().toISOString();
