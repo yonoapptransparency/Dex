@@ -67,10 +67,8 @@ async function prerender() {
 
     // 2. Generate Application Routes (Only for public synced apps)
     const appsToPrerender = (data.apps || []).filter((a: any) => a.slug && a.sync_to_public !== false);
-    const BATCH_SIZE = 25;
-    for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
-      const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
-      await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
+    for (const app of appsToPrerender) {
+      await generateRoute(`/app/${app.slug}`);
     }
 
     // 3. Generate News Routes (Only for public synced news)
