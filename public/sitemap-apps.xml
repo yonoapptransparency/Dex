@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/solitaire</loc>
+    <lastmod>2026-09-18T13:14:38+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1786259914/1000133500_11zon_1_s5uttq.webp</image:loc>
+      <image:title>SOLITAIRE</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/spin-crush</loc>
     <lastmod>2026-09-16T10:38:04+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -88,16 +98,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_5__converted_ut2ovb.webp</image:loc>
       <image:title>ReelShort</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/solitaire</loc>
-    <lastmod>2026-09-10T07:31:57+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1786259914/1000133500_11zon_1_s5uttq.webp</image:loc>
-      <image:title>SOLITAIRE</image:title>
     </image:image>
   </url>
   <url>
