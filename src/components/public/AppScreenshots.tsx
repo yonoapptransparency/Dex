@@ -43,12 +43,12 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
         }, 10);
       }
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [isModalOpen]); // Intentionally omitting currentIndex from deps to only auto-scroll on open
 
@@ -83,7 +83,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
           >
             <img 
               src={getOptimizedImageUrl(imgUrl, 400)} 
-              alt={`App screenshot ${i + 1}`} 
+              alt={`${app.name} screenshot ${i + 1} - gameplay preview`} 
               loading={i === 0 ? "eager" : "lazy"} 
               fetchPriority={i === 0 ? "high" : "auto"}
               decoding="async"
@@ -131,7 +131,7 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
               >
                 <img 
                   src={getOptimizedImageUrl(imgUrl, 1200)} 
-                  alt={`Full App screenshot ${i + 1}`} 
+                  alt={`${app.name} screenshot ${i + 1} - gameplay preview`} 
                   className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-sm border border-black/5 dark:border-white/5"
                   loading={i === currentIndex ? "eager" : "lazy"}
                   referrerPolicy="no-referrer"
