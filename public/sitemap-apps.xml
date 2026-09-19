@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/yono-slots</loc>
+    <lastmod>2026-09-19T07:48:57+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1789804128/rummydex_uploads/lobb8ijx50a1jlhdjd6f.jpg</image:loc>
+      <image:title>YONO SLOTS</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/solitaire</loc>
     <lastmod>2026-09-18T13:14:38+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -198,16 +208,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788454523/rummydex_uploads/qat26qydzzshbkfslrob.png</image:loc>
       <image:title>SPIN 101</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/yono-slots</loc>
-    <lastmod>2026-09-04T17:54:56+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788453877/rummydex_uploads/ob0o40mujay3n6mk7u1r.png</image:loc>
-      <image:title>YONO SLOTS</image:title>
     </image:image>
   </url>
   <url>
