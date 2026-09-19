@@ -302,13 +302,13 @@ export default function AppDetails() {
   }, [app.faqs]);
 
   
-  const realRatingVal = liveStats?.averageRating !== undefined
+  const hasLiveReviews = Boolean(liveStats && Number(liveStats.totalReviews) > 0);
+  const realRatingVal = hasLiveReviews
     ? Math.max(1.0, Math.min(5.0, parseFloat(String(liveStats.averageRating))))
     : Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
 
-  
   let realReviewCount = 0;
-  if (liveStats?.totalReviews !== undefined) {
+  if (hasLiveReviews) {
      realReviewCount = Number(liveStats.totalReviews);
   } else {
      const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
