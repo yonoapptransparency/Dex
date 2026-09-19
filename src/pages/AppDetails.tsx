@@ -305,16 +305,10 @@ export default function AppDetails() {
   const hasLiveReviews = Boolean(liveStats && Number(liveStats.totalReviews) > 0);
   const realRatingVal = hasLiveReviews
     ? Math.max(1.0, Math.min(5.0, parseFloat(String(liveStats.averageRating))))
-    : Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)) || 4.5));
+    : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 0);
 
-  let realReviewCount = 0;
-  if (hasLiveReviews) {
-     realReviewCount = Number(liveStats.totalReviews);
-  } else {
-     const rawReviewCount = parseInt(String(app.review_count || (app as any)?.reviews || '0'), 10);
-     realReviewCount = rawReviewCount > 0 ? rawReviewCount : Math.floor(realRatingVal * 35 + 20);
-  }
-
+  // Strictly real count of reviews present in Firebase
+  const realReviewCount = hasLiveReviews ? Number(liveStats.totalReviews) : 0;
 
   const softwareSchema: any = {
     "@context": "https://schema.org",
@@ -336,14 +330,16 @@ export default function AppDetails() {
       "price": "0",
       "priceCurrency": "INR"
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": parseFloat(realRatingVal.toFixed(1)),
-      "ratingCount": Math.round(realReviewCount),
-      "reviewCount": Math.round(realReviewCount),
-      "bestRating": 5,
-      "worstRating": 1
-    }
+    ...(hasLiveReviews && realReviewCount > 0 ? {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": parseFloat(realRatingVal.toFixed(1)),
+        "ratingCount": Math.round(realReviewCount),
+        "reviewCount": Math.round(realReviewCount),
+        "bestRating": 5,
+        "worstRating": 1
+      }
+    } : {})
   };
 
   const breadcrumbSchema = {
@@ -440,7 +436,8 @@ export default function AppDetails() {
         <AppHeader app={app} />
 
         <AppSpecsBar 
-          rating={realRatingVal} 
+          rating={hasLiveReviews ? realRatingVal : 0} 
+          hasReviews={hasLiveReviews}
           file_size={app.file_size} 
           category={app.category} 
           version={app.version} 

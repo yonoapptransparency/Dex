@@ -60,53 +60,23 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
     };
   }, [cleanId, cleanSlug, target]);
 
-  const ratingVal = (stats?.averageRating !== undefined && stats?.averageRating !== null && stats?.totalReviews > 0)
-    ? stats.averageRating
-    : (overallRating || 4.8);
-  const averageValue = Number(ratingVal).toFixed(1);
+  const hasRealReviews = Boolean(stats && Number(stats.totalReviews) > 0);
+  const ratingVal = hasRealReviews ? Number(stats.averageRating) : 0;
+  const averageValue = hasRealReviews ? ratingVal.toFixed(1) : '--';
+  const totalCount = hasRealReviews ? Number(stats.totalReviews) : 0;
 
-  // Total rating count calculation
-  const totalCount = (stats?.totalReviews !== undefined && stats?.totalReviews > 0)
-    ? stats.totalReviews
-    : (typeof totalReviewCount === 'number' && totalReviewCount > 0
-        ? totalReviewCount
-        : Math.round(Number(ratingVal) * 350 + 120));
-
-  // Calculate star distribution
+  // Real star distribution from actual community reviews
   const starCounts: Record<string, number> = React.useMemo(() => {
-    if (stats?.starCounts && stats?.totalReviews > 0) {
+    if (hasRealReviews && stats?.starCounts) {
       return stats.starCounts;
     }
-    const r = Math.min(5, Math.max(1, Number(ratingVal)));
-    const t = typeof totalCount === 'number' && totalCount > 0 ? totalCount : 100;
-    if (r >= 4.5) {
-      const s5 = Math.round(t * 0.78);
-      const s4 = Math.round(t * 0.15);
-      const s3 = Math.round(t * 0.05);
-      const s2 = Math.round(t * 0.01);
-      const s1 = Math.max(0, t - s5 - s4 - s3 - s2);
-      return { '5': s5, '4': s4, '3': s3, '2': s2, '1': s1 };
-    } else if (r >= 4.0) {
-      const s5 = Math.round(t * 0.55);
-      const s4 = Math.round(t * 0.30);
-      const s3 = Math.round(t * 0.10);
-      const s2 = Math.round(t * 0.03);
-      const s1 = Math.max(0, t - s5 - s4 - s3 - s2);
-      return { '5': s5, '4': s4, '3': s3, '2': s2, '1': s1 };
-    } else {
-      const s5 = Math.round(t * 0.35);
-      const s4 = Math.round(t * 0.30);
-      const s3 = Math.round(t * 0.20);
-      const s2 = Math.round(t * 0.10);
-      const s1 = Math.max(0, t - s5 - s4 - s3 - s2);
-      return { '5': s5, '4': s4, '3': s3, '2': s2, '1': s1 };
-    }
-  }, [stats, totalCount, ratingVal]);
+    return { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
+  }, [hasRealReviews, stats]);
 
   const getPercentage = (starNum: number) => {
+    if (!hasRealReviews || totalCount <= 0) return '0%';
     const count = starCounts[String(starNum)] || 0;
-    const total = typeof totalCount === 'number' && totalCount > 0 ? totalCount : 1; // prevent div by zero
-    const pct = Math.min(100, Math.max(0, Math.round((count / total) * 100)));
+    const pct = Math.min(100, Math.max(0, Math.round((count / totalCount) * 100)));
     return `${pct}%`;
   };
 

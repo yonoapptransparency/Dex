@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 
 interface AppSpecsBarProps {
   rating?: number;
+  hasReviews?: boolean;
   file_size?: string;
   category?: string;
   version?: string;
 }
 
-export function AppSpecsBar({ rating, file_size, category, version }: AppSpecsBarProps) {
+export function AppSpecsBar({ rating, hasReviews, file_size, category, version }: AppSpecsBarProps) {
   // Extract specific meaningful category
   const displayCategory = React.useMemo(() => {
     if (!category) return 'General';
@@ -21,18 +22,19 @@ export function AppSpecsBar({ rating, file_size, category, version }: AppSpecsBa
     return nonGeneric.length > 0 ? nonGeneric[0] : (parts[0] || 'General');
   }, [category]);
 
+  const isRated = hasReviews !== false && typeof rating === 'number' && rating > 0;
+
   return (
     <div className="w-full grid grid-cols-4 py-4 mb-6 border-y border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/10 dark:bg-zinc-900/10">
       {/* Column 1: Rating */}
       <div className="flex flex-col items-center justify-center px-2 text-center">
         <div className="flex items-center gap-0.5 font-extrabold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-          <span>{(() => {
-            const num = typeof rating === 'number' ? rating : parseFloat(String(rating || ''));
-            return !isNaN(num) && num > 0 ? num.toFixed(1) : '5.0';
-          })()}</span>
-          <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current text-orange-500" />
+          <span>{isRated ? rating.toFixed(1) : '--'}</span>
+          <Star className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isRated ? 'fill-current text-orange-500' : 'text-zinc-300 dark:text-zinc-600'}`} />
         </div>
-        <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1">Rating</div>
+        <div className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-1">
+          {isRated ? 'Rating' : 'Unrated'}
+        </div>
       </div>
 
       {/* Column 2: Size */}
