@@ -29,8 +29,8 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Initialize inView to true so per-app review fetching begins immediately in the background
-  const [inView, setInView] = useState(true);
+  // Initialize inView to false so reviews only load on scroll trigger
+  const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +44,7 @@ export default function UserReviews({
         setInView(true);
         observer.disconnect();
       }
-    }, { rootMargin: '700px' });
+    }, { rootMargin: '100px' });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [appId, appSlug]);
