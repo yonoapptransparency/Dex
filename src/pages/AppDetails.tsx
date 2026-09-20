@@ -436,8 +436,8 @@ export default function AppDetails() {
         <AppHeader app={app} />
 
         <AppSpecsBar 
-          rating={hasLiveReviews ? realRatingVal : 0} 
-          hasReviews={hasLiveReviews}
+          rating={realRatingVal} 
+          hasReviews={realReviewCount > 0}
           file_size={app.file_size} 
           category={app.category} 
           version={app.version} 
