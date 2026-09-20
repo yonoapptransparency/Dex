@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Star, ShieldCheck, MessageSquare } from 'lucide-react';
-import { fetchLiveReviews, getCachedLiveReviews } from '../../lib/communityFirebase';
+import { useLiveAppStats } from '../../hooks/useReviews';
 
 interface ReviewScoreSummaryProps {
   appId: string;
@@ -12,53 +12,9 @@ interface ReviewScoreSummaryProps {
 export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalReviewCount }: ReviewScoreSummaryProps) {
   const cleanId = String(appId || '').trim();
   const cleanSlug = String(appSlug || '').trim();
-  const target = cleanId || cleanSlug;
 
-  // Initialize immediately from SWR cache or static fallback if present (0 network calls)
-  const [stats, setStats] = useState<any>(() => {
-    const cached = getCachedLiveReviews(cleanId, cleanSlug);
-    return cached?.stats || null;
-  });
-
-  useEffect(() => {
-    if (!target) return;
-    const cached = getCachedLiveReviews(cleanId, cleanSlug);
-    if (cached?.stats) {
-      setStats(cached.stats);
-    }
-
-    const handleUpdate = (e: any) => {
-      const addedReview = e?.detail?.newReview;
-      if (addedReview) {
-        setStats((prev: any) => {
-          if (!prev) {
-            return {
-              averageRating: addedReview.rating,
-              totalReviews: 1,
-              starCounts: { [String(addedReview.rating)]: 1 }
-            };
-          }
-          const starKey = String(addedReview.rating);
-          const starCounts = { ...(prev.starCounts || {}) };
-          starCounts[starKey] = (starCounts[starKey] || 0) + 1;
-          const total = (prev.totalReviews || 0) + 1;
-          const currentSum = (prev.averageRating || 4.8) * (prev.totalReviews || 0);
-          const newAvg = (currentSum + addedReview.rating) / total;
-          return {
-            ...prev,
-            totalReviews: total,
-            averageRating: Math.max(1, Math.min(5, newAvg)),
-            starCounts
-          };
-        });
-      }
-    };
-
-    window.addEventListener('community-review-added', handleUpdate);
-    return () => {
-      window.removeEventListener('community-review-added', handleUpdate);
-    };
-  }, [cleanId, cleanSlug, target]);
+  // Unified single source of truth hook (shared with AppDetails & SEO schema)
+  const stats = useLiveAppStats(cleanId, cleanSlug, overallRating, Number(totalReviewCount) || 0);
 
   const hasRealReviews = Boolean(stats && Number(stats.totalReviews) > 0);
   const ratingVal = hasRealReviews ? Number(stats.averageRating) : 0;

@@ -32,7 +32,6 @@ export default function UserReviews({
   // Initialize inView to false so reviews only load on scroll trigger
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current || typeof IntersectionObserver === 'undefined') {
@@ -87,18 +86,6 @@ export default function UserReviews({
       loadMore();
     }
   };
-
-  // Automated scroll trigger for lightning fast lazy loading ("laser loading")
-  useEffect(() => {
-    if (!canLoadMore || loadingMore || !loadMoreSentinelRef.current || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && canLoadMore && !loadingMore) {
-        handleLoadMore();
-      }
-    }, { rootMargin: '300px' });
-    observer.observe(loadMoreSentinelRef.current);
-    return () => observer.disconnect();
-  }, [canLoadMore, loadingMore, hasMore]);
 
   const countAll = stats?.totalReviews ?? reviews.length;
   const countPositive = stats?.starCounts 
@@ -262,18 +249,17 @@ export default function UserReviews({
                 ))}
                 
                 {canLoadMore && filteredReviews.length > 0 && (
-                  <div className="pt-4 flex flex-col items-center gap-2">
-                    <div ref={loadMoreSentinelRef} className="h-4 w-full pointer-events-none" />
+                  <div className="pt-4 flex flex-col items-center justify-center">
                     <button 
                       type="button"
                       onClick={handleLoadMore}
                       disabled={loadingMore}
-                      className="px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]"
+                      className="px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]"
                     >
                       {loadingMore ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Loading...
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-500 dark:text-zinc-400" />
+                          <span>Loading Reviews...</span>
                         </>
                       ) : (
                         'Load More Reviews'
