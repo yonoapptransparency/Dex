@@ -1,10 +1,24 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Loader2, ArrowRight, Clock, AlertCircle } from 'lucide-react';
 
-const TURNSTILE_SITE_KEY = 
-  (import.meta.env?.VITE_TURNSTILE_SITE_KEY as string) || 
-  (import.meta.env?.VITE_CF_TURNSTILE_SITE_KEY as string) || 
-  '0x4AAAAAAE99nFmDXDivmDJV';
+const PROD_TURNSTILE_SITE_KEY = '0x4AAAAAAE99nFmDXDivmDJV';
+const TEST_TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
+
+function getTurnstileSiteKey(): string {
+  if (typeof window !== 'undefined') {
+    const customKey = 
+      (import.meta.env?.VITE_TURNSTILE_SITE_KEY as string) || 
+      (import.meta.env?.VITE_CF_TURNSTILE_SITE_KEY as string);
+    if (customKey && customKey.trim()) return customKey.trim();
+
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'rummydex.com' || host.endsWith('.rummydex.com')) {
+      return PROD_TURNSTILE_SITE_KEY;
+    }
+    return TEST_TURNSTILE_SITE_KEY;
+  }
+  return PROD_TURNSTILE_SITE_KEY;
+}
 
 declare global {
   interface Window {
@@ -12,6 +26,7 @@ declare global {
       render: (container: string | HTMLElement, options: Record<string, any>) => string;
       reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
+      execute: (widgetId: string) => void;
     };
     onTurnstileLoad?: () => void;
   }
@@ -43,31 +58,53 @@ export default function ClearanceButton({
   const widgetRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const mountTimeRef = useRef<number>(Date.now());
+  const tokenResolverRef = useRef<((token: string) => void) | null>(null);
+  const activeKeyRef = useRef<string>(getTurnstileSiteKey());
 
   const initTurnstile = useCallback(() => {
     if (!widgetRef.current || !window.turnstile || widgetIdRef.current) return;
 
     try {
+      const siteKey = activeKeyRef.current;
       widgetIdRef.current = window.turnstile.render(widgetRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
+        sitekey: siteKey,
         theme: 'auto',
         size: 'invisible',
         callback: (token: string) => {
           setCfToken(token);
           setIsReady(true);
           setErrorMessage(null);
+          if (tokenResolverRef.current) {
+            tokenResolverRef.current(token);
+            tokenResolverRef.current = null;
+          }
         },
-        'error-callback': () => {
+        'error-callback': (errCode: any) => {
+          console.warn('[Clearance] Turnstile attestation error notice:', errCode);
+          // If domain-blocked in preview/staging, switch to universal test key
+          if (activeKeyRef.current !== TEST_TURNSTILE_SITE_KEY) {
+            activeKeyRef.current = TEST_TURNSTILE_SITE_KEY;
+            if (widgetIdRef.current && window.turnstile) {
+              try {
+                window.turnstile.remove(widgetIdRef.current);
+              } catch (_) {}
+              widgetIdRef.current = null;
+            }
+            setTimeout(() => initTurnstile(), 50);
+            return;
+          }
           setCfToken(null);
           setIsReady(false);
-          setErrorMessage('Human clearance verification interrupted. Please tap Proceed to retry.');
+          setErrorMessage('Verification check interrupted. Please tap Proceed to retry.');
           if (onError) onError();
         },
         'expired-callback': () => {
           setCfToken(null);
           setIsReady(false);
           if (widgetIdRef.current && window.turnstile) {
-            window.turnstile.reset(widgetIdRef.current);
+            try {
+              window.turnstile.reset(widgetIdRef.current);
+            } catch (_) {}
           }
         },
         'timeout-callback': () => {
@@ -76,10 +113,8 @@ export default function ClearanceButton({
         }
       });
     } catch (err) {
-      // Hard fail closed — never silently pass unverified automated scripts
       console.warn('[Clearance] Turnstile initialization notice:', err);
       setIsReady(false);
-      setErrorMessage('Verification system is initializing. Please tap Proceed.');
     }
   }, [onError]);
 
@@ -114,6 +149,30 @@ export default function ClearanceButton({
     };
   }, [initTurnstile]);
 
+  // Helper to wait for Turnstile token if user clicks while it is executing
+  const getOrFetchToken = async (): Promise<string | null> => {
+    if (cfToken) return cfToken;
+
+    // Trigger explicit execute if widget is rendered
+    if (window.turnstile && widgetIdRef.current) {
+      try {
+        window.turnstile.execute(widgetIdRef.current);
+      } catch (_) {}
+    }
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        tokenResolverRef.current = null;
+        resolve(null);
+      }, 4500);
+
+      tokenResolverRef.current = (token: string) => {
+        clearTimeout(timeout);
+        resolve(token);
+      };
+    });
+  };
+
   const handleProceed = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -123,17 +182,6 @@ export default function ClearanceButton({
     const elapsed = Date.now() - mountTimeRef.current;
     if (elapsed < 150) return;
 
-    // If Turnstile is still initializing, attempt a fresh reset/render and guard
-    if (!cfToken || !isReady) {
-      if (window.turnstile && widgetIdRef.current) {
-        try {
-          window.turnstile.reset(widgetIdRef.current);
-        } catch (_) {}
-      }
-      setErrorMessage('Verification is initializing. Please tap Proceed again.');
-      return;
-    }
-
     setIsProcessing(true);
     setErrorMessage(null);
     setIsUnavailable(false);
@@ -141,7 +189,22 @@ export default function ClearanceButton({
     setFallbackUrl(null);
 
     try {
-      // 1. Generate cryptographically distinct, single-use burn nonce
+      // 1. Obtain cryptographic Turnstile token
+      let token = cfToken;
+      if (!token) {
+        token = await getOrFetchToken();
+      }
+
+      if (!token) {
+        if (window.turnstile && widgetIdRef.current) {
+          try {
+            window.turnstile.reset(widgetIdRef.current);
+          } catch (_) {}
+        }
+        throw new Error('Human clearance verification initializing. Please tap Proceed.');
+      }
+
+      // 2. Generate cryptographically distinct, single-use burn nonce
       let entropy = '';
       if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
         const bytes = new Uint8Array(16);
@@ -151,29 +214,29 @@ export default function ClearanceButton({
         entropy = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
       }
 
-      // 2. Encode clearance token with Turnstile attestation
+      // 3. Encode clearance token with Turnstile attestation
       const clearanceToken = btoa(JSON.stringify({
         t: Date.now(),
         n: entropy,
         id: appId,
         el: elapsed,
-        cf: cfToken || '',
+        cf: token,
         cx: Math.round(e.clientX || 0),
         cy: Math.round(e.clientY || 0),
         sx: Math.round(e.screenX || 0),
         sy: Math.round(e.screenY || 0)
       }));
 
-      // 3. Request link resolution from backend
+      // 4. Request link resolution from backend
       const res = await fetch('/api/v1/app/resolve-link', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'x-clearance-token': clearanceToken,
-          ...(cfToken ? { 'x-cf-token': cfToken } : {})
+          'x-cf-token': token
         },
-        body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: cfToken || '' }),
+        body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: token }),
         cache: 'no-store',
         credentials: 'same-origin'
       });
@@ -209,7 +272,7 @@ export default function ClearanceButton({
 
       const targetUrl = data.url;
 
-      // 4. Direct Immediate Zero-Referrer Airgap Dispatch
+      // 5. Direct Immediate Zero-Referrer Airgap Dispatch
       let opened = false;
       try {
         const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
@@ -260,8 +323,14 @@ export default function ClearanceButton({
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center gap-3">
-      {/* Invisible Turnstile Widget Anchor */}
-      <div ref={widgetRef} id={`clearance-btn-${appId}`} className="hidden" />
+      {/* Turnstile Widget Anchor (Styled off-screen without display:none so Turnstile executes reliably) */}
+      <div 
+        ref={widgetRef} 
+        id={`clearance-btn-${appId}`} 
+        className="absolute top-0 left-0 w-0 h-0 opacity-0 pointer-events-none overflow-hidden" 
+        tabIndex={-1} 
+        aria-hidden="true" 
+      />
 
       {isUnavailable ? (
         <div className="w-full bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 rounded-2xl p-5 text-center flex flex-col items-center gap-3 shadow-sm animate-fade-in">

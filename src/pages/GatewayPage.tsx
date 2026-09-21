@@ -160,8 +160,8 @@ export default function GatewayPage() {
       </div>
 
       <Meta 
-        title={`${app.name} - Information`}
-        description={`Specifications and details for ${app.name}.`}
+        title={`Verification Portal — ${app.name}`}
+        description={`Verification specifications and technical details for ${app.name}.`}
         image={app.og_image_url || app.icon_url}
         canonical={`https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
