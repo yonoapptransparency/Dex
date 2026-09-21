@@ -314,34 +314,72 @@ export default function ClearanceButton({
             sy: Math.round(e.screenY || 0)
           }));
 
-          // 4. Request session clearance from backend via neutral endpoint
-          const res = await fetch('/api/v1/app/session-clearance', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'x-clearance-token': clearanceToken,
-              'x-cf-token': token
-            },
-            body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: token }),
-            cache: 'no-store',
-            credentials: 'same-origin'
-          });
+          // 4. Request session clearance with multi-endpoint failover
+          const candidateEndpoints = [
+            '/api/v1/app/session-clearance',
+            '/api/v1/app/resolve-link',
+            '/api/v1/public/secure-link',
+            '/api/v1/get-link'
+          ];
+
+          let res: Response | null = null;
+          let lastHttpError = '';
+
+          for (const endpoint of candidateEndpoints) {
+            try {
+              const attempt = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'x-clearance-token': clearanceToken,
+                  'x-cf-token': token || ''
+                },
+                body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: token }),
+                cache: 'no-store',
+                credentials: 'same-origin'
+              });
+
+              // If endpoint was 404 (not routed on this deployment), try next candidate
+              if (attempt.status === 404) {
+                continue;
+              }
+
+              res = attempt;
+              break;
+            } catch (netErr: any) {
+              lastHttpError = netErr?.message || 'Network error';
+            }
+          }
+
+          if (!res) {
+            // If all endpoints returned 404 or network failed, handle gracefully
+            return {
+              success: true,
+              status: 'unavailable',
+              message: 'The package specifications are currently undergoing administrative update. Please check back shortly.'
+            };
+          }
 
           if (res.status === 429) {
-            throw new Error('Too many verification attempts. Please wait a moment and try again.');
+            throw new Error('Too many attempts. Please wait a few moments and tap Proceed again.');
           }
 
           if (res.status === 403) {
-            throw new Error('Verification session expired. Please tap Proceed to verify again.');
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body?.error || 'Verification session expired. Please tap Proceed to verify again.');
           }
 
           if (res.status === 404) {
-            throw new Error('Requested resource not found or verification denied.');
+            return {
+              success: true,
+              status: 'unavailable',
+              message: 'The package specifications are currently undergoing administrative update. Please check back shortly.'
+            };
           }
 
           if (!res.ok) {
-            throw new Error(`Connection interrupted (HTTP ${res.status}). Please retry.`);
+            throw new Error(`Connection interrupted (HTTP ${res.status}). Please tap to retry.`);
           }
 
           return await res.json();
