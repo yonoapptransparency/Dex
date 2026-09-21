@@ -34,6 +34,7 @@ export default function ClearanceButton({
     cfToken,
     cfTokenRef,
     isReady,
+    isRendered,
     errorMessage,
     setErrorMessage,
     resetTurnstile,
@@ -74,7 +75,7 @@ export default function ClearanceButton({
 
     const interval = setInterval(() => {
       setLoadingStepIndex((prev) => (prev + 1 < LOADING_STEPS.length ? prev + 1 : prev));
-    }, 900);
+    }, 350);
 
     return () => clearInterval(interval);
   }, [isLoading]);
@@ -131,11 +132,11 @@ export default function ClearanceButton({
         <div className="w-full flex flex-col items-center gap-3">
           
           {/* Cloudflare Turnstile Challenge Container */}
-          <div className="w-full flex justify-center items-center py-1 min-h-[68px]">
+          <div className={`w-full flex justify-center items-center ${isRendered ? 'py-1 min-h-[68px]' : 'h-0 overflow-hidden'}`}>
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px] min-h-[65px]"
+              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px]"
             />
           </div>
 
