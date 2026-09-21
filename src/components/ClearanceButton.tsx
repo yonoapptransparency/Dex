@@ -1,5 +1,33 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ArrowRight, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowRight, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+
+const VERIFY_STEPS = [
+  {
+    title: 'Initializing verification...',
+    detail: 'Connecting to secure edge network',
+    pct: 28,
+  },
+  {
+    title: 'Validating security clearance...',
+    detail: 'Attesting cryptographic session credentials',
+    pct: 58,
+  },
+  {
+    title: 'Establishing verified session...',
+    detail: 'Allocating zero-referrer clearance bridge',
+    pct: 85,
+  },
+  {
+    title: 'Almost done! Finalizing connection...',
+    detail: 'Preparing verified destination portal',
+    pct: 96,
+  },
+  {
+    title: 'Clearance Confirmed • Connecting!',
+    detail: 'Opening verified destination portal',
+    pct: 100,
+  }
+];
 
 const PROD_TURNSTILE_SITE_KEY = '0x4AAAAAAE99nFmDXDivmDJV';
 const TEST_TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
@@ -53,13 +81,26 @@ export default function ClearanceButton({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isUnavailable, setIsUnavailable] = useState<boolean>(false);
   const [unavailableMessage, setUnavailableMessage] = useState<string | null>(null);
-  const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
+  const [isVerifyingActive, setIsVerifyingActive] = useState<boolean>(false);
+  const [isVerifyingDone, setIsVerifyingDone] = useState<boolean>(false);
+  const [progressStep, setProgressStep] = useState<number>(0);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
 
   const widgetRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const cfTokenRef = useRef<string | null>(null);
   const mountTimeRef = useRef<number>(Date.now());
   const tokenResolverRef = useRef<((token: string) => void) | null>(null);
   const activeKeyRef = useRef<string>(getTurnstileSiteKey());
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
 
   const initTurnstile = useCallback(() => {
     if (!widgetRef.current || !window.turnstile || widgetIdRef.current) return;
@@ -71,6 +112,7 @@ export default function ClearanceButton({
         theme: 'auto',
         size: 'invisible',
         callback: (token: string) => {
+          cfTokenRef.current = token;
           setCfToken(token);
           setIsReady(true);
           setErrorMessage(null);
@@ -93,23 +135,34 @@ export default function ClearanceButton({
             setTimeout(() => initTurnstile(), 50);
             return;
           }
+          cfTokenRef.current = null;
           setCfToken(null);
           setIsReady(false);
           setErrorMessage('Verification check interrupted. Please tap Proceed to retry.');
           if (onError) onError();
         },
         'expired-callback': () => {
+          cfTokenRef.current = null;
           setCfToken(null);
           setIsReady(false);
           if (widgetIdRef.current && window.turnstile) {
             try {
               window.turnstile.reset(widgetIdRef.current);
+              // Pre-warm fresh token in background
+              window.turnstile.execute(widgetIdRef.current);
             } catch (_) {}
           }
         },
         'timeout-callback': () => {
+          cfTokenRef.current = null;
           setCfToken(null);
           setIsReady(false);
+          if (widgetIdRef.current && window.turnstile) {
+            try {
+              window.turnstile.reset(widgetIdRef.current);
+              window.turnstile.execute(widgetIdRef.current);
+            } catch (_) {}
+          }
         }
       });
     } catch (err) {
@@ -151,7 +204,20 @@ export default function ClearanceButton({
 
   // Helper to wait for Turnstile token if user clicks while it is executing
   const getOrFetchToken = async (): Promise<string | null> => {
+    if (cfTokenRef.current) return cfTokenRef.current;
     if (cfToken) return cfToken;
+
+    // Gracefully wait if Turnstile script is still loading in background
+    if (!window.turnstile) {
+      let waited = 0;
+      while (!window.turnstile && waited < 2500) {
+        await new Promise(r => setTimeout(r, 100));
+        waited += 100;
+      }
+      if (window.turnstile && !widgetIdRef.current) {
+        initTurnstile();
+      }
+    }
 
     // Trigger explicit execute if widget is rendered
     if (window.turnstile && widgetIdRef.current) {
@@ -163,7 +229,7 @@ export default function ClearanceButton({
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         tokenResolverRef.current = null;
-        resolve(null);
+        resolve(cfTokenRef.current || null);
       }, 4500);
 
       tokenResolverRef.current = (token: string) => {
@@ -178,99 +244,129 @@ export default function ClearanceButton({
 
     if (isProcessing) return;
 
-    // Reject immediate synthetic triggers (< 150ms after mount)
+    // Gracefully buffer sub-150ms instant clicks to prevent silent button unresponsiveness
     const elapsed = Date.now() - mountTimeRef.current;
-    if (elapsed < 150) return;
+    if (elapsed < 150) {
+      await new Promise(r => setTimeout(r, 150 - elapsed));
+    }
 
     setIsProcessing(true);
     setErrorMessage(null);
     setIsUnavailable(false);
     setUnavailableMessage(null);
-    setFallbackUrl(null);
+    setIsVerifyingActive(true);
+    setIsVerifyingDone(false);
+    setProgressStep(0);
+    setProgressPercent(28);
+
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    progressIntervalRef.current = setInterval(() => {
+      setProgressStep((prev) => {
+        if (prev < 3) {
+          const next = prev + 1;
+          setProgressPercent(VERIFY_STEPS[next].pct);
+          return next;
+        }
+        return prev;
+      });
+    }, 300);
 
     try {
-      // 1. Obtain cryptographic Turnstile token
-      let token = cfToken;
-      if (!token) {
-        token = await getOrFetchToken();
-      }
+      // Execute security handshake alongside visual step progression
+      const [data] = await Promise.all([
+        (async () => {
+          // 1. Obtain cryptographic Turnstile token
+          let token = cfTokenRef.current || cfToken;
+          if (!token) {
+            token = await getOrFetchToken();
+          }
 
-      if (!token) {
-        if (window.turnstile && widgetIdRef.current) {
-          try {
-            window.turnstile.reset(widgetIdRef.current);
-          } catch (_) {}
-        }
-        throw new Error('Human clearance verification initializing. Please tap Proceed.');
-      }
+          if (!token) {
+            if (window.turnstile && widgetIdRef.current) {
+              try {
+                window.turnstile.reset(widgetIdRef.current);
+                window.turnstile.execute(widgetIdRef.current);
+              } catch (_) {}
+            }
+            throw new Error('Verification session initializing. Please tap Proceed.');
+          }
 
-      // 2. Generate cryptographically distinct, single-use burn nonce
-      let entropy = '';
-      if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-        const bytes = new Uint8Array(16);
-        crypto.getRandomValues(bytes);
-        entropy = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-      } else {
-        entropy = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-      }
+          // 2. Generate cryptographically distinct, single-use burn nonce
+          let entropy = '';
+          if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+            entropy = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+          } else {
+            entropy = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+          }
 
-      // 3. Encode clearance token with Turnstile attestation
-      const clearanceToken = btoa(JSON.stringify({
-        t: Date.now(),
-        n: entropy,
-        id: appId,
-        el: elapsed,
-        cf: token,
-        cx: Math.round(e.clientX || 0),
-        cy: Math.round(e.clientY || 0),
-        sx: Math.round(e.screenX || 0),
-        sy: Math.round(e.screenY || 0)
-      }));
+          // 3. Encode clearance token with Turnstile attestation
+          const clearanceToken = btoa(JSON.stringify({
+            t: Date.now(),
+            n: entropy,
+            id: appId,
+            el: Math.max(150, Date.now() - mountTimeRef.current),
+            cf: token,
+            cx: Math.round(e.clientX || 0),
+            cy: Math.round(e.clientY || 0),
+            sx: Math.round(e.screenX || 0),
+            sy: Math.round(e.screenY || 0)
+          }));
 
-      // 4. Request link resolution from backend
-      const res = await fetch('/api/v1/app/resolve-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'x-clearance-token': clearanceToken,
-          'x-cf-token': token
-        },
-        body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: token }),
-        cache: 'no-store',
-        credentials: 'same-origin'
-      });
+          // 4. Request session clearance from backend via neutral endpoint
+          const res = await fetch('/api/v1/app/session-clearance', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'x-clearance-token': clearanceToken,
+              'x-cf-token': token
+            },
+            body: JSON.stringify({ id: appId, appId, token: clearanceToken, cfToken: token }),
+            cache: 'no-store',
+            credentials: 'same-origin'
+          });
 
-      if (res.status === 429) {
-        throw new Error('Too many verification attempts. Please wait a moment and try again.');
-      }
+          if (res.status === 429) {
+            throw new Error('Too many verification attempts. Please wait a moment and try again.');
+          }
 
-      if (res.status === 403) {
-        throw new Error('Clearance verification expired or invalid. Please tap Proceed to verify again.');
-      }
+          if (res.status === 403) {
+            throw new Error('Verification session expired. Please tap Proceed to verify again.');
+          }
 
-      if (res.status === 404) {
-        throw new Error('Requested resource not found or verification denied.');
-      }
+          if (res.status === 404) {
+            throw new Error('Requested resource not found or verification denied.');
+          }
 
-      if (!res.ok) {
-        throw new Error(`Connection interrupted (HTTP ${res.status}). Please retry.`);
-      }
+          if (!res.ok) {
+            throw new Error(`Connection interrupted (HTTP ${res.status}). Please retry.`);
+          }
 
-      const data = await res.json();
+          return await res.json();
+        })(),
+        new Promise((r) => setTimeout(r, 920))
+      ]);
+
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      setProgressStep(4);
+      setProgressPercent(100);
+      setIsVerifyingDone(true);
       
-      // If the link is undergoing administrative review or is empty
-      if (data && (data.status === 'unavailable' || !data.url)) {
+      const targetUrl = data?.destination || data?.url;
+
+      // If the destination is undergoing administrative review or is empty
+      if (data && (data.status === 'unavailable' || !targetUrl)) {
         setIsUnavailable(true);
-        setUnavailableMessage(data?.message || 'The package link is currently not available or is undergoing administrative review. It will be updated soon by the admin.');
+        setIsVerifyingActive(false);
+        setUnavailableMessage(data?.message || 'The package specifications are currently undergoing administrative update. Please check back shortly.');
         return;
       }
 
-      if (!data || !data.success || !data.url) {
+      if (!data || !data.success || !targetUrl) {
         throw new Error(data?.error || 'Information temporarily unavailable.');
       }
-
-      const targetUrl = data.url;
 
       // 5. Direct Immediate Zero-Referrer Airgap Dispatch
       let opened = false;
@@ -283,39 +379,39 @@ export default function ClearanceButton({
         opened = false;
       }
 
-      // If popup blocker intervened, dispatch anchor click
+      // If popup blocker intervened, navigate directly
       if (!opened) {
         try {
-          const link = document.createElement('a');
-          link.href = targetUrl;
-          link.target = '_blank';
-          link.rel = 'noreferrer noopener';
-          link.referrerPolicy = 'no-referrer';
-          link.style.display = 'none';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          opened = true;
+          window.location.assign(targetUrl);
         } catch (_) {
-          opened = false;
+          try {
+            window.location.href = targetUrl;
+          } catch (_) {}
         }
       }
 
-      // Fallback direct link UI in case of strict mobile popup blockers
-      setFallbackUrl(targetUrl);
-
       if (onSuccess) onSuccess();
     } catch (err: any) {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      setIsVerifyingActive(false);
       setErrorMessage(err?.message || 'Verification was interrupted. Please tap Proceed to try again.');
       if (onError) onError();
     } finally {
       setIsProcessing(false);
-      // Reset Turnstile token so subsequent clicks trigger fresh verification
+      // Cleanly re-prime Turnstile in background for subsequent clicks
       if (widgetIdRef.current && window.turnstile) {
         try {
           window.turnstile.reset(widgetIdRef.current);
+          cfTokenRef.current = null;
           setCfToken(null);
           setIsReady(false);
+          setTimeout(() => {
+            if (widgetIdRef.current && window.turnstile) {
+              try {
+                window.turnstile.execute(widgetIdRef.current);
+              } catch (_) {}
+            }
+          }, 100);
         } catch (_) {}
       }
     }
@@ -393,17 +489,54 @@ export default function ClearanceButton({
             )}
           </button>
 
-          {/* Direct link fallback if browser blocked automatic dispatch */}
-          {fallbackUrl && (
-            <a
-              href={fallbackUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              onClick={() => setFallbackUrl(null)}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium text-center animate-fade-in"
+          {/* Interactive Real-Time Verification Progress Card (Ultra-lightweight) */}
+          {isVerifyingActive && (
+            <div 
+              id={`verification-progress-${appId}`}
+              className="w-full bg-zinc-900/90 dark:bg-zinc-900/95 border border-zinc-800/90 rounded-2xl p-4 shadow-xl backdrop-blur-xs text-left animate-fade-in select-none"
             >
-              Click Here to Proceed (Direct Link)
-            </a>
+              {/* Header: Pulsating radar / checkmark + Dynamic Title + Percentage */}
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  {isVerifyingDone ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <span className="relative flex h-2.5 w-2.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                    </span>
+                  )}
+                  <span className="text-xs font-bold text-zinc-100 truncate">
+                    {VERIFY_STEPS[progressStep]?.title || 'Verifying...'}
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] font-bold text-blue-400 bg-blue-500/15 border border-blue-500/25 px-2 py-0.5 rounded-full shrink-0">
+                  {progressPercent}%
+                </span>
+              </div>
+
+              {/* Glowing progress bar */}
+              <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-2.5">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 transition-all duration-300 ease-out rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
+              {/* Micro-telemetry details and security tag */}
+              <div className="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
+                <span className="truncate text-zinc-400">
+                  {VERIFY_STEPS[progressStep]?.detail || 'Processing...'}
+                </span>
+                <span className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 ml-2 ${
+                  isVerifyingDone 
+                    ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                    : 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                }`}>
+                  {isVerifyingDone ? 'CONFIRMED' : 'LIVE'}
+                </span>
+              </div>
+            </div>
           )}
         </>
       )}

@@ -2,18 +2,27 @@ import { useParams } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldAlert, ShieldCheck, ArrowLeft, Shield } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import { mockApps as staticMockApps } from '../lib/staticData';
+import { resolveAppSlug } from '../lib/slugResolver';
 import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function GatewayPage() {
   const { apps: mockApps, settings: mockSettings, loading, serverAppsFetched, refreshAll } = useData();
   const { slug } = useParams();
-  const allApps = mockApps.length > 0 ? mockApps : staticMockApps;
-  const app = allApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase()) || staticMockApps.find(a => a.slug?.toLowerCase() === slug?.toLowerCase() || a.id?.toLowerCase() === slug?.toLowerCase());
+
+  // Instant multi-tier slug resolution (exact slug, ID, alias, normalization)
+  const app = useMemo(() => {
+    if (!slug) return null;
+    const resolvedFromMock = resolveAppSlug(slug, mockApps);
+    if (resolvedFromMock) return resolvedFromMock;
+    const resolvedFromStatic = resolveAppSlug(slug, staticMockApps);
+    if (resolvedFromStatic) return resolvedFromStatic;
+    return null;
+  }, [slug, mockApps]);
   
   const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -27,43 +36,42 @@ export default function GatewayPage() {
     setIsRefreshing(false);
   }, [slug]);
 
-  // Automatically trigger a silent cloud sync if the requested app is not found in local cache
+  // Automatically trigger a silent cloud sync only if the requested app is completely unknown
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
-    if (!slugKey) return;
+    if (!slugKey || app) return;
 
-    const found = mockApps.some(a => a.slug?.toLowerCase() === slugKey || a.id?.toLowerCase() === slugKey);
-    if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+    if (!syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
       refreshAll(true)
         .catch((e: any) => {
-          console.warn("Deep Link Auto-Sync failed (quota or net):", e.message || e);
+          console.warn("Deep Link Auto-Sync notice:", e.message || e);
         })
         .finally(() => {
           setTriedRefresh(true);
           setIsRefreshing(false);
         });
     }
-  }, [slug, mockApps, triedRefresh, isRefreshing, refreshAll]);
+  }, [slug, app, triedRefresh, isRefreshing, refreshAll]);
 
   if (loading && !app) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading information...</p>
+        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading specifications...</p>
       </div>
     );
   }
 
-  // Graceful interstitial for slow database cold-starts or deep links on first visit
+  // Graceful interstitial only for genuinely missing apps undergoing cloud fetch
   if (!app && (!serverAppsFetched || isRefreshing || !triedRefresh)) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Retrieving App Specifications</h3>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Retrieving Specifications</h3>
         <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
-          Loading app details from the server...
+          Loading specifications from the server...
         </p>
       </div>
     );
