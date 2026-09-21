@@ -227,13 +227,13 @@ export default function GatewayPage() {
           {/* Dynamic Verified Action Button */}
           <div className="flex flex-col items-center gap-4 w-full">
             {isActuallyComingSoon ? (
-              <div className="w-full sm:w-72 flex flex-col items-center">
+              <div className="w-full max-w-[320px] flex flex-col items-center">
                 <button disabled className="w-full py-4 px-10 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm font-bold shrink-0 cursor-not-allowed bg-amber-500/10 text-amber-500 border border-amber-500/20">
                   Coming Soon
                 </button>
               </div>
             ) : (
-               <div className="w-full sm:w-72">
+               <div className="w-full max-w-[320px]">
                  <ClearanceButton appId={app.slug || app.id} appSlug={app.slug} status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} />
                </div>
             )}

@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ArrowRight, Lock, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowRight, AlertCircle } from 'lucide-react';
 
 const PROD_TURNSTILE_SITE_KEY = '0x4AAAAAAE99nFmDXDivmDJV';
 const TEST_TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
+
+function isValidTurnstileKey(key: string | undefined | null): boolean {
+  if (!key || typeof key !== 'string') return false;
+  const trimmed = key.trim();
+  return /^(0x4|1x|2x|3x)[a-zA-Z0-9_-]{10,60}$/.test(trimmed);
+}
 
 function getTurnstileSiteKey(): string {
   if (typeof window !== 'undefined') {
     const customKey = 
       (import.meta.env?.VITE_TURNSTILE_SITE_KEY as string) || 
       (import.meta.env?.VITE_CF_TURNSTILE_SITE_KEY as string);
-    if (customKey && customKey.trim()) return customKey.trim();
+    if (isValidTurnstileKey(customKey)) return customKey.trim();
 
     const host = window.location.hostname.toLowerCase();
     if (host === 'rummydex.com' || host === 'www.rummydex.com') {
@@ -57,6 +63,18 @@ export default function ClearanceButton({
   // Single-use destination state (destroyed immediately upon access)
   const [destinationUrl, setDestinationUrl] = useState<string | null>(null);
   const [isUnavailable, setIsUnavailable] = useState<boolean>(false);
+  const [processingStep, setProcessingStep] = useState<number>(0);
+
+  // Lightweight progress step cycling while verification is in progress
+  useEffect(() => {
+    if (isReady) return;
+    const stepTimer = setInterval(() => {
+      setProcessingStep((prev) => (prev + 1) % 3);
+    }, 1100);
+    return () => clearInterval(stepTimer);
+  }, [isReady]);
+
+  const stepLabels = ['PROCESSING...', 'VERIFYING...', 'ALMOST DONE...'];
 
   // Hidden references for silent bot defense & clean memory management
   const widgetRef = useRef<HTMLDivElement>(null);
@@ -135,10 +153,13 @@ export default function ClearanceButton({
     if (!widgetRef.current || !window.turnstile || widgetIdRef.current) return;
 
     try {
+      // Clear container DOM to prevent "Target container is not empty" errors
+      widgetRef.current.innerHTML = '';
       const siteKey = activeKeyRef.current;
-      widgetIdRef.current = window.turnstile.render(widgetRef.current, {
+
+      const wid = window.turnstile.render(widgetRef.current, {
         sitekey: siteKey,
-        theme: 'auto',
+        theme: 'dark',
         size: 'normal',
         callback: (token: string) => {
           cfTokenRef.current = token;
@@ -146,8 +167,9 @@ export default function ClearanceButton({
           setIsReady(true);
           setErrorMessage(null);
         },
-        'error-callback': () => {
-          // Silent fallback to universal test key for preview / staging environments
+        'error-callback': (errorCode?: string) => {
+          console.warn('[Turnstile] Error event:', errorCode);
+          // Resilient fallback to universal interactive test key
           if (activeKeyRef.current !== TEST_TURNSTILE_SITE_KEY) {
             activeKeyRef.current = TEST_TURNSTILE_SITE_KEY;
             if (widgetIdRef.current && window.turnstile) {
@@ -156,7 +178,14 @@ export default function ClearanceButton({
               } catch (_) {}
               widgetIdRef.current = null;
             }
-            setTimeout(() => initTurnstile(), 50);
+            if (widgetRef.current) {
+              widgetRef.current.innerHTML = '';
+            }
+            setTimeout(() => {
+              if (widgetRef.current && window.turnstile && !widgetIdRef.current) {
+                initTurnstile();
+              }
+            }, 80);
             return;
           }
           cfTokenRef.current = null;
@@ -186,16 +215,45 @@ export default function ClearanceButton({
           }
         }
       });
-    } catch (_) {}
+      widgetIdRef.current = wid;
+    } catch (err) {
+      console.warn('[Turnstile] Render failed, fallback to test key:', err);
+      if (activeKeyRef.current !== TEST_TURNSTILE_SITE_KEY) {
+        activeKeyRef.current = TEST_TURNSTILE_SITE_KEY;
+        if (widgetRef.current) {
+          widgetRef.current.innerHTML = '';
+        }
+        widgetIdRef.current = null;
+        setTimeout(() => {
+          if (widgetRef.current && window.turnstile && !widgetIdRef.current) {
+            initTurnstile();
+          }
+        }, 100);
+      }
+    }
   }, [onError]);
 
   useEffect(() => {
-    if (window.turnstile) {
+    // 1. If script is already in window and DOM is ready, initialize immediately
+    if (window.turnstile && widgetRef.current && !widgetIdRef.current) {
       initTurnstile();
-      return;
     }
 
-    if (!document.querySelector('script[data-turnstile]')) {
+    // 2. Continuous poller: guarantees rendering even if script is async or ref attaches late
+    let attempts = 0;
+    const maxAttempts = 60; // 60 * 100ms = 6 seconds
+    const interval = setInterval(() => {
+      attempts++;
+      if (window.turnstile && widgetRef.current && !widgetIdRef.current) {
+        initTurnstile();
+      }
+      if (widgetIdRef.current || attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    // 3. Fallback script injector in case index.html script was blocked or delayed
+    if (typeof window !== 'undefined' && !window.turnstile && !document.querySelector('script[data-turnstile]')) {
       const script = document.createElement('script');
       script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit';
       script.async = true;
@@ -204,16 +262,27 @@ export default function ClearanceButton({
       script.onerror = () => {
         setErrorMessage('Verification service could not be loaded. Please check your network.');
       };
-      window.onTurnstileLoad = () => initTurnstile();
+      window.onTurnstileLoad = () => {
+        if (widgetRef.current && window.turnstile && !widgetIdRef.current) {
+          initTurnstile();
+        }
+      };
       document.head.appendChild(script);
+    } else if (window.onTurnstileLoad === undefined) {
+      window.onTurnstileLoad = () => {
+        if (widgetRef.current && window.turnstile && !widgetIdRef.current) {
+          initTurnstile();
+        }
+      };
     }
 
     return () => {
+      clearInterval(interval);
       if (widgetIdRef.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetIdRef.current);
-          widgetIdRef.current = null;
         } catch (_) {}
+        widgetIdRef.current = null;
       }
     };
   }, [initTurnstile]);
@@ -288,6 +357,16 @@ export default function ClearanceButton({
         entropy = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
       }
 
+      // Evaluate live automation flags at moment of click
+      const liveBotCheck = Boolean(
+        (typeof navigator !== 'undefined' && navigator.webdriver) ||
+        (window as any).__playwright ||
+        (window as any).__puppeteer_evaluation_script__ ||
+        (window as any)._phantom ||
+        (window as any).callPhantom ||
+        (typeof window !== 'undefined' && window.outerWidth === 0 && window.outerHeight === 0)
+      );
+
       // Encode single-use clearance payload
       const clearanceToken = btoa(JSON.stringify({
         t: Date.now(),
@@ -299,8 +378,8 @@ export default function ClearanceButton({
         cy: Math.max(1, cy),
         sx: Math.max(1, sx),
         sy: Math.max(1, sy),
-        wb: 0,
-        tr: 1
+        wb: (isBotDetectedRef.current || liveBotCheck) ? 1 : 0,
+        tr: e.isTrusted ? 1 : 0
       }));
 
       // Candidate API routes
@@ -364,33 +443,33 @@ export default function ClearanceButton({
       if (onSuccess) onSuccess();
 
       // ─── SILENT LAYER 4: ZERO-REFERRER AIRGAP DISPATCH ───
-      // Try programmatic open via detached native anchor
-      let popupSucceeded = false;
+      // Enforce strict no-referrer
       try {
-        const anchor = document.createElement('a');
-        anchor.href = targetUrl;
-        anchor.rel = 'noreferrer noopener';
-        anchor.target = '_blank';
-        anchor.referrerPolicy = 'no-referrer';
-        anchor.style.display = 'none';
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        popupSucceeded = true;
-      } catch (_) {
-        popupSucceeded = false;
-      }
+        let metaReferrer = document.querySelector('meta[name="referrer"]') as HTMLMetaElement;
+        if (!metaReferrer) {
+          metaReferrer = document.createElement('meta');
+          metaReferrer.name = 'referrer';
+          document.head.appendChild(metaReferrer);
+        }
+        metaReferrer.content = 'no-referrer';
+      } catch (_) {}
 
-      // If browser allowed the popup, immediately wipe the link from memory
-      if (popupSucceeded) {
-        // Reset everything immediately so link does not linger
-        setTimeout(() => {
-          closeAndWipeLink();
-        }, 1200);
-      } else {
-        // Mobile popup blocker intervened: render clean one-time proceed button
-        setDestinationUrl(targetUrl);
-        setIsLoading(false);
+      // Immediate wipe of memory and tokens
+      setTimeout(() => {
+        closeAndWipeLink();
+      }, 1000);
+
+      // Direct window location navigation: 100% reliable across Chrome Mobile, Safari, and Desktop
+      // Popup blockers will never block window.location.assign
+      try {
+        window.location.assign(targetUrl);
+      } catch (_) {
+        try {
+          window.location.href = targetUrl;
+        } catch (_) {
+          setDestinationUrl(targetUrl);
+          setIsLoading(false);
+        }
       }
 
     } catch (err: any) {
@@ -447,10 +526,10 @@ export default function ClearanceButton({
                 closeAndWipeLink();
               }, 300);
             }}
-            className="flex items-center justify-center gap-2.5 w-full py-4 px-6 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-2xl transition-all font-bold shadow-md uppercase tracking-wider text-sm text-center select-none cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+            className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 rounded-2xl transition-all font-black shadow-lg shadow-blue-500/25 uppercase tracking-wider text-sm text-center select-none cursor-pointer"
           >
-            <span>Proceed</span>
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <span>PROCEED</span>
+            <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5" />
           </a>
           <p className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
             Tap above to proceed. Link expires immediately after use.
@@ -465,7 +544,7 @@ export default function ClearanceButton({
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center overflow-hidden rounded-lg"
+              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px] min-h-[65px]"
             />
           </div>
 
@@ -477,36 +556,36 @@ export default function ClearanceButton({
             onPointerDown={trackPointer}
             onTouchStart={trackPointer}
             disabled={isLoading || !isReady}
-            className={`group flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-2xl transition-all font-bold shadow-md uppercase tracking-wider text-sm text-center select-none ${
-              !isReady
-                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700/60 cursor-not-allowed shadow-none'
-                : isLoading
-                  ? 'bg-blue-700 text-white cursor-wait'
-                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
+            className={`group flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl transition-all font-black uppercase tracking-wider text-sm text-center select-none shadow-lg shadow-blue-500/25 ${
+              isLoading
+                ? 'bg-[#1557d6] text-white cursor-wait'
+                : !isReady
+                  ? 'bg-[#1a68ff] text-white opacity-95 cursor-wait'
+                  : 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white cursor-pointer shadow-blue-500/30'
             }`}
             aria-label="Proceed"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-blue-100" />
-                <span>Connecting...</span>
+                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                <span>CONNECTING...</span>
               </>
             ) : !isReady ? (
               <>
-                <Lock className="w-4 h-4 text-zinc-400 shrink-0" />
-                <span>Proceed</span>
+                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                <span className="transition-all duration-300">{stepLabels[processingStep]}</span>
               </>
             ) : (
               <>
-                <span>Proceed</span>
-                <ArrowRight className="w-4 h-4 text-blue-100 shrink-0 ml-1 group-hover:translate-x-1 transition-transform" />
+                <span>PROCEED</span>
+                <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
               </>
             )}
           </button>
 
           {/* Error Notice */}
           {errorMessage && (
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 text-center animate-fade-in mt-1">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-500 text-center animate-fade-in mt-1">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{errorMessage}</span>
             </div>
