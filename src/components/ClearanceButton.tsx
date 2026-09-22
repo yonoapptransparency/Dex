@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2, ArrowRight, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Loader2, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, Lock } from 'lucide-react';
 import { useTurnstileVerification } from '../hooks/useTurnstileVerification';
 import { useClearanceDispatch } from '../hooks/useClearanceDispatch';
 
@@ -13,12 +13,9 @@ export interface ClearanceButtonProps {
 }
 
 const LOADING_STEPS = [
-  'PROCESSING...',
-  'VERIFYING...',
-  'CONNECTING...',
-  'ALMOST READY...',
-  'ALMOST DONE...',
-  'FINALIZING...'
+  'VERIFYING SECURITY...',
+  'CONNECTING TO SERVER...',
+  'RESOLVING LINK...'
 ];
 
 export default function ClearanceButton({ 
@@ -27,7 +24,7 @@ export default function ClearanceButton({
   onSuccess, 
   onError 
 }: ClearanceButtonProps) {
-  // Step 1: Initialize Turnstile Verification Hook
+  // Step 1: Initialize Visible Cloudflare Turnstile Verification Hook
   const {
     widgetRef,
     widgetIdRef,
@@ -47,8 +44,8 @@ export default function ClearanceButton({
     destinationUrl,
     isUnavailable,
     setIsUnavailable,
-    handleProceed,
-    trackPointer,
+    handleKineticProceed,
+    trackPointerMotion,
     closeAndWipeLink
   } = useClearanceDispatch({
     appId,
@@ -64,7 +61,7 @@ export default function ClearanceButton({
     setErrorMessage
   });
 
-  // Dynamic lightweight stage progression during verification
+  // Dynamic progression steps during verification
   const [loadingStepIndex, setLoadingStepIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -80,7 +77,23 @@ export default function ClearanceButton({
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  // ─── UNAVAILABLE NOTICE ───
+  // Safe Haptic feedback (supported in Android Chrome and modern mobile browsers)
+  const triggerHaptic = useCallback((pattern: number | number[] = 40) => {
+    try {
+      if (typeof window !== 'undefined' && 'navigator' in window && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(pattern);
+      }
+    } catch (_) {}
+  }, []);
+
+  // When Cloudflare verification succeeds, fire subtle haptic feedback
+  useEffect(() => {
+    if (isReady && cfToken) {
+      triggerHaptic([30, 40]);
+    }
+  }, [isReady, cfToken, triggerHaptic]);
+
+  // ─── CASE A: UNAVAILABLE NOTICE ───
   if (isUnavailable) {
     return (
       <div className="w-full bg-zinc-100 dark:bg-zinc-800/60 border border-black/5 dark:border-white/5 rounded-2xl p-5 text-center flex flex-col items-center gap-3 animate-fade-in select-none">
@@ -104,7 +117,7 @@ export default function ClearanceButton({
   return (
     <div className="w-full flex flex-col items-center gap-4 select-none">
       
-      {/* ─── CASE A: SINGLE-USE LINK READY (POPUP BLOCKER FALLBACK) ─── */}
+      {/* ─── CASE B: SINGLE-USE LINK READY (POPUP-BLOCKER FALLBACK) ─── */}
       {destinationUrl ? (
         <div className="w-full flex flex-col items-center gap-2 animate-fade-in">
           <a
@@ -113,12 +126,12 @@ export default function ClearanceButton({
             rel="noreferrer noopener"
             referrerPolicy="no-referrer"
             onClick={() => {
-              // The moment user clicks, the link is IMMEDIATELY closed and wiped
+              // Once clicked, immediately close and wipe from memory
               setTimeout(() => {
                 closeAndWipeLink();
               }, 300);
             }}
-            className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 rounded-2xl transition-all font-black shadow-lg shadow-blue-500/25 uppercase tracking-wider text-sm text-center select-none cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-sm text-center select-none cursor-pointer"
           >
             <span>PROCEED</span>
             <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5" />
@@ -128,47 +141,75 @@ export default function ClearanceButton({
           </p>
         </div>
       ) : (
-        /* ─── CASE B: STANDARD CLEAN NEUTRAL VERIFICATION INTERFACE ─── */
-        <div className="w-full flex flex-col items-center gap-3">
+        /* ─── CASE C: TWO-STAGE SECURITY PIPELINE ─── */
+        <div className="w-full flex flex-col items-center gap-3.5">
           
-          {/* Cloudflare Turnstile Challenge Container */}
-          <div className={`w-full flex justify-center items-center ${isRendered ? 'py-1 min-h-[68px]' : 'h-0 overflow-hidden'}`}>
+          {/* STEP 1: VISIBLE CLOUDFLARE TURNSTILE CHALLENGE BOX */}
+          <div className="w-full flex flex-col items-center justify-center bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-3 shadow-sm min-h-[82px]">
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px]"
+              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px] min-h-[65px]"
             />
+            {!isReady && !errorMessage && (
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center font-medium mt-1">
+                Please complete the security check above to proceed.
+              </p>
+            )}
+            {isReady && (
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Security verification completed</span>
+              </div>
+            )}
           </div>
 
-          {/* Primary Neutral Proceed Button with Lightweight Dynamic Progression */}
-          <button
-            type="button"
-            id={`gateway-cta-${appId}`}
-            onClick={handleProceed}
-            onPointerDown={trackPointer}
-            onTouchStart={trackPointer}
-            disabled={isLoading}
-            className={`group flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl transition-all font-black uppercase tracking-wider text-sm text-center select-none shadow-lg shadow-blue-500/25 ${
-              isLoading
-                ? 'bg-[#1557d6] text-white cursor-wait opacity-90'
-                : 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white cursor-pointer shadow-blue-500/30'
-            }`}
-            aria-label="Proceed"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
-                <span className="animate-fade-in tracking-wider">
-                  {LOADING_STEPS[loadingStepIndex] || 'CONNECTING...'}
-                </span>
-              </>
-            ) : (
-              <>
-                <span>PROCEED</span>
-                <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
-              </>
-            )}
-          </button>
+          {/* STEP 2: PROCEED BUTTON (LOCKED UNTIL CLOUDFLARE PASSES) */}
+          <div className="relative w-full">
+            <button
+              type="button"
+              id={`gateway-cta-${appId}`}
+              onClick={(e) => {
+                if (!isReady || isLoading) return;
+                trackPointerMotion(e);
+                triggerHaptic(35);
+                handleKineticProceed();
+              }}
+              onPointerDown={trackPointerMotion}
+              onPointerMove={trackPointerMotion}
+              onTouchStart={trackPointerMotion}
+              onTouchMove={trackPointerMotion}
+              disabled={!isReady || isLoading}
+              className={`relative overflow-hidden group flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-2xl transition-all font-black uppercase tracking-wider text-sm text-center select-none shadow-lg ${
+                isLoading
+                  ? 'bg-[#1557d6] text-white cursor-wait opacity-95 shadow-blue-500/20'
+                  : isReady
+                  ? 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white cursor-pointer shadow-blue-500/30 active:scale-[0.98]'
+                  : 'bg-zinc-200 dark:bg-zinc-800/80 text-zinc-400 dark:text-zinc-500 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
+              }`}
+              aria-label={isReady ? 'Proceed to Download' : 'Complete Verification Above'}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                  <span className="animate-fade-in tracking-wider">
+                    {LOADING_STEPS[loadingStepIndex] || 'CONNECTING...'}
+                  </span>
+                </>
+              ) : isReady ? (
+                <>
+                  <ShieldCheck className="w-4 h-4 text-white/90 shrink-0" />
+                  <span>PROCEED</span>
+                  <ArrowRight className="w-4 h-4 text-white/80 shrink-0 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
+                  <span>VERIFICATION REQUIRED</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Error Notice */}
           {errorMessage && (
