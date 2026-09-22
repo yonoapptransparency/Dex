@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, Lock } from 'lucide-react';
+import { Loader2, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useTurnstileVerification } from '../hooks/useTurnstileVerification';
 import { useClearanceDispatch } from '../hooks/useClearanceDispatch';
+import { useData } from '../contexts/DataContextPublic';
 
 export interface ClearanceButtonProps {
   appId: string;
@@ -24,6 +25,8 @@ export default function ClearanceButton({
   onSuccess, 
   onError 
 }: ClearanceButtonProps) {
+  const { settings } = useData();
+
   // Step 1: Initialize Visible Cloudflare Turnstile Verification Hook
   const {
     widgetRef,
@@ -36,7 +39,7 @@ export default function ClearanceButton({
     setErrorMessage,
     resetTurnstile,
     executeTurnstile
-  } = useTurnstileVerification({ onError });
+  } = useTurnstileVerification({ onError, siteKey: settings?.turnstile_site_key });
 
   // Step 2: Initialize Clearance Dispatch & Bot Protection Hook
   const {
@@ -144,27 +147,16 @@ export default function ClearanceButton({
         /* ─── CASE C: TWO-STAGE SECURITY PIPELINE ─── */
         <div className="w-full flex flex-col items-center gap-3.5">
           
-          {/* STEP 1: VISIBLE CLOUDFLARE TURNSTILE CHALLENGE BOX */}
-          <div className="w-full flex flex-col items-center justify-center bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-3 shadow-sm min-h-[82px]">
+          {/* STEP 1: DIRECT CLOUDFLARE TURNSTILE (CLEAN & NATIVE, NO ARTIFICIAL BOX) */}
+          <div className="w-full flex flex-col items-center justify-center min-h-[65px] transition-all">
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center overflow-hidden rounded-lg min-w-[300px] min-h-[65px]"
+              className="flex items-center justify-center min-w-[300px] min-h-[65px]"
             />
-            {!isReady && !errorMessage && (
-              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center font-medium mt-1">
-                Please complete the security check above to proceed.
-              </p>
-            )}
-            {isReady && (
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Security verification completed</span>
-              </div>
-            )}
           </div>
 
-          {/* STEP 2: PROCEED BUTTON (LOCKED UNTIL CLOUDFLARE PASSES) */}
+          {/* STEP 2: PROCEED BUTTON (CLEAN & NEUTRAL: VERIFYING... -> PROCEED) */}
           <div className="relative w-full">
             <button
               type="button"
@@ -185,9 +177,9 @@ export default function ClearanceButton({
                   ? 'bg-[#1557d6] text-white cursor-wait opacity-95 shadow-blue-500/20'
                   : isReady
                   ? 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white cursor-pointer shadow-blue-500/30 active:scale-[0.98]'
-                  : 'bg-zinc-200 dark:bg-zinc-800/80 text-zinc-400 dark:text-zinc-500 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
+                  : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
               }`}
-              aria-label={isReady ? 'Proceed to Download' : 'Complete Verification Above'}
+              aria-label={isReady ? 'Proceed' : 'Verifying clearance'}
             >
               {isLoading ? (
                 <>
@@ -204,8 +196,8 @@ export default function ClearanceButton({
                 </>
               ) : (
                 <>
-                  <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
-                  <span>VERIFICATION REQUIRED</span>
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0 text-zinc-400 dark:text-zinc-500" />
+                  <span className="tracking-wider">VERIFYING...</span>
                 </>
               )}
             </button>
