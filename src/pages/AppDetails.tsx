@@ -3,19 +3,14 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { safeHtml } from '../lib/safeHtmlPublic';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { ShieldCheck, ShieldAlert, ArrowRight, ArrowLeft, Star, FileText, Share2, Check, Lock, X, ChevronLeft, ChevronRight, MoreVertical, Flag } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShieldAlert, Check } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
 import Meta from '../components/Meta';
-import { AppListItem } from '../components/PlayStoreUI';
-import { motion, AnimatePresence } from 'framer-motion';
 import UserReviews from '../components/UserReviews';
-import PlayStoreRatingSection from '../components/PlayStoreRatingSection';
-import AccordionItem from '../components/AccordionItem';
 import { useLiveAppStats } from '../hooks/useReviews';
 
 import { resolveAppSlug } from '../lib/slugResolver';
@@ -396,19 +391,16 @@ export default function AppDetails() {
 
   return (
     <div className="animate-fade-in w-full select-none">
-      <AnimatePresence>
-        {shareToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-5 py-3 rounded-full shadow-xl flex items-center gap-2 border border-white/10 dark:border-black/5"
-          >
-            <Check className="w-4 h-4 text-green-500 font-bold animate-bounce" />
-            <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {shareToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-5 py-3 rounded-full shadow-xl flex items-center gap-2 border border-white/10 dark:border-black/5 animate-fade-in transition-all"
+        >
+          <Check className="w-4 h-4 text-green-500 font-bold animate-bounce" />
+          <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
+        </div>
+      )}
       <div className="px-1 sm:px-4 md:px-6 mb-4">
         <Link 
           to="/" 

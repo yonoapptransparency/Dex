@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowRight, Share2, Flag } from 'lucide-react';
 import { AppConfig } from '../../types';
 
@@ -25,11 +24,7 @@ export default function AppActionButtons({
 
   return (
     <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-3 select-none mb-5 px-1 sm:px-4 md:px-6">
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full sm:flex-1"
-      >
+      <div className="w-full sm:flex-1 transition-transform duration-150 hover:scale-[1.01] active:scale-[0.98]">
         {isActuallyComingSoon ? (
           <div className="flex flex-col items-center">
             <button 
@@ -77,38 +72,30 @@ export default function AppActionButtons({
             </button>
           </div>
         )}
-      </motion.div>
+      </div>
 
       <div className="flex w-full gap-3 sm:w-auto shrink-0">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
-        >
+        <div className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.98]">
           <button 
             type="button"
             onClick={handleShare}
-            className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm h-[44px] truncate"
+            className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-black/5 dark:border-white/5 shadow-sm h-[44px] truncate cursor-pointer"
           >
             <Share2 className="w-4 h-4 text-blue-500 shrink-0" /> <span className="truncate">Share app</span>
           </button>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px]"
-        >
+        <div className="flex-1 sm:w-auto sm:min-w-[130px] sm:max-w-[150px] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.98]">
           <button 
             type="button"
             onClick={() => {
               window.dispatchEvent(new CustomEvent('open-report-modal', { detail: { app } }));
             }}
-            className="w-full bg-rose-50 hover:bg-rose-100/80 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-rose-200/40 dark:border-rose-900/40 shadow-xs h-[44px] truncate"
+            className="w-full bg-rose-50 hover:bg-rose-100/80 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all text-sm border border-rose-200/40 dark:border-rose-900/40 shadow-xs h-[44px] truncate cursor-pointer"
           >
             <Flag className="w-4 h-4 text-rose-500 shrink-0" /> <span className="truncate">Flag app</span>
           </button>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
