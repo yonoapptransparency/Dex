@@ -1,19 +1,18 @@
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * NewsPage listings
- * Publishes announcements, system patches, safe apk mirrors status changes, and general portal logs.
- * Optimized with URL-synced numbered pagination, lazy loading, image resizing, and structured SEO.
+ * Google Discover-inspired visual layout with edge-to-edge full-freedom imagery (natural aspect ratio, zero upper/down cut off, zero side borders on mobile),
+ * snug top navigation with zero dead space above Back button, spacious search bar, and 1-tap direct article navigation.
  */
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Newspaper, Search, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Clock, User, Calendar, Tag, Sparkles, X, Pin } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { Search, ArrowLeft, ChevronLeft, ChevronRight, Clock, Calendar, Pin, X, Share2, Check } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useSearchParams } from 'react-router-dom';
 import Meta from '../components/Meta';
-import { motion, AnimatePresence } from 'framer-motion';
 import { getOptimizedImageUrl } from '../seo/utils';
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 9;
 
 // Helper: Calculate estimated reading time
 function calculateReadingTime(text: string): string {
@@ -36,10 +35,25 @@ function formatNewsDate(dateStr?: string, publishedAt?: string): string {
   return 'Recent';
 }
 
+// Helper: Clean plain text snippet
+function getPlainTextSnippet(htmlOrText?: string): string {
+  if (!htmlOrText) return '';
+  return htmlOrText
+    .replace(/<[^>]*>?/gm, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default function NewsPage() {
   const { news: mockNews = [], settings: mockSettings } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
   const contentTopRef = useRef<HTMLDivElement>(null);
+  const [copyToast, setCopyToast] = useState(false);
 
   // URL state synchronization
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
@@ -98,11 +112,6 @@ export default function NewsPage() {
     return filteredNews.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredNews, startIndex]);
 
-  // On page 1 without search/category filters, show the first item as a Hero Spotlight
-  const isDefaultView = safeCurrentPage === 1 && activeCategory === 'All' && !searchTerm;
-  const spotlightItem = isDefaultView && currentNewsSlice.length > 0 ? currentNewsSlice[0] : null;
-  const gridItems = isDefaultView ? currentNewsSlice.slice(1) : currentNewsSlice;
-
   // Handle page change with smooth scroll
   const handlePageChange = (page: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -148,6 +157,22 @@ export default function NewsPage() {
     setSearchParams(new URLSearchParams());
   };
 
+  const handleShare = (item: any) => {
+    const url = `${window.location.origin}/news/${item.slug}`;
+    if (navigator.share) {
+      navigator.share({
+        title: item.title,
+        text: getPlainTextSnippet(item.description).slice(0, 100),
+        url: url,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopyToast(true);
+        setTimeout(() => setCopyToast(false), 2000);
+      }).catch(() => {});
+    }
+  };
+
   // Generate numbered pagination items with smart ellipsis
   const paginationRange = useMemo(() => {
     const delta = 1;
@@ -174,314 +199,213 @@ export default function NewsPage() {
   const canonicalUrl = `${window.location.origin}/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
 
   return (
-    <main className="min-h-screen max-w-[1550px] mx-auto plain-content px-3 sm:px-6 md:px-10 text-zinc-900 dark:text-zinc-100 pb-20">
+    <div className="w-full text-zinc-900 dark:text-zinc-100 pb-20">
       <Meta 
         title={seoTitle}
         description={seoDescription}
         canonical={canonicalUrl}
       />
 
-      {/* Top Breadcrumb */}
-      <div className="mb-8 pt-4">
+      {/* Toast Notification when link copied */}
+      {copyToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-4 py-2 rounded-full shadow-xl flex items-center gap-2 border border-white/10 dark:border-black/5 animate-fade-in text-xs font-semibold"
+        >
+          <Check className="w-3.5 h-3.5 text-green-500" />
+          <span>Link copied to clipboard</span>
+        </div>
+      )}
+
+      {/* 1. Snug Upside Home Button - Positioned immediately under header with zero dead space */}
+      <div ref={contentTopRef} className="pt-0.5 pb-0.5 px-3 sm:px-0">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline transition-colors group"
+          className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group shrink-0"
         >
-          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 group-hover:-translate-x-1 transition-transform">
-            <ArrowLeft className="w-4 h-4" />
+          <div className="p-1.5 sm:p-2 rounded-full bg-blue-50 dark:bg-blue-900/30 group-hover:-translate-x-1 transition-transform shadow-xs">
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          Home
+          <span>Back to storefront</span>
         </Link>
       </div>
 
-      {/* Header & Search Hero */}
-      <div ref={contentTopRef} className="mb-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/5 dark:border-white/5">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3">
-              <Newspaper className="w-3.5 h-3.5" /> Official Intelligence Feed
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-              News & Updates
-            </h1>
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl">
-              Verified announcements, system patches, safety reports, and platform transparency updates.
-            </p>
-          </div>
+      {/* 2. Below Home: News & Updates Title + Bigger Search Box with proper spacing */}
+      <div className="px-3 sm:px-0 mt-0.5 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+          News &amp; Updates
+        </h1>
 
-          {/* Search Box */}
-          <div className="relative w-full md:w-80">
-            <input
-              type="text"
-              className="w-full py-3 pl-11 pr-10 text-sm text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 rounded-xl placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
-              placeholder="Search news or topics..."
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              aria-label="Search news articles"
-            />
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            {searchTerm && (
-              <button
-                onClick={() => handleSearchChange('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                aria-label="Clear search"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Category Filter Chips & Counter */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mt-6">
-          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 max-w-full">
-            {categories.map((cat) => {
-              const isActive = activeCategory.toLowerCase() === cat.toLowerCase();
-              return (
-                <button
-                  key={cat}
-                  onClick={() => handleCategoryChange(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
-                      : 'bg-zinc-100 dark:bg-zinc-900/60 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 shrink-0">
-            {filteredNews.length > 0 ? (
-              <span>
-                Showing <strong className="text-zinc-800 dark:text-zinc-200">{startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filteredNews.length)}</strong> of <strong className="text-zinc-800 dark:text-zinc-200">{filteredNews.length}</strong> articles
-              </span>
-            ) : null}
-          </div>
+        {/* Bigger, comfortable search bar */}
+        <div className="relative w-full sm:w-80 shrink-0">
+          <input
+            type="text"
+            className="w-full py-2.5 pl-10 pr-9 text-sm text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700/80 rounded-xl placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+            placeholder="Search news or topics..."
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            aria-label="Search news articles"
+          />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+          {searchTerm && (
+            <button
+              onClick={() => handleSearchChange('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Hero Spotlight Article (Page 1 only) */}
-      {spotlightItem && (
-        <article className="mb-14 p-4 sm:p-8 rounded-3xl bg-gradient-to-br from-zinc-50 to-zinc-100/60 dark:from-zinc-900/60 dark:to-zinc-900/20 border border-black/5 dark:border-white/10 shadow-sm transition-all hover:border-blue-500/20 group">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <Link 
-              to={`/news/${spotlightItem.slug}`}
-              className="lg:col-span-7 block overflow-hidden rounded-2xl bg-zinc-200 dark:bg-zinc-800 aspect-[16/9] relative group/img"
-              aria-label={`Read featured story: ${spotlightItem.title}`}
+      {/* 3. Horizontal Scrolling Category Chips - Fast touch access */}
+      <div className="px-3 sm:px-0 flex items-center gap-2 overflow-x-auto pb-2 mb-4 sm:mb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {categories.map((cat) => {
+          const isActive = activeCategory.toLowerCase() === cat.toLowerCase();
+          return (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+              }`}
             >
-              <img 
-                src={getOptimizedImageUrl(spotlightItem.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 800)} 
-                alt={spotlightItem.title}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-              <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/90 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-md">
-                  <Sparkles className="w-3.5 h-3.5" /> Featured Spotlight
-                </div>
-                {spotlightItem.is_pinned && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-bold uppercase tracking-wider shadow-md">
-                    <Pin className="w-3 h-3" /> Pinned
-                  </span>
-                )}
-                {spotlightItem.is_breaking && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold uppercase tracking-wider shadow-md animate-pulse">
-                    Breaking
-                  </span>
-                )}
-                {spotlightItem.is_new && !spotlightItem.is_breaking && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider shadow-md">
-                    New
-                  </span>
-                )}
-              </div>
-            </Link>
+              {cat}
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="flex flex-wrap items-center gap-3 mb-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                <span className="px-2.5 py-1 rounded-md bg-blue-100/70 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 font-bold uppercase tracking-wider">
-                  {spotlightItem.category || 'Official Report'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> {formatNewsDate(spotlightItem.date, spotlightItem.published_at)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" /> {calculateReadingTime(spotlightItem.description || spotlightItem.content || '')}
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 dark:text-white leading-tight mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                <Link to={`/news/${spotlightItem.slug}`}>
-                  {spotlightItem.title}
-                </Link>
-              </h2>
-
-              <div 
-                className="text-zinc-600 dark:text-zinc-300 text-sm sm:text-base line-clamp-3 leading-relaxed mb-6"
-                dangerouslySetInnerHTML={{ __html: safeHtml(spotlightItem.description || '') }}
-              />
-
-              <div className="flex items-center justify-between pt-4 border-t border-black/5 dark:border-white/5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center justify-center">
-                    {spotlightItem.ceo_name ? spotlightItem.ceo_name.charAt(0) : 'A'}
-                  </div>
-                  <div className="text-xs">
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">{spotlightItem.ceo_name || 'Admin Team'}</p>
-                    <p className="text-zinc-500 dark:text-zinc-400">{spotlightItem.ceo_description || 'Transparency Analyst'}</p>
-                  </div>
-                </div>
-
-                <Link
-                  to={`/news/${spotlightItem.slug}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
-                  aria-label={`Read full story: ${spotlightItem.title}`}
-                >
-                  <span>Read Article</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* Main News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-        {gridItems.map((item, index) => {
+      {/* 4. Google Discover Style News Feed: Complete Image Freedom (NO aspect ratio cutoffs, NO upper/down clipping, NO side borders on mobile) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-7 sm:gap-6 md:gap-8">
+        {currentNewsSlice.map((item, index) => {
           const isAboveFold = safeCurrentPage === 1 && index < 2;
           const readTime = calculateReadingTime(item.description || item.content || '');
           const formattedDate = formatNewsDate(item.date, item.published_at);
-          const optimizedImage = getOptimizedImageUrl(item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 600);
+          const optimizedImage = getOptimizedImageUrl(item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 900);
+          const cleanSnippet = getPlainTextSnippet(item.description || item.content);
 
           return (
-            <motion.article 
+            <article 
               key={item.id || item.slug}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: index * 0.04 }}
-              className="flex flex-col bg-white dark:bg-zinc-900/60 rounded-2xl border border-black/5 dark:border-white/10 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all group"
+              className="flex flex-col group select-none animate-fade-in border-b border-zinc-100 dark:border-zinc-800/80 pb-6 sm:border-0 sm:pb-0"
             >
-              {/* Image Container with strict Aspect Ratio */}
+              {/* Full Image Freedom: Natural full-size display with ZERO crop/cut-off on top/bottom or sides */}
               <Link 
                 to={`/news/${item.slug}`} 
                 aria-label={`Read full news article: ${item.title}`}
-                className="block w-full aspect-[16/9] rounded-xl overflow-hidden mb-5 bg-zinc-100 dark:bg-zinc-800 relative group/img"
+                className="block relative w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 rounded-none sm:rounded-2xl group/img"
               >
                 <img 
                   src={optimizedImage} 
                   alt={item.title} 
                   loading={isAboveFold ? "eager" : "lazy"}
                   decoding="async"
-                  className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                  className="w-full h-auto block group-hover/img:opacity-95 transition-opacity"
                   onError={(e) => {
-                    // Fallback to elegant placeholder if broken
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
+
+                {/* Subtle Overlaid Badges */}
                 <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
-                  {item.is_pinned && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
-                      <Pin className="w-2.5 h-2.5" /> Pinned
-                    </span>
-                  )}
                   {item.is_breaking && (
-                    <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
+                    <span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-md">
                       Breaking
                     </span>
                   )}
-                  {item.is_new && !item.is_breaking && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                  {item.is_pinned && !item.is_breaking && (
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1">
+                      <Pin className="w-2.5 h-2.5" /> Pinned
+                    </span>
+                  )}
+                  {item.is_new && !item.is_breaking && !item.is_pinned && (
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-md">
                       New
                     </span>
                   )}
-                  <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
-                    {item.category || 'Report'}
-                  </span>
                 </div>
               </Link>
 
-              {/* Meta information: Date & Reading Time */}
-              <div className="flex items-center gap-3 text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-3">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-zinc-400" /> {formattedDate}
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-zinc-400" /> {readTime}
-                </span>
-              </div>
+              {/* Content Block: Clean padding for reading comfort, 1-click navigate */}
+              <div className="px-3 sm:px-0 pt-3 pb-1 flex flex-col flex-1">
+                {/* Headline: Full headline cleanly rendered, clicking opens article */}
+                <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white leading-snug line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <Link to={`/news/${item.slug}`} aria-label={`Read news: ${item.title}`}>
+                    {item.title}
+                  </Link>
+                </h2>
 
-              {/* Title */}
-              <h2 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white leading-snug mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                <Link to={`/news/${item.slug}`} aria-label={`Read news: ${item.title}`}>
-                  {item.title}
-                </Link>
-              </h2>
+                {/* Snippet: 2-line clean overview */}
+                {cleanSnippet && (
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1.5 line-clamp-2 leading-relaxed">
+                    {cleanSnippet}
+                  </p>
+                )}
 
-              {/* Summary Description */}
-              <div 
-                className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 line-clamp-3 leading-relaxed" 
-                dangerouslySetInnerHTML={{ __html: safeHtml(item.description || '') }} 
-              />
-
-              {/* Footer CTA */}
-              <div className="mt-auto pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold text-[10px] flex items-center justify-center">
-                    {item.ceo_name ? item.ceo_name.charAt(0) : 'A'}
+                {/* Metadata Row: Category, Date, Read Time + Quick Share */}
+                <div className="mt-auto pt-3 flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
+                  <div className="flex items-center gap-2 truncate mr-2">
+                    {item.category && (
+                      <span className="font-semibold text-zinc-700 dark:text-zinc-300 truncate">
+                        {item.category}
+                      </span>
+                    )}
+                    {item.category && <span>•</span>}
+                    <span className="shrink-0">{formattedDate}</span>
+                    <span>•</span>
+                    <span className="shrink-0">{readTime}</span>
                   </div>
-                  <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300 truncate max-w-[120px]">
-                    {item.ceo_name || 'Admin'}
-                  </span>
-                </div>
 
-                <Link 
-                  to={`/news/${item.slug}`} 
-                  aria-label={`Read full article: ${item.title}`}
-                  className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold text-xs group-hover:gap-2 transition-all"
-                >
-                  <span>Read Story</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                  {/* Native Share button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleShare(item);
+                    }}
+                    className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
+                    title="Share article"
+                    aria-label="Share article"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </motion.article>
+            </article>
           );
         })}
 
         {/* Empty State */}
         {filteredNews.length === 0 && (
-          <div className="col-span-full py-20 text-center px-4 max-w-md mx-auto">
-            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8" />
+          <div className="col-span-full py-16 text-center px-4 max-w-md mx-auto">
+            <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">No news found</h3>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
-              We couldn't find any articles matching "{searchTerm || activeCategory}". Try searching for another topic or resetting filters.
+            <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-1.5">No news found</h3>
+            <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-5">
+              We couldn't find any articles matching "{searchTerm || activeCategory}".
             </p>
             <button
               onClick={handleClearFilters}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
             >
-              Reset All Filters
+              Reset Filters
             </button>
           </div>
         )}
       </div>
 
-      {/* Numbered Pagination UI (1 2 3 4 ... Next) */}
+      {/* Numbered Pagination UI */}
       {totalPages > 1 && (
         <nav 
           aria-label="News pagination" 
-          className="mt-16 pt-8 border-t border-black/5 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="mt-12 pt-6 px-3 sm:px-0 border-t border-black/5 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
           <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
             Page <span className="font-bold text-zinc-900 dark:text-zinc-100">{safeCurrentPage}</span> of <span className="font-bold text-zinc-900 dark:text-zinc-100">{totalPages}</span>
@@ -492,7 +416,7 @@ export default function NewsPage() {
             <button
               onClick={() => handlePageChange(safeCurrentPage - 1)}
               disabled={safeCurrentPage <= 1}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
               aria-label="Go to previous page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -505,7 +429,7 @@ export default function NewsPage() {
                 return (
                   <span 
                     key={`ellipsis-${idx}`} 
-                    className="px-2 py-2 text-zinc-400 text-xs font-semibold select-none"
+                    className="px-2 py-1 text-zinc-400 text-xs font-semibold select-none"
                   >
                     ...
                   </span>
@@ -521,9 +445,9 @@ export default function NewsPage() {
                   onClick={() => handlePageChange(num)}
                   aria-current={isActive ? 'page' : undefined}
                   aria-label={`Page ${num}`}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
+                      ? 'bg-blue-600 text-white shadow-xs'
                       : 'border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                   }`}
                 >
@@ -536,7 +460,7 @@ export default function NewsPage() {
             <button
               onClick={() => handlePageChange(safeCurrentPage + 1)}
               disabled={safeCurrentPage >= totalPages}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
               aria-label="Go to next page"
             >
               <span className="hidden sm:inline">Next</span>
@@ -545,7 +469,6 @@ export default function NewsPage() {
           </div>
         </nav>
       )}
-    </main>
+    </div>
   );
 }
-

@@ -4,14 +4,15 @@ import { ArrowLeft } from 'lucide-react';
 export function AppDetailsSkeleton() {
   return (
     <div className="w-full select-none animate-fade-in" aria-busy="true" aria-label="Loading application details">
-      {/* 1. Back button matching AppDetails exact position */}
-      <div className="px-1 sm:px-4 md:px-6 mb-4">
+      {/* 1. Back button & News button matching AppDetails exact position */}
+      <div className="flex items-center justify-between gap-3 px-1 sm:px-4 md:px-6 mb-4">
         <div className="inline-flex items-center gap-2 text-sm font-medium text-blue-500/60 dark:text-blue-400/60">
           <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20">
             <ArrowLeft className="w-4 h-4 text-blue-400/60" />
           </div>
           <span>Back to storefront</span>
         </div>
+        <div className="h-7 w-20 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
       </div>
 
       <div className="w-full">

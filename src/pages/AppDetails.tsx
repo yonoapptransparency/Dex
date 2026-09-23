@@ -5,7 +5,7 @@
 
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { ArrowRight, ArrowLeft, ShieldAlert, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShieldAlert, Check, Newspaper } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
@@ -27,7 +27,7 @@ import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
 export { AppDetailsSkeleton };
 
 export default function AppDetails() {
-  const { apps: mockApps, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
+  const { apps: mockApps, news: mockNews, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
@@ -389,6 +389,23 @@ export default function AppDetails() {
     }
   };
 
+  // Check if there are related news articles for this app
+  const relatedNewsCount = useMemo(() => {
+    if (!mockNews || !Array.isArray(mockNews)) return 0;
+    const nameLower = (app?.name || '').toLowerCase().trim();
+    const appId = app?.id;
+    return mockNews.filter(n => {
+      if (!n || n.sync_to_public === false) return false;
+      if (appId && n.related_app_id === appId) return true;
+      if (!nameLower) return false;
+      return (
+        n.title?.toLowerCase().includes(nameLower) ||
+        n.description?.toLowerCase().includes(nameLower) ||
+        (Array.isArray(n.tags) && n.tags.some((t: string) => t.toLowerCase() === nameLower))
+      );
+    }).length;
+  }, [mockNews, app?.name, app?.id]);
+
   return (
     <div className="animate-fade-in w-full select-none">
       {shareToast && (
@@ -401,15 +418,33 @@ export default function AppDetails() {
           <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
         </div>
       )}
-      <div className="px-1 sm:px-4 md:px-6 mb-4">
+      <div className="flex items-center justify-between gap-3 px-1 sm:px-4 md:px-6 mb-4">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group shrink-0"
         >
           <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
             <ArrowLeft className="w-4 h-4" />
           </div>
-          Back to storefront
+          <span>Back to storefront</span>
+        </Link>
+
+        {/* Lightweight Related News Gateway Button */}
+        <Link
+          to={`/news?q=${encodeURIComponent(app.name)}`}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200/90 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 transition-all shadow-xs group cursor-pointer active:scale-95 shrink-0"
+          title={`Read latest news and updates for ${app.name}`}
+        >
+          <div className="p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+            <Newspaper className="w-3.5 h-3.5" />
+          </div>
+          <span>News</span>
+          {relatedNewsCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold leading-none">
+              {relatedNewsCount}
+            </span>
+          )}
+          <ArrowRight className="w-3 h-3 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
         </Link>
       </div>
       <Meta 
