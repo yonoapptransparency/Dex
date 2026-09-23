@@ -118,8 +118,9 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
     <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
       <Link 
         to={`/app/${app.slug}`}
-        onMouseEnter={() => preloadAppDetails(app.slug)}
-        onFocus={() => preloadAppDetails(app.slug)}
+        onMouseEnter={() => preloadAppDetails(app)}
+        onFocus={() => preloadAppDetails(app)}
+        onTouchStart={() => preloadAppDetails(app)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
         <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
@@ -192,8 +193,9 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
     <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
       <Link 
         to={`/app/${app.slug}`}
-        onMouseEnter={() => preloadAppDetails(app.slug)}
-        onFocus={() => preloadAppDetails(app.slug)}
+        onMouseEnter={() => preloadAppDetails(app)}
+        onFocus={() => preloadAppDetails(app)}
+        onTouchStart={() => preloadAppDetails(app)}
         className="flex items-center gap-2.5 sm:gap-4 py-2.5 pl-2 pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
         <div className="w-5 sm:w-7 text-[15px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
