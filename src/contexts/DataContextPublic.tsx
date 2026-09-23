@@ -113,14 +113,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLive, setIsLive] = useState(true);
 
   // Fetch from server backup endpoint with fast memory caching and local storage persistence
-  const fetchBackupData = useCallback(async (silent = false) => {
+  const fetchBackupData = useCallback(async (silent = true) => {
     try {
       if (!silent && apps.length === 0) setLoading(true);
       const res = await fetch('/api/v1/public/backup-data', {
         headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok) {
-        const backup = await res.json();
+      }).catch(() => null);
+      if (res && res.ok) {
+        const backup = await res.json().catch(() => null);
         if (backup) {
           try {
             localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({
@@ -145,7 +145,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     } catch (e) {
-      console.warn("Public backup data fetch failed:", e);
+      // Graceful fallback to bundled high-availability staticData
     } finally {
       setLoading(false);
     }
