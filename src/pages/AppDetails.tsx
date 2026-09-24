@@ -7,14 +7,13 @@ import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { ArrowRight, ArrowLeft, ShieldAlert, Check, Newspaper } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef, Suspense } from 'react';
 import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
 import Meta from '../components/Meta';
-import UserReviews from '../components/UserReviews';
+import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { useLiveAppStats } from '../hooks/useReviews';
 
 import { resolveAppSlug } from '../lib/slugResolver';
-import { mockApps as staticMockApps } from '../lib/staticData';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
@@ -23,6 +22,8 @@ import AppAboutSection from '../components/public/AppAboutSection';
 import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
 import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
+
+const UserReviews = lazyWithRetry(() => import('../components/UserReviews'));
 
 export { AppDetailsSkeleton };
 
@@ -33,32 +34,28 @@ export default function AppDetails() {
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
 
-
-  
   // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
-    if (!slug) return null;
-    const staticApp = resolveAppSlug(slug, staticMockApps);
+    if (!slug || !Array.isArray(mockApps)) return null;
     const dynamicApp = resolveAppSlug(slug, mockApps);
-    if (!dynamicApp && !staticApp) return null;
+    if (!dynamicApp) return null;
 
     return {
-      ...staticApp,
       ...dynamicApp,
-      description_html: dynamicApp?.description_html || staticApp?.description_html || '',
-      features_html: dynamicApp?.features_html || staticApp?.features_html || '',
-      screenshots: (dynamicApp?.screenshots && dynamicApp.screenshots.length > 0) ? dynamicApp.screenshots : (staticApp?.screenshots || []),
-      faqs: (dynamicApp?.faqs && dynamicApp.faqs.length > 0) ? dynamicApp.faqs : (staticApp?.faqs || []),
-      custom_admin_box_html: dynamicApp?.custom_admin_box_html || staticApp?.custom_admin_box_html || '',
-      custom_admin_box_heading: dynamicApp?.custom_admin_box_heading || staticApp?.custom_admin_box_heading || '',
-      release_notes: dynamicApp?.release_notes || staticApp?.release_notes || '',
-      yellow_box_msg: dynamicApp?.yellow_box_msg || staticApp?.yellow_box_msg || '',
-      red_box_msg: dynamicApp?.red_box_msg || staticApp?.red_box_msg || '',
-      idea_box_msg: dynamicApp?.idea_box_msg || staticApp?.idea_box_msg || '',
-      file_size: dynamicApp?.file_size || staticApp?.file_size || '45 MB',
-      version: dynamicApp?.version || staticApp?.version || '1.0.0',
-      developer: dynamicApp?.developer || staticApp?.developer || 'Developer',
-      safety_status: dynamicApp?.safety_status || staticApp?.safety_status || 'Verified',
+      description_html: dynamicApp.description_html || '',
+      features_html: dynamicApp.features_html || '',
+      screenshots: Array.isArray(dynamicApp.screenshots) ? dynamicApp.screenshots : [],
+      faqs: Array.isArray(dynamicApp.faqs) ? dynamicApp.faqs : [],
+      custom_admin_box_html: dynamicApp.custom_admin_box_html || '',
+      custom_admin_box_heading: dynamicApp.custom_admin_box_heading || '',
+      release_notes: dynamicApp.release_notes || '',
+      yellow_box_msg: dynamicApp.yellow_box_msg || '',
+      red_box_msg: dynamicApp.red_box_msg || '',
+      idea_box_msg: dynamicApp.idea_box_msg || '',
+      file_size: dynamicApp.file_size || '45 MB',
+      version: dynamicApp.version || '1.0.0',
+      developer: dynamicApp.developer || 'Developer',
+      safety_status: dynamicApp.safety_status || 'Verified',
     };
   }, [slug, mockApps]);
   
@@ -83,8 +80,8 @@ export default function AppDetails() {
   }, [app?.category]);
 
   const relatedApps = useMemo(() => {
-    if (!app) return [];
-    const sourceApps = mockApps.length > 0 ? mockApps : staticMockApps;
+    if (!app || !Array.isArray(mockApps) || mockApps.length === 0) return [];
+    const sourceApps = mockApps;
     const currentCats = (app.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
     const specificCats = currentCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
     
@@ -166,7 +163,7 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
+    const resolved = resolveAppSlug(slugKey, mockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
     // Only trigger background fetch if we truly have zero description_html
@@ -186,10 +183,9 @@ export default function AppDetails() {
           }
         })
         .catch(() => {
-          // Fallback to static data if on-demand fetch fails
-          const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
-          if (fallbackApp && updateAppDetail) {
-            updateAppDetail(fallbackApp);
+          if (!triedRefresh && refreshAll) {
+            setTriedRefresh(true);
+            refreshAll(true);
           }
         })
         .finally(() => {
@@ -538,15 +534,24 @@ export default function AppDetails() {
 
       {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 sm:px-4 md:px-6 mb-8">
-        <UserReviews 
-          key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
-          appId={app.id} 
-          appTitle={app.name} 
-          appSlug={app.slug}
-          category={app.category}
-          overallRating={app.rating} 
-          totalReviewCount={realReviewCount} 
-        />
+        <Suspense fallback={
+          <div className="py-8 border-t border-black/5 dark:border-white/5">
+            <div className="animate-pulse space-y-4">
+              <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-md"></div>
+              <div className="h-24 w-full bg-zinc-100 dark:bg-zinc-800/60 rounded-xl"></div>
+            </div>
+          </div>
+        }>
+          <UserReviews 
+            key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
+            appId={app.id} 
+            appTitle={app.name} 
+            appSlug={app.slug}
+            category={app.category}
+            overallRating={app.rating} 
+            totalReviewCount={realReviewCount} 
+          />
+        </Suspense>
       </div>
       
       {/* Modular FAQ Section */}

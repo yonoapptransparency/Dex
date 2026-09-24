@@ -155,20 +155,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    // Fetch immediately on mount
-    fetchBackupData();
+    // If initialCache exists, defer background backup fetch so initial paint has 0ms blocking latency
+    if (initialCache && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => fetchBackupData(true), { timeout: 4000 });
+      } else {
+        setTimeout(() => fetchBackupData(true), 2500);
+      }
+    } else {
+      fetchBackupData();
+    }
 
     // Periodic check every 30 minutes for live updates
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        fetchBackupData();
+        fetchBackupData(true);
       }
     }, 1800000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [fetchBackupData]);
+  }, [fetchBackupData, initialCache]);
 
   const resolvedSettings = React.useMemo(() => {
     const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png";

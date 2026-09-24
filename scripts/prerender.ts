@@ -47,21 +47,32 @@ async function prerender() {
       data.apps = [];
     }
     
-    // Helper to generate a file for a specific path
+    // Helper to generate both directory index.html and direct .html file for any route
     const generateRoute = async (routePath: string) => {
       console.log(`Prerendering route: ${routePath}`);
-      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST);
+      // Prerender static HTML with clean #root for instantaneous React mount and rich noscript semantic crawler fallback
+      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST, '');
       const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
       
-      const targetDir = path.join(distPath, routePath.startsWith('/') ? routePath.substring(1) : routePath);
+      const cleanRoute = routePath.startsWith('/') ? routePath.substring(1) : routePath;
+      const targetDir = path.join(distPath, cleanRoute);
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
       }
+      // 1. Directory index.html (for directory URLs & trailing slashes: /app/example/index.html)
       fs.writeFileSync(path.join(targetDir, 'index.html'), template, 'utf-8');
+
+      // 2. Direct clean .html file (for clean URLs on Vercel Edge CDN: /app/example.html)
+      const directHtmlPath = path.join(distPath, `${cleanRoute}.html`);
+      const directHtmlDir = path.dirname(directHtmlPath);
+      if (!fs.existsSync(directHtmlDir)) {
+        fs.mkdirSync(directHtmlDir, { recursive: true });
+      }
+      fs.writeFileSync(directHtmlPath, template, 'utf-8');
     };
 
     // 1. Generate Home Route
-    const homeRes = await injectSeoTags(originalTemplate, '/', HOST);
+    const homeRes = await injectSeoTags(originalTemplate, '/', HOST, '');
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
@@ -73,21 +84,49 @@ async function prerender() {
       await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
     }
 
-    // 3. Generate News Routes (Only for public synced news)
+    // 2.1 Generate Gateway Moreinfo Routes for instant CDN delivery (Zero 404s)
+    for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
+      const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((app: any) => generateRoute(`/moreinfo/${app.slug}`)));
+    }
+
+    // 3. Generate Category Routes & Catalogs
+    await generateRoute('/categories');
+    await generateRoute('/new-apps');
+
+    const uniqueCategories = new Set<string>();
+    (data.apps || []).forEach((app: any) => {
+      const catField = app.category || app.category_name;
+      if (typeof catField === 'string' && catField.trim()) {
+        catField.split(',').forEach((c: string) => {
+          const trimmed = c.trim();
+          if (trimmed) uniqueCategories.add(trimmed);
+        });
+      }
+    });
+
+    for (const cat of uniqueCategories) {
+      const catSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      if (catSlug) {
+        await generateRoute(`/category/${catSlug}`);
+      }
+    }
+
+    // 4. Generate News Routes (Only for public synced news)
     for (const newsItem of data.news || []) {
       if (newsItem.slug && newsItem.sync_to_public !== false) {
         await generateRoute(`/news/${newsItem.slug}`);
       }
     }
 
-    // 4. Generate Video Routes
+    // 5. Generate Video Routes
     for (const videoItem of data.videos || []) {
       if (videoItem.slug) {
         await generateRoute(`/videos/${videoItem.slug}`);
       }
     }
 
-    // 5. Generate Other Static Routes
+    // 6. Generate Core Static Pages
     await generateRoute('/news');
     await generateRoute('/videos');
     await generateRoute('/about');
