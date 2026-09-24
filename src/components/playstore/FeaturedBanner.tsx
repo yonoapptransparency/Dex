@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utilsPublic';
 import { getOptimizedImageUrl } from '../../seo/utils';
-import { preloadAppDetails } from '../../lib/preloadHelper';
 
 interface BannerProps {
   items: any[];
@@ -117,14 +116,10 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
               );
             }
 
-            const targetSlug = (item.link || '').startsWith('/app/') ? item.link.replace(/^\/app\//, '') : '';
             return (
               <Link
                 key={`banner-int-${item.id || i}`}
                 to={item.link || "/"}
-                onMouseEnter={() => targetSlug && preloadAppDetails(targetSlug)}
-                onFocus={() => targetSlug && preloadAppDetails(targetSlug)}
-                onTouchStart={() => targetSlug && preloadAppDetails(targetSlug)}
                 className="h-full block flex-shrink-0"
                 style={slideStyle}
                 draggable={false}

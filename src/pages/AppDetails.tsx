@@ -7,17 +7,15 @@ import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { ArrowRight, ArrowLeft, ShieldAlert, Check, Newspaper } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
-import { useEffect, useMemo, useState, useRef, Suspense } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
 import Meta from '../components/Meta';
-import { useLiveAppStats } from '../hooks/useLiveAppStats';
-import { lazyWithRetry } from '../lib/lazyWithRetry';
-import { getPrefetchedApp, getInFlightAppFetch } from '../lib/preloadHelper';
-
-const UserReviews = lazyWithRetry(() => import('../components/UserReviews'));
+import UserReviews from '../components/UserReviews';
+import { useLiveAppStats } from '../hooks/useReviews';
 
 import { resolveAppSlug } from '../lib/slugResolver';
 import { mockApps as staticMockApps } from '../lib/staticData';
+import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
 import AppScreenshots from '../components/public/AppScreenshots';
@@ -25,6 +23,8 @@ import AppAboutSection from '../components/public/AppAboutSection';
 import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
 import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
+
+export { AppDetailsSkeleton };
 
 export default function AppDetails() {
   const { apps: mockApps, news: mockNews, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
@@ -35,40 +35,30 @@ export default function AppDetails() {
 
 
   
-  // Instant multi-tier app resolution: Prioritizes prefetched memory cache, static specifications, and dynamic metadata
+  // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
     if (!slug) return null;
-    const prefetchedApp = getPrefetchedApp(slug);
     const staticApp = resolveAppSlug(slug, staticMockApps);
     const dynamicApp = resolveAppSlug(slug, mockApps);
-    if (!dynamicApp && !staticApp && !prefetchedApp) return null;
-
-    const baseApp = {
-      ...staticApp,
-      ...dynamicApp,
-      ...prefetchedApp,
-    };
+    if (!dynamicApp && !staticApp) return null;
 
     return {
-      ...baseApp,
-      description_html: prefetchedApp?.description_html || dynamicApp?.description_html || staticApp?.description_html || '',
-      features_html: prefetchedApp?.features_html || dynamicApp?.features_html || staticApp?.features_html || '',
-      screenshots: (prefetchedApp?.screenshots && prefetchedApp.screenshots.length > 0) 
-        ? prefetchedApp.screenshots 
-        : ((dynamicApp?.screenshots && dynamicApp.screenshots.length > 0) ? dynamicApp.screenshots : (staticApp?.screenshots || [])),
-      faqs: (prefetchedApp?.faqs && prefetchedApp.faqs.length > 0) 
-        ? prefetchedApp.faqs 
-        : ((dynamicApp?.faqs && dynamicApp.faqs.length > 0) ? dynamicApp.faqs : (staticApp?.faqs || [])),
-      custom_admin_box_html: prefetchedApp?.custom_admin_box_html || dynamicApp?.custom_admin_box_html || staticApp?.custom_admin_box_html || '',
-      custom_admin_box_heading: prefetchedApp?.custom_admin_box_heading || dynamicApp?.custom_admin_box_heading || staticApp?.custom_admin_box_heading || '',
-      release_notes: prefetchedApp?.release_notes || dynamicApp?.release_notes || staticApp?.release_notes || '',
-      yellow_box_msg: prefetchedApp?.yellow_box_msg || dynamicApp?.yellow_box_msg || staticApp?.yellow_box_msg || '',
-      red_box_msg: prefetchedApp?.red_box_msg || dynamicApp?.red_box_msg || staticApp?.red_box_msg || '',
-      idea_box_msg: prefetchedApp?.idea_box_msg || dynamicApp?.idea_box_msg || staticApp?.idea_box_msg || '',
-      file_size: prefetchedApp?.file_size || dynamicApp?.file_size || staticApp?.file_size || '45 MB',
-      version: prefetchedApp?.version || dynamicApp?.version || staticApp?.version || '1.0.0',
-      developer: prefetchedApp?.developer || dynamicApp?.developer || staticApp?.developer || 'Developer',
-      safety_status: prefetchedApp?.safety_status || dynamicApp?.safety_status || staticApp?.safety_status || 'Verified',
+      ...staticApp,
+      ...dynamicApp,
+      description_html: dynamicApp?.description_html || staticApp?.description_html || '',
+      features_html: dynamicApp?.features_html || staticApp?.features_html || '',
+      screenshots: (dynamicApp?.screenshots && dynamicApp.screenshots.length > 0) ? dynamicApp.screenshots : (staticApp?.screenshots || []),
+      faqs: (dynamicApp?.faqs && dynamicApp.faqs.length > 0) ? dynamicApp.faqs : (staticApp?.faqs || []),
+      custom_admin_box_html: dynamicApp?.custom_admin_box_html || staticApp?.custom_admin_box_html || '',
+      custom_admin_box_heading: dynamicApp?.custom_admin_box_heading || staticApp?.custom_admin_box_heading || '',
+      release_notes: dynamicApp?.release_notes || staticApp?.release_notes || '',
+      yellow_box_msg: dynamicApp?.yellow_box_msg || staticApp?.yellow_box_msg || '',
+      red_box_msg: dynamicApp?.red_box_msg || staticApp?.red_box_msg || '',
+      idea_box_msg: dynamicApp?.idea_box_msg || staticApp?.idea_box_msg || '',
+      file_size: dynamicApp?.file_size || staticApp?.file_size || '45 MB',
+      version: dynamicApp?.version || staticApp?.version || '1.0.0',
+      developer: dynamicApp?.developer || staticApp?.developer || 'Developer',
+      safety_status: dynamicApp?.safety_status || staticApp?.safety_status || 'Verified',
     };
   }, [slug, mockApps]);
   
@@ -135,7 +125,7 @@ export default function AppDetails() {
     }
 
     const combined = [...exactMatches, ...tokenMatches];
-    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 12) : combined.slice(0, 12);
+    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
     
     // Crucial Performance Optimization: 
     // Strip out the heavy description_html, features_html, and screenshots arrays 
@@ -171,64 +161,32 @@ export default function AppDetails() {
     setTriedRefresh(false);
   }, [slug]);
 
-  // Idle preload: Preload the UserReviews component chunk so reviews are ready when user scrolls down
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => {
-        UserReviews.preload();
-      });
-    } else {
-      const timer = setTimeout(() => {
-        UserReviews.preload();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  // Listen for background prefetched app data events to hydrate immediately
-  useEffect(() => {
-    const handlePrefetched = (e: any) => {
-      const prefetched = e?.detail?.app;
-      if (prefetched && slug && (
-        String(prefetched.slug).toLowerCase() === slug.toLowerCase() ||
-        String(prefetched.id).toLowerCase() === slug.toLowerCase()
-      )) {
-        if (updateAppDetail) updateAppDetail(prefetched);
-      }
-    };
-    window.addEventListener('yd-app-details-prefetched', handlePrefetched);
-    return () => window.removeEventListener('yd-app-details-prefetched', handlePrefetched);
-  }, [slug, updateAppDetail]);
-
-  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present
+  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    // If app already has full description_html from any layer, no fetch needed
-    if (app?.description_html) return;
+    const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
+    const isMissingDetails = !resolved || !resolved.description_html;
 
-    // Only trigger background fetch once per slug if we truly have zero description_html
-    if (!syncAttemptedRef.current[slugKey] && !triedRefresh) {
+    // Only trigger background fetch if we truly have zero description_html
+    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
       syncAttemptedRef.current[slugKey] = true;
 
-      const inFlight = getInFlightAppFetch(slugKey);
-      const fetchPromise = inFlight || fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
+      fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
         .then(res => {
           if (res.ok) return res.json();
           throw new Error(`HTTP ${res.status}`);
         })
-        .then(data => data?.app || null);
-
-      fetchPromise
-        .then(appData => {
-          if (appData && updateAppDetail) {
-            updateAppDetail(appData);
+        .then(data => {
+          if (data?.status === 'OK' && data?.app && updateAppDetail) {
+            updateAppDetail(data.app);
           } else if (refreshAll) {
             return refreshAll(true);
           }
         })
         .catch(() => {
+          // Fallback to static data if on-demand fetch fails
           const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
           if (fallbackApp && updateAppDetail) {
             updateAppDetail(fallbackApp);
@@ -237,12 +195,14 @@ export default function AppDetails() {
         .finally(() => {
           setTriedRefresh(true);
         });
+    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
+      updateAppDetail(resolved);
     }
-  }, [slug, app?.description_html, triedRefresh, refreshAll, updateAppDetail]);
+  }, [slug, mockApps, triedRefresh, refreshAll, updateAppDetail]);
 
-  // If app is not found in initial dataset or static data, avoid intrusive skeleton flicker
+  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
   if (!app && loading) {
-    return null;
+    return <AppDetailsSkeleton />;
   }
 
   if (!app) {
@@ -578,22 +538,15 @@ export default function AppDetails() {
 
       {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 sm:px-4 md:px-6 mb-8">
-        <Suspense fallback={
-          <div className="py-8 text-center text-zinc-400">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-xs text-zinc-500">Loading verified reviews...</p>
-          </div>
-        }>
-          <UserReviews 
-            key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
-            appId={app.id} 
-            appTitle={app.name} 
-            appSlug={app.slug}
-            category={app.category}
-            overallRating={app.rating} 
-            totalReviewCount={realReviewCount} 
-          />
-        </Suspense>
+        <UserReviews 
+          key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
+          appId={app.id} 
+          appTitle={app.name} 
+          appSlug={app.slug}
+          category={app.category}
+          overallRating={app.rating} 
+          totalReviewCount={realReviewCount} 
+        />
       </div>
       
       {/* Modular FAQ Section */}
