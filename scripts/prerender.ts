@@ -50,8 +50,8 @@ async function prerender() {
     // Helper to generate both directory index.html and direct .html file for any route
     const generateRoute = async (routePath: string) => {
       console.log(`Prerendering route: ${routePath}`);
-      // Pass 'Googlebot' user-agent so injectSeoTags outputs full semantic SSR HTML directly inside #root
-      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST, 'Googlebot');
+      // Prerender static HTML with clean #root for instantaneous React mount and rich noscript semantic crawler fallback
+      const seoRes = await injectSeoTags(originalTemplate, routePath, HOST, '');
       const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
       
       const cleanRoute = routePath.startsWith('/') ? routePath.substring(1) : routePath;
@@ -72,7 +72,7 @@ async function prerender() {
     };
 
     // 1. Generate Home Route
-    const homeRes = await injectSeoTags(originalTemplate, '/', HOST, 'Googlebot');
+    const homeRes = await injectSeoTags(originalTemplate, '/', HOST, '');
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
@@ -82,6 +82,12 @@ async function prerender() {
     for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
       const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
+    }
+
+    // 2.1 Generate Gateway Moreinfo Routes for instant CDN delivery (Zero 404s)
+    for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
+      const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((app: any) => generateRoute(`/moreinfo/${app.slug}`)));
     }
 
     // 3. Generate Category Routes & Catalogs

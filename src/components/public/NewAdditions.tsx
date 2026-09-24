@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BadgeCheck } from 'lucide-react';
 import { AppConfig } from '../../types';
@@ -9,8 +10,8 @@ interface NewAdditionsProps {
   apps: AppConfig[];
 }
 
-export default function NewAdditions({ apps }: NewAdditionsProps) {
-  const newApps = apps.filter(app => app.is_new);
+export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
+  const newApps = useMemo(() => apps.filter(app => app.is_new), [apps]);
   if (newApps.length === 0) return null;
 
   return (
@@ -67,4 +68,4 @@ export default function NewAdditions({ apps }: NewAdditionsProps) {
       </div>
     </div>
   );
-}
+});

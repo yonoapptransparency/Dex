@@ -18,7 +18,6 @@ const UserReviews = lazyWithRetry(() => import('../components/UserReviews'));
 
 import { resolveAppSlug } from '../lib/slugResolver';
 import { mockApps as staticMockApps } from '../lib/staticData';
-import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
 import AppScreenshots from '../components/public/AppScreenshots';
@@ -26,8 +25,6 @@ import AppAboutSection from '../components/public/AppAboutSection';
 import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
 import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
-
-export { AppDetailsSkeleton };
 
 export default function AppDetails() {
   const { apps: mockApps, news: mockNews, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
@@ -138,7 +135,7 @@ export default function AppDetails() {
     }
 
     const combined = [...exactMatches, ...tokenMatches];
-    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
+    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 12) : combined.slice(0, 12);
     
     // Crucial Performance Optimization: 
     // Strip out the heavy description_html, features_html, and screenshots arrays 
@@ -203,23 +200,16 @@ export default function AppDetails() {
     return () => window.removeEventListener('yd-app-details-prefetched', handlePrefetched);
   }, [slug, updateAppDetail]);
 
-  // On-demand single-app fetch: Leverages memory cache, deduplicates in-flight fetches, and loads missing rich HTML smoothly
+  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    // Check if memory cache already has full details
-    const prefetched = getPrefetchedApp(slugKey);
-    if (prefetched && prefetched.description_html && updateAppDetail) {
-      updateAppDetail(prefetched);
-      return;
-    }
+    // If app already has full description_html from any layer, no fetch needed
+    if (app?.description_html) return;
 
-    const resolved = resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
-    const isMissingDetails = !resolved || !resolved.description_html;
-
-    // Only trigger background fetch if we truly have zero description_html
-    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
+    // Only trigger background fetch once per slug if we truly have zero description_html
+    if (!syncAttemptedRef.current[slugKey] && !triedRefresh) {
       syncAttemptedRef.current[slugKey] = true;
 
       const inFlight = getInFlightAppFetch(slugKey);
@@ -239,7 +229,6 @@ export default function AppDetails() {
           }
         })
         .catch(() => {
-          // Fallback to static data if on-demand fetch fails
           const fallbackApp = resolveAppSlug(slugKey, staticMockApps);
           if (fallbackApp && updateAppDetail) {
             updateAppDetail(fallbackApp);
@@ -248,14 +237,12 @@ export default function AppDetails() {
         .finally(() => {
           setTriedRefresh(true);
         });
-    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
-      updateAppDetail(resolved);
     }
-  }, [slug, mockApps, triedRefresh, refreshAll, updateAppDetail]);
+  }, [slug, app?.description_html, triedRefresh, refreshAll, updateAppDetail]);
 
-  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
+  // If app is not found in initial dataset or static data, avoid intrusive skeleton flicker
   if (!app && loading) {
-    return <AppDetailsSkeleton />;
+    return null;
   }
 
   if (!app) {

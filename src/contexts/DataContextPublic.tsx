@@ -130,16 +130,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
-            setApps(backup.apps);
+            setApps(prev => {
+              if (prev.length !== backup.apps.length) return backup.apps;
+              const changed = backup.apps.slice(0, 5).some((newApp: any, i: number) => {
+                const oldApp = prev[i] as any;
+                return !oldApp || newApp.id !== oldApp.id || newApp.updated_at !== oldApp.updated_at || newApp.name !== oldApp.name;
+              });
+              return changed ? backup.apps : prev;
+            });
           }
           if (backup.settings && Object.keys(backup.settings).length > 0) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
           if (backup.news && Array.isArray(backup.news)) {
-            setNews(backup.news);
+            setNews(prev => (prev.length !== backup.news.length ? backup.news : prev));
           }
           if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
-            setVideos(backup.videos);
+            setVideos(prev => (prev.length !== backup.videos.length ? backup.videos : prev));
           }
           setLoadedFromServer(true);
         }
@@ -149,14 +156,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [apps.length]);
+  }, []);
 
   useEffect(() => {
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    // Fetch immediately on mount
-    fetchBackupData();
+    // Defer background sync until idle after initial paint to guarantee 100% instant, uninterrupted initial render
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => fetchBackupData());
+      } else {
+        fetchBackupData();
+      }
+    }, 3500);
 
     // Periodic check every 30 minutes for live updates
     const interval = setInterval(() => {
@@ -166,6 +179,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 1800000);
 
     return () => {
+      clearTimeout(timer);
       clearInterval(interval);
     };
   }, [fetchBackupData]);
@@ -192,6 +206,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (updateSlug && a.slug && String(a.slug).toLowerCase().trim() === updateSlug)
       );
       if (index >= 0) {
+        const existing = prevApps[index];
+        // If description_html and core fields are already identical, retain array reference
+        if (
+          existing.description_html === updatedApp.description_html &&
+          existing.name === updatedApp.name &&
+          existing.rating === updatedApp.rating &&
+          existing.features_html === updatedApp.features_html &&
+          existing.release_notes === updatedApp.release_notes
+        ) {
+          return prevApps;
+        }
         const next = [...prevApps];
         next[index] = { ...next[index], ...updatedApp };
         return next;
