@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Star, Plus, Loader2, Check, AlertCircle, Sparkles } from 'lucide-react';
 import { Review } from './ReviewItem';
 
@@ -119,16 +118,14 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
             <div className="flex items-center gap-1" role="group" aria-label="Star rating selector">
               {[1, 2, 3, 4, 5].map((s) => (
-                <motion.button
+                <button
                   key={s}
                   type="button"
                   aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
                   onMouseEnter={() => setHoveredRating(s)}
                   onMouseLeave={() => setHoveredRating(null)}
                   onClick={() => setRating(s)}
-                  className="p-1 focus:outline-none cursor-pointer"
+                  className="p-1 focus:outline-none cursor-pointer hover:scale-110 active:scale-95 transition-transform"
                 >
                   <Star 
                     className={`w-6 h-6 transition-colors duration-200 ${
@@ -137,7 +134,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
                         : 'text-zinc-300 dark:text-zinc-700'
                     }`} 
                   />
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
@@ -184,19 +181,14 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
               </div>
             )}
 
-            <AnimatePresence>
-              {success && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-500"
-                >
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                  <span>Review published successfully! Visible in community reviews below.</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {success && (
+              <div 
+                className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 animate-fade-in transition-all"
+              >
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
+                <span>Review published successfully! Visible in community reviews below.</span>
+              </div>
+            )}
           </div>
 
           <button

@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockNews as staticMockNews } from '../lib/staticData';
@@ -45,8 +45,21 @@ function formatNewsDate(dateStr?: string, publishedAt?: string): string {
 export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, newsSyncedWithServer, serverNewsFetched, refreshAll } = useData();
   const { slug } = useParams();
-  const newsItem = mockNews.find(n => n.slug?.toLowerCase() === slug?.toLowerCase()) ||
-                   staticMockNews.find(n => n.slug?.toLowerCase() === slug?.toLowerCase());
+  
+  // Check if slug corresponds to an APP rather than news article (e.g. /news/maha-games -> redirect to /app/maha-games)
+  const matchedApp = useMemo(() => {
+    if (!slug) return null;
+    const sLower = slug.toLowerCase().trim();
+    return apps.find(a => a.slug?.toLowerCase() === sLower || a.id === sLower);
+  }, [slug, apps]);
+
+  const newsItem = useMemo(() => {
+    if (!slug) return null;
+    const sLower = slug.toLowerCase().trim();
+    return mockNews.find(n => n.slug?.toLowerCase() === sLower) ||
+           staticMockNews.find(n => n.slug?.toLowerCase() === sLower);
+  }, [slug, mockNews]);
+
   const [commentText, setCommentText] = useState('');
   const [copied, setCopied] = useState(false);
   
@@ -61,25 +74,35 @@ export default function NewsDetailPage() {
     setCopied(false);
   }, [slug]);
 
-  // Automatically trigger a silent cloud sync if the requested item is not found in local cache
+  // Silent background sync only if news item is not found and not an app
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
-    if (!slugKey) return;
+    if (!slugKey || newsItem || matchedApp) return;
 
-    const found = mockNews.some(n => n.slug?.toLowerCase() === slugKey);
-    if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+    if (!syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
+      const timer = setTimeout(() => {
+        setIsRefreshing(false);
+        setTriedRefresh(true);
+      }, 1500);
+
       refreshAll?.(true)
         .catch((e: any) => {
           console.warn("Deep Link News Auto-Sync failed:", e.message || e);
         })
         .finally(() => {
+          clearTimeout(timer);
           setTriedRefresh(true);
           setIsRefreshing(false);
         });
     }
-  }, [slug, mockNews, triedRefresh, isRefreshing, refreshAll]);
+  }, [slug, newsItem, matchedApp, triedRefresh, isRefreshing, refreshAll]);
+
+  // If this was an app slug, seamlessly redirect to canonical /app/:slug with 0ms delay
+  if (matchedApp && !newsItem) {
+    return <Navigate to={`/app/${matchedApp.slug || matchedApp.id}`} replace />;
+  }
 
   // Match corresponding app from catalog to enable seamless 1-click Download redirection
   const relatedApp = useMemo(() => {
@@ -186,7 +209,7 @@ export default function NewsDetailPage() {
     setCommentText('');
   };
 
-  if (loading && !newsItem) {
+  if (loading && !newsItem && mockNews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
@@ -195,14 +218,14 @@ export default function NewsDetailPage() {
     );
   }
 
-  // Graceful interstitial for slow database cold-starts or deep links on first visit
-  if (!newsItem && (!serverNewsFetched || !newsSyncedWithServer || isRefreshing || !triedRefresh)) {
+  // Brief non-blocking check only while actively refreshing
+  if (!newsItem && isRefreshing) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Syncing</h3>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Checking Updates</h3>
         <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
-          Retrieving live updates from our network.
+          Verifying article status from the network...
         </p>
       </div>
     );

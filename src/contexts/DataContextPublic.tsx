@@ -155,15 +155,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    // If initialCache exists, defer background backup fetch so initial paint has 0ms blocking latency
-    if (initialCache && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
+    // Always defer background backup fetch so initial paint, LCP images, and critical route chunks have 0ms network congestion
+    const scheduleBackgroundSync = () => {
       if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => fetchBackupData(true), { timeout: 4000 });
+        (window as any).requestIdleCallback(() => fetchBackupData(true), { timeout: 8000 });
       } else {
-        setTimeout(() => fetchBackupData(true), 2500);
+        setTimeout(() => fetchBackupData(true), 4000);
       }
+    };
+
+    if (document.readyState === 'complete') {
+      scheduleBackgroundSync();
     } else {
-      fetchBackupData();
+      window.addEventListener('load', scheduleBackgroundSync, { once: true });
     }
 
     // Periodic check every 30 minutes for live updates
@@ -176,7 +180,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       clearInterval(interval);
     };
-  }, [fetchBackupData, initialCache]);
+  }, [fetchBackupData]);
 
   const resolvedSettings = React.useMemo(() => {
     const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png";

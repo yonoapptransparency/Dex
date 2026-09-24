@@ -23,7 +23,7 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.FIREBASE_PROJECT_ID': JSON.stringify(firebaseConfig.projectId || env.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID),
@@ -140,7 +140,7 @@ export default defineConfig(({mode}) => {
       minify: 'esbuild',
       sourcemap: false,
       cssCodeSplit: true,
-      modulePreload: false,
+      modulePreload: true,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -154,12 +154,12 @@ export default defineConfig(({mode}) => {
               }
               // Group core app runtime together so browser executes in 1 parallel network request
               if (
-                /\bnode_modules\/(react|react-dom|scheduler|react-router|@remix-run|lucide-react|i18next|react-i18next)\//.test(id)
+                /\bnode_modules\/(react|react-dom|scheduler|react-router|@remix-run)\//.test(id)
               ) {
                 return 'vendor-core';
               }
             }
-            }
+          }
         }
       }
     },

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/agent-protocol/agent-protocol/master/schemas/ai-catalog.json",
+  "name": "RummyDex",
+  "description": "RummyDex transparency platform, app store catalog, news portal, and review hub.",
+  "version": "1.0.0",
+  "url": "https://www.rummydex.com",
+  "catalog_url": "https://www.rummydex.com/.well-known/ai-catalog.json",
+  "capabilities": {
+    "search": {
+      "endpoint": "https://www.rummydex.com/api/v1/public/apps",
+      "method": "GET"
+    },
+    "apps": {
+      "endpoint": "https://www.rummydex.com/api/v1/public/backup-data",
+      "method": "GET"
+    }
+  },
+  "endpoints": [
+    {
+      "name": "Public Catalog",
+      "url": "https://www.rummydex.com/api/v1/public/apps",
+      "description": "Browse catalog of verified card game applications."
+    },
+    {
+      "name": "Community Stats",
+      "url": "https://www.rummydex.com/api/v1/public/community/stats",
+      "description": "Retrieve rating and reviews aggregation statistics."
+    }
+  ]
+}

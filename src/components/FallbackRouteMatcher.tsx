@@ -72,13 +72,19 @@ export default function FallbackRouteMatcher() {
     );
   }
 
-  // 6. Trigger background refresh if not found in cache
+  // 6. Trigger background refresh if not found in cache with short non-blocking timeout
   if (!syncAttemptedRef.current[slug] && !triedRefresh) {
     syncAttemptedRef.current[slug] = true;
     setIsRefreshing(true);
+    const timeout = setTimeout(() => {
+      setTriedRefresh(true);
+      setIsRefreshing(false);
+    }, 1200);
+
     refreshAll(true)
       .catch(err => console.warn("Fallback route match auto-sync failed:", err.message || err))
       .finally(() => {
+        clearTimeout(timeout);
         setTriedRefresh(true);
         setIsRefreshing(false);
       });

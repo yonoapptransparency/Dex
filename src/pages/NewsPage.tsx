@@ -304,6 +304,7 @@ export default function NewsPage() {
                   src={optimizedImage} 
                   alt={item.title} 
                   loading={isAboveFold ? "eager" : "lazy"}
+                  fetchPriority={isAboveFold ? "high" : "low"}
                   decoding="async"
                   className="w-full h-auto block group-hover/img:opacity-95 transition-opacity"
                   onError={(e) => {

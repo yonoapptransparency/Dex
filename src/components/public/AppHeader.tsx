@@ -19,13 +19,13 @@ export default function AppHeader({ app }: AppHeaderProps) {
           
           {app.icon_url ? (
             <img 
-              src={getOptimizedImageUrl(app.icon_url, 200)} 
+              src={getOptimizedImageUrl(app.icon_url, 128)} 
               alt={`${app.name} app icon`} 
               loading="eager" 
               fetchPriority="high" 
               decoding="async"
-              width={128} 
-              height={128} 
+              width={96} 
+              height={96} 
               className="w-full h-full object-cover" 
               referrerPolicy="no-referrer"
             />
