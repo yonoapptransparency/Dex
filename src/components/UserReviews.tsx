@@ -29,8 +29,8 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Initialize inView to false so network query is only triggered when scrolling near reviews, conserving quota
-  const [inView, setInView] = useState(false);
+  // Initialize inView to true so reviews load reliably on all devices immediately
+  const [inView, setInView] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
