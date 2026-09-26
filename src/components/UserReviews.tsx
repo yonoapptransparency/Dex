@@ -97,32 +97,39 @@ export default function UserReviews({
 
   return (
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
-      <div className="flex flex-col gap-5 sm:gap-8">
+      <div className="flex flex-col gap-6 sm:gap-8">
         
-        <ReviewScoreSummary 
-          key={`stats_${appId}_${appSlug || ''}`}
-          appId={appId} 
-          appSlug={appSlug} 
-          overallRating={overallRating} 
-          totalReviewCount={totalReviewCount} 
-        />
+        {/* Harmonious Top Grid: Score Summary on left, Review Form on right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+          <div className="lg:col-span-5 w-full">
+            <ReviewScoreSummary 
+              key={`stats_${appId}_${appSlug || ''}`}
+              appId={appId} 
+              appSlug={appSlug} 
+              overallRating={overallRating} 
+              totalReviewCount={totalReviewCount} 
+            />
+          </div>
 
-        <div className="w-full flex flex-col gap-4 sm:gap-6">
-          <ReviewForm 
-            appId={appId} 
-            appSlug={appSlug} 
-            appName={appTitle}
-            onSuccess={(newReview) => {
-              // The new review will be added via community-review-added event listener in useReviews
-              // We don't need to mutate stats here since ReviewScoreSummary listens to the same event.
-            }} 
-          />
+          <div className="lg:col-span-7 w-full flex flex-col gap-4 sm:gap-6">
+            <ReviewForm 
+              appId={appId} 
+              appSlug={appSlug} 
+              appName={appTitle}
+              onSuccess={() => {
+                // The new review will be added via community-review-added event listener in useReviews
+              }} 
+            />
+          </div>
+        </div>
 
+        {/* Reviews Feed Section */}
+        <div className="w-full flex flex-col gap-4">
           <div className="space-y-4">
             {!loading && reviews.length > 0 && (
               <div className="flex flex-col gap-3 pb-3 border-b border-black/5 dark:border-white/5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                     <button
                       type="button"
                       onClick={() => setActiveFilter('all')}
@@ -132,7 +139,7 @@ export default function UserReviews({
                           : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-750 text-zinc-500 dark:text-zinc-400'
                       }`}
                     >
-                      All ({countAll})
+                      All Reviews
                     </button>
                     <button
                       type="button"
@@ -144,7 +151,7 @@ export default function UserReviews({
                       }`}
                     >
                       <Star className="w-3 h-3 fill-current" />
-                      Positive ({countPositive})
+                      Positive
                     </button>
                     <button
                       type="button"
@@ -156,7 +163,7 @@ export default function UserReviews({
                       }`}
                     >
                       <AlertCircle className="w-3 h-3" />
-                      Critical ({countCritical})
+                      Critical
                     </button>
                   </div>
 

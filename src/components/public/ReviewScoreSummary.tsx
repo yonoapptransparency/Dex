@@ -37,8 +37,8 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
   };
 
   return (
-    <div className="w-full lg:w-1/3">
-      <h2 className="text-xl font-bold mb-6 text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+    <div className="w-full">
+      <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
         <MessageSquare className="w-5 h-5 text-blue-500" />
         <span>Ratings and reviews</span>
       </h2>
