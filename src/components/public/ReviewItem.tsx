@@ -96,11 +96,17 @@ export function ReviewItem({
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase shrink-0">
             {(() => {
               const d = rev.created_at || (rev as any).timestamp;
-              return d ? new Date(d).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              }) : 'Recently';
+              if (!d) return '';
+              if (typeof d === 'string' && /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/.test(d.trim())) {
+                return d.trim();
+              }
+              try {
+                const parsed = new Date(d);
+                if (!isNaN(parsed.getTime())) {
+                  return `${parsed.getDate()} ${parsed.toLocaleString('en-US', { month: 'short' })} ${parsed.getFullYear()}`;
+                }
+              } catch (_) {}
+              return String(d);
             })()}
           </span>
         </div>
@@ -142,7 +148,20 @@ export function ReviewItem({
                 </span>
                 {rev.adminReply.timestamp && (
                   <span className="text-[9px] text-zinc-400">
-                    {new Date(rev.adminReply.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {(() => {
+                      const t = rev.adminReply.timestamp;
+                      if (!t) return '';
+                      if (typeof t === 'string' && /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/.test(t.trim())) {
+                        return t.trim();
+                      }
+                      try {
+                        const parsed = new Date(t);
+                        if (!isNaN(parsed.getTime())) {
+                          return `${parsed.getDate()} ${parsed.toLocaleString('en-US', { month: 'short' })} ${parsed.getFullYear()}`;
+                        }
+                      } catch (_) {}
+                      return String(t);
+                    })()}
                   </span>
                 )}
               </div>
