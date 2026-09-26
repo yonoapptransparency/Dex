@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, AlertCircle, Sparkles, MessageSquare, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { submitLiveReview } from '../lib/communityFirebase';
+import { submitLiveReview, formatReviewDate } from '../lib/communityFirebase';
 
 interface PlayStoreRatingSectionProps {
   appId: string;
@@ -93,7 +93,7 @@ export default function PlayStoreRatingSection({ appId, appTitle, onReviewSubmit
       username: cleanName,
       rating: rating,
       comment: cleanComment,
-      created_at: new Date().toISOString(),
+      created_at: formatReviewDate(),
       helpful_count: 0
     };
 

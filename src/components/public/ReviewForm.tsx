@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Plus, Loader2, Check, AlertCircle, Sparkles } from 'lucide-react';
 import { Review } from './ReviewItem';
+import { formatReviewDate } from '../../lib/communityFirebase';
 
 interface ReviewFormProps {
   appId: string;
@@ -54,7 +55,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
       username: cleanUsername,
       rating: rating,
       comment: cleanComment,
-      created_at: new Date().toISOString(),
+      created_at: formatReviewDate(),
       helpful_count: 0,
       source: 'community'
     };
@@ -77,7 +78,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
         username: returned?.username || returned?.userName || cleanUsername,
         rating: Number(returned?.rating) || rating,
         comment: returned?.comment || returned?.reviewText || cleanComment,
-        created_at: returned?.created_at || returned?.timestamp || new Date().toISOString(),
+        created_at: formatReviewDate(returned?.created_at || returned?.timestamp),
         helpful_count: Number(returned?.helpful_count) || 0,
         source: returned?.source || 'community',
         isPinned: false

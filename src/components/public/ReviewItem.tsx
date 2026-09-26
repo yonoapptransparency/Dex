@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, ThumbsUp, Flag, ChevronDown, ChevronUp } from 'lucide-react';
+import { formatReviewDate } from '../../lib/communityFirebase';
 
 export interface Review {
   id: string;
@@ -94,20 +95,7 @@ export function ReviewItem({
             )}
           </div>
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase shrink-0">
-            {(() => {
-              const d = rev.created_at || (rev as any).timestamp;
-              if (!d) return '';
-              if (typeof d === 'string' && /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/.test(d.trim())) {
-                return d.trim();
-              }
-              try {
-                const parsed = new Date(d);
-                if (!isNaN(parsed.getTime())) {
-                  return `${parsed.getDate()} ${parsed.toLocaleString('en-US', { month: 'short' })} ${parsed.getFullYear()}`;
-                }
-              } catch (_) {}
-              return String(d);
-            })()}
+            {formatReviewDate(rev.created_at || (rev as any).timestamp)}
           </span>
         </div>
 
@@ -148,20 +136,7 @@ export function ReviewItem({
                 </span>
                 {rev.adminReply.timestamp && (
                   <span className="text-[9px] text-zinc-400">
-                    {(() => {
-                      const t = rev.adminReply.timestamp;
-                      if (!t) return '';
-                      if (typeof t === 'string' && /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/.test(t.trim())) {
-                        return t.trim();
-                      }
-                      try {
-                        const parsed = new Date(t);
-                        if (!isNaN(parsed.getTime())) {
-                          return `${parsed.getDate()} ${parsed.toLocaleString('en-US', { month: 'short' })} ${parsed.getFullYear()}`;
-                        }
-                      } catch (_) {}
-                      return String(t);
-                    })()}
+                    {formatReviewDate(rev.adminReply.timestamp)}
                   </span>
                 )}
               </div>

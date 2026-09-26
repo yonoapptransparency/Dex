@@ -29,8 +29,8 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Initialize inView to true so reviews load immediately
-  const [inView, setInView] = useState(true);
+  // Initialize inView to false so network query is only triggered when scrolling near reviews, conserving quota
+  const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function UserReviews({
         setInView(true);
         observer.disconnect();
       }
-    }, { rootMargin: '100px' });
+    }, { rootMargin: '200px' });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [appId, appSlug]);
@@ -116,8 +116,11 @@ export default function UserReviews({
               appId={appId} 
               appSlug={appSlug} 
               appName={appTitle}
-              onSuccess={() => {
-                // The new review will be added via community-review-added event listener in useReviews
+              onSuccess={(newRev) => {
+                setInView(true);
+                if (newRev && newRev.id) {
+                  setReviews(prev => [newRev, ...prev.filter(r => r.id !== newRev.id)]);
+                }
               }} 
             />
           </div>
