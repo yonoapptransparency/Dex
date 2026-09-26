@@ -29,8 +29,8 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Initialize inView to false so reviews only load on scroll trigger
-  const [inView, setInView] = useState(false);
+  // Initialize inView to true so reviews load immediately
+  const [inView, setInView] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
