@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/news/rummy-zip</loc>
+    <lastmod>2026-09-27T13:48:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/v1790516899/rummydex_uploads/vgtya3zzohrhveya5ww6.webp</image:loc>
+      <image:title>Rummy Zip: Cyber Defrag Engine Shatters Card Norms </image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/news/jaiho-91-card-game-app-review</loc>
     <lastmod>2026-09-27T06:19:52+00:00</lastmod>
     <changefreq>daily</changefreq>
