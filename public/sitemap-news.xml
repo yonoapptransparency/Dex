@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/news/777-game-3d-cube-matrix-review</loc>
+    <lastmod>2026-09-28T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/v1790495755/rummydex_uploads/qudxmgfpann6bqrhm4db.webp</image:loc>
+      <image:title>777 Game Review: 3D Spatial Matrix Puzzle Breakdown</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/gogo-rummy-tile-puzzle-breakdown</loc>
+    <lastmod>2026-09-28T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/v1790495377/rummydex_uploads/ip8ewn7tqsyd6o3rasza.webp</image:loc>
+      <image:title>GOGO Rummy Review: Tile Mechanics &amp; Solo Gameplay</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/news/joy-rummy-app-tactical-review</loc>
+    <lastmod>2026-09-28T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/v1790495055/rummydex_uploads/rciehmherji2gqjsl0bq.webp</image:loc>
+      <image:title>Joy Rummy App Review: Modes, Features &amp; Table Play</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/news/rummy-zip</loc>
     <lastmod>2026-09-27T13:48:00+00:00</lastmod>
     <changefreq>daily</changefreq>
