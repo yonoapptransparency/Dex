@@ -2,12 +2,126 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.rummydex.com/app/spin-crush</loc>
-    <lastmod>2026-09-16T09:59:51+00:00</lastmod>
+    <lastmod>2026-09-25T12:03:02+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1785670352/ezgif-82a15987d682a1a8_sdzpjc.webp</image:loc>
       <image:title>SPIN CRUSH</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/amazon-mx-player</loc>
+    <lastmod>2026-09-24T17:25:03+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_converted_pc9fa4.webp</image:loc>
+      <image:title>Amazon MX Player</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270661/rummydex_uploads/qaydtgagmywtoqtjctjf.webp</image:loc>
+      <image:caption>Screenshot 1 of Amazon MX Player showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270670/rummydex_uploads/nn4f3wtaim7zf79vgt8w.webp</image:loc>
+      <image:caption>Screenshot 2 of Amazon MX Player showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270679/rummydex_uploads/ebqdnux3l6irphkexcwd.webp</image:loc>
+      <image:caption>Screenshot 3 of Amazon MX Player showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270688/rummydex_uploads/f6qoxo5z8hwcn27fgvsk.webp</image:loc>
+      <image:caption>Screenshot 4 of Amazon MX Player showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270695/rummydex_uploads/mlgmcv2g7vat3frtj7ep.webp</image:loc>
+      <image:caption>Screenshot 5 of Amazon MX Player showing gameplay</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/kuku-tv</loc>
+    <lastmod>2026-09-24T17:19:15+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788084816/1000137318_11zon_fskoeo.webp</image:loc>
+      <image:title>Kuku TV</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270281/rummydex_uploads/spk3chjysuumpwvnahhv.webp</image:loc>
+      <image:caption>Screenshot 1 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270294/rummydex_uploads/kj3dhsgywutpevezkvwz.webp</image:loc>
+      <image:caption>Screenshot 2 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270306/rummydex_uploads/hgsfyixujg7ayxhqackc.webp</image:loc>
+      <image:caption>Screenshot 3 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270318/rummydex_uploads/fzi708ebuskrsnosbiyz.webp</image:loc>
+      <image:caption>Screenshot 4 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270328/rummydex_uploads/htfirwsxn92d10cuof7q.webp</image:loc>
+      <image:caption>Screenshot 5 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270337/rummydex_uploads/boyd35nqu5yyzikqsgpo.webp</image:loc>
+      <image:caption>Screenshot 6 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790270348/rummydex_uploads/i4hstmlne7so5jfjrfws.webp</image:loc>
+      <image:caption>Screenshot 7 of Kuku TV showing gameplay</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/jiocinema</loc>
+    <lastmod>2026-09-24T17:10:13+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_1__converted_wweaeq.webp</image:loc>
+      <image:title>JioCinema</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790269777/rummydex_uploads/hhwl9qlk7cl7j0nwhht9.webp</image:loc>
+      <image:caption>Screenshot 1 of JioCinema showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790269791/rummydex_uploads/tvkbus72viplcy5gg4cm.webp</image:loc>
+      <image:caption>Screenshot 2 of JioCinema showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790269759/rummydex_uploads/ce8qxkdykgmp5eszhgm5.webp</image:loc>
+      <image:caption>Screenshot 3 of JioCinema showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1790269799/rummydex_uploads/nyfoaaqgle1hb8ptaavv.webp</image:loc>
+      <image:caption>Screenshot 4 of JioCinema showing gameplay</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/yono-slots</loc>
+    <lastmod>2026-09-19T07:48:57+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1789804128/rummydex_uploads/lobb8ijx50a1jlhdjd6f.jpg</image:loc>
+      <image:title>YONO SLOTS</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/solitaire</loc>
+    <lastmod>2026-09-18T13:14:38+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1786259914/1000133500_11zon_1_s5uttq.webp</image:loc>
+      <image:title>SOLITAIRE</image:title>
     </image:image>
   </url>
   <url>
@@ -88,16 +202,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_5__converted_ut2ovb.webp</image:loc>
       <image:title>ReelShort</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/solitaire</loc>
-    <lastmod>2026-09-10T07:31:57+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1786259914/1000133500_11zon_1_s5uttq.webp</image:loc>
-      <image:title>SOLITAIRE</image:title>
     </image:image>
   </url>
   <url>
@@ -198,16 +302,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788454523/rummydex_uploads/qat26qydzzshbkfslrob.png</image:loc>
       <image:title>SPIN 101</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/yono-slots</loc>
-    <lastmod>2026-09-04T17:54:56+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788453877/rummydex_uploads/ob0o40mujay3n6mk7u1r.png</image:loc>
-      <image:title>YONO SLOTS</image:title>
     </image:image>
   </url>
   <url>
@@ -427,16 +521,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rummydex.com/app/jiocinema</loc>
-    <lastmod>2026-09-02T16:08:02+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_1__converted_wweaeq.webp</image:loc>
-      <image:title>JioCinema</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.rummydex.com/app/card-game-29</loc>
     <lastmod>2026-09-02T16:05:16+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -534,26 +618,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788314326/images_4_vkplx2.png</image:loc>
       <image:title>Pluto TV</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/amazon-mx-player</loc>
-    <lastmod>2026-09-02T01:49:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788313657/images_converted_pc9fa4.webp</image:loc>
-      <image:title>Amazon MX Player</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/kuku-tv</loc>
-    <lastmod>2026-08-30T10:27:38+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1788084816/1000137318_11zon_fskoeo.webp</image:loc>
-      <image:title>Kuku TV</image:title>
     </image:image>
   </url>
   <url>
