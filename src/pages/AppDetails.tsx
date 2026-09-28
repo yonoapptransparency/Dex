@@ -288,6 +288,8 @@ export default function AppDetails() {
     return {
       "@context": "https://schema.org",
       "@type": "FAQPage",
+      "@id": `https://www.rummydex.com/app/${app.slug}#faq`,
+      "url": `https://www.rummydex.com/app/${app.slug}`,
       "mainEntity": validFaqs
     };
   }, [app.faqs]);
