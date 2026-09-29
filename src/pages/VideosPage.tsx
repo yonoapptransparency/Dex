@@ -98,7 +98,7 @@ export default function VideosPage() {
       </div>
 
       <Meta 
-        title={mockSettings?.videos_meta_title || "Video Walkthroughs & App Guides"}
+        title={mockSettings?.videos_meta_title || "Video Walkthroughs & App Guides | RummyDex"}
         description={mockSettings?.videos_meta_description || "Watch verified video walkthroughs, gameplay tutorials, and app reviews on RummyDex."}
         canonical={window.location.origin + "/videos"}
       />

@@ -134,12 +134,12 @@ export default function ClearanceButton({
                 closeAndWipeLink();
               }, 300);
             }}
-            className="flex items-center justify-center gap-2 w-full py-3 xs:py-4 px-4 xs:px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-xl xs:rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-xs xs:text-sm text-center select-none cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-sm text-center select-none cursor-pointer"
           >
             <span>PROCEED</span>
-            <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white shrink-0 ml-0.5" />
+            <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5" />
           </a>
-          <p className="text-[10px] xs:text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
+          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
             Tap above to proceed. Link expires immediately after use.
           </p>
         </div>
@@ -148,11 +148,11 @@ export default function ClearanceButton({
         <div className="w-full flex flex-col items-center gap-3.5">
           
           {/* STEP 1: DIRECT CLOUDFLARE TURNSTILE (CLEAN & NATIVE, NO ARTIFICIAL BOX) */}
-          <div className="w-full flex flex-col items-center justify-center min-h-[65px] transition-all overflow-hidden">
+          <div className="w-full flex flex-col items-center justify-center min-h-[65px] transition-all">
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center min-w-0 w-full max-w-[300px] min-h-[65px]"
+              className="flex items-center justify-center min-w-[300px] min-h-[65px]"
             />
           </div>
 
@@ -172,7 +172,7 @@ export default function ClearanceButton({
               onTouchStart={trackPointerMotion}
               onTouchMove={trackPointerMotion}
               disabled={!isReady || isLoading}
-              className={`relative overflow-hidden group flex items-center justify-center gap-2 xs:gap-2.5 w-full py-3.5 xs:py-4 px-4 xs:px-6 rounded-xl xs:rounded-2xl transition-all font-black uppercase tracking-wider text-xs xs:text-sm text-center select-none shadow-lg ${
+              className={`relative overflow-hidden group flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-2xl transition-all font-black uppercase tracking-wider text-sm text-center select-none shadow-lg ${
                 isLoading
                   ? 'bg-[#1557d6] text-white cursor-wait opacity-95 shadow-blue-500/20'
                   : isReady

@@ -159,12 +159,12 @@ export default function GatewayPage() {
   return (
     <div className="animate-fade-in select-none pb-40 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
       {/* Sleek Premium Back Button */}
-      <div className="max-w-4xl mx-auto mb-4 xs:mb-6 sm:mb-8 pt-4 xs:pt-6 sm:pt-8 px-3 xs:px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto mb-8 pt-8 px-4 sm:px-6">
         <Link 
           to={`/app/${app.slug}`} 
-          className="inline-flex items-center gap-1.5 xs:gap-2 text-[10px] xs:text-[11px] font-bold uppercase tracking-wider text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 transition-colors bg-white dark:bg-zinc-900 px-3 xs:px-4 py-2 xs:py-2.5 rounded-full border border-black/[0.05] dark:border-white/[0.05] shadow-sm hover:shadow-md transition-all group"
+          className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 transition-colors bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-full border border-black/[0.05] dark:border-white/[0.05] shadow-sm hover:shadow-md transition-all group"
         >
-          <ArrowLeft className="w-3 h-3 xs:w-3.5 xs:h-3.5 group-hover:-translate-x-1 transition-transform duration-200" />
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-200" />
           Back to details
         </Link>
       </div>
@@ -179,16 +179,16 @@ export default function GatewayPage() {
       />
       
       {/* Main App Presentation & Action */}
-      <div className="max-w-4xl mx-auto w-full mb-8 sm:mb-12 px-3 xs:px-4 sm:px-6">
-        <div className="flex flex-col items-center gap-5 xs:gap-8">
+      <div className="max-w-4xl mx-auto w-full mb-12 px-4 sm:px-6">
+        <div className="flex flex-col items-center gap-8">
           {/* App Logo & Details */}
-          <div className="flex flex-col items-center text-center gap-3 xs:gap-4 w-full">
+          <div className="flex flex-col items-center text-center gap-4 w-full">
             <div className="relative group shrink-0 premium-logo-container">
               {/* Dynamic premium glowing aura background */}
               <div className="premium-logo-aura"></div>
               
               <motion.div 
-                className="relative z-10 w-20 h-20 xs:w-24 xs:h-24 sm:w-32 sm:h-32 rounded-[1.3rem] xs:rounded-[1.6rem] sm:rounded-[2rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
+                className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-[2rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
                 whileHover={{ scale: 1.05 }}
               >
                 {app.icon_url ? (
@@ -200,26 +200,26 @@ export default function GatewayPage() {
                     decoding="async"
                     width={128}
                     height={128}
-                    className="w-full h-full object-cover rounded-[1.1rem] xs:rounded-[1.4rem] sm:rounded-[1.8rem]"
+                    className="w-full h-full object-cover rounded-[1.8rem]"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+                  <div className="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
                 )}
               </motion.div>
             </div>
 
             <div className="flex flex-col items-center">
-              <h2 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-tight mb-1.5 xs:mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
               <div className="flex flex-wrap justify-center items-center gap-1.5">
-                <span className="inline-flex items-center px-2.5 xs:px-3 py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   ID: {app.serial_number || app.id}
                 </span>
-                <span className="inline-flex items-center px-2.5 xs:px-3 py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   Ver: {app.version}
                 </span>
-                <span className="inline-flex items-center px-2.5 xs:px-3 py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
-                  <Shield className="w-2.5 h-2.5 xs:w-3 xs:h-3 mr-1 inline" />
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
+                  <Shield className="w-3 h-3 mr-1 inline" />
                   Verified
                 </span>
               </div>

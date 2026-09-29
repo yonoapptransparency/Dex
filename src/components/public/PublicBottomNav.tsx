@@ -35,13 +35,13 @@ export function PublicBottomNav() {
   return (
     <nav 
       aria-label="Mobile Navigation"
-      className={`fixed bottom-3 xs:bottom-4 inset-x-0 z-50 flex justify-center pointer-events-none md:hidden pb-safe px-2 xs:px-4 transition-all duration-300 ease-in-out transform ${
+      className={`fixed bottom-4 inset-x-0 z-50 flex justify-center pointer-events-none md:hidden pb-safe px-4 transition-all duration-300 ease-in-out transform ${
         isBottomNavHidden 
           ? 'translate-y-24 opacity-0 pointer-events-none' 
           : 'translate-y-0 opacity-100'
       }`}
     >
-      <div className="flex items-center gap-1 xs:gap-1.5 p-1 xs:p-1.5 pointer-events-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 shadow-2xl shadow-slate-900/20 dark:shadow-black/60 rounded-full max-w-full overflow-x-auto no-scrollbar scroll-smooth">
+      <div className="flex items-center gap-1.5 p-1.5 pointer-events-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 shadow-2xl shadow-slate-900/20 dark:shadow-black/60 rounded-full max-w-full overflow-x-auto no-scrollbar scroll-smooth">
         {navItems.map((item) => {
           const active = isActive(item.path);
           return (
@@ -51,15 +51,15 @@ export function PublicBottomNav() {
               onClick={triggerHaptic} 
               aria-label={item.label}
               aria-current={active ? 'page' : undefined}
-              className={`flex items-center justify-center gap-1.5 xs:gap-2 px-2.5 xs:px-3.5 sm:px-4 py-2 xs:py-2.5 rounded-full transition-all duration-200 active:scale-90 select-none min-h-[40px] xs:min-h-[44px] min-w-[40px] xs:min-w-[44px] ${
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 active:scale-90 select-none min-h-[44px] min-w-[44px] ${
                 active 
                   ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-600/30' 
                   : 'text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-white'
               }`}
             >
-              <item.icon className={`w-4 h-4 xs:w-[18px] xs:h-[18px] shrink-0 ${active ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`} />
-              <span className={`text-[10px] xs:text-[11px] sm:text-[12px] font-bold tracking-tight transition-all duration-300 whitespace-nowrap ${
-                active ? 'max-w-[55px] xs:max-w-[70px] opacity-100' : 'max-w-0 opacity-0 overflow-hidden hidden sm:inline-block'
+              <item.icon className={`w-[18px] h-[18px] shrink-0 ${active ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`} />
+              <span className={`text-[12px] font-bold tracking-tight transition-all duration-300 whitespace-nowrap ${
+                active ? 'max-w-[70px] opacity-100' : 'max-w-0 opacity-0 overflow-hidden hidden sm:inline-block'
               }`}>
                 {item.label}
               </span>

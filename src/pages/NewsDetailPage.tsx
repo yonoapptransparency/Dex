@@ -74,11 +74,10 @@ export default function NewsDetailPage() {
     setCopied(false);
   }, [slug]);
 
-  // Silent background sync if news item is not found or has empty body content
+  // Silent background sync only if news item is not found and not an app
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
-    const hasBodyContent = Boolean(newsItem?.content?.trim() || newsItem?.description_html?.trim());
-    if (!slugKey || (newsItem && hasBodyContent) || matchedApp) return;
+    if (!slugKey || newsItem || matchedApp) return;
 
     if (!syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
@@ -265,7 +264,7 @@ export default function NewsDetailPage() {
   return (
     <div className="animate-fade-in max-w-4xl mx-auto px-4 sm:px-6 md:px-8 plain-content mb-16 pt-0.5 sm:pt-1">
       <Meta 
-        title={newsItem.seo_title || newsItem.title}
+        title={newsItem.seo_title || `${newsItem.title} | ${mockSettings?.site_title || 'RummyDex'}`}
         description={newsItem.seo_description || newsItem.description}
         keywords={newsItem.seo_keywords}
         image={newsItem.og_image_url || newsItem.logo_url || newsItem.image_url}

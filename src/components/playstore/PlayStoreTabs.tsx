@@ -32,14 +32,14 @@ export const PlayStoreTabs = React.memo(({ activeTab, onTabChange, hideOnSearch 
   }, [tabs]);
   
   return (
-    <div className="mb-2 sticky top-[46px] xs:top-[50px] sm:top-16 z-40 bg-[var(--bg-primary)] py-1.5 xs:py-2 px-0">
-      <div className="flex overflow-x-auto no-scrollbar gap-1.5 xs:gap-2">
+    <div className="mb-2 sticky top-[52px] sm:top-16 z-40 bg-[var(--bg-primary)] py-2 px-0">
+      <div className="flex overflow-x-auto no-scrollbar gap-2">
         {uniqueTabs.map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}
             className={cn(
-              "whitespace-nowrap px-3 xs:px-4 py-1.5 xs:py-2 text-xs xs:text-sm font-medium transition-all rounded-full border",
+              "whitespace-nowrap px-4 py-2 text-sm font-medium transition-all rounded-full border",
               activeTab === tab 
                 ? "bg-blue-500 text-white border-blue-500 shadow-sm" 
                 : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-black/5 dark:border-white/5 hover:bg-zinc-50 dark:hover:bg-zinc-800"

@@ -155,7 +155,7 @@ export default function VideoDetailPage() {
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 pb-12">
       <Meta 
-        title={videoItem.seo_title || videoItem.title}
+        title={videoItem.seo_title || `${videoItem.title} | ${mockSettings.site_title}`}
         description={videoItem.seo_description || videoItem.description}
         keywords={videoItem.seo_keywords}
         image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
