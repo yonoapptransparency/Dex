@@ -2,13 +2,18 @@ import React from 'react';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { Github, Twitter } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Developers() {
   const { settings } = useData();
 
   if (!settings.developers || settings.developers.length === 0) {
     return (
-      <div className="animate-fade-in">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+      >
         <div className="min-h-screen pt-32 px-4 pb-20 flex flex-col items-center justify-center text-center">
           <Meta 
             title={settings?.developers_meta_title || "Meet Our Team"}
@@ -20,12 +25,16 @@ export default function Developers() {
             <p className="text-slate-600 dark:text-slate-400 font-medium">Information about our developers is not available at this moment. Please check back later.</p>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="animate-fade-in">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+    >
       <div className="min-h-screen pt-32 px-4 pb-20">
         <Meta 
           title={settings?.developers_meta_title || "Meet Our Team"}
@@ -106,6 +115,6 @@ export default function Developers() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

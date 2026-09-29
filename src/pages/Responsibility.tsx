@@ -4,6 +4,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
  * Advises users on secure gaming techniques and safety benchmarks.
  */
 
+import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldCheck, Info, ArrowLeft } from 'lucide-react';
 import Meta from '../components/Meta';
@@ -31,7 +32,11 @@ export default function Responsibility() {
         canonical={window.location.origin + "/responsibility"}
       />
 
-      <div className="animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           Responsibility & Safety
         </h1>
@@ -48,7 +53,7 @@ export default function Responsibility() {
             <div dangerouslySetInnerHTML={{ __html: safeHtml(responsibilityContent.replace(/\n/g, '<br/>')) }} />
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

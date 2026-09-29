@@ -63,12 +63,6 @@ export default function AppActionButtons({
               type="button"
               id={`gateway-cta-${app.slug || app.id}`}
               onClick={handleDownload}
-              onPointerEnter={() => {
-                import('../../pages/GatewayPage').catch(() => {});
-              }}
-              onTouchStart={() => {
-                import('../../pages/GatewayPage').catch(() => {});
-              }}
               className="w-full premium-action-btn premium-action-btn-blowing cursor-pointer text-white !text-white font-bold py-2.5 px-4 xs:px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-xs xs:text-sm shadow-md h-[42px] xs:h-[44px]"
             >
               <span className="flex items-center gap-1.5 font-bold text-white !text-white">

@@ -156,18 +156,6 @@ export default function AppDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
-
-    // Preload GatewayPage chunk in idle background so tapping Download navigates in 0ms without delay
-    const idlePreload = () => {
-      import('./GatewayPage').catch(() => {});
-    };
-    if (typeof window !== 'undefined') {
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(idlePreload);
-      } else {
-        setTimeout(idlePreload, 150);
-      }
-    }
   }, [slug]);
 
   // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache

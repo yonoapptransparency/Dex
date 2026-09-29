@@ -4,6 +4,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { ShieldAlert, ShieldCheck, ArrowLeft, Shield } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import ClearanceButton from '../components/ClearanceButton';
 import { mockApps as staticMockApps } from '../lib/staticData';
 import { resolveAppSlug } from '../lib/slugResolver';
@@ -182,9 +183,13 @@ export default function GatewayPage() {
         <div className="flex flex-col items-center gap-5 xs:gap-8">
           {/* App Logo & Details */}
           <div className="flex flex-col items-center text-center gap-3 xs:gap-4 w-full">
-            <div className="relative group shrink-0">
-              <div 
-                className="relative z-10 w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl bg-white dark:bg-zinc-800 p-1 shadow-md border border-black/5 dark:border-white/10 overflow-hidden hover:scale-105 transition-transform duration-200"
+            <div className="relative group shrink-0 premium-logo-container">
+              {/* Dynamic premium glowing aura background */}
+              <div className="premium-logo-aura"></div>
+              
+              <motion.div 
+                className="relative z-10 w-20 h-20 xs:w-24 xs:h-24 sm:w-32 sm:h-32 rounded-[1.3rem] xs:rounded-[1.6rem] sm:rounded-[2rem] bg-white dark:bg-zinc-800 p-1 shadow-2xl overflow-hidden premium-logo-slow-vibrate"
+                whileHover={{ scale: 1.05 }}
               >
                 {app.icon_url ? (
                   <img 
@@ -201,7 +206,7 @@ export default function GatewayPage() {
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
                 )}
-              </div>
+              </motion.div>
             </div>
 
             <div className="flex flex-col items-center">

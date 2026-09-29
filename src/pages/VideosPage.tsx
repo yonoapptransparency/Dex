@@ -8,6 +8,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { Video, Search, ArrowLeft, ArrowRight, Play, Calendar, ShieldCheck, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 6;
@@ -177,9 +178,12 @@ export default function VideosPage() {
                 : 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80';
 
               return (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: index * 0.04 }}
                   key={video.id || video.slug || `vid-${index}`}
-                  className="group flex flex-col bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden hover:shadow-lg hover:border-blue-500/30 transition-all duration-300 animate-fade-in"
+                  className="group flex flex-col bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden hover:shadow-lg hover:border-blue-500/30 transition-all duration-300"
                 >
                   {/* Visual Thumbnail Frame */}
                   <Link to={`/videos/${video.slug || video.id}`} className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 block">
@@ -247,7 +251,7 @@ export default function VideosPage() {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

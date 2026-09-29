@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, HelpCircle, ChevronDown } from 'lucide-react';
@@ -70,7 +71,11 @@ export default function FaqPage() {
         </Link>
       </div>
 
-      <div className="animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
             <HelpCircle className="w-6 h-6" />
@@ -113,7 +118,7 @@ export default function FaqPage() {
             </details>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
