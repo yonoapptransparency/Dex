@@ -194,7 +194,7 @@ export default function NewsPage() {
 
   // Dynamic SEO meta tags for paginated pages
   const baseTitle = mockSettings?.news_meta_title || "News & Updates";
-  const seoTitle = safeCurrentPage > 1 ? `${baseTitle} - Page ${safeCurrentPage}` : baseTitle;
+  const seoTitle = safeCurrentPage > 1 ? `${baseTitle} - Page ${safeCurrentPage} | ${mockSettings?.site_title || 'RummyDex'}` : `${baseTitle} | ${mockSettings?.site_title || 'RummyDex'}`;
   const seoDescription = mockSettings?.news_meta_description || "Stay updated with the latest news, transmissions, security releases, and intelligence updates.";
   const canonicalUrl = `${window.location.origin}/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
 

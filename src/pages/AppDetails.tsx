@@ -156,18 +156,6 @@ export default function AppDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
-
-    // Preload GatewayPage chunk in idle background so tapping Download navigates in 0ms without delay
-    const idlePreload = () => {
-      import('./GatewayPage').catch(() => {});
-    };
-    if (typeof window !== 'undefined') {
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(idlePreload);
-      } else {
-        setTimeout(idlePreload, 150);
-      }
-    }
   }, [slug]);
 
   // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache
@@ -248,7 +236,7 @@ export default function AppDetails() {
   }
 
   const siteTitle = mockSettings?.site_title || 'RummyDex';
-  const title = app.seo_title || app.meta_title || app.name;
+  const title = app.seo_title || app.meta_title || `${app.name} | ${siteTitle}`;
   
   const stripHtml = (html: string) => {
     if (!html) return '';
@@ -428,13 +416,13 @@ export default function AppDetails() {
           <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
         </div>
       )}
-      <div className="flex items-center justify-between gap-2 xs:gap-3 px-1 xs:px-2 sm:px-4 md:px-6 mb-3 xs:mb-4">
+      <div className="flex items-center justify-between gap-3 px-1 sm:px-4 md:px-6 mb-4">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-1.5 xs:gap-2 text-xs xs:text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group shrink-0"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group shrink-0"
         >
-          <div className="p-1 xs:p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
-            <ArrowLeft className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
+          <div className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
+            <ArrowLeft className="w-4 h-4" />
           </div>
           <span>Back to storefront</span>
         </Link>
@@ -442,19 +430,19 @@ export default function AppDetails() {
         {/* Lightweight Related News Gateway Button */}
         <Link
           to={`/news?q=${encodeURIComponent(app.name)}`}
-          className="inline-flex items-center gap-1 xs:gap-1.5 px-2 xs:px-3 py-1 xs:py-1.5 rounded-full text-[11px] xs:text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200/90 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 transition-all shadow-xs group cursor-pointer active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200/90 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 transition-all shadow-xs group cursor-pointer active:scale-95 shrink-0"
           title={`Read latest news and updates for ${app.name}`}
         >
-          <div className="p-0.5 xs:p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-            <Newspaper className="w-3 h-3 xs:w-3.5 xs:h-3.5" />
+          <div className="p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+            <Newspaper className="w-3.5 h-3.5" />
           </div>
           <span>News</span>
           {relatedNewsCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[9px] xs:text-[10px] font-bold leading-none">
+            <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold leading-none">
               {relatedNewsCount}
             </span>
           )}
-          <ArrowRight className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-3 h-3 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
         </Link>
       </div>
       <Meta 
@@ -490,31 +478,31 @@ export default function AppDetails() {
 
         {/* Similar & Related Apps Section (Placed directly below action buttons) */}
         {relatedApps.length > 0 && (
-          <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
-            <div className="flex items-center justify-between mb-2.5 xs:mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
-              <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold flex items-center gap-1.5 xs:gap-2 text-zinc-900 dark:text-zinc-100">
+          <section aria-labelledby="related-apps-heading" className="my-6 px-0">
+            <div className="flex items-center justify-between mb-3 px-1 sm:px-4 md:px-6">
+              <h2 id="related-apps-heading" className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
                 <span>Similar Applications</span>
                 {specificCategory && specificCategory !== 'All Apps' && (
-                  <span className="text-[10px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 xs:px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">
                     {specificCategory}
                   </span>
                 )}
               </h2>
               <Link 
                 to={`/?tab=${encodeURIComponent(specificCategory)}`}
-                className="text-[11px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors group shrink-0"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors group"
                 title={`Explore all ${specificCategory} apps`}
               >
                 <span>View all ({relatedApps.length})</span>
-                <ArrowRight className="w-3 h-3 xs:w-3.5 xs:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
-            <div className="grid grid-rows-2 grid-flow-col gap-x-4 xs:gap-x-6 gap-y-4 xs:gap-y-6 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-2 xs:-mx-4 px-2 xs:px-4 sm:mx-0 sm:px-0">
+            <div className="grid grid-rows-2 grid-flow-col gap-x-6 gap-y-6 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
               {relatedApps.map((relatedApp, index) => (
                 <Link
                   key={`${relatedApp.id}-${index}`}
                   to={`/app/${relatedApp.slug}`}
-                  className="flex flex-col items-center justify-start gap-1.5 xs:gap-2 w-[76px] xs:w-[88px] sm:w-[110px] snap-start group"
+                  className="flex flex-col items-center justify-start gap-2 w-[92px] sm:w-[110px] snap-start group"
                 >
                   <img
                     src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
@@ -522,12 +510,12 @@ export default function AppDetails() {
                     width={100}
                     height={100}
                     decoding="async"
-                    className="w-[72px] h-[72px] xs:w-[84px] xs:h-[84px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
+                    className="w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
                     loading="lazy"
                     fetchPriority="low"
                     referrerPolicy="no-referrer"
                   />
-                  <span className="text-[10px] xs:text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
+                  <span className="text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
                     {relatedApp.name}
                   </span>
                 </Link>
@@ -547,7 +535,7 @@ export default function AppDetails() {
       <AppSafetyBoxes app={app} />
 
       {/* Verified Peer Ratings & Reviews Section */}
-      <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
+      <div className="px-1 sm:px-4 md:px-6 mb-8">
         <Suspense fallback={
           <div className="py-8 border-t border-black/5 dark:border-white/5">
             <div className="animate-pulse space-y-4">

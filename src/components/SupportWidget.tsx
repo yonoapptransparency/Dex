@@ -27,16 +27,16 @@ export default function SupportWidget() {
     <div className="relative inline-block z-50">
       <button
         onClick={toggleWidget}
-        className="flex items-center gap-2 w-8 h-8 xs:w-9 xs:h-9 lg:w-auto lg:h-11 lg:px-4 justify-center bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors shrink-0"
+        className="flex items-center gap-2 w-10 h-10 lg:w-auto lg:h-11 lg:px-4 justify-center bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors shrink-0"
         aria-label="Support Widget"
       >
-        <MessageCircle className="w-3.5 h-3.5 xs:w-4 xs:h-4 lg:w-5 lg:h-5" />
+        <MessageCircle className="w-5 h-5 lg:w-5 lg:h-5" />
         <span className="text-[13px] font-medium hidden lg:inline">Help</span>
       </button>
 
       {isOpen && (
         <div 
-          className="absolute right-0 top-full mt-4 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl xs:rounded-3xl p-4 xs:p-6 w-[calc(100vw-24px)] max-w-xs sm:w-72 origin-top-right z-[100] shadow-xl transition-all duration-200"
+          className="absolute right-0 top-full mt-4 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-3xl p-6 w-72 origin-top-right z-[100] shadow-xl transition-all duration-200"
         >
           <div className="flex justify-between items-center mb-6 border-b border-black/5 dark:border-white/5 pb-4">
             <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">Contact Support</h3>

@@ -107,17 +107,17 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
   };
 
   return (
-    <div className="p-3 xs:p-4 sm:p-6 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl xs:rounded-2xl shadow-sm">
-      <h3 className="text-xs xs:text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-3 xs:mb-4 flex items-center gap-1.5 xs:gap-2">
-        <Sparkles className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-500" />
+    <div className="p-4 sm:p-6 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl shadow-sm">
+      <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-amber-500" />
         <span>Share your gameplay review</span>
       </h3>
 
-      <form onSubmit={handleReviewSubmit} className="space-y-3 xs:space-y-4">
+      <form onSubmit={handleReviewSubmit} className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 xs:gap-3">
-            <span className="text-[11px] xs:text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
-            <div className="flex items-center gap-0.5 xs:gap-1" role="group" aria-label="Star rating selector">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
+            <div className="flex items-center gap-1" role="group" aria-label="Star rating selector">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
                   key={s}
@@ -129,7 +129,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
                   className="p-1 focus:outline-none cursor-pointer hover:scale-110 active:scale-95 transition-transform"
                 >
                   <Star 
-                    className={`w-5 h-5 xs:w-6 xs:h-6 transition-colors duration-200 ${
+                    className={`w-6 h-6 transition-colors duration-200 ${
                       s <= (hoveredRating !== null ? hoveredRating : rating)
                         ? 'fill-amber-400 text-amber-400' 
                         : 'text-zinc-300 dark:text-zinc-700'
@@ -141,9 +141,9 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 xs:gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="sm:col-span-1">
-            <label htmlFor="reviewer-name" className="block text-[9px] xs:text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Your Name</label>
+            <label htmlFor="reviewer-name" className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Your Name</label>
             <input
               id="reviewer-name"
               name="reviewerName"
@@ -153,12 +153,12 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
               placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full text-xs font-semibold p-2 xs:p-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 transition-all h-[42px] xs:h-[46px]"
+              className="w-full text-xs font-semibold p-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 transition-all h-[46px]"
             />
           </div>
           
           <div className="sm:col-span-2">
-            <label htmlFor="comment" className="block text-[9px] xs:text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
+            <label htmlFor="comment" className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
             <textarea
               id="comment"
               name="comment"
@@ -168,7 +168,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={2}
-              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-2.5 xs:p-3 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none min-h-[42px] xs:min-h-[46px]"
+              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none min-h-[46px]"
             />
           </div>
         </div>

@@ -4,6 +4,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
  * Displays basic user agreement protocols, cookies consent directives, and listing responsibility guidelines.
  */
 
+import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -31,7 +32,11 @@ export default function Terms() {
         canonical={window.location.origin + "/terms"}
       />
 
-      <div className="animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           Terms & Conditions
         </h1>
@@ -49,7 +54,7 @@ export default function Terms() {
           )}
         </div>
         
-      </div>
+      </motion.div>
     </div>
   );
 }

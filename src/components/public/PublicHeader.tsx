@@ -43,30 +43,13 @@ export function PublicHeader() {
             : 'bg-white dark:bg-black sm:bg-white/80 sm:dark:bg-black/80 border-b border-white/20 dark:border-white/10 py-2.5 sm:py-3'
         }`}
       >
-        <div className="w-full max-w-7xl px-2.5 xs:px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
-          <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2 xs:gap-2.5 sm:gap-3 group min-w-0">
+        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
+          <Link to="/" onClick={triggerHaptic} className="flex items-center gap-2.5 sm:gap-3 group">
             <div className="p-0 transition-transform group-hover:scale-[1.03] duration-300 shrink-0">
-              {settings.logo_url ? (
-                <img 
-                  src={getOptimizedImageUrl(settings.logo_url, 120)} 
-                  width={48} 
-                  height={48} 
-                  loading="eager" 
-                  fetchPriority="high" 
-                  decoding="async" 
-                  className="w-8 h-8 xs:w-9 xs:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" 
-                  alt={`${settings.site_title || 'RummyDex'} Official Logo`} 
-                />
-              ) : (
-                <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-base sm:text-lg">
-                  {settings.site_title?.substring(0, 1)}
-                </div>
-              )}
+              {settings.logo_url ? <img src={getOptimizedImageUrl(settings.logo_url, 120)} width={56} height={56} loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain drop-shadow-sm" alt={`${settings.site_title || 'RummyDex'} Official Logo`} /> : <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-lg">{settings.site_title?.substring(0, 1)}</div>}
             </div>
-            <div className="flex flex-col leading-none min-w-0">
-              <span className="text-[15px] xs:text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white truncate max-w-[110px] xxs:max-w-[130px] xs:max-w-[170px] sm:max-w-none">
-                {settings.site_title}
-              </span>
+            <div className="flex flex-col leading-none">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{settings.site_title}</span>
             </div>
           </Link>
           
@@ -163,14 +146,14 @@ export function PublicHeader() {
             </div>
           </nav>
 
-          <div className="md:hidden flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
+          <div className="md:hidden flex items-center gap-3">
             <button 
               type="button"
               onClick={() => { triggerHaptic(); setSearchOpen(true); }}
-              className="flex items-center justify-center w-8 h-8 xs:w-9 xs:h-9 bg-zinc-100 dark:bg-zinc-800 rounded-full active:scale-95 transition-all text-zinc-500"
+              className="flex items-center justify-center w-9 h-9 bg-zinc-100 dark:bg-zinc-800 rounded-full active:scale-95 transition-all text-zinc-500"
               aria-label="Search"
             >
-              <Search className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
+              <Search className="w-4 h-4" />
             </button>
 
             {settings.helpline_telegram && (
@@ -178,20 +161,20 @@ export function PublicHeader() {
                 href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-8 h-8 xs:w-9 xs:h-9 bg-blue-50 text-blue-500 rounded-full"
+                className="flex items-center justify-center w-9 h-9 bg-blue-50 text-blue-500 rounded-full"
                 aria-label="Telegram"
               >
-                <Send className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
+                <Send className="w-4 h-4" />
               </a>
             )}
             <SupportWidget />
             <button 
               type="button"
-              className="flex items-center justify-center w-8 h-8 xs:w-9 xs:h-9 bg-zinc-900 dark:bg-white rounded-full active:scale-95 transition-transform"
+              className="flex items-center justify-center w-9 h-9 bg-zinc-900 dark:bg-white rounded-full active:scale-95 transition-transform"
               onClick={() => { triggerHaptic(); setMenuOpen(true); }}
               aria-label="Open menu"
             >
-              <Menu className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white dark:text-zinc-900" />
+              <Menu className="w-4 h-4 text-white dark:text-zinc-900" />
             </button>
           </div>
         </div>

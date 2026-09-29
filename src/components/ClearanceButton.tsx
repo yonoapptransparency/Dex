@@ -134,12 +134,12 @@ export default function ClearanceButton({
                 closeAndWipeLink();
               }, 300);
             }}
-            className="flex items-center justify-center gap-2 w-full py-3 xs:py-4 px-4 xs:px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-xl xs:rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-xs xs:text-sm text-center select-none cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-sm text-center select-none cursor-pointer"
           >
             <span>PROCEED</span>
-            <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white shrink-0 ml-0.5" />
+            <ArrowRight className="w-4 h-4 text-white shrink-0 ml-0.5" />
           </a>
-          <p className="text-[10px] xs:text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
+          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
             Tap above to proceed. Link expires immediately after use.
           </p>
         </div>
@@ -148,21 +148,21 @@ export default function ClearanceButton({
         <div className="w-full flex flex-col items-center gap-3.5">
           
           {/* STEP 1: DIRECT CLOUDFLARE TURNSTILE (CLEAN & NATIVE, NO ARTIFICIAL BOX) */}
-          <div className={`w-full flex flex-col items-center justify-center transition-all duration-200 overflow-hidden ${isRendered ? 'min-h-[65px] mb-1' : 'min-h-0 h-0'}`}>
+          <div className="w-full flex flex-col items-center justify-center min-h-[65px] transition-all">
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center min-w-0 w-full max-w-[300px]"
+              className="flex items-center justify-center min-w-[300px] min-h-[65px]"
             />
           </div>
 
-          {/* STEP 2: PROCEED BUTTON (ACTIVE & RESPONSIVE WITH ONE-BY-ONE VERIFICATION PROGRESSION) */}
+          {/* STEP 2: PROCEED BUTTON (CLEAN & NEUTRAL: VERIFYING... -> PROCEED) */}
           <div className="relative w-full">
             <button
               type="button"
               id={`gateway-cta-${appId}`}
               onClick={(e) => {
-                if (isLoading || !isReady) return;
+                if (!isReady || isLoading) return;
                 trackPointerMotion(e);
                 triggerHaptic(35);
                 handleKineticProceed();
@@ -171,15 +171,15 @@ export default function ClearanceButton({
               onPointerMove={trackPointerMotion}
               onTouchStart={trackPointerMotion}
               onTouchMove={trackPointerMotion}
-              disabled={isLoading || !isReady}
-              className={`relative overflow-hidden group flex items-center justify-center gap-2 xs:gap-2.5 w-full py-3.5 xs:py-4 px-4 xs:px-6 rounded-xl xs:rounded-2xl transition-all font-black uppercase tracking-wider text-xs xs:text-sm text-center select-none shadow-lg ${
+              disabled={!isReady || isLoading}
+              className={`relative overflow-hidden group flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-2xl transition-all font-black uppercase tracking-wider text-sm text-center select-none shadow-lg ${
                 isLoading
                   ? 'bg-[#1557d6] text-white cursor-wait opacity-95 shadow-blue-500/20'
                   : isReady
-                  ? 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white shadow-blue-500/30 active:scale-[0.98] cursor-pointer'
-                  : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
+                  ? 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white cursor-pointer shadow-blue-500/30 active:scale-[0.98]'
+                  : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
               }`}
-              aria-label={isLoading ? 'Verifying clearance' : isReady ? 'Proceed' : 'Verifying security'}
+              aria-label={isReady ? 'Proceed' : 'Verifying clearance'}
             >
               {isLoading ? (
                 <>

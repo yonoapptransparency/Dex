@@ -34,13 +34,13 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
   const isAnimated = settings.animations_enabled !== false;
 
   // Map Font / Style Option
-  let styleClasses = 'font-sans font-black tracking-tight text-center leading-none text-base xs:text-xl sm:text-2xl md:text-3.5xl';
+  let styleClasses = 'font-sans font-black tracking-tight text-center leading-none text-xl sm:text-2xl md:text-3.5xl';
   if (style === 'modern') {
-    styleClasses = 'font-space font-black uppercase text-center tracking-tighter leading-none text-base xs:text-xl sm:text-3xl md:text-4xl';
+    styleClasses = 'font-space font-black uppercase text-center tracking-tighter leading-none text-xl sm:text-3xl md:text-4xl';
   } else if (style === 'serif') {
-    styleClasses = 'font-playfair font-black text-center italic leading-tight text-base xs:text-xl sm:text-2xl md:text-3.5xl';
+    styleClasses = 'font-playfair font-black text-center italic leading-tight text-xl sm:text-2xl md:text-3.5xl';
   } else if (style === 'mono') {
-    styleClasses = 'font-jetbrains font-extrabold uppercase text-center tracking-tight leading-none text-sm xs:text-lg sm:text-2xl md:text-3xl';
+    styleClasses = 'font-jetbrains font-extrabold uppercase text-center tracking-tight leading-none text-lg sm:text-2xl md:text-3xl';
   }
 
   // Map Color Gradient Style
