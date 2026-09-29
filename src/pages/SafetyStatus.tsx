@@ -8,7 +8,6 @@ import { useData } from '../contexts/DataContextPublic';
 import { mockApps as staticMockApps } from '../lib/staticData';
 import Meta from '../components/Meta';
 import { ShieldCheck, ArrowLeft, Sparkles, LayoutGrid, Info, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import NeutralSyncButton from '../components/NeutralSyncButton';
 import { useMemo } from 'react';
 import { getOptimizedImageUrl } from '../seo/utils';
@@ -64,10 +63,8 @@ export default function SafetyStatus() {
       </div>
 
       <div className="max-w-xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-zinc-900 border border-black/[0.05] dark:border-white/[0.05] rounded-[32px] p-8 sm:p-12 shadow-2xl relative overflow-hidden"
+        <div 
+          className="bg-white dark:bg-zinc-900 border border-black/[0.05] dark:border-white/[0.05] rounded-[32px] p-8 sm:p-12 shadow-2xl relative overflow-hidden animate-fade-in"
         >
           {/* Subtle decoration */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
@@ -121,7 +118,7 @@ export default function SafetyStatus() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Informational context (Neutral) */}
         <div className="mt-8 px-6">

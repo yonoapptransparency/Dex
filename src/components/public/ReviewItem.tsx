@@ -64,14 +64,14 @@ export function ReviewItem({
 
   return (
     <div
-      className={`cv-auto p-5 border rounded-2xl flex gap-4 transition-all text-left ${
+      className={`cv-auto p-3 xs:p-4 sm:p-5 border rounded-xl xs:rounded-2xl flex gap-2.5 xs:gap-3.5 sm:gap-4 transition-all text-left ${
         isReported || rev.reported
           ? 'bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border-rose-500/20 opacity-90'
           : 'bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10'
       }`}
     >
       {/* Avatar */}
-      <div className={`w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(username)}`}>
+      <div className={`w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 rounded-full font-black text-xs sm:text-sm flex items-center justify-center shrink-0 uppercase shadow-sm ${getAvatarStyle(username)}`}>
         {username ? username.charAt(0).toUpperCase() : 'P'}
       </div>
 

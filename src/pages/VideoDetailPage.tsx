@@ -9,7 +9,6 @@ import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockVideos as staticMockVideos } from '../lib/staticData';
 import { ArrowLeft, MessageSquare, Send, Calendar, ShieldAlert } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface Comment {
   id: string;
@@ -155,7 +154,7 @@ export default function VideoDetailPage() {
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 pb-12">
       <Meta 
-        title={videoItem.seo_title || `${videoItem.title} | ${mockSettings.site_title}`}
+        title={videoItem.seo_title || videoItem.title}
         description={videoItem.seo_description || videoItem.description}
         keywords={videoItem.seo_keywords}
         image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
@@ -240,11 +239,9 @@ export default function VideoDetailPage() {
 
               <div className="space-y-4">
                 {comments.map((comment) => (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                  <div 
                     key={comment.id} 
-                    className="bg-white dark:bg-zinc-900 p-6 rounded-[20px] border border-black/5 dark:border-white/5 shadow-sm"
+                    className="bg-white dark:bg-zinc-900 p-6 rounded-[20px] border border-black/5 dark:border-white/5 shadow-sm animate-fade-in"
                   >
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center font-bold text-sm shrink-0">
@@ -256,7 +253,7 @@ export default function VideoDetailPage() {
                         </div>
                     </div>
                     <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">{comment.content}</p>
-                  </motion.div>
+                  </div>
                 ))}
                 {comments.length === 0 && (
                   <div className="py-16 text-center">
