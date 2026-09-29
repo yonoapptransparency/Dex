@@ -4,7 +4,6 @@ import { safeHtml } from '../lib/safeHtmlPublic';
  * Integrates directly with Firestore db schemas to log customer inquiries, issues, or direct suggestions.
  */
 
-import { motion } from 'framer-motion';
 import { Mail, MessageSquare, MapPin, ArrowLeft, ShieldCheck, Loader2, Check, AlertCircle } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
@@ -37,9 +36,7 @@ export default function Contact() {
           Home
         </Link>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+      <div
         className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start"
       >
         <div className="lg:col-span-12 xl:col-span-5 space-y-8">
@@ -167,7 +164,7 @@ export default function Contact() {
               </button>
             </>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }
