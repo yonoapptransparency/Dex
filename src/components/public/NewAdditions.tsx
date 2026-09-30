@@ -16,33 +16,41 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
 
   return (
     <div className="px-0 animate-fade-in">
-      <h2 className="text-lg xs:text-xl font-bold mb-3 xs:mb-4 mt-4 xs:mt-6 text-zinc-900 dark:text-zinc-100 flex items-center px-0">
+      <h2 className="text-base xxs:text-lg xs:text-xl font-bold mb-2.5 xs:mb-4 mt-3 xs:mt-6 text-zinc-900 dark:text-zinc-100 flex items-center px-0">
         New Additions <BadgeCheck className="w-4 h-4 xs:w-5 xs:h-5 text-blue-500 fill-blue-500/20 ml-1.5" />
       </h2>
-      <div className="flex overflow-x-auto gap-2.5 xs:gap-3.5 sm:gap-4 px-3 xs:px-4 sm:px-1 pt-2 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-3 xs:-mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex overflow-x-auto gap-2 xxs:gap-2.5 xs:gap-3.5 sm:gap-4 px-2 xxs:px-3 xs:px-4 sm:px-1 pt-1.5 pb-2 mb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-2 xxs:-mx-3 xs:-mx-4 sm:-mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {newApps.slice(0, 10).map((app, index) => (
           <div
             key={`${app.id}-${index}`}
-            className="flex-none w-[68px] xs:w-[80px] sm:w-[96px] snap-start"
+            className="flex-none w-[64px] xxs:w-[74px] xs:w-[88px] sm:w-[104px] snap-start"
           >
             <Link 
               to={`/app/${app.slug}`} 
               onMouseEnter={() => preloadAppDetails(app.slug)}
               onFocus={() => preloadAppDetails(app.slug)}
-              className="flex flex-col gap-1.5 xs:gap-2 group"
+              className="flex flex-col gap-1 xxs:gap-1.5 xs:gap-2 group"
             >
               <div className="relative w-full aspect-square">
-                <div className="w-full h-full rounded-[14px] xs:rounded-[18px] overflow-hidden bg-white/20 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
+                <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[20px] sm:rounded-[24px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
                   <img 
-                    src={getOptimizedImageUrl(app.icon_url, 160) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+                    src={getOptimizedImageUrl(app.icon_url, 180) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                     alt={app.name} 
                     referrerPolicy="no-referrer"
-                    loading={index < 3 ? "eager" : "lazy"}
+                    loading={index < 5 ? "eager" : "lazy"}
                     decoding="async"
-                    {...(index < 3 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300" 
+                    {...(index < 5 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
+                    width={104}
+                    height={104}
+                    className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300 block" 
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (app.icon_url && target.src !== app.icon_url) {
+                        target.src = app.icon_url;
+                      } else {
+                        target.src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                      }
+                    }}
                   />
                 </div>
                 {app.is_hot ? (

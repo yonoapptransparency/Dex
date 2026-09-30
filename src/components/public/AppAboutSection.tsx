@@ -9,9 +9,10 @@ import { AppConfig } from '../../types';
 
 interface AppAboutSectionProps {
   app: AppConfig;
+  isFetching?: boolean;
 }
 
-export default function AppAboutSection({ app }: AppAboutSectionProps) {
+export default function AppAboutSection({ app, isFetching }: AppAboutSectionProps) {
   const navigate = useNavigate();
 
   const handleHtmlClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -95,12 +96,21 @@ export default function AppAboutSection({ app }: AppAboutSectionProps) {
             )}
 
             {/* Main Description */}
-            <div>
-              <div 
-                className={richHtmlContentStyle}
-                dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, defaultDescription) }}
-              />
-            </div>
+            {isFetching && !app.description_html ? (
+              <div className="space-y-3 py-2 animate-pulse" aria-busy="true">
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6"></div>
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full"></div>
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-4/6"></div>
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4"></div>
+              </div>
+            ) : (
+              <div>
+                <div 
+                  className={richHtmlContentStyle}
+                  dangerouslySetInnerHTML={{ __html: safeHtml(app.description_html, defaultDescription) }}
+                />
+              </div>
+            )}
 
             {/* Key Features */}
             {app.features_html && (

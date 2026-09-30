@@ -52,7 +52,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-full overflow-hidden rounded-2xl sm:rounded-[20px] shadow-sm sm:border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 relative h-[130px] sm:h-[160px] md:h-[185px]">
+      <div className="w-full overflow-hidden rounded-2xl sm:rounded-[20px] shadow-sm sm:border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 relative h-[110px] xxs:h-[120px] xs:h-[135px] sm:h-[160px] md:h-[185px]">
         <div 
           className="flex h-full w-full transition-transform duration-300 ease-out"
           style={{ width: `${items.length * 100}%`, transform: `translateX(-${(currentIndex * 100) / items.length}%)` }}

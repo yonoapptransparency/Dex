@@ -17,9 +17,9 @@ export function AppDetailsSkeleton() {
 
       <div className="w-full">
         {/* 2. AppHeader Skeleton: EXACT 1:1 match with AppHeader.tsx */}
-        <div className="flex w-full items-center gap-3.5 sm:gap-6 mb-5 px-1 sm:px-4 md:px-6 mt-2">
+        <div className="flex w-full items-center gap-2.5 xxs:gap-3 xs:gap-4 sm:gap-6 mb-3.5 sm:mb-6 px-1 xs:px-2 sm:px-4 md:px-6 mt-1 sm:mt-2">
           {/* App Icon rounded box */}
-          <div className="w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] shrink-0 rounded-[20px] bg-zinc-200 dark:bg-zinc-800 animate-pulse border border-black/5 dark:border-white/10 shadow-sm" />
+          <div className="w-[56px] h-[56px] xxs:w-[66px] xxs:h-[66px] xs:w-[80px] xs:h-[80px] sm:w-[102px] sm:h-[102px] md:w-[116px] md:h-[116px] shrink-0 rounded-[14px] xxs:rounded-[16px] xs:rounded-[20px] sm:rounded-[24px] bg-zinc-200 dark:bg-zinc-800 animate-pulse border border-black/5 dark:border-white/10 shadow-sm" />
           
           {/* Title, Developer, and Safety Badges */}
           <div className="flex flex-col justify-center flex-1 min-w-0 space-y-2">

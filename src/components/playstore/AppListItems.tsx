@@ -121,44 +121,49 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
         onMouseEnter={() => preloadAppDetails(app)}
         onFocus={() => preloadAppDetails(app)}
         onTouchStart={() => preloadAppDetails(app)}
-        className="flex items-center gap-2 xs:gap-2.5 sm:gap-4 py-2 pl-1 pr-9 xs:py-2.5 xs:pl-2 xs:pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
+        className="flex items-center gap-1.5 xxs:gap-2 xs:gap-2.5 sm:gap-4 py-1.5 xxs:py-2 pl-1 pr-8 xxs:pr-9 xs:py-2.5 xs:pl-2 xs:pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
-        <div className="w-4 xs:w-5 sm:w-7 text-xs xs:text-[14px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
+        <div className="w-3.5 xxs:w-4 xs:w-5 sm:w-7 text-[11px] xxs:text-xs xs:text-[14px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
           {displayIndex}
         </div>
 
-        <div className="relative w-[54px] h-[54px] xs:w-[66px] xs:h-[66px] sm:w-[84px] sm:h-[84px] shrink-0">
-          <div className="w-full h-full rounded-[14px] xs:rounded-[16px] sm:rounded-[18px] overflow-hidden bg-white shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
+        <div className="relative w-[52px] h-[52px] xxs:w-[60px] xxs:h-[60px] xs:w-[72px] xs:h-[72px] sm:w-[88px] sm:h-[88px] shrink-0">
+          <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
             <img 
-              src={getOptimizedImageUrl(app.icon_url, 160) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+              src={getOptimizedImageUrl(app.icon_url, 180) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
               alt={`${app.name} app icon`} 
-              width={84}
-              height={84}
-              loading={index !== undefined && index <= 6 ? "eager" : "lazy"}
-              fetchPriority={index !== undefined && index <= 6 ? "high" : "low"}
+              width={88}
+              height={88}
+              loading={index !== undefined && index <= 8 ? "eager" : "lazy"}
+              fetchPriority={index !== undefined && index <= 8 ? "high" : "low"}
               decoding="async"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover block"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                const target = e.target as HTMLImageElement;
+                if (app.icon_url && target.src !== app.icon_url) {
+                  target.src = app.icon_url;
+                } else {
+                  target.src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                }
               }}
             />
           </div>
           {app.is_hot ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
-              <span className="bg-[#d32f2f] text-white text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[8px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
+              <span className="bg-[#d32f2f] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
             </div>
           ) : app.is_new ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
-              <span className="bg-[#008738] text-white text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[8px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
+              <span className="bg-[#008738] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
             </div>
           ) : null}
         </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-          <h3 className="font-semibold text-sm xs:text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
-          <div className="text-[11px] xs:text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
-          <div className="flex items-center gap-1 text-[10px] xs:text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
+          <h3 className="font-semibold text-xs xxs:text-sm xs:text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
+          <div className="text-[10px] xxs:text-[11px] xs:text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
+          <div className="flex items-center gap-1 text-[9px] xxs:text-[10px] xs:text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
             <span>{(() => {
               const r = typeof app.rating === 'number' ? app.rating : parseFloat(String(app.rating || ''));
               return !isNaN(r) && r > 0 ? r.toFixed(1) : '5.0';
@@ -170,11 +175,11 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
         
         {isActuallyComingSoon && (
           <div className="shrink-0 pr-1">
-            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-2 xs:px-3 py-0.5 xs:py-1 text-[9px] xs:text-[11px] font-black rounded-full tracking-wider">SOON</div>
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 xxs:px-2 xs:px-3 py-0.5 xs:py-1 text-[8px] xxs:text-[9px] xs:text-[11px] font-black rounded-full tracking-wider">SOON</div>
           </div>
         )}
         
-        <div className="absolute bottom-0 right-4 left-[74px] xs:left-[88px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
+        <div className="absolute bottom-0 right-4 left-[70px] xxs:left-[80px] xs:left-[96px] sm:left-[144px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
       <AppOptionsMenu app={app} onMenuToggle={setIsMenuOpen} />
     </div>
@@ -183,6 +188,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
 
 export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const displayIndex = rank;
   const isActuallyComingSoon = React.useMemo(() => {
     if (!app.is_coming_soon) return false;
     if (!app.publish_date) return true;
@@ -196,44 +202,49 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
         onMouseEnter={() => preloadAppDetails(app)}
         onFocus={() => preloadAppDetails(app)}
         onTouchStart={() => preloadAppDetails(app)}
-        className="flex items-center gap-2 xs:gap-2.5 sm:gap-4 py-2 pl-1 pr-9 xs:py-2.5 xs:pl-2 xs:pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
+        className="flex items-center gap-1.5 xxs:gap-2 xs:gap-2.5 sm:gap-4 py-1.5 xxs:py-2 pl-1 pr-8 xxs:pr-9 xs:py-2.5 xs:pl-2 xs:pr-12 sm:pl-4 sm:pr-14 sm:py-3.5 mb-0 sm:mb-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 rounded-xl sm:rounded-2xl relative active:bg-black/5 dark:active:bg-white/5 w-full"
       >
-        <div className="w-4 xs:w-5 sm:w-7 text-xs xs:text-[14px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
-          {rank}
+        <div className="w-3.5 xxs:w-4 xs:w-5 sm:w-7 text-[11px] xxs:text-xs xs:text-[14px] sm:text-[17px] font-black text-zinc-400 dark:text-zinc-500 text-center shrink-0">
+          {displayIndex}
         </div>
         
-        <div className="relative w-[54px] h-[54px] xs:w-[66px] xs:h-[66px] sm:w-[84px] sm:h-[84px] shrink-0">
-          <div className="w-full h-full rounded-[14px] xs:rounded-[16px] sm:rounded-[18px] overflow-hidden bg-white shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
+        <div className="relative w-[52px] h-[52px] xxs:w-[60px] xxs:h-[60px] xs:w-[72px] xs:h-[72px] sm:w-[88px] sm:h-[88px] shrink-0">
+          <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
             <img 
-              src={getOptimizedImageUrl(app.icon_url, 160) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+              src={getOptimizedImageUrl(app.icon_url, 180) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
               alt={`${app.name} app icon`} 
-              width={84}
-              height={84}
-              loading={rank <= 6 ? "eager" : "lazy"}
-              fetchPriority={rank <= 6 ? "high" : "low"}
+              width={88}
+              height={88}
+              loading={rank <= 8 ? "eager" : "lazy"}
+              fetchPriority={rank <= 8 ? "high" : "low"}
               decoding="async"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover block"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                const target = e.target as HTMLImageElement;
+                if (app.icon_url && target.src !== app.icon_url) {
+                  target.src = app.icon_url;
+                } else {
+                  target.src = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop";
+                }
               }}
             />
           </div>
           {app.is_hot ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
-              <span className="bg-[#d32f2f] text-white text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[8px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
+              <span className="bg-[#d32f2f] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
             </div>
           ) : app.is_new ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
-              <span className="bg-[#008738] text-white text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[8px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
+              <span className="bg-[#008738] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">NEW</span>
             </div>
           ) : null}
         </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-          <h3 className="font-semibold text-sm xs:text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
-          <div className="text-[11px] xs:text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
-          <div className="flex items-center gap-1 text-[10px] xs:text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
+          <h3 className="font-semibold text-xs xxs:text-sm xs:text-base sm:text-[17px] tracking-tight text-zinc-900 dark:text-zinc-100 truncate w-full">{app.name}</h3>
+          <div className="text-[10px] xxs:text-[11px] xs:text-xs sm:text-[13px] font-normal text-zinc-500 dark:text-zinc-400 truncate">{app.category}</div>
+          <div className="flex items-center gap-1 text-[9px] xxs:text-[10px] xs:text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5">
             <span>{(() => {
               const r = typeof app.rating === 'number' ? app.rating : parseFloat(String(app.rating || ''));
               return !isNaN(r) && r > 0 ? r.toFixed(1) : '5.0';
@@ -245,11 +256,11 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
         
         {isActuallyComingSoon && (
           <div className="shrink-0 pr-1">
-            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-2 xs:px-3 py-0.5 xs:py-1 text-[9px] xs:text-[11px] font-black rounded-full tracking-wider">SOON</div>
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 xxs:px-2 xs:px-3 py-0.5 xs:py-1 text-[8px] xxs:text-[9px] xs:text-[11px] font-black rounded-full tracking-wider">SOON</div>
           </div>
         )}
         
-        <div className="absolute bottom-0 right-4 left-[74px] xs:left-[88px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
+        <div className="absolute bottom-0 right-4 left-[70px] xxs:left-[80px] xs:left-[96px] sm:left-[144px] border-b border-black/5 dark:border-white/5 opacity-50 transition-opacity group-hover:opacity-0" />
       </Link>
       <AppOptionsMenu app={app} onMenuToggle={setIsMenuOpen} />
     </div>
@@ -261,30 +272,30 @@ export const AppListItemSkeleton = () => (
     <div className="w-4 xs:w-5 sm:w-7 text-center shrink-0">
       <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3 xs:w-4 mx-auto" />
     </div>
-    <div className="relative w-[54px] h-[54px] xs:w-[66px] xs:h-[66px] sm:w-[84px] sm:h-[84px] shrink-0">
-      <div className="w-full h-full rounded-[14px] xs:rounded-[16px] sm:rounded-[18px] bg-zinc-200 dark:bg-zinc-700" />
+    <div className="relative w-[52px] h-[52px] xxs:w-[60px] xxs:h-[60px] xs:w-[72px] xs:h-[72px] sm:w-[88px] sm:h-[88px] shrink-0">
+      <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[18px] sm:rounded-[22px] bg-zinc-200 dark:bg-zinc-700" />
     </div>
     <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-4 w-1/3" />
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-3 w-1/4" />
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-3 w-8" />
     </div>
-    <div className="absolute bottom-0 right-4 left-[74px] xs:left-[88px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50" />
+    <div className="absolute bottom-0 right-4 left-[70px] xxs:left-[80px] xs:left-[96px] sm:left-[144px] border-b border-black/5 dark:border-white/5 opacity-50" />
   </div>
 );
 
 export const TopChartItemSkeleton = ({ rank }: { rank: number }) => (
   <div className="flex items-center gap-2 xs:gap-2.5 sm:gap-4 py-2 pl-1 pr-9 xs:py-2.5 xs:pl-2 xs:pr-12 sm:px-4 sm:py-3.5 mb-0 sm:mb-2 animate-pulse rounded-xl sm:rounded-2xl relative select-none">
     <div className="w-4 xs:w-5 sm:w-7 text-xs xs:text-sm font-bold text-zinc-300 dark:text-zinc-700 text-center shrink-0">{rank}</div>
-    <div className="relative w-[54px] h-[54px] xs:w-[66px] xs:h-[66px] sm:w-[84px] sm:h-[84px] shrink-0">
-      <div className="w-full h-full rounded-[14px] xs:rounded-[16px] sm:rounded-[18px] bg-zinc-200 dark:bg-zinc-800" />
+    <div className="relative w-[52px] h-[52px] xxs:w-[60px] xxs:h-[60px] xs:w-[72px] xs:h-[72px] sm:w-[88px] sm:h-[88px] shrink-0">
+      <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[18px] sm:rounded-[22px] bg-zinc-200 dark:bg-zinc-800" />
     </div>
     <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-4 w-1/2" />
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-3 w-1/3" />
       <div className="bg-zinc-200 dark:bg-zinc-800 rounded h-3 w-8" />
     </div>
-    <div className="absolute bottom-0 right-4 left-[74px] xs:left-[88px] sm:left-[138px] border-b border-black/5 dark:border-white/5 opacity-50" />
+    <div className="absolute bottom-0 right-4 left-[70px] xxs:left-[80px] xs:left-[96px] sm:left-[144px] border-b border-black/5 dark:border-white/5 opacity-50" />
   </div>
 );
 

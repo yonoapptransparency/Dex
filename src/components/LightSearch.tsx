@@ -208,13 +208,19 @@ export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img
-                        src={getOptimizedImageUrl(app.icon_url, 48)}
+                        src={getOptimizedImageUrl(app.icon_url, 96) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"}
                         alt={app.name}
                         width={40}
                         height={40}
                         loading="lazy"
                         decoding="async"
-                        className="w-10 h-10 rounded-xl object-cover shrink-0 border border-black/5 dark:border-white/5"
+                        className="w-10 h-10 rounded-xl object-cover shrink-0 border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (app.icon_url && target.src !== app.icon_url) {
+                            target.src = app.icon_url;
+                          }
+                        }}
                       />
                       <div className="min-w-0">
                         <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-blue-500 transition-colors">

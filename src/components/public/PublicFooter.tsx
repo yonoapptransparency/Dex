@@ -1,146 +1,106 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 import { useData } from '../../contexts/DataContextPublic';
-import { getOptimizedImageUrl } from '../../seo/utils';
 import { PublicSyncStatus } from './PublicSyncStatus';
 
 export function PublicFooter() {
   const { settings } = useData();
   const siteTitle = settings?.site_title || 'RummyDex';
-  const logoUrl = settings?.logo_url;
-  const optimizedLogo = logoUrl ? getOptimizedImageUrl(logoUrl, 100) : '';
-
-  const brandContent = (
-    <div className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-md">
-      <Link to="/" className="flex items-center gap-2.5 xs:gap-3 mb-3 xs:mb-4 group" aria-label={`${siteTitle} Homepage`}>
-        <div className="p-1 xs:p-1.5 bg-white/10 rounded-xl xs:rounded-2xl group-hover:bg-white/15 transition-colors">
-          {optimizedLogo ? (
-            <img 
-              src={optimizedLogo} 
-              loading="lazy" 
-              decoding="async" 
-              width={48} 
-              height={48} 
-              className="w-9 h-9 xs:w-12 xs:h-12 object-contain drop-shadow-sm" 
-              alt={`${siteTitle} Footer Logo`} 
-            />
-          ) : (
-            <Shield className="w-6 h-6 xs:w-8 xs:h-8 text-blue-400" />
-          )}
-        </div>
-        <span className="text-xl xs:text-2xl font-bold tracking-tight text-white">{siteTitle}</span>
-      </Link>
-      
-      <p className="text-xs xs:text-[14px] text-slate-300 leading-relaxed font-normal">
-        {settings?.meta_description || 'Your trusted bridge to the best mobile card games. Explore RummyDex for hands-on reviews, real-time news, and complete app knowledge.'}
-      </p>
-    </div>
-  );
-
-  const footerLinks = (
-    <div className="w-full max-w-[540px] grid grid-cols-2 sm:grid-cols-2 gap-x-4 xs:gap-x-8 gap-y-6 xs:gap-y-8 lg:text-right">
-      <div className="flex flex-col gap-2 xs:gap-2.5 lg:items-end">
-        <h3 className="text-slate-900 dark:text-white font-bold text-xs xs:text-sm uppercase tracking-wider mb-1">Company Info</h3>
-        <Link to="/" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Home</Link>
-        <Link to="/about" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">About Us</Link>
-        <Link to="/developers" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Our Team</Link>
-        <Link to="/contact" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Contact</Link>
-      </div>
-      
-      <div className="flex flex-col gap-2 xs:gap-2.5 lg:items-end">
-        <h3 className="text-slate-900 dark:text-white font-bold text-xs xs:text-sm uppercase tracking-wider mb-1">Discover</h3>
-        <Link to="/" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Apps</Link>
-        <Link to="/news" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">News</Link>
-        <Link to="/videos" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Videos</Link>
-      </div>
-      
-      <div className="flex flex-col gap-2 xs:gap-2.5 lg:items-end col-span-2 border-t border-black/5 dark:border-white/10 pt-4 xs:pt-6">
-        <h3 className="text-slate-900 dark:text-white font-bold text-xs xs:text-sm uppercase tracking-wider mb-2">Legal Docs</h3>
-        <div className="grid grid-cols-2 gap-2 xs:gap-2.5 lg:flex lg:flex-col lg:items-end w-full">
-          <Link to="/privacy" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Privacy</Link>
-          <Link to="/report-removal" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Report & Removal</Link>
-          <Link to="/terms" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Terms</Link>
-          <Link to="/notice" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Notice</Link>
-          <Link to="/ethics" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Ethics</Link>
-          <Link to="/disclaimer" className="text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-xs xs:text-sm">Disclaimer</Link>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
-    <footer className="w-full mt-4 bg-white dark:bg-zinc-950 flex flex-col z-10 border-t border-black/5 dark:border-white/10">
-      {/* Desktop Curved Layout */}
-      <div className="hidden lg:flex relative overflow-hidden w-full min-h-[460px]">
-        <svg 
-          aria-hidden="true"
-          className="absolute top-0 left-0 w-full h-full text-slate-900 dark:text-zinc-900 pointer-events-none z-0"
-          preserveAspectRatio="none" 
-          viewBox="0 0 100 100"
-        >
-          <path d="M 0,0 C 20,40 40,80 65,100 L 0,100 Z" fill="currentColor" />
-        </svg>
+    <footer className="w-full mt-6 sm:mt-10 bg-slate-900 dark:bg-zinc-950 text-slate-300 border-t border-black/10 dark:border-white/10 z-10 transition-colors">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-8 lg:gap-12">
+          
+          {/* Brand Column (Pure Text - Ultra Lightweight & Zero Image Overhead) */}
+          <div className="flex flex-col items-start max-w-sm">
+            <Link 
+              to="/" 
+              className="text-lg xs:text-xl sm:text-2xl font-black tracking-tight text-white hover:text-blue-400 transition-colors inline-flex items-center gap-2 mb-2"
+              aria-label={`${siteTitle} Homepage`}
+            >
+              <span>{siteTitle}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                Verified
+              </span>
+            </Link>
+            <p className="text-xs text-slate-400 leading-relaxed font-normal">
+              Independent digital directory, application benchmarking, and transparent reviews.
+            </p>
+          </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-8 py-16 flex items-center justify-between">
-           <div className="w-[45%] flex flex-col text-white pr-10 xl:pr-16">
-              {brandContent}
-           </div>
-           
-           <div className="w-[55%] flex justify-end items-center pl-12">
-              {footerLinks}
-           </div>
-        </div>
-      </div>
+          {/* Links Grid - Crawlable & Semantic for Search Engines */}
+          <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-3 gap-6 xs:gap-8 text-left text-xs xs:text-sm">
+            
+            {/* Column 1: Directory */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
+                Directory
+              </h3>
+              <Link to="/" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">All Apps</Link>
+              <Link to="/new-apps" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">New Apps</Link>
+              <Link to="/categories" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Categories</Link>
+              <Link to="/news" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Industry News</Link>
+              <Link to="/videos" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Video Reviews</Link>
+            </div>
 
-      {/* Mobile Curved Layout (Matching the user screenshot curve aesthetic) */}
-      <div className="flex flex-col lg:hidden w-full">
-        <div className="w-full bg-slate-900 dark:bg-zinc-900 text-white px-3 xs:px-6 pt-8 xs:pt-14 pb-12 xs:pb-20 relative overflow-hidden">
-             <svg 
-               aria-hidden="true"
-               className="absolute -bottom-1 left-0 w-full h-10 sm:h-16 text-white dark:text-zinc-950 fill-current pointer-events-none" 
-               preserveAspectRatio="none" 
-               viewBox="0 0 100 20"
-             >
-               <path d="M 0,20 L 100,20 L 100,0 Q 50,30 0,0 Z" />
-             </svg>
-             <div className="relative z-10 flex flex-col items-center text-center">
-               {brandContent}
-             </div>
-        </div>
+            {/* Column 2: Platform Info */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
+                Company
+              </h3>
+              <Link to="/about" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">About Us</Link>
+              <Link to="/developers" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Developer Team</Link>
+              <Link to="/contact" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Contact Support</Link>
+              <Link to="/responsibility" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Responsible Gaming</Link>
+              <Link to="/report-removal" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Report / DMCA</Link>
+            </div>
 
-        <div className="w-full bg-white dark:bg-zinc-950 px-3 xs:px-6 pb-12 pt-6 flex justify-center text-left">
-           {footerLinks}
-        </div>
-      </div>
+            {/* Column 3: Legal & Policy */}
+            <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
+              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
+                Compliance
+              </h3>
+              <Link to="/privacy" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Privacy Policy</Link>
+              <Link to="/terms" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Terms of Service</Link>
+              <Link to="/ethics" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Ethics Policy</Link>
+              <Link to="/notice" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Legal Notice</Link>
+              <Link to="/disclaimer" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Disclaimer</Link>
+            </div>
 
-      {/* Bottom Bar: Copyright and Social Icons */}
-      <div className="w-full bg-slate-950 py-5 xs:py-6 px-3 xs:px-6 sm:px-12 flex flex-col md:flex-row items-center justify-between gap-3 xs:gap-4 border-t border-white/5">
-        <p className="text-xs text-slate-400 text-center sm:text-left">
-          &copy; {new Date().getFullYear()} {siteTitle}. All rights reserved.
-        </p>
-
-        <div className="flex items-center gap-2 xs:gap-3 flex-wrap justify-center">
-          {settings?.social_links?.facebook && (
-            <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer dofollow" className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-white/15 hover:bg-blue-600 text-white border border-white/20 hover:border-blue-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Facebook className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" /></a>
-          )}
-          {settings?.social_links?.instagram && (
-            <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer dofollow" className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-white/15 hover:bg-pink-600 text-white border border-white/20 hover:border-pink-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Instagram className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" /></a>
-          )}
-          {settings?.social_links?.twitter && (
-            <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer dofollow" className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-white/15 hover:bg-sky-500 text-white border border-white/20 hover:border-sky-400 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Twitter className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" /></a>
-          )}
-          {settings?.social_links?.linkedin && (
-            <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer dofollow" className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-white/15 hover:bg-blue-700 text-white border border-white/20 hover:border-blue-600 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Linkedin className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" /></a>
-          )}
-          {settings?.social_links?.youtube && (
-            <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer dofollow" className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-white/15 hover:bg-red-600 text-white border border-white/20 hover:border-red-500 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95"><Youtube className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" /></a>
-          )}
+          </div>
         </div>
 
-        <div className="scale-90 opacity-70 hover:opacity-100 transition-opacity">
-          <PublicSyncStatus />
+        {/* Bottom Bar: Copyright, Social Links & Sync Status */}
+        <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[11px] xs:text-xs text-slate-500 text-center sm:text-left">
+            &copy; {new Date().getFullYear()} {siteTitle}. All rights reserved.
+          </p>
+
+          <div className="flex items-center gap-2 xs:gap-3 flex-wrap justify-center">
+            {settings?.social_links?.facebook && (
+              <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Facebook className="w-3.5 h-3.5" /></a>
+            )}
+            {settings?.social_links?.instagram && (
+              <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Instagram className="w-3.5 h-3.5" /></a>
+            )}
+            {settings?.social_links?.twitter && (
+              <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Twitter className="w-3.5 h-3.5" /></a>
+            )}
+            {settings?.social_links?.linkedin && (
+              <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-700 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Linkedin className="w-3.5 h-3.5" /></a>
+            )}
+            {settings?.social_links?.youtube && (
+              <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Youtube className="w-3.5 h-3.5" /></a>
+            )}
+          </div>
+
+          <div className="scale-90 opacity-60 hover:opacity-100 transition-opacity">
+            <PublicSyncStatus />
+          </div>
         </div>
+
       </div>
     </footer>
   );
