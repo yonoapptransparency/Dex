@@ -29,8 +29,8 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Initialize inView to true so reviews load reliably on all devices immediately
-  const [inView, setInView] = useState(true);
+  // Lazy load reviews when scrolled into view (saves critical path bandwidth on initial paint)
+  const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function UserReviews({
         setInView(true);
         observer.disconnect();
       }
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '300px' });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [appId, appSlug]);

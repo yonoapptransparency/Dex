@@ -43,22 +43,33 @@ function formatNewsDate(dateStr?: string, publishedAt?: string): string {
 }
 
 export default function NewsDetailPage() {
-  const { news: mockNews = [], apps = [], settings: mockSettings, loading, newsSyncedWithServer, serverNewsFetched, refreshAll } = useData();
+  const { news: mockNews = [], apps = [], settings: mockSettings, loading, newsSyncedWithServer, serverNewsFetched, refreshAll, updateNewsDetail } = useData();
   const { slug } = useParams();
   
   // Check if slug corresponds to an APP rather than news article (e.g. /news/maha-games -> redirect to /app/maha-games)
-  const matchedApp = useMemo(() => {
-    if (!slug) return null;
-    const sLower = slug.toLowerCase().trim();
-    return apps.find(a => a.slug?.toLowerCase() === sLower || a.id === sLower);
-  }, [slug, apps]);
+  const cleanSlug = useMemo(() => {
+    if (!slug) return '';
+    try {
+      return decodeURIComponent(slug).toLowerCase().trim().replace(/\/+$/, '');
+    } catch (_) {
+      return slug.toLowerCase().trim().replace(/\/+$/, '');
+    }
+  }, [slug]);
 
-  const newsItem = useMemo(() => {
-    if (!slug) return null;
-    const sLower = slug.toLowerCase().trim();
-    return mockNews.find(n => n.slug?.toLowerCase() === sLower) ||
-           staticMockNews.find(n => n.slug?.toLowerCase() === sLower);
-  }, [slug, mockNews]);
+  const matchedApp = useMemo(() => {
+    if (!cleanSlug) return null;
+    return apps.find(a => (a.slug || '').toLowerCase().trim() === cleanSlug || (a.id || '').toLowerCase().trim() === cleanSlug);
+  }, [cleanSlug, apps]);
+
+  const [fetchedNewsItem, setFetchedNewsItem] = useState<any | null>(null);
+
+  const contextNewsItem = useMemo(() => {
+    if (!cleanSlug) return null;
+    return mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
+           staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+  }, [cleanSlug, mockNews]);
+
+  const newsItem = fetchedNewsItem || contextNewsItem;
 
   const [commentText, setCommentText] = useState('');
   const [copied, setCopied] = useState(false);
@@ -72,32 +83,58 @@ export default function NewsDetailPage() {
     setTriedRefresh(false);
     setIsRefreshing(false);
     setCopied(false);
+    setFetchedNewsItem(null);
   }, [slug]);
 
-  // Silent background sync only if news item is not found and not an app
-  useEffect(() => {
-    const slugKey = slug?.toLowerCase() || '';
-    if (!slugKey || newsItem || matchedApp) return;
+  // Fast single-news fetch if news item is not found or has missing full body
+  const hasFullBody = useMemo(() => {
+    if (!newsItem) return false;
+    const c = newsItem.content?.trim() || '';
+    const d = newsItem.description_html?.trim() || '';
+    return c.length >= 20 || d.length >= 20;
+  }, [newsItem]);
 
-    if (!syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
+  useEffect(() => {
+    const slugKey = cleanSlug || '';
+    if (!slugKey || matchedApp) return;
+
+    // If news already has rich full body, no extra fetch needed
+    if (hasFullBody) return;
+
+    if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      const timer = setTimeout(() => {
-        setIsRefreshing(false);
-        setTriedRefresh(true);
-      }, 1500);
 
-      refreshAll?.(true)
-        .catch((e: any) => {
-          console.warn("Deep Link News Auto-Sync failed:", e.message || e);
+      let isMounted = true;
+      fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (data.status === 'OK' && data.news) {
+            setFetchedNewsItem(data.news);
+            updateNewsDetail?.(data.news);
+          } else if (!newsItem && refreshAll) {
+            refreshAll(true);
+          }
+        })
+        .catch(err => {
+          console.warn("Fast news body fetch warning:", err);
+          if (!newsItem && refreshAll) refreshAll(true);
         })
         .finally(() => {
-          clearTimeout(timer);
-          setTriedRefresh(true);
-          setIsRefreshing(false);
+          if (isMounted) {
+            setIsRefreshing(false);
+            setTriedRefresh(true);
+          }
         });
+
+      return () => {
+        isMounted = false;
+      };
     }
-  }, [slug, newsItem, matchedApp, triedRefresh, isRefreshing, refreshAll]);
+  }, [cleanSlug, matchedApp, hasFullBody, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
 
   // If this was an app slug, seamlessly redirect to canonical /app/:slug with 0ms delay
   if (matchedApp && !newsItem) {
@@ -261,18 +298,29 @@ export default function NewsDetailPage() {
   const rawImage = newsItem.logo_url || newsItem.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e';
   const articleImage = getOptimizedImageUrl(rawImage, 1200);
 
+  const articleBodyHtml = useMemo(() => {
+    let raw = newsItem?.content || newsItem?.description_html;
+    if ((!raw || raw.trim().length < 20) && relatedApp) {
+      raw = relatedApp.description_html || relatedApp.features_html || newsItem?.description || '';
+    }
+    if (!raw || raw.trim().length === 0) {
+      raw = newsItem?.description ? `<p>${newsItem.description}</p>` : '';
+    }
+    return safeHtml(raw);
+  }, [newsItem, relatedApp]);
+
   return (
     <div className="animate-fade-in max-w-4xl mx-auto px-4 sm:px-6 md:px-8 plain-content mb-16 pt-0.5 sm:pt-1">
       <Meta 
         title={newsItem.seo_title || `${newsItem.title} | ${mockSettings?.site_title || 'RummyDex'}`}
-        description={newsItem.seo_description || newsItem.description}
+        description={newsItem.seo_description || newsItem.meta_description || newsItem.description}
         keywords={newsItem.seo_keywords}
         image={newsItem.og_image_url || newsItem.logo_url || newsItem.image_url}
-        url={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
+        url={newsItem.canonical_url || window.location.origin + "/news/" + (newsItem.slug || newsItem.id)}
         type="article"
         publishedTime={newsItem.published_at || newsItem.date}
         author={newsItem.author || mockSettings?.site_title || 'RummyDex'}
-        canonical={newsItem.canonical_url || window.location.origin + "/news/" + newsItem.slug}
+        canonical={newsItem.canonical_url || window.location.origin + "/news/" + (newsItem.slug || newsItem.id)}
       />
       
       {/* 1. Tight Top Nav Bar (Breadcrumb + Share) with minimal upside spacing */}
@@ -382,14 +430,23 @@ export default function NewsDetailPage() {
         {/* Article Body Content */}
         <div className="prose prose-zinc dark:prose-invert max-w-none mb-10">
           {newsItem.description && (
-            <p className="text-base sm:text-lg font-medium mb-6 text-zinc-800 dark:text-zinc-200 leading-relaxed">
+            <div className="mb-6 p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border-l-4 border-blue-600 text-sm sm:text-base font-medium text-zinc-800 dark:text-zinc-200 leading-relaxed">
               {newsItem.description}
-            </p>
+            </div>
           )}
-          <div 
-            className="font-normal text-base text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-none prose prose-zinc dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: safeHtml(newsItem.content || newsItem.description_html) }} 
-          />
+          {isRefreshing && !hasFullBody ? (
+            <div className="space-y-4 py-4 animate-pulse">
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-3/4"></div>
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-full"></div>
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-5/6"></div>
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-2/3"></div>
+            </div>
+          ) : (
+            <div 
+              className="font-normal text-base text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-none prose prose-zinc dark:prose-invert space-y-4"
+              dangerouslySetInnerHTML={{ __html: articleBodyHtml }} 
+            />
+          )}
         </div>
 
         {/* Simple Download Button at the end of article */}

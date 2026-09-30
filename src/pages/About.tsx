@@ -4,7 +4,6 @@ import { safeHtml } from '../lib/safeHtmlPublic';
  * Explains the verification frameworks, safe apk guidelines, and the platform mission statement.
  */
 
-import { motion } from 'framer-motion';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -39,11 +38,7 @@ export default function About() {
           Home
         </Link>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="animate-fade-in">
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           About Us
         </h1>
@@ -62,7 +57,7 @@ export default function About() {
             <div dangerouslySetInnerHTML={{ __html: safeHtml(rawAboutContent.replace(/\n/g, '<br/>')) }} />
           )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

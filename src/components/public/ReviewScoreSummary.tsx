@@ -38,24 +38,24 @@ export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalR
 
   return (
     <div className="w-full">
-      <h2 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-        <MessageSquare className="w-5 h-5 text-blue-500" />
+      <h2 className="text-lg xs:text-xl font-bold mb-3 xs:mb-4 text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 xs:gap-2">
+        <MessageSquare className="w-4 h-4 xs:w-5 xs:h-5 text-blue-500" />
         <span>Ratings and reviews</span>
       </h2>
-      <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-black/5 dark:border-white/10">
+      <div className="flex items-center gap-2.5 xs:gap-4 sm:gap-6 p-3 xs:p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl xs:rounded-2xl border border-black/5 dark:border-white/10">
         <div className="text-center shrink-0">
-          <div className="text-5xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none mb-1">
+          <div className="text-3xl xs:text-4xl sm:text-5xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none mb-1">
             {averageValue}
           </div>
           <div className="flex justify-center gap-0.5 mb-1 text-amber-500">
             {[1, 2, 3, 4, 5].map((s) => (
               <Star 
                 key={`score-star-${s}`} 
-                className={`w-3.5 h-3.5 ${s <= Math.round(Number(ratingVal)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
+                className={`w-2.5 h-2.5 xs:w-3.5 xs:h-3.5 ${s <= Math.round(Number(ratingVal)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} 
               />
             ))}
           </div>
-          <div className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500">
+          <div className="text-[9px] xs:text-[10px] font-semibold text-zinc-400 dark:text-zinc-500">
             {typeof totalCount === 'number' ? totalCount.toLocaleString() : totalCount} ratings
           </div>
         </div>

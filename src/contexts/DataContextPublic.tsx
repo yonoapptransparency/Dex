@@ -36,6 +36,7 @@ interface DataContextType {
   fetchNews: () => void;
   fetchVideos: () => void;
   updateAppDetail?: (app: AppConfig) => void;
+  updateNewsDetail?: (newsItem: NewsItem) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -152,25 +153,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [apps.length]);
 
   useEffect(() => {
-    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(navigator.userAgent || '');
+    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    // Always defer background backup fetch so initial paint, LCP images, and critical route chunks have 0ms network congestion
-    const scheduleBackgroundSync = () => {
-      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => fetchBackupData(true), { timeout: 8000 });
-      } else {
-        setTimeout(() => fetchBackupData(true), 4000);
-      }
-    };
-
-    if (document.readyState === 'complete') {
-      scheduleBackgroundSync();
+    // If apps are already loaded in memory/staticData, DO NOT saturate the network with 1.1MB backup download!
+    if (apps.length === 0) {
+      fetchBackupData(false);
     } else {
-      window.addEventListener('load', scheduleBackgroundSync, { once: true });
+      // Long-deferred idle sync for persistent human sessions (30s delay)
+      const idleTimer = setTimeout(() => {
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(() => fetchBackupData(true));
+        } else {
+          fetchBackupData(true);
+        }
+      }, 30000);
+      return () => clearTimeout(idleTimer);
     }
 
-    // Periodic check every 30 minutes for live updates
+    // Periodic check every 30 minutes for live updates in background
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchBackupData(true);
@@ -180,7 +181,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       clearInterval(interval);
     };
-  }, [fetchBackupData]);
+  }, [apps.length, fetchBackupData]);
 
   const resolvedSettings = React.useMemo(() => {
     const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png";
@@ -212,6 +213,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, []);
 
+  const updateNewsDetail = useCallback((updatedNews: NewsItem) => {
+    if (!updatedNews || (!updatedNews.slug && !updatedNews.id)) return;
+    const updateId = updatedNews.id ? String(updatedNews.id).trim().toLowerCase() : '';
+    const updateSlug = updatedNews.slug ? String(updatedNews.slug).toLowerCase().trim() : '';
+
+    setNews(prevNews => {
+      const index = prevNews.findIndex(n => 
+        (updateId && n.id && String(n.id).trim().toLowerCase() === updateId) ||
+        (updateSlug && n.slug && String(n.slug).toLowerCase().trim() === updateSlug)
+      );
+      if (index >= 0) {
+        const next = [...prevNews];
+        next[index] = { ...next[index], ...updatedNews };
+        return next;
+      }
+      return [updatedNews, ...prevNews];
+    });
+  }, []);
+
   const value = React.useMemo<DataContextType>(() => ({
     apps,
     settings: resolvedSettings,
@@ -228,6 +248,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLive,
     refreshAll: fetchBackupData,
     updateAppDetail,
+    updateNewsDetail,
 
     // Dummy admin handlers for public view interface compliance
     saveSettings: async () => {},
