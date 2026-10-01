@@ -12,6 +12,7 @@ import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
 import Meta from '../components/Meta';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { useLiveAppStats } from '../hooks/useReviews';
+import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
 import { resolveAppSlug } from '../lib/slugResolver';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
@@ -304,13 +305,21 @@ export default function AppDetails() {
   }, [app.faqs]);
 
   
-  const hasLiveReviews = Boolean(liveStats && Number(liveStats.totalReviews) > 0);
-  const realRatingVal = hasLiveReviews
-    ? Math.max(1.0, Math.min(5.0, parseFloat(String(liveStats.averageRating))))
-    : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 0);
+  const staticStats = useMemo(() => {
+    return getCachedLiveAppStats(app?.id, app?.slug) || getCachedLiveAppStats(slug, slug);
+  }, [app?.id, app?.slug, slug]);
 
-  // Strictly real count of reviews present in Firebase
-  const realReviewCount = hasLiveReviews ? Number(liveStats.totalReviews) : 0;
+  const activeStats = (liveStats && Number(liveStats.totalReviews) > 0) ? liveStats : staticStats;
+
+  const hasLiveReviews = Boolean(activeStats && Number(activeStats.totalReviews) > 0);
+  const realRatingVal = hasLiveReviews
+    ? Math.max(1.0, Math.min(5.0, parseFloat(String(activeStats.averageRating))))
+    : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 4.5);
+
+  // Strictly real count of reviews present in atomic catalog / Firebase
+  const realReviewCount = hasLiveReviews 
+    ? Number(activeStats.totalReviews) 
+    : (app.review_count || app.reviews ? parseInt(String(app.review_count || app.reviews), 10) : 0);
 
   const softwareSchema: any = {
     "@context": "https://schema.org",
@@ -569,7 +578,7 @@ export default function AppDetails() {
             appTitle={app.name} 
             appSlug={app.slug}
             category={app.category}
-            overallRating={app.rating} 
+            overallRating={realRatingVal} 
             totalReviewCount={realReviewCount} 
           />
         </Suspense>

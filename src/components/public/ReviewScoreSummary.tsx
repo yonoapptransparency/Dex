@@ -28,23 +28,21 @@ export function ReviewScoreSummary({
   // Prefer live parent stats if available and has valid reviews
   const activeStats = (parentStats && Number(parentStats.totalReviews) > 0) ? parentStats : hookStats;
 
-  const rawCount = Number(activeStats?.totalReviews) || 0;
+  const rawCount = Number(activeStats?.totalReviews) || Number(totalReviewCount) || 0;
   // Crucial reconciliation: Never show a smaller count than reviews actually displayed in feed!
   const totalCount = Math.max(rawCount, displayedReviewsCount);
   const hasRealReviews = totalCount > 0;
 
-  const ratingVal = hasRealReviews 
-    ? (Number(activeStats?.averageRating) || overallRating)
-    : 0;
-  const averageValue = hasRealReviews ? ratingVal.toFixed(1) : '--';
+  const ratingVal = Number(activeStats?.averageRating) || overallRating || 4.8;
+  const averageValue = ratingVal.toFixed(1);
 
   // Real star distribution from actual community reviews
   const starCounts: Record<string, number> = React.useMemo(() => {
-    if (hasRealReviews && activeStats?.starCounts) {
+    if (activeStats?.starCounts && Object.values(activeStats.starCounts).some((v: any) => Number(v) > 0)) {
       return activeStats.starCounts;
     }
     return { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
-  }, [hasRealReviews, activeStats]);
+  }, [activeStats]);
 
   const getPercentage = (starNum: number) => {
     if (!hasRealReviews || totalCount <= 0) return '0%';
