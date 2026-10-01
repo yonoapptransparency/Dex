@@ -14,6 +14,7 @@ import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
+import { mockApps as staticMockApps } from '../lib/staticData';
 import { resolveAppSlug } from '../lib/slugResolver';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
@@ -23,8 +24,7 @@ import AppAboutSection from '../components/public/AppAboutSection';
 import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
 import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
-
-const UserReviews = lazyWithRetry(() => import('../components/UserReviews'));
+import UserReviews from '../components/UserReviews';
 
 export { AppDetailsSkeleton };
 
@@ -41,25 +41,62 @@ export default function AppDetails() {
   // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
     if (!slug) return null;
-    const dynamicApp = fetchedApp || (Array.isArray(mockApps) ? resolveAppSlug(slug, mockApps) : null);
-    if (!dynamicApp) return null;
+    
+    // 1. Check fetched app (from on-demand API or admin update)
+    let dynamicApp = fetchedApp;
+
+    // 2. Check context apps (from DataProvider)
+    if (!dynamicApp && Array.isArray(mockApps)) {
+      dynamicApp = resolveAppSlug(slug, mockApps);
+    }
+
+    // 3. Fallback to bundled static apps (staticMockApps)
+    const staticApp = Array.isArray(staticMockApps) ? resolveAppSlug(slug, staticMockApps) : null;
+
+    if (!dynamicApp && !staticApp) return null;
+
+    // Merge dynamicApp on top of staticApp so we NEVER lose description_html, features_html, screenshots, etc.!
+    const merged = {
+      ...(staticApp || {}),
+      ...(dynamicApp || {}),
+    };
+
+    // If dynamicApp was pruned (description_html is missing/empty), retain staticApp's full rich HTML & details!
+    if (!merged.description_html && staticApp?.description_html) {
+      merged.description_html = staticApp.description_html;
+    }
+    if (!merged.features_html && staticApp?.features_html) {
+      merged.features_html = staticApp.features_html;
+    }
+    if ((!merged.screenshots || merged.screenshots.length === 0) && staticApp?.screenshots && staticApp.screenshots.length > 0) {
+      merged.screenshots = staticApp.screenshots;
+    }
+    if ((!merged.faqs || merged.faqs.length === 0) && staticApp?.faqs && staticApp.faqs.length > 0) {
+      merged.faqs = staticApp.faqs;
+    }
+    if (!merged.custom_admin_box_html && staticApp?.custom_admin_box_html) {
+      merged.custom_admin_box_html = staticApp.custom_admin_box_html;
+    }
+    if (!merged.release_notes && staticApp?.release_notes) {
+      merged.release_notes = staticApp.release_notes;
+    }
 
     return {
-      ...dynamicApp,
-      description_html: dynamicApp.description_html || '',
-      features_html: dynamicApp.features_html || '',
-      screenshots: Array.isArray(dynamicApp.screenshots) ? dynamicApp.screenshots : [],
-      faqs: Array.isArray(dynamicApp.faqs) ? dynamicApp.faqs : [],
-      custom_admin_box_html: dynamicApp.custom_admin_box_html || '',
-      custom_admin_box_heading: dynamicApp.custom_admin_box_heading || '',
-      release_notes: dynamicApp.release_notes || '',
-      yellow_box_msg: dynamicApp.yellow_box_msg || '',
-      red_box_msg: dynamicApp.red_box_msg || '',
-      idea_box_msg: dynamicApp.idea_box_msg || '',
-      file_size: dynamicApp.file_size || '45 MB',
-      version: dynamicApp.version || '1.0.0',
-      developer: dynamicApp.developer || 'Developer',
-      safety_status: dynamicApp.safety_status || 'Verified',
+      ...merged,
+      description_html: merged.description_html || '',
+      features_html: merged.features_html || '',
+      screenshots: Array.isArray(merged.screenshots) ? merged.screenshots : [],
+      faqs: Array.isArray(merged.faqs) ? merged.faqs : [],
+      custom_admin_box_html: merged.custom_admin_box_html || '',
+      custom_admin_box_heading: merged.custom_admin_box_heading || '',
+      release_notes: merged.release_notes || '',
+      yellow_box_msg: merged.yellow_box_msg || '',
+      red_box_msg: merged.red_box_msg || '',
+      idea_box_msg: merged.idea_box_msg || '',
+      file_size: merged.file_size || '45 MB',
+      version: merged.version || '1.0.0',
+      developer: merged.developer || 'Developer',
+      safety_status: merged.safety_status || 'Verified',
     };
   }, [slug, mockApps, fetchedApp]);
   
@@ -168,7 +205,7 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const resolved = fetchedApp || resolveAppSlug(slugKey, mockApps);
+    const resolved = fetchedApp || resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
     // Only trigger background fetch if we truly have zero description_html
@@ -564,24 +601,15 @@ export default function AppDetails() {
 
       {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
-        <Suspense fallback={
-          <div className="py-8 border-t border-black/5 dark:border-white/5">
-            <div className="animate-pulse space-y-4">
-              <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-md"></div>
-              <div className="h-24 w-full bg-zinc-100 dark:bg-zinc-800/60 rounded-xl"></div>
-            </div>
-          </div>
-        }>
-          <UserReviews 
-            key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
-            appId={app.id} 
-            appTitle={app.name} 
-            appSlug={app.slug}
-            category={app.category}
-            overallRating={realRatingVal} 
-            totalReviewCount={realReviewCount} 
-          />
-        </Suspense>
+        <UserReviews 
+          key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
+          appId={app.id} 
+          appTitle={app.name} 
+          appSlug={app.slug}
+          category={app.category}
+          overallRating={realRatingVal} 
+          totalReviewCount={realReviewCount} 
+        />
       </div>
       
       {/* Modular FAQ Section */}

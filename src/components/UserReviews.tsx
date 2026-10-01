@@ -29,24 +29,9 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Lazy load reviews when scrolled into view (saves critical path bandwidth on initial paint)
-  const [inView, setInView] = useState(false);
+  // Instant immediate render with SWR cache baseline (0ms latency, zero layout shift)
+  const [inView, setInView] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || typeof IntersectionObserver === 'undefined') {
-      setInView(true);
-      return;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setInView(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: '300px' });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [appId, appSlug]);
 
   const {
     reviews,
@@ -204,19 +189,7 @@ export default function UserReviews({
               </div>
             )}
 
-            {!inView && !loading && reviews.length === 0 ? (
-              <div className="text-center py-8 border border-dashed border-black/5 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 bg-zinc-50/50 dark:bg-zinc-900/20">
-                <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">Player feedback & ratings</p>
-                <button
-                  type="button"
-                  onClick={() => setInView(true)}
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-2"
-                >
-                  <Star className="w-3.5 h-3.5 fill-current" />
-                  Load Community Reviews
-                </button>
-              </div>
-            ) : loading ? (
+            {loading ? (
               <div className="space-y-3.5 animate-pulse">
                 {Array.from({ length: 3 }).map((_, idx) => (
                   <div key={`review-skeleton-${idx}`} className="p-5 border rounded-2xl flex gap-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-black/5 dark:border-white/10 text-left">

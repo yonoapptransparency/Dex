@@ -55,8 +55,12 @@ export function ReviewItem({
   onHelpfulVote,
   onReport,
 }: ReviewItemProps) {
-  const commentText = rev.comment || (rev as any).reviewText || '';
-  const username = rev.username || (rev as any).userName || 'Player';
+  const commentText = (rev.comment && rev.comment.trim()) 
+    ? rev.comment.trim() 
+    : ((rev as any).reviewText && (rev as any).reviewText.trim() ? (rev as any).reviewText.trim() : '');
+  const username = (rev.username && rev.username.trim() && rev.username.toLowerCase() !== 'player') 
+    ? rev.username.trim() 
+    : ((rev as any).userName && (rev as any).userName.trim() ? (rev as any).userName.trim() : (rev.username || 'Player'));
   const isLong = commentText.length > 150;
   const displayedComment = isLong && !isExpanded 
     ? `${commentText.substring(0, 150)}...` 
