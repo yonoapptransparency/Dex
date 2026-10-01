@@ -7,27 +7,44 @@ interface ReviewScoreSummaryProps {
   appSlug?: string;
   overallRating?: number;
   totalReviewCount?: number | string;
+  stats?: any;
+  displayedReviewsCount?: number;
 }
 
-export function ReviewScoreSummary({ appId, appSlug, overallRating = 4.8, totalReviewCount }: ReviewScoreSummaryProps) {
+export function ReviewScoreSummary({ 
+  appId, 
+  appSlug, 
+  overallRating = 4.8, 
+  totalReviewCount,
+  stats: parentStats,
+  displayedReviewsCount = 0
+}: ReviewScoreSummaryProps) {
   const cleanId = String(appId || '').trim();
   const cleanSlug = String(appSlug || '').trim();
 
   // Unified single source of truth hook (shared with AppDetails & SEO schema)
-  const stats = useLiveAppStats(cleanId, cleanSlug, overallRating, Number(totalReviewCount) || 0);
+  const hookStats = useLiveAppStats(cleanId, cleanSlug, overallRating, Number(totalReviewCount) || 0);
 
-  const hasRealReviews = Boolean(stats && Number(stats.totalReviews) > 0);
-  const ratingVal = hasRealReviews ? Number(stats.averageRating) : 0;
+  // Prefer live parent stats if available and has valid reviews
+  const activeStats = (parentStats && Number(parentStats.totalReviews) > 0) ? parentStats : hookStats;
+
+  const rawCount = Number(activeStats?.totalReviews) || 0;
+  // Crucial reconciliation: Never show a smaller count than reviews actually displayed in feed!
+  const totalCount = Math.max(rawCount, displayedReviewsCount);
+  const hasRealReviews = totalCount > 0;
+
+  const ratingVal = hasRealReviews 
+    ? (Number(activeStats?.averageRating) || overallRating)
+    : 0;
   const averageValue = hasRealReviews ? ratingVal.toFixed(1) : '--';
-  const totalCount = hasRealReviews ? Number(stats.totalReviews) : 0;
 
   // Real star distribution from actual community reviews
   const starCounts: Record<string, number> = React.useMemo(() => {
-    if (hasRealReviews && stats?.starCounts) {
-      return stats.starCounts;
+    if (hasRealReviews && activeStats?.starCounts) {
+      return activeStats.starCounts;
     }
     return { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
-  }, [hasRealReviews, stats]);
+  }, [hasRealReviews, activeStats]);
 
   const getPercentage = (starNum: number) => {
     if (!hasRealReviews || totalCount <= 0) return '0%';

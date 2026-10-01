@@ -330,7 +330,8 @@ export default function AppDetails() {
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "INR"
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock"
     },
     ...(hasLiveReviews && realReviewCount > 0 ? {
       "aggregateRating": {
@@ -341,7 +342,16 @@ export default function AppDetails() {
         "bestRating": 5,
         "worstRating": 1
       }
-    } : {})
+    } : (app.rating && Number(app.rating) > 0 ? {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": parseFloat(Number(app.rating).toFixed(1)),
+        "ratingCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
+        "reviewCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
+        "bestRating": 5,
+        "worstRating": 1
+      }
+    } : {}))
   };
 
   const breadcrumbSchema = {

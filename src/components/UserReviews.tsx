@@ -108,6 +108,8 @@ export default function UserReviews({
               appSlug={appSlug} 
               overallRating={overallRating} 
               totalReviewCount={totalReviewCount} 
+              stats={stats}
+              displayedReviewsCount={displayedReviews.length}
             />
           </div>
 
