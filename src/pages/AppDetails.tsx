@@ -343,9 +343,9 @@ export default function AppDetails() {
         <AppScreenshots app={app} />
 
         <AppAboutSection app={app} isFetching={isFetchingDetails && !app.description_html} />
-      </div>
 
-      <AppSafetyBoxes app={app} />
+        <AppSafetyBoxes app={app} />
+      </div>
 
       <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
         <UserReviews 
