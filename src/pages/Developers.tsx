@@ -80,7 +80,7 @@ export default function Developers() {
                     <a 
                       href={dev.github} 
                       target="_blank" 
-                      rel="noopener noreferrer dofollow" 
+                      rel="noopener noreferrer" 
                       className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white"
                       title="GitHub"
                       aria-label={`${dev.name || 'Developer'} GitHub Profile`}
@@ -92,7 +92,7 @@ export default function Developers() {
                     <a 
                       href={dev.twitter} 
                       target="_blank" 
-                      rel="noopener noreferrer dofollow" 
+                      rel="noopener noreferrer" 
                       className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-blue-400"
                       title="Twitter"
                       aria-label={`${dev.name || 'Developer'} Twitter Profile`}

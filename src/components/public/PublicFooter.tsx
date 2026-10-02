@@ -80,19 +80,19 @@ export function PublicFooter() {
 
           <div className="flex items-center gap-2 xs:gap-3 flex-wrap justify-center">
             {settings?.social_links?.facebook && (
-              <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Facebook className="w-3.5 h-3.5" /></a>
+              <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Facebook className="w-3.5 h-3.5" /></a>
             )}
             {settings?.social_links?.instagram && (
-              <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Instagram className="w-3.5 h-3.5" /></a>
+              <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Instagram className="w-3.5 h-3.5" /></a>
             )}
             {settings?.social_links?.twitter && (
-              <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Twitter className="w-3.5 h-3.5" /></a>
+              <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Twitter className="w-3.5 h-3.5" /></a>
             )}
             {settings?.social_links?.linkedin && (
-              <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-700 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Linkedin className="w-3.5 h-3.5" /></a>
+              <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-700 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Linkedin className="w-3.5 h-3.5" /></a>
             )}
             {settings?.social_links?.youtube && (
-              <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer dofollow" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Youtube className="w-3.5 h-3.5" /></a>
+              <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Youtube className="w-3.5 h-3.5" /></a>
             )}
           </div>
 

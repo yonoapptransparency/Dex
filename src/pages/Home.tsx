@@ -9,6 +9,7 @@ import { Link, useSearchParams, useLocation, useNavigate, useNavigationType, use
 import { useData } from '../contexts/DataContextPublic';
 import { Search, BadgeCheck, ShieldAlert, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Star, SlidersHorizontal, ChevronDown, ListFilter, Github, Twitter } from 'lucide-react';
 import { cn } from '../lib/utilsPublic';
+import { cleanFaqQuestion } from '../lib/seoUtils';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
@@ -306,7 +307,7 @@ export default function Home() {
           "@type": "FAQPage",
           "mainEntity": mockSettings.website_faqs.map(faq => ({
             "@type": "Question",
-            "name": faq.question,
+            "name": cleanFaqQuestion(faq.question),
             "acceptedAnswer": {
               "@type": "Answer",
               "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer

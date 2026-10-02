@@ -1,5 +1,6 @@
 import { HelpCircle } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
+import { cleanFaqQuestion } from '../../lib/seoUtils';
 
 interface WebsiteFaq {
   question: string;
@@ -37,7 +38,7 @@ export default function HomeFaqSection({ faqs, searchTerm }: HomeFaqSectionProps
             <article key={`faq-home-${index}`} className="flex flex-col items-start">
               <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2 flex items-start gap-2.5">
                 <span className="text-blue-600 dark:text-blue-400 shrink-0 select-none">Q.</span>
-                <span>{faq.question}</span>
+                <span>{cleanFaqQuestion(faq.question)}</span>
               </h3>
               <div className="text-sm sm:text-base text-zinc-700 dark:text-zinc-300 leading-relaxed pl-6 sm:pl-7 w-full">
                 <div 

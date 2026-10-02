@@ -9,6 +9,7 @@ import { ArrowRight, ArrowLeft, ShieldAlert, Check, Newspaper } from 'lucide-rea
 import { cn } from '../lib/utilsPublic';
 import { useEffect, useMemo, useState, useRef, Suspense } from 'react';
 import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
+import { cleanFaqQuestion } from '../lib/seoUtils';
 import Meta from '../components/Meta';
 import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { useLiveAppStats } from '../hooks/useReviews';
@@ -316,7 +317,7 @@ export default function AppDetails() {
     const seen = new Set<string>();
     const validFaqs = app.faqs
       .filter(faq => {
-        const q = String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim();
+        const q = cleanFaqQuestion(String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim());
         const a = String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').trim();
         if (!q || !a || q.length < 5 || seen.has(q.toLowerCase())) return false;
         seen.add(q.toLowerCase());
@@ -324,7 +325,7 @@ export default function AppDetails() {
       })
       .map(faq => ({
         "@type": "Question",
-        "name": String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim(),
+        "name": cleanFaqQuestion(String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim()),
         "acceptedAnswer": {
           "@type": "Answer",
           "text": String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
@@ -400,23 +401,41 @@ export default function AppDetails() {
     } : {}))
   };
 
+  const breadcrumbElements: any[] = [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.rummydex.com"
+    }
+  ];
+
+  if (specificCategory && specificCategory.toLowerCase() !== 'all apps' && specificCategory.toLowerCase() !== 'all') {
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": specificCategory,
+      "item": `https://www.rummydex.com/category/${encodeURIComponent(specificCategory.toLowerCase().replace(/\s+/g, '-'))}`
+    });
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": 3,
+      "name": app.name,
+      "item": `https://www.rummydex.com/app/${app.slug}`
+    });
+  } else {
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": app.name,
+      "item": `https://www.rummydex.com/app/${app.slug}`
+    });
+  }
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://www.rummydex.com"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": app.name,
-        "item": `https://www.rummydex.com/app/${app.slug}`
-      }
-    ]
+    "itemListElement": breadcrumbElements
   };
 
   const copyToClipboard = () => {

@@ -107,7 +107,7 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
                   key={`banner-ext-${item.id || i}`}
                   href={item.link} 
                   target="_blank" 
-                  rel="noopener noreferrer dofollow" 
+                  rel="noopener noreferrer" 
                   className="h-full block flex-shrink-0"
                   style={slideStyle}
                   draggable={false}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 import { safeHtml } from '../../lib/safeHtmlPublic';
+import { cleanFaqQuestion } from '../../lib/seoUtils';
 
 interface Faq {
   question: string;
@@ -51,7 +52,7 @@ export default function AppFaqSection({ faqs }: AppFaqSectionProps) {
               <summary className="list-none [&::-webkit-details-marker]:hidden w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 select-none">
                 <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-start gap-3">
                   <span className="text-blue-600 dark:text-blue-400 font-extrabold shrink-0 select-none">Q.</span>
-                  <span className="leading-snug">{faq.question}</span>
+                  <span className="leading-snug">{cleanFaqQuestion(faq.question)}</span>
                 </h3>
                 <div className="p-1 rounded-lg transition-transform duration-200 shrink-0 text-zinc-400 dark:text-zinc-500 group-open:rotate-180 group-open:text-blue-600 group-open:dark:text-blue-400 group-open:bg-blue-50 group-open:dark:bg-blue-900/30">
                   <ChevronDown className="w-5 h-5" />

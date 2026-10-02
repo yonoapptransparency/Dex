@@ -89,11 +89,11 @@ export function ReviewScoreSummary({
           ))}
         </div>
       </div>
-      {/* Verification Guard info badge */}
+      {/* Moderation & Transparency Badge */}
       <div className="mt-4 p-3 bg-green-500/5 border border-green-500/10 rounded-xl flex items-start gap-2.5">
         <ShieldCheck className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
         <span className="text-[11px] font-semibold text-green-700 dark:text-green-400 leading-relaxed">
-          Ratings and reviews are fully verified. All strategies and gameplay logs are processed by authorized community members only.
+          Ratings and reviews are contributed by players and moderated for safety and constructive gameplay feedback.
         </span>
       </div>
     </div>
