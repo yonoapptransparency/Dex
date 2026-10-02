@@ -62,11 +62,7 @@ export default function Home() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && typeof parsed.scrollY === 'number' && parsed.scrollY > 0) {
-            requestAnimationFrame(() => {
-              setTimeout(() => {
-                window.scrollTo({ top: parsed.scrollY, behavior: 'instant' });
-              }, 50);
-            });
+            window.scrollTo({ top: parsed.scrollY, behavior: 'instant' });
             return;
           }
         }

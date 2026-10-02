@@ -179,7 +179,7 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    const resolved = fetchedApp || resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
+    const resolved = fetchedApp || (app && app.description_html ? app : null) || resolveAppSlug(slugKey, staticMockApps) || resolveAppSlug(slugKey, mockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
     if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
