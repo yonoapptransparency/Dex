@@ -4,7 +4,7 @@
  * snug top navigation, spacious search bar, and 1-tap direct article navigation.
  */
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, ArrowLeft, Check, X } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -20,6 +20,12 @@ export default function NewsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const contentTopRef = useRef<HTMLDivElement>(null);
   const [copyToast, setCopyToast] = useState(false);
+
+  // Instantly prefetch the NewsDetailPage chunk into memory
+  // so any news card click opens instantaneously with 0ms latency
+  useEffect(() => {
+    import('./NewsDetailPage').catch(() => {});
+  }, []);
 
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;

@@ -84,14 +84,14 @@ export const NewsArticleHeader: React.FC<NewsArticleHeaderProps> = ({
       </header>
 
       {logoUrl && (
-        <div className="w-full overflow-hidden mb-5 sm:mb-6 rounded-2xl sm:rounded-3xl border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 shadow-sm">
+        <div className="w-full overflow-hidden mb-5 sm:mb-6 rounded-2xl bg-transparent">
           <img 
             src={getOptimizedImageUrl(logoUrl, 1200) || logoUrl} 
             alt={title}
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className="w-full h-auto block max-h-[450px] sm:max-h-[550px] object-cover"
+            className="w-full h-auto block rounded-2xl"
           />
         </div>
       )}

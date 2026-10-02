@@ -42,13 +42,13 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | null>(null);
 
 // Polished, high-performance DataProvider with multi-tier caching (Memory -> window.__INITIAL_DATA__ -> localStorage -> instant background sync)
-const DATA_CACHE_KEY = 'yd_public_data_cache_v3';
+const DATA_CACHE_KEY = 'yd_public_data_cache_v4';
 
 const getInitialCache = () => {
   try {
     if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
       const initData = (window as any).__INITIAL_DATA__;
-      if (initData && Array.isArray(initData.apps) && initData.apps.length > 0) {
+      if (initData && ((Array.isArray(initData.apps) && initData.apps.length > 0) || (Array.isArray(initData.news) && initData.news.length > 0))) {
         return initData;
       }
     }
@@ -61,6 +61,12 @@ const getInitialCache = () => {
           const sample = parsed.data.apps[0];
           const staticSample = mockApps[0];
           if (!sample?.description_html && staticSample?.description_html) {
+            localStorage.removeItem(DATA_CACHE_KEY);
+            return null;
+          }
+          const sampleNews = parsed.data.news?.[0];
+          const staticNewsSample = mockNews[0];
+          if (staticNewsSample?.content && !sampleNews?.content) {
             localStorage.removeItem(DATA_CACHE_KEY);
             return null;
           }
@@ -97,7 +103,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const [news, setNews] = useState<NewsItem[]>(() => {
     if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) {
-      return initialCache.news;
+      const hasContent = initialCache.news.some((n: any) => (n.content || n.description_html || '').length > 50);
+      if (hasContent) return initialCache.news;
     }
     return mockNews;
   });

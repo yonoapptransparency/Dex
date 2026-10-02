@@ -6,8 +6,6 @@ import { mockNews as staticMockNews } from '../lib/staticData';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
-import { NewsArticleAuthorBox } from '../components/public/newsDetails/NewsArticleAuthorBox';
-import { NewsCommentsSection, Comment } from '../components/public/newsDetails/NewsCommentsSection';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
 import { formatNewsDate, calculateReadingTime } from '../components/public/news/newsUtils';
 
@@ -39,7 +37,6 @@ export default function NewsDetailPage() {
 
   const newsItem = fetchedNewsItem || contextNewsItem;
 
-  const [commentText, setCommentText] = useState('');
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
@@ -152,40 +149,6 @@ export default function NewsDetailPage() {
     }
   };
 
-  const getInitialComments = (): Comment[] => {
-    const saved = localStorage.getItem(`comments_${slug}`);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
-    return [
-      {
-        id: '1',
-        author: 'Community Member',
-        content: 'Thanks for publishing this report. Very clear and informative!',
-        date: new Date(Date.now() - 86400000).toLocaleDateString()
-      }
-    ];
-  };
-
-  const [comments, setComments] = useState<Comment[]>(getInitialComments);
-
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-
-    const newComment: Comment = {
-      id: Math.random().toString(36).substr(2, 9),
-      author: 'Verified Reader',
-      content: commentText.trim(),
-      date: new Date().toLocaleDateString()
-    };
-
-    const newCommentsList = [newComment, ...comments];
-    setComments(newCommentsList);
-    localStorage.setItem(`comments_${slug}`, JSON.stringify(newCommentsList));
-    setCommentText('');
-  };
-
   if (loading && !newsItem && mockNews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
@@ -286,11 +249,12 @@ export default function NewsDetailPage() {
         onShare={handleShare}
       />
 
-      <NewsArticleAuthorBox 
-        author={newsItem.ceo_name || 'RummyDex Editorial Team'}
-        authorRole="Senior Card Gaming & Industry Analyst"
-        formattedDate={formatNewsDate(newsItem.date, newsItem.published_at)}
-        siteTitle={mockSettings?.site_title || 'RummyDex'}
+      {/* 1. App View/Download Action Box (Directly below banner image) */}
+      <NewsRelatedAppBox 
+        downloadTarget={downloadTarget}
+        relatedApp={relatedApp}
+        newsItem={newsItem}
+        className="my-5 sm:my-6"
       />
 
       <div 
@@ -298,17 +262,12 @@ export default function NewsDetailPage() {
         dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
       />
 
+      {/* 2. App View/Download Action Box (Directly after the full HTML body) */}
       <NewsRelatedAppBox 
         downloadTarget={downloadTarget}
         relatedApp={relatedApp}
         newsItem={newsItem}
-      />
-
-      <NewsCommentsSection 
-        comments={comments}
-        commentText={commentText}
-        onCommentTextChange={setCommentText}
-        onAddComment={handleAddComment}
+        className="my-8"
       />
     </article>
   );
