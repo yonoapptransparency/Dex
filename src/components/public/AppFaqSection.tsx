@@ -25,7 +25,7 @@ export default function AppFaqSection({ faqs }: AppFaqSectionProps) {
   if (validFaqs.length === 0) return null;
 
   return (
-    <section aria-labelledby="faq-heading" className="mb-20 px-1 sm:px-4 md:px-6">
+    <section aria-labelledby="faq-heading" className="mb-8 sm:mb-12 px-1 sm:px-4 md:px-6">
       <div className="py-8 border-t border-black/5 dark:border-white/5">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

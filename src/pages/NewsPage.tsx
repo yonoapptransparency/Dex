@@ -4,7 +4,7 @@
  * snug top navigation, spacious search bar, and 1-tap direct article navigation.
  */
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Search, ArrowLeft, Check, X } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -119,7 +119,7 @@ export default function NewsPage() {
     setSearchParams(new URLSearchParams());
   };
 
-  const handleShare = (item: any) => {
+  const handleShare = useCallback((item: any) => {
     const url = `${window.location.origin}/news/${item.slug || item.id}`;
     if (navigator.share) {
       navigator.share({
@@ -133,7 +133,7 @@ export default function NewsPage() {
         setTimeout(() => setCopyToast(false), 2000);
       }).catch(() => {});
     }
-  };
+  }, []);
 
   const paginationRange = useMemo(() => {
     const delta = 1;
