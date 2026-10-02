@@ -3,15 +3,11 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { ArrowRight, ArrowLeft, ShieldAlert, Check, Newspaper } from 'lucide-react';
-import { cn } from '../lib/utilsPublic';
-import { useEffect, useMemo, useState, useRef, Suspense } from 'react';
-import { getOptimizedImageUrl, normalizeSchemaCategory } from "../seo/utils";
-import { cleanFaqQuestion } from '../lib/seoUtils';
+import { Check } from 'lucide-react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
-import { lazyWithRetry } from '../lib/lazyWithRetry';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
@@ -26,11 +22,15 @@ import AppFaqSection from '../components/public/AppFaqSection';
 import AppSpecsBar from '../components/public/AppSpecsBar';
 import AppSafetyBoxes from '../components/public/AppSafetyBoxes';
 import UserReviews from '../components/UserReviews';
+import { AppDetailsNavigation } from '../components/public/appDetails/AppDetailsNavigation';
+import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
+import AppNotFound from '../components/public/appDetails/AppNotFound';
+import { buildFaqSchema, buildSoftwareSchema, buildBreadcrumbSchema } from '../components/public/appDetails/appDetailsSchemas';
 
 export { AppDetailsSkeleton };
 
 export default function AppDetails() {
-  const { apps: mockApps, news: mockNews, settings: mockSettings, loading, appsSyncedWithServer, serverAppsFetched, refreshAll, updateAppDetail } = useData();
+  const { apps: mockApps, news: mockNews, settings: mockSettings, loading, refreshAll, updateAppDetail } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
@@ -43,44 +43,24 @@ export default function AppDetails() {
   const app = useMemo(() => {
     if (!slug) return null;
     
-    // 1. Check fetched app (from on-demand API or admin update)
     let dynamicApp = fetchedApp;
-
-    // 2. Check context apps (from DataProvider)
     if (!dynamicApp && Array.isArray(mockApps)) {
       dynamicApp = resolveAppSlug(slug, mockApps);
     }
-
-    // 3. Fallback to bundled static apps (staticMockApps)
     const staticApp = Array.isArray(staticMockApps) ? resolveAppSlug(slug, staticMockApps) : null;
 
     if (!dynamicApp && !staticApp) return null;
 
-    // Merge dynamicApp on top of staticApp so we NEVER lose description_html, features_html, screenshots, etc.!
-    const merged = {
-      ...(staticApp || {}),
-      ...(dynamicApp || {}),
-    };
+    const merged = { ...(staticApp || {}), ...(dynamicApp || {}) };
 
-    // If dynamicApp was pruned (description_html is missing/empty), retain staticApp's full rich HTML & details!
-    if (!merged.description_html && staticApp?.description_html) {
-      merged.description_html = staticApp.description_html;
-    }
-    if (!merged.features_html && staticApp?.features_html) {
-      merged.features_html = staticApp.features_html;
-    }
+    if (!merged.description_html && staticApp?.description_html) merged.description_html = staticApp.description_html;
+    if (!merged.features_html && staticApp?.features_html) merged.features_html = staticApp.features_html;
     if ((!merged.screenshots || merged.screenshots.length === 0) && staticApp?.screenshots && staticApp.screenshots.length > 0) {
       merged.screenshots = staticApp.screenshots;
     }
-    if ((!merged.faqs || merged.faqs.length === 0) && staticApp?.faqs && staticApp.faqs.length > 0) {
-      merged.faqs = staticApp.faqs;
-    }
-    if (!merged.custom_admin_box_html && staticApp?.custom_admin_box_html) {
-      merged.custom_admin_box_html = staticApp.custom_admin_box_html;
-    }
-    if (!merged.release_notes && staticApp?.release_notes) {
-      merged.release_notes = staticApp.release_notes;
-    }
+    if ((!merged.faqs || merged.faqs.length === 0) && staticApp?.faqs && staticApp.faqs.length > 0) merged.faqs = staticApp.faqs;
+    if (!merged.custom_admin_box_html && staticApp?.custom_admin_box_html) merged.custom_admin_box_html = staticApp.custom_admin_box_html;
+    if (!merged.release_notes && staticApp?.release_notes) merged.release_notes = staticApp.release_notes;
 
     return {
       ...merged,
@@ -101,20 +81,18 @@ export default function AppDetails() {
     };
   }, [slug, mockApps, fetchedApp]);
   
-  const navigate = useNavigate();
   const [triedRefresh, setTriedRefresh] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
-  const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
+  const [reviewsRefreshKey] = useState(0);
   const liveStats = useLiveAppStats(app?.id || '', app?.slug || '');
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [shareToast, setShareToast] = useState(false);
 
-  // Helper to extract clean specific category for this app (e.g., 'Card Apps', 'Yono Apps', 'Funny games')
   const specificCategory = useMemo(() => {
     if (!app?.category) return 'All Apps';
-    const parts = app.category.split(',').map(c => c.trim()).filter(Boolean);
-    const nonGeneric = parts.filter(c => {
+    const parts = app.category.split(',').map((c: string) => c.trim()).filter(Boolean);
+    const nonGeneric = parts.filter((c: string) => {
       const lower = c.toLowerCase();
       return lower !== 'all apps' && lower !== 'all' && lower !== 'apps' && lower !== 'general';
     });
@@ -124,8 +102,8 @@ export default function AppDetails() {
   const relatedApps = useMemo(() => {
     if (!app || !Array.isArray(mockApps) || mockApps.length === 0) return [];
     const sourceApps = mockApps;
-    const currentCats = (app.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
-    const specificCats = currentCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+    const currentCats = (app.category || '').toLowerCase().split(',').map((c: string) => c.trim()).filter(Boolean);
+    const specificCats = currentCats.filter((c: string) => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
     
     const exactMatches: typeof sourceApps = [];
     const tokenMatches: typeof sourceApps = [];
@@ -138,19 +116,19 @@ export default function AppDetails() {
       const a = sourceApps[i];
       if (String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug)) continue;
       
-      const appCats = (a.category || '').toLowerCase().split(',').map(c => c.trim()).filter(Boolean);
-      const appSpecificCats = appCats.filter(c => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+      const appCats = (a.category || '').toLowerCase().split(',').map((c: string) => c.trim()).filter(Boolean);
+      const appSpecificCats = appCats.filter((c: string) => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
 
-      if (specificCats.some(sc => appSpecificCats.includes(sc))) {
+      if (specificCats.some((sc: string) => appSpecificCats.includes(sc))) {
         exactMatches.push(a);
         if (exactMatches.length >= 12) break;
         continue;
       }
 
       if (tokenMatches.length < 8) {
-        const hasTokenMatch = specificCats.some(sc => {
+        const hasTokenMatch = specificCats.some((sc: string) => {
           const tokens = sc.split(/\s+/);
-          return appSpecificCats.some(asc => tokens.some(t => t.length > 2 && asc.includes(t)));
+          return appSpecificCats.some((asc: string) => tokens.some((t: string) => t.length > 2 && asc.includes(t)));
         });
         if (hasTokenMatch) {
           tokenMatches.push(a);
@@ -165,10 +143,6 @@ export default function AppDetails() {
 
     const combined = [...exactMatches, ...tokenMatches];
     const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
-    
-    // Crucial Performance Optimization: 
-    // Strip out the heavy description_html, features_html, and screenshots arrays 
-    // from recommended apps so they don't bloat the React tree on initial load.
     return finalApps.map(a => ({
       id: a.id,
       name: a.name,
@@ -201,7 +175,6 @@ export default function AppDetails() {
     setFetchedApp(null);
   }, [slug]);
 
-  // On-demand single-app fetch: Only fetches missing rich HTML in background if not already present in static cache
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
@@ -209,7 +182,6 @@ export default function AppDetails() {
     const resolved = fetchedApp || resolveAppSlug(slugKey, mockApps) || resolveAppSlug(slugKey, staticMockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
-    // Only trigger background fetch if we truly have zero description_html
     if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
       syncAttemptedRef.current[slugKey] = true;
       setIsFetchingDetails(true);
@@ -222,9 +194,7 @@ export default function AppDetails() {
         .then(data => {
           if (data?.status === 'OK' && data?.app) {
             setFetchedApp(data.app);
-            if (updateAppDetail) {
-              updateAppDetail(data.app);
-            }
+            if (updateAppDetail) updateAppDetail(data.app);
           } else if (refreshAll) {
             return refreshAll(true);
           }
@@ -244,52 +214,14 @@ export default function AppDetails() {
     }
   }, [slug, mockApps, fetchedApp, triedRefresh, refreshAll, updateAppDetail]);
 
-  // If app is not found in initial dataset or static data, show skeleton only while initial data is loading
-  if (!app && loading) {
-    return <AppDetailsSkeleton />;
-  }
+  if (!app && loading) return <AppDetailsSkeleton />;
+  if (!app) return <AppNotFound slug={slug || ''} />;
 
-  if (!app) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
-        <Meta 
-          title="404 - App Not Found | RummyDex" 
-          description="The requested application could not be located on RummyDex." 
-          noindex={true} 
-        />
-        <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
-          <ShieldAlert className="w-8 h-8" />
-        </div>
-        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">App Not Found</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-3 leading-relaxed mb-6">
-          The requested application "<span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">{slug}</span>" could not be located.
-          If you just created it, it might still be propagating. Try refreshing.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <button 
-            onClick={() => window.location.reload()}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-zinc-800 hover:bg-zinc-900 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-white rounded-[16px] font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
-          >
-            Refresh Data
-          </button>
-          <Link 
-            to="/" 
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[16px] font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
-          >
-            <ArrowLeft className="w-4 h-4" /> Go to Store
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const siteTitle = mockSettings?.site_title || 'RummyDex';
   const title = app.seo_title || app.meta_title || app.name;
   
   const stripHtml = (html: string) => {
     if (!html) return '';
-    const stripped = html.replace(/<[^>]*>?/gm, ' ');
-    return stripped.replace(/\s+/g, ' ').trim();
+    return html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
   };
 
   const cleanSeoDescription = (rawDesc: string) => {
@@ -297,13 +229,9 @@ export default function AppDetails() {
     const trimmed = rawDesc.trim();
     if (trimmed.startsWith('<') || trimmed.includes('<meta ')) {
       const metaMatch = trimmed.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
-      if (metaMatch && metaMatch[1]) {
-        return metaMatch[1].trim();
-      }
+      if (metaMatch && metaMatch[1]) return metaMatch[1].trim();
       const ogMatch = trimmed.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i);
-      if (ogMatch && ogMatch[1]) {
-        return ogMatch[1].trim();
-      }
+      if (ogMatch && ogMatch[1]) return ogMatch[1].trim();
       return stripHtml(trimmed);
     }
     return trimmed;
@@ -312,131 +240,20 @@ export default function AppDetails() {
   const desc = cleanSeoDescription(app.seo_description || app.meta_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} application specifications`);
   const ogImage = app.og_image_url || app.icon_url;
 
-  const faqSchema = useMemo(() => {
-    if (!app.faqs || !Array.isArray(app.faqs) || app.faqs.length === 0) return null;
-    const seen = new Set<string>();
-    const validFaqs = app.faqs
-      .filter(faq => {
-        const q = cleanFaqQuestion(String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim());
-        const a = String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').trim();
-        if (!q || !a || q.length < 5 || seen.has(q.toLowerCase())) return false;
-        seen.add(q.toLowerCase());
-        return true;
-      })
-      .map(faq => ({
-        "@type": "Question",
-        "name": cleanFaqQuestion(String(faq.question || '').replace(/<[^>]*>?/gm, ' ').trim()),
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": String(faq.answer || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
-        }
-      }));
-
-    if (validFaqs.length === 0) return null;
-    return {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": `https://www.rummydex.com/app/${app.slug}#faq`,
-      "url": `https://www.rummydex.com/app/${app.slug}`,
-      "mainEntity": validFaqs
-    };
-  }, [app.faqs]);
-
+  const faqSchema = buildFaqSchema(app);
   
-  const staticStats = useMemo(() => {
-    return getCachedLiveAppStats(app?.id, app?.slug) || getCachedLiveAppStats(slug, slug);
-  }, [app?.id, app?.slug, slug]);
-
+  const staticStats = getCachedLiveAppStats(app?.id, app?.slug) || getCachedLiveAppStats(slug, slug);
   const activeStats = (liveStats && Number(liveStats.totalReviews) > 0) ? liveStats : staticStats;
-
   const hasLiveReviews = Boolean(activeStats && Number(activeStats.totalReviews) > 0);
   const realRatingVal = hasLiveReviews
     ? Math.max(1.0, Math.min(5.0, parseFloat(String(activeStats.averageRating))))
     : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 4.5);
-
-  // Strictly real count of reviews present in atomic catalog / Firebase
   const realReviewCount = hasLiveReviews 
     ? Number(activeStats.totalReviews) 
     : (app.review_count || app.reviews ? parseInt(String(app.review_count || app.reviews), 10) : 0);
 
-  const softwareSchema: any = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": app.name,
-    "url": `https://www.rummydex.com/app/${app.slug}`,
-    "description": desc,
-    "applicationCategory": normalizeSchemaCategory(app.category),
-    "operatingSystem": "Android",
-    "softwareVersion": app.version || '1.0.0',
-    "fileSize": app.file_size || '45 MB',
-    "image": app.icon_url || app.og_image_url,
-    "author": {
-      "@type": "Organization",
-      "name": app.developer || 'RummyDex'
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock"
-    },
-    ...(hasLiveReviews && realReviewCount > 0 ? {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": parseFloat(realRatingVal.toFixed(1)),
-        "ratingCount": Math.round(realReviewCount),
-        "reviewCount": Math.round(realReviewCount),
-        "bestRating": 5,
-        "worstRating": 1
-      }
-    } : (app.rating && Number(app.rating) > 0 ? {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": parseFloat(Number(app.rating).toFixed(1)),
-        "ratingCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
-        "reviewCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
-        "bestRating": 5,
-        "worstRating": 1
-      }
-    } : {}))
-  };
-
-  const breadcrumbElements: any[] = [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://www.rummydex.com"
-    }
-  ];
-
-  if (specificCategory && specificCategory.toLowerCase() !== 'all apps' && specificCategory.toLowerCase() !== 'all') {
-    breadcrumbElements.push({
-      "@type": "ListItem",
-      "position": 2,
-      "name": specificCategory,
-      "item": `https://www.rummydex.com/category/${encodeURIComponent(specificCategory.toLowerCase().replace(/\s+/g, '-'))}`
-    });
-    breadcrumbElements.push({
-      "@type": "ListItem",
-      "position": 3,
-      "name": app.name,
-      "item": `https://www.rummydex.com/app/${app.slug}`
-    });
-  } else {
-    breadcrumbElements.push({
-      "@type": "ListItem",
-      "position": 2,
-      "name": app.name,
-      "item": `https://www.rummydex.com/app/${app.slug}`
-    });
-  }
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": breadcrumbElements
-  };
+  const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
+  const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -444,9 +261,7 @@ export default function AppDetails() {
         setShareToast(true);
         setTimeout(() => setShareToast(false), 2050);
       })
-      .catch((err) => {
-        console.error('Failed to copy text: ', err);
-      });
+      .catch((err) => console.error('Failed to copy text: ', err));
   };
 
   const handleShare = async () => {
@@ -455,23 +270,15 @@ export default function AppDetails() {
     const shareText = desc;
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
+        await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          console.error('Error sharing:', err);
-          copyToClipboard();
-        }
+        if ((err as Error).name !== 'AbortError') copyToClipboard();
       }
     } else {
       copyToClipboard();
     }
   };
 
-  // Check if there are related news articles for this app
   const relatedNewsCount = useMemo(() => {
     if (!mockNews || !Array.isArray(mockNews)) return 0;
     const nameLower = (app?.name || '').toLowerCase().trim();
@@ -489,7 +296,7 @@ export default function AppDetails() {
   }, [mockNews, app?.name, app?.id]);
 
   return (
-    <div className="animate-fade-in w-full select-none">
+    <div className="animate-fade-in w-full">
       {shareToast && (
         <div
           role="status"
@@ -500,35 +307,9 @@ export default function AppDetails() {
           <span className="text-sm font-semibold tracking-wide">Link copied to clipboard!</span>
         </div>
       )}
-      <div className="flex items-center justify-between gap-2 xs:gap-3 px-1 xs:px-2 sm:px-4 md:px-6 mb-3 xs:mb-4">
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-1.5 xs:gap-2 text-xs xs:text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors group shrink-0"
-        >
-          <div className="p-1 xs:p-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:-translate-x-1 transition-transform">
-            <ArrowLeft className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
-          </div>
-          <span>Back to storefront</span>
-        </Link>
+      
+      <AppDetailsNavigation appName={app.name} relatedNewsCount={relatedNewsCount} />
 
-        {/* Lightweight Related News Gateway Button */}
-        <Link
-          to={`/news?q=${encodeURIComponent(app.name)}`}
-          className="inline-flex items-center gap-1 xs:gap-1.5 px-2 xs:px-3 py-1 xs:py-1.5 rounded-full text-[11px] xs:text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200/90 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 transition-all shadow-xs group cursor-pointer active:scale-95 shrink-0"
-          title={`Read latest news and updates for ${app.name}`}
-        >
-          <div className="p-0.5 xs:p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-            <Newspaper className="w-3 h-3 xs:w-3.5 xs:h-3.5" />
-          </div>
-          <span>News</span>
-          {relatedNewsCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[9px] xs:text-[10px] font-bold leading-none">
-              {relatedNewsCount}
-            </span>
-          )}
-          <ArrowRight className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      </div>
       <Meta 
         title={title}
         description={desc}
@@ -540,8 +321,6 @@ export default function AppDetails() {
         breadcrumbSchema={breadcrumbSchema}
       />
       <div className="w-full">
-        
-        {/* Modular Header */}
         <AppHeader app={app} />
 
         <AppSpecsBar 
@@ -552,7 +331,6 @@ export default function AppDetails() {
           version={app.version} 
         />
 
-        {/* Modular Action Buttons */}
         <AppActionButtons 
           app={app} 
           isActuallyComingSoon={isActuallyComingSoon} 
@@ -560,65 +338,15 @@ export default function AppDetails() {
           handleShare={handleShare} 
         />
 
-        {/* Similar & Related Apps Section (Placed directly below action buttons) */}
-        {relatedApps.length > 0 && (
-          <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
-            <div className="flex items-center justify-between mb-2.5 xs:mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
-              <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold flex items-center gap-1.5 xs:gap-2 text-zinc-900 dark:text-zinc-100">
-                <span>Similar Applications</span>
-                {specificCategory && specificCategory !== 'All Apps' && (
-                  <span className="text-[10px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 xs:px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">
-                    {specificCategory}
-                  </span>
-                )}
-              </h2>
-              <Link 
-                to={`/?tab=${encodeURIComponent(specificCategory)}`}
-                className="text-[11px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors group shrink-0"
-                title={`Explore all ${specificCategory} apps`}
-              >
-                <span>View all ({relatedApps.length})</span>
-                <ArrowRight className="w-3 h-3 xs:w-3.5 xs:h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-            <div className="grid grid-rows-2 grid-flow-col gap-x-3 xxs:gap-x-4 xs:gap-x-6 gap-y-3 xxs:gap-y-4 xs:gap-y-6 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-2 xs:-mx-4 px-2 xs:px-4 sm:mx-0 sm:px-0">
-              {relatedApps.map((relatedApp, index) => (
-                <Link
-                  key={`${relatedApp.id}-${index}`}
-                  to={`/app/${relatedApp.slug}`}
-                  className="flex flex-col items-center justify-start gap-1 xxs:gap-1.5 xs:gap-2 w-[64px] xxs:w-[74px] xs:w-[88px] sm:w-[110px] snap-start group"
-                >
-                  <img
-                    src={getOptimizedImageUrl(relatedApp.icon_url, 200) || 'https://via.placeholder.com/200'}
-                    alt={relatedApp.name}
-                    width={100}
-                    height={100}
-                    decoding="async"
-                    className="w-[60px] h-[60px] xxs:w-[70px] xxs:h-[70px] xs:w-[84px] xs:h-[84px] sm:w-[100px] sm:h-[100px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover"
-                    loading="lazy"
-                    fetchPriority="low"
-                    referrerPolicy="no-referrer"
-                  />
-                  <span className="text-[9px] xxs:text-[10px] xs:text-[11px] sm:text-[13px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight">
-                    {relatedApp.name}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        <AppSimilarCarousel relatedApps={relatedApps} specificCategory={specificCategory} />
 
-        {/* Modular Screenshots Gallery (Placed after Similar Apps for best UX/SEO) */}
         <AppScreenshots app={app} />
 
-        {/* Industrial Application Overview & Technical Specifications */}
         <AppAboutSection app={app} isFetching={isFetchingDetails && !app.description_html} />
       </div>
 
-      {/* App Safety & Security Highlight Notices */}
       <AppSafetyBoxes app={app} />
 
-      {/* Verified Peer Ratings & Reviews Section */}
       <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
         <UserReviews 
           key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
@@ -631,9 +359,7 @@ export default function AppDetails() {
         />
       </div>
       
-      {/* Modular FAQ Section */}
       <AppFaqSection faqs={app.faqs} />
-
     </div>
   );
 }

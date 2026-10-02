@@ -1,52 +1,20 @@
-/**
- * NewsDetailPage overview view
- * Shows layout announcements, system patches logs, and live interactive user commentaries.
- * Lightweight, lightning-fast architecture with minimal top spacing, full-freedom edge-to-edge imagery,
- * and a simple, clean "Download & Info" button directly below the image (without heavy metadata/logos).
- */
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockNews as staticMockNews } from '../lib/staticData';
-import { ArrowLeft, MessageSquare, Send, ShieldAlert, Clock, Calendar, Share2, Check, Download } from 'lucide-react';
+import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
-import { getOptimizedImageUrl } from '../seo/utils';
-
-interface Comment {
-  id: string;
-  author: string;
-  content: string;
-  date: string;
-}
-
-// Helper: Calculate estimated reading time
-function calculateReadingTime(text: string): string {
-  if (!text) return '1 min read';
-  const words = text.replace(/<[^>]*>?/gm, ' ').trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 180));
-  return `${minutes} min read`;
-}
-
-// Helper: Format date safely
-function formatNewsDate(dateStr?: string, publishedAt?: string): string {
-  const d = dateStr || publishedAt;
-  if (!d) return 'Recent';
-  try {
-    const parsed = new Date(d);
-    if (!isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  } catch (e) {}
-  return 'Recent';
-}
+import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
+import { NewsArticleAuthorBox } from '../components/public/newsDetails/NewsArticleAuthorBox';
+import { NewsCommentsSection, Comment } from '../components/public/newsDetails/NewsCommentsSection';
+import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
+import { formatNewsDate, calculateReadingTime } from '../components/public/news/newsUtils';
 
 export default function NewsDetailPage() {
-  const { news: mockNews = [], apps = [], settings: mockSettings, loading, newsSyncedWithServer, serverNewsFetched, refreshAll, updateNewsDetail } = useData();
+  const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();
   const { slug } = useParams();
   
-  // Check if slug corresponds to an APP rather than news article (e.g. /news/maha-games -> redirect to /app/maha-games)
   const cleanSlug = useMemo(() => {
     if (!slug) return '';
     try {
@@ -73,20 +41,16 @@ export default function NewsDetailPage() {
 
   const [commentText, setCommentText] = useState('');
   const [copied, setCopied] = useState(false);
-  
-  const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    setTriedRefresh(false);
     setIsRefreshing(false);
     setCopied(false);
     setFetchedNewsItem(null);
   }, [slug]);
 
-  // Fast single-news fetch if news item is not found or has missing full body
   const hasFullBody = useMemo(() => {
     if (!newsItem) return false;
     const c = newsItem.content?.trim() || '';
@@ -96,10 +60,7 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     const slugKey = cleanSlug || '';
-    if (!slugKey || matchedApp) return;
-
-    // If news already has rich full body, no extra fetch needed
-    if (hasFullBody) return;
+    if (!slugKey || matchedApp || hasFullBody) return;
 
     if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
@@ -124,32 +85,23 @@ export default function NewsDetailPage() {
           if (!newsItem && refreshAll) refreshAll(true);
         })
         .finally(() => {
-          if (isMounted) {
-            setIsRefreshing(false);
-            setTriedRefresh(true);
-          }
+          if (isMounted) setIsRefreshing(false);
         });
 
-      return () => {
-        isMounted = false;
-      };
+      return () => { isMounted = false; };
     }
   }, [cleanSlug, matchedApp, hasFullBody, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
 
-  // If this was an app slug, seamlessly redirect to canonical /app/:slug with 0ms delay
   if (matchedApp && !newsItem) {
     return <Navigate to={`/app/${matchedApp.slug || matchedApp.id}`} replace />;
   }
 
-  // Match corresponding app from catalog to enable seamless 1-click Download redirection
   const relatedApp = useMemo(() => {
     if (!newsItem) return null;
-    // 1. Explicit related_app_id
     if (newsItem.related_app_id) {
       const found = apps.find(a => a.id === newsItem.related_app_id || a.slug === newsItem.related_app_id);
       if (found) return found;
     }
-    // 2. Link containing app slug or id
     if (newsItem.link) {
       const cleanLink = newsItem.link.trim();
       const appSlugFromLink = cleanLink.replace(/^.*\/app\//, '').replace(/\/$/, '').split(/[?#]/)[0];
@@ -158,7 +110,6 @@ export default function NewsDetailPage() {
         if (found) return found;
       }
     }
-    // 3. Match app by name keyword in news title or news slug
     const titleLower = (newsItem.title || '').toLowerCase();
     const slugLower = (newsItem.slug || '').toLowerCase();
     for (const app of apps) {
@@ -172,13 +123,9 @@ export default function NewsDetailPage() {
     return null;
   }, [newsItem, apps]);
 
-  // Determine the primary Download target URL (Redirects to app detail page or direct link)
   const downloadTarget = useMemo(() => {
     if (relatedApp) {
-      return {
-        url: `/app/${relatedApp.slug || relatedApp.id}`,
-        isInternal: true
-      };
+      return { url: `/app/${relatedApp.slug || relatedApp.id}`, isInternal: true };
     }
     if (newsItem?.link) {
       const isInternal = newsItem.link.startsWith('/') || newsItem.link.includes('/app/');
@@ -186,10 +133,7 @@ export default function NewsDetailPage() {
       if (isInternal && newsItem.link.includes('/app/')) {
         cleanUrl = '/app/' + newsItem.link.replace(/^.*\/app\//, '');
       }
-      return {
-        url: cleanUrl,
-        isInternal: isInternal
-      };
+      return { url: cleanUrl, isInternal };
     }
     return null;
   }, [relatedApp, newsItem]);
@@ -199,11 +143,7 @@ export default function NewsDetailPage() {
     const shareTitle = newsItem?.seo_title || newsItem?.title || 'News Article';
     const shareText = newsItem?.seo_description || newsItem?.description || '';
     if (navigator.share) {
-      navigator.share({
-        title: shareTitle,
-        text: shareText,
-        url: url
-      }).catch(() => {});
+      navigator.share({ title: shareTitle, text: shareText, url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(url).then(() => {
         setCopied(true);
@@ -255,7 +195,6 @@ export default function NewsDetailPage() {
     );
   }
 
-  // Brief non-blocking check only while actively refreshing
   if (!newsItem && isRefreshing) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
@@ -287,232 +226,90 @@ export default function NewsDetailPage() {
           to="/news" 
           className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[16px] font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
         >
-          <ArrowLeft className="w-4 h-4" /> View other news
+          <ArrowLeft className="w-4 h-4" /> Return to News Hub
         </Link>
       </div>
     );
   }
 
-  const readTime = newsItem.read_time || calculateReadingTime((newsItem.description || '') + ' ' + (newsItem.content || newsItem.description_html || ''));
-  const formattedDate = formatNewsDate(newsItem.date, newsItem.published_at);
-  const rawImage = newsItem.logo_url || newsItem.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e';
-  const articleImage = getOptimizedImageUrl(rawImage, 1200);
+  const articleTitle = newsItem.seo_title || newsItem.title || 'News Article';
+  const articleDesc = newsItem.seo_description || newsItem.description || '';
+  const articleImage = newsItem.og_image_url || newsItem.image || newsItem.image_url;
+  const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
 
-  const articleBodyHtml = useMemo(() => {
-    let raw = newsItem?.content || newsItem?.description_html;
-    if ((!raw || raw.trim().length < 20) && relatedApp) {
-      raw = relatedApp.description_html || relatedApp.features_html || newsItem?.description || '';
+  const newsArticleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": newsItem.title,
+    "description": articleDesc,
+    "image": articleImage ? [articleImage] : [],
+    "datePublished": newsItem.date || newsItem.published_at || newsItem.created_at,
+    "dateModified": newsItem.updated_at || newsItem.date || newsItem.published_at,
+    "author": {
+      "@type": "Person",
+      "name": newsItem.ceo_name || "RummyDex Editorial Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "RummyDex",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.rummydex.com/logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalUrl
     }
-    if (!raw || raw.trim().length === 0) {
-      raw = newsItem?.description ? `<p>${newsItem.description}</p>` : '';
-    }
-    return safeHtml(raw);
-  }, [newsItem, relatedApp]);
+  };
+
+  const bodyContent = newsItem.content || newsItem.description_html || newsItem.description || '';
 
   return (
-    <div className="animate-fade-in max-w-4xl mx-auto px-4 sm:px-6 md:px-8 plain-content mb-16 pt-0.5 sm:pt-1">
+    <article className="max-w-3xl mx-auto px-3 sm:px-0 pb-20">
       <Meta 
-        title={newsItem.seo_title || newsItem.meta_title || newsItem.title}
-        description={newsItem.seo_description || newsItem.meta_description || newsItem.description}
-        keywords={newsItem.seo_keywords}
-        image={newsItem.og_image_url || newsItem.logo_url || newsItem.image_url}
-        url={newsItem.canonical_url || window.location.origin + "/news/" + (newsItem.slug || newsItem.id)}
-        type="article"
-        publishedTime={newsItem.published_at || newsItem.date}
-        author={newsItem.author || mockSettings?.site_title || 'RummyDex'}
-        canonical={newsItem.canonical_url || window.location.origin + "/news/" + (newsItem.slug || newsItem.id)}
+        title={articleTitle}
+        description={articleDesc}
+        image={articleImage}
+        canonical={canonicalUrl}
+        schema={newsArticleSchema}
       />
-      
-      {/* 1. Tight Top Nav Bar (Breadcrumb + Share) with minimal upside spacing */}
-      <div className="mb-2.5 pt-0 flex items-center justify-between">
-        <Link 
-          to="/news" 
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
-        >
-          <div className="p-1 rounded-full bg-blue-50 dark:bg-blue-950/50 group-hover:-translate-x-0.5 transition-transform">
-            <ArrowLeft className="w-3.5 h-3.5" />
-          </div>
-          <span>All News &amp; Updates</span>
-        </Link>
 
-        <button
-          onClick={handleShare}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-black/5 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
-          aria-label="Share this article"
-        >
-          {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
-            </>
-          ) : (
-            <>
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Share</span>
-            </>
-          )}
-        </button>
-      </div>
+      <NewsArticleHeader 
+        title={newsItem.title || 'News Article'}
+        category={newsItem.category || 'General'}
+        formattedDate={formatNewsDate(newsItem.date, newsItem.published_at)}
+        author={newsItem.ceo_name || 'RummyDex Editorial Team'}
+        readingTime={calculateReadingTime(newsItem.content || newsItem.description)}
+        logoUrl={articleImage}
+        copied={copied}
+        onShare={handleShare}
+      />
 
-      {newsItem.sync_to_public === false && (
-        <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 font-medium">
-            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-            Draft Preview: Admin Only
-          </div>
-          <Link to="/admin?tab=news" className="font-bold underline hover:no-underline">
-            Manage
-          </Link>
-        </div>
-      )}
+      <NewsArticleAuthorBox 
+        author={newsItem.ceo_name || 'RummyDex Editorial Team'}
+        authorRole="Senior Card Gaming & Industry Analyst"
+        formattedDate={formatNewsDate(newsItem.date, newsItem.published_at)}
+        siteTitle={mockSettings?.site_title || 'RummyDex'}
+      />
 
-      <article className="animate-fade-in">
-        <header className="mb-3">
-          {/* Metadata Row: Category, Date, Read Time - Clean and compact */}
-          <div className="flex flex-wrap items-center gap-2 mb-2 text-xs">
-            <span className="bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[11px]">
-              {newsItem.category || 'Official Report'}
-            </span>
-            <span className="flex items-center gap-1 font-medium text-zinc-500 dark:text-zinc-400">
-              <Calendar className="w-3 h-3" /> {formattedDate}
-            </span>
-            <span className="text-zinc-300 dark:text-zinc-700">•</span>
-            <span className="flex items-center gap-1 font-medium text-zinc-500 dark:text-zinc-400">
-              <Clock className="w-3 h-3" /> {readTime}
-            </span>
-          </div>
+      <div 
+        className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
+        dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
+      />
 
-          {/* Headline */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight leading-tight">
-            {newsItem.title}
-          </h1>
-        </header>
+      <NewsRelatedAppBox 
+        downloadTarget={downloadTarget}
+        relatedApp={relatedApp}
+        newsItem={newsItem}
+      />
 
-        {/* 2. Full-Freedom Image (No side borders on mobile, zero top/bottom cutoffs, natural full height) */}
-        {(newsItem.logo_url || newsItem.image_url) && (
-          <div className="-mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full overflow-hidden mb-3.5 sm:rounded-2xl border-0 sm:border sm:border-black/5 dark:sm:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 relative">
-            <img 
-              src={articleImage} 
-              alt={newsItem.title} 
-              loading="eager" 
-              fetchPriority="high" 
-              decoding="async" 
-              className="w-full h-auto block" 
-            />
-          </div>
-        )}
-
-        {/* 3. ONLY The Download Button Directly Below Image - Simple, clean, ultra lightweight */}
-        {downloadTarget && (
-          <div className="mb-6 flex justify-start">
-            {downloadTarget.isInternal ? (
-              <Link
-                to={downloadTarget.url}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-600/20 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download &amp; Info</span>
-              </Link>
-            ) : (
-              <a
-                href={downloadTarget.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-600/20 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download &amp; Info</span>
-              </a>
-            )}
-          </div>
-        )}
-        
-        {/* Article Body Content */}
-        <div className="prose prose-zinc dark:prose-invert max-w-none mb-10">
-          {newsItem.description && (
-            <div className="mb-6 p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border-l-4 border-blue-600 text-sm sm:text-base font-medium text-zinc-800 dark:text-zinc-200 leading-relaxed">
-              {newsItem.description}
-            </div>
-          )}
-          {isRefreshing && !hasFullBody ? (
-            <div className="space-y-4 py-4 animate-pulse">
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-3/4"></div>
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-full"></div>
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-5/6"></div>
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded-md w-2/3"></div>
-            </div>
-          ) : (
-            <div 
-              className="font-normal text-base text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-none prose prose-zinc dark:prose-invert space-y-4"
-              dangerouslySetInnerHTML={{ __html: articleBodyHtml }} 
-            />
-          )}
-        </div>
-
-        {/* Simple Download Button at the end of article */}
-        {downloadTarget && (
-          <div className="mb-12 flex justify-start">
-            {downloadTarget.isInternal ? (
-              <Link 
-                to={downloadTarget.url} 
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl active:scale-[0.98] shadow-md transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download &amp; Info</span>
-              </Link>
-            ) : (
-              <a 
-                href={downloadTarget.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl active:scale-[0.98] shadow-md transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download &amp; Info</span>
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* Discussion Section */}
-        <footer className="border-t border-black/5 dark:border-white/5 pt-8">
-          <div className="flex items-center gap-2.5 mb-5">
-            <MessageSquare className="w-4 h-4 text-zinc-400" />
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Discussion ({comments.length})</h2>
-          </div>
-          
-          <form onSubmit={handleAddComment} className="mb-8">
-            <div className="relative">
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your perspective or ask a question..."
-                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl p-3.5 pr-14 transition-all min-h-[90px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/30 font-normal text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={!commentText.trim()}
-                className="absolute bottom-3.5 right-3.5 w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all disabled:opacity-50 active:scale-[0.95] cursor-pointer"
-                aria-label="Post comment"
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </form>
-
-          <div className="space-y-3">
-            {comments.map((comment) => (
-              <div key={comment.id} className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-black/5 dark:border-white/5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-xs text-zinc-900 dark:text-zinc-100">{comment.author}</span>
-                  <span className="text-[11px] text-zinc-400">{comment.date}</span>
-                </div>
-                <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed font-normal">{comment.content}</p>
-              </div>
-            ))}
-          </div>
-        </footer>
-      </article>
-    </div>
+      <NewsCommentsSection 
+        comments={comments}
+        commentText={commentText}
+        onCommentTextChange={setCommentText}
+        onAddComment={handleAddComment}
+      />
+    </article>
   );
 }

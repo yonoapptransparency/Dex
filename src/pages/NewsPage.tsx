@@ -1,53 +1,19 @@
-import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * NewsPage listings
- * Google Discover-inspired visual layout with edge-to-edge full-freedom imagery (natural aspect ratio, zero upper/down cut off, zero side borders on mobile),
- * snug top navigation with zero dead space above Back button, spacious search bar, and 1-tap direct article navigation.
+ * Google Discover-inspired visual layout with edge-to-edge full-freedom imagery,
+ * snug top navigation, spacious search bar, and 1-tap direct article navigation.
  */
 
-import React, { useState, useMemo, useRef } from 'react';
-import { Search, ArrowLeft, ChevronLeft, ChevronRight, Clock, Calendar, Pin, X, Share2, Check } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { Search, ArrowLeft, Check, X } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { Link, useSearchParams } from 'react-router-dom';
 import Meta from '../components/Meta';
-import { getOptimizedImageUrl } from '../seo/utils';
+import NewsCard from '../components/public/news/NewsCard';
+import NewsPagination from '../components/public/news/NewsPagination';
+import { getPlainTextSnippet } from '../components/public/news/newsUtils';
 
 const ITEMS_PER_PAGE = 9;
-
-// Helper: Calculate estimated reading time
-function calculateReadingTime(text: string): string {
-  if (!text) return '1 min read';
-  const words = text.replace(/<[^>]*>?/gm, ' ').trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 180));
-  return `${minutes} min read`;
-}
-
-// Helper: Format date safely
-function formatNewsDate(dateStr?: string, publishedAt?: string): string {
-  const d = dateStr || publishedAt;
-  if (!d) return 'Recent';
-  try {
-    const parsed = new Date(d);
-    if (!isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  } catch (e) {}
-  return 'Recent';
-}
-
-// Helper: Clean plain text snippet
-function getPlainTextSnippet(htmlOrText?: string): string {
-  if (!htmlOrText) return '';
-  return htmlOrText
-    .replace(/<[^>]*>?/gm, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 export default function NewsPage() {
   const { news: mockNews = [], settings: mockSettings } = useData();
@@ -55,13 +21,11 @@ export default function NewsPage() {
   const contentTopRef = useRef<HTMLDivElement>(null);
   const [copyToast, setCopyToast] = useState(false);
 
-  // URL state synchronization
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
   const activeCategory = searchParams.get('category') || 'All';
   const searchTerm = searchParams.get('q') || '';
 
-  // Filter and sort public news items (pinned items first, then latest date first)
   const publicNewsList = useMemo(() => {
     return (mockNews || [])
       .filter(item => item && item.sync_to_public !== false)
@@ -74,7 +38,6 @@ export default function NewsPage() {
       });
   }, [mockNews]);
 
-  // Extract all unique categories dynamically
   const categories = useMemo(() => {
     const set = new Set<string>();
     publicNewsList.forEach(item => {
@@ -85,7 +48,6 @@ export default function NewsPage() {
     return ['All', ...Array.from(set)];
   }, [publicNewsList]);
 
-  // Filtered news items
   const filteredNews = useMemo(() => {
     return publicNewsList.filter(item => {
       const matchesCategory = activeCategory === 'All' || 
@@ -102,17 +64,14 @@ export default function NewsPage() {
     });
   }, [publicNewsList, activeCategory, searchTerm]);
 
-  // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
-  // Paginated slice
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
   const currentNewsSlice = useMemo(() => {
     return filteredNews.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredNews, startIndex]);
 
-  // Handle page change with smooth scroll
   const handlePageChange = (page: number) => {
     const nextParams = new URLSearchParams(searchParams);
     if (page <= 1) {
@@ -122,14 +81,12 @@ export default function NewsPage() {
     }
     setSearchParams(nextParams, { replace: false });
     
-    // Smooth scroll to top of news section
     if (contentTopRef.current) {
       const topOffset = contentTopRef.current.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
     }
   };
 
-  // Handle category change
   const handleCategoryChange = (cat: string) => {
     const nextParams = new URLSearchParams(searchParams);
     if (cat === 'All') {
@@ -137,11 +94,10 @@ export default function NewsPage() {
     } else {
       nextParams.set('category', cat);
     }
-    nextParams.delete('page'); // Reset to page 1
+    nextParams.delete('page');
     setSearchParams(nextParams);
   };
 
-  // Handle search term change
   const handleSearchChange = (val: string) => {
     const nextParams = new URLSearchParams(searchParams);
     if (!val.trim()) {
@@ -149,7 +105,7 @@ export default function NewsPage() {
     } else {
       nextParams.set('q', val);
     }
-    nextParams.delete('page'); // Reset to page 1
+    nextParams.delete('page');
     setSearchParams(nextParams);
   };
 
@@ -158,7 +114,7 @@ export default function NewsPage() {
   };
 
   const handleShare = (item: any) => {
-    const url = `${window.location.origin}/news/${item.slug}`;
+    const url = `${window.location.origin}/news/${item.slug || item.id}`;
     if (navigator.share) {
       navigator.share({
         title: item.title,
@@ -173,7 +129,6 @@ export default function NewsPage() {
     }
   };
 
-  // Generate numbered pagination items with smart ellipsis
   const paginationRange = useMemo(() => {
     const delta = 1;
     const range: (number | string)[] = [];
@@ -192,7 +147,6 @@ export default function NewsPage() {
     return range;
   }, [totalPages, safeCurrentPage]);
 
-  // Dynamic SEO meta tags for paginated pages
   const baseTitle = mockSettings?.news_meta_title || "News & Updates";
   const seoTitle = safeCurrentPage > 1 ? `${baseTitle} - Page ${safeCurrentPage}` : baseTitle;
   const seoDescription = mockSettings?.news_meta_description || "Stay updated with the latest news, transmissions, security releases, and intelligence updates.";
@@ -206,7 +160,6 @@ export default function NewsPage() {
         canonical={canonicalUrl}
       />
 
-      {/* Toast Notification when link copied */}
       {copyToast && (
         <div
           role="status"
@@ -218,7 +171,6 @@ export default function NewsPage() {
         </div>
       )}
 
-      {/* 1. Snug Upside Home Button - Positioned immediately under header with zero dead space */}
       <div ref={contentTopRef} className="pt-0.5 pb-0.5 px-3 sm:px-0">
         <Link 
           to="/" 
@@ -231,13 +183,11 @@ export default function NewsPage() {
         </Link>
       </div>
 
-      {/* 2. Below Home: News & Updates Title + Bigger Search Box with proper spacing */}
       <div className="px-3 sm:px-0 mt-0.5 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
           News &amp; Updates
         </h1>
 
-        {/* Bigger, comfortable search bar */}
         <div className="relative w-full sm:w-80 shrink-0">
           <input
             type="text"
@@ -249,227 +199,61 @@ export default function NewsPage() {
           />
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
           {searchTerm && (
-            <button
+            <button 
               onClick={() => handleSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* 3. Horizontal Scrolling Category Chips - Fast touch access */}
-      <div className="px-3 sm:px-0 flex items-center gap-2 overflow-x-auto pb-2 mb-4 sm:mb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {categories.map((cat) => {
-          const isActive = activeCategory.toLowerCase() === cat.toLowerCase();
-          return (
+      {categories.length > 1 && (
+        <div className="px-3 sm:px-0 mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          {categories.map(cat => (
             <button
               key={cat}
               onClick={() => handleCategoryChange(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-xs'
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === cat
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                   : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
               }`}
             >
               {cat}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* 4. Google Discover Style News Feed: Complete Image Freedom (NO aspect ratio cutoffs, NO upper/down clipping, NO side borders on mobile) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-7 sm:gap-6 md:gap-8">
-        {currentNewsSlice.map((item, index) => {
-          const isAboveFold = safeCurrentPage === 1 && index < 2;
-          const readTime = calculateReadingTime(item.description || item.content || '');
-          const formattedDate = formatNewsDate(item.date, item.published_at);
-          const optimizedImage = getOptimizedImageUrl(item.logo_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e', 900);
-          const cleanSnippet = getPlainTextSnippet(item.description || item.content);
-
-          return (
-            <article 
-              key={item.id || item.slug}
-              className="flex flex-col group select-none animate-fade-in border-b border-zinc-100 dark:border-zinc-800/80 pb-6 sm:border-0 sm:pb-0"
-            >
-              {/* Full Image Freedom: Natural full-size display with ZERO crop/cut-off on top/bottom or sides */}
-              <Link 
-                to={`/news/${item.slug}`} 
-                aria-label={`Read full news article: ${item.title}`}
-                className="block relative w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 rounded-none sm:rounded-2xl group/img"
-              >
-                <img 
-                  src={optimizedImage} 
-                  alt={item.title} 
-                  loading={isAboveFold ? "eager" : "lazy"}
-                  fetchPriority={isAboveFold ? "high" : "low"}
-                  decoding="async"
-                  className="w-full h-auto block group-hover/img:opacity-95 transition-opacity"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
-
-                {/* Subtle Overlaid Badges */}
-                <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
-                  {item.is_breaking && (
-                    <span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-md">
-                      Breaking
-                    </span>
-                  )}
-                  {item.is_pinned && !item.is_breaking && (
-                    <span className="px-2.5 py-1 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1">
-                      <Pin className="w-2.5 h-2.5" /> Pinned
-                    </span>
-                  )}
-                  {item.is_new && !item.is_breaking && !item.is_pinned && (
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-md">
-                      New
-                    </span>
-                  )}
-                </div>
-              </Link>
-
-              {/* Content Block: Clean padding for reading comfort, 1-click navigate */}
-              <div className="px-3 sm:px-0 pt-3 pb-1 flex flex-col flex-1">
-                {/* Headline: Full headline cleanly rendered, clicking opens article */}
-                <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white leading-snug line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  <Link to={`/news/${item.slug}`} aria-label={`Read news: ${item.title}`}>
-                    {item.title}
-                  </Link>
-                </h2>
-
-                {/* Snippet: 2-line clean overview */}
-                {cleanSnippet && (
-                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1.5 line-clamp-2 leading-relaxed">
-                    {cleanSnippet}
-                  </p>
-                )}
-
-                {/* Metadata Row: Category, Date, Read Time + Quick Share */}
-                <div className="mt-auto pt-3 flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
-                  <div className="flex items-center gap-2 truncate mr-2">
-                    {item.category && (
-                      <span className="font-semibold text-zinc-700 dark:text-zinc-300 truncate">
-                        {item.category}
-                      </span>
-                    )}
-                    {item.category && <span>•</span>}
-                    <span className="shrink-0">{formattedDate}</span>
-                    <span>•</span>
-                    <span className="shrink-0">{readTime}</span>
-                  </div>
-
-                  {/* Native Share button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleShare(item);
-                    }}
-                    className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
-                    title="Share article"
-                    aria-label="Share article"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-
-        {/* Empty State */}
-        {filteredNews.length === 0 && (
-          <div className="col-span-full py-16 text-center px-4 max-w-md mx-auto">
-            <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <Search className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-1.5">No news found</h3>
-            <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-5">
-              We couldn't find any articles matching "{searchTerm || activeCategory}".
-            </p>
+      {currentNewsSlice.length === 0 ? (
+        <div className="py-16 text-center bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 mx-3 sm:mx-0">
+          <p className="text-base font-bold text-zinc-800 dark:text-zinc-200">No news articles found</p>
+          <p className="text-xs text-zinc-400 mt-1 mb-4">Try adjusting your category or search keywords</p>
+          {(activeCategory !== 'All' || searchTerm) && (
             <button
               onClick={handleClearFilters}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+              className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors cursor-pointer"
             >
               Reset Filters
             </button>
-          </div>
-        )}
-      </div>
-
-      {/* Numbered Pagination UI */}
-      {totalPages > 1 && (
-        <nav 
-          aria-label="News pagination" 
-          className="mt-12 pt-6 px-3 sm:px-0 border-t border-black/5 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4"
-        >
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            Page <span className="font-bold text-zinc-900 dark:text-zinc-100">{safeCurrentPage}</span> of <span className="font-bold text-zinc-900 dark:text-zinc-100">{totalPages}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Previous Page Button */}
-            <button
-              onClick={() => handlePageChange(safeCurrentPage - 1)}
-              disabled={safeCurrentPage <= 1}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
-              aria-label="Go to previous page"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Previous</span>
-            </button>
-
-            {/* Direct Page Numbers */}
-            {paginationRange.map((pageNumber, idx) => {
-              if (pageNumber === '...') {
-                return (
-                  <span 
-                    key={`ellipsis-${idx}`} 
-                    className="px-2 py-1 text-zinc-400 text-xs font-semibold select-none"
-                  >
-                    ...
-                  </span>
-                );
-              }
-
-              const num = Number(pageNumber);
-              const isActive = num === safeCurrentPage;
-
-              return (
-                <button
-                  key={`page-${num}`}
-                  onClick={() => handlePageChange(num)}
-                  aria-current={isActive ? 'page' : undefined}
-                  aria-label={`Page ${num}`}
-                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  {num}
-                </button>
-              );
-            })}
-
-            {/* Next Page Button */}
-            <button
-              onClick={() => handlePageChange(safeCurrentPage + 1)}
-              disabled={safeCurrentPage >= totalPages}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
-              aria-label="Go to next page"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </nav>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 px-3 sm:px-0">
+          {currentNewsSlice.map(item => (
+            <NewsCard key={item.id || item.slug} item={item} onShare={handleShare} />
+          ))}
+        </div>
       )}
+
+      <NewsPagination 
+        currentPage={safeCurrentPage}
+        totalPages={totalPages}
+        paginationRange={paginationRange}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }
