@@ -44,6 +44,9 @@ export default function AppDetails() {
     if (!slug) return null;
     
     let dynamicApp = fetchedApp;
+    if (!dynamicApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
+      dynamicApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
+    }
     if (!dynamicApp && Array.isArray(mockApps)) {
       dynamicApp = resolveAppSlug(slug, mockApps);
     }

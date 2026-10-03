@@ -82,16 +82,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initialCache = React.useMemo(() => getInitialCache(), []);
 
   const [apps, setApps] = useState<AppConfig[]>(() => {
-    // If staticMockApps has more or newer content than initialCache, prefer staticMockApps
-    if (staticMockApps && staticMockApps.length > 0) {
-      if (!initialCache?.apps || initialCache.apps.length < staticMockApps.length) {
-        return staticMockApps;
+    const initApps = (initialCache?.apps && Array.isArray(initialCache.apps)) ? initialCache.apps : [];
+    const staticApps = (staticMockApps && Array.isArray(staticMockApps) && staticMockApps.length > 0) ? staticMockApps : mockApps;
+
+    if (initApps.length > 0) {
+      // Create a unified catalog containing BOTH pre-rendered SSR apps and static catalogue
+      const map = new Map<string, AppConfig>();
+      for (const a of staticApps) {
+        if (a && a.id) map.set(String(a.id), a);
+        if (a && a.slug) map.set(a.slug.toLowerCase(), a);
       }
+      for (const a of initApps) {
+        if (a && a.id) map.set(String(a.id), a);
+        if (a && a.slug) map.set(a.slug.toLowerCase(), a);
+      }
+      return Array.from(new Set(map.values()));
     }
-    if (initialCache?.apps && Array.isArray(initialCache.apps) && initialCache.apps.length > 0) {
-      return initialCache.apps;
-    }
-    return staticMockApps || mockApps;
+
+    return staticApps;
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {
