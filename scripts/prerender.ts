@@ -300,7 +300,19 @@ Sitemap: ${host}/sitemap.xml
     }
     console.log('Generated robots.txt and standardized sitemaps in dist and public');
 
-    console.log('Successfully injected static HTML and metadata into dist routes for Firebase Hosting.');
+    // 4. Ensure Cloudflare Pages SPA redirects and headers exist in dist
+    const redirectsSrc = path.join(publicPath, '_redirects');
+    const headersSrc = path.join(publicPath, '_headers');
+    if (fs.existsSync(redirectsSrc)) {
+      fs.copyFileSync(redirectsSrc, path.join(distPath, '_redirects'));
+    } else {
+      fs.writeFileSync(path.join(distPath, '_redirects'), '/*    /index.html   200\n', 'utf-8');
+    }
+    if (fs.existsSync(headersSrc)) {
+      fs.copyFileSync(headersSrc, path.join(distPath, '_headers'));
+    }
+
+    console.log('Successfully injected static HTML, metadata, and Cloudflare routing into dist.');
   } catch (err) {
     console.error('Error during prerender:', err);
   }
