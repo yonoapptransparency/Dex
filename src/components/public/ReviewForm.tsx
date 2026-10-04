@@ -15,6 +15,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
   const [rating, setRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [comment, setComment] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorText, setErrorText] = useState('');
@@ -22,6 +23,22 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorText('');
+
+    // Honeypot check: If bot filled invisible input, reject silently
+    if (honeypot && honeypot.trim().length > 0) {
+      setErrorText('Submission could not be validated.');
+      return;
+    }
+
+    // Cooldown check: Prevent spamming multiple reviews within 15 seconds
+    try {
+      const lastSubmitKey = `last_rev_time_${appId}`;
+      const lastSubmit = localStorage.getItem(lastSubmitKey);
+      if (lastSubmit && (Date.now() - Number(lastSubmit)) < 15000) {
+        setErrorText('Please wait a few seconds before posting another review.');
+        return;
+      }
+    } catch (_) {}
     
     const cleanUsername = username.trim().replace(/<[^>]*>?/gm, '');
     const cleanComment = comment.trim().replace(/<[^>]*>?/gm, '');
@@ -69,7 +86,12 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
         userName: cleanUsername,
         rating: rating,
         reviewText: cleanComment,
-      });
+        website_url_confirm: honeypot
+      } as any);
+
+      try {
+        localStorage.setItem(`last_rev_time_${appId}`, String(Date.now()));
+      } catch (_) {}
       
       const returned: any = res?.review;
       const finalRev: Review = {
@@ -114,6 +136,20 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
       </h3>
 
       <form onSubmit={handleReviewSubmit} className="space-y-3 xs:space-y-4">
+        {/* Invisible CSS Honeypot - Bots auto-fill, humans never see */}
+        <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', left: '-9999px', height: 0, width: 0, overflow: 'hidden' }} aria-hidden="true">
+          <label htmlFor="website_url_confirm">Leave this empty</label>
+          <input
+            id="website_url_confirm"
+            type="text"
+            name="website_url_confirm"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </div>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 xs:gap-3">
             <span className="text-[11px] xs:text-xs font-semibold text-zinc-500 dark:text-zinc-400">Your Rating:</span>
