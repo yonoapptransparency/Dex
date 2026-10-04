@@ -7,10 +7,8 @@ import { getOptimizedImageUrl } from '../../seo/utils';
 import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
-import { lazyWithRetry } from '../../lib/lazyWithRetry';
-
-const LightSearch = lazyWithRetry(() => import('../LightSearch'));
-const MobileMenuModal = lazyWithRetry(() => import('./MobileMenuModal'));
+import LightSearch from '../LightSearch';
+import { MobileMenuModal } from './MobileMenuModal';
 
 export function PublicHeader() {
   const { settings } = useData();
@@ -199,21 +197,17 @@ export function PublicHeader() {
       </header>
 
       {menuOpen && (
-        <React.Suspense fallback={null}>
-          <MobileMenuModal
-            isOpen={menuOpen}
-            onClose={() => setMenuOpen(false)}
-            siteTitle={settings.site_title || 'RummyDex'}
-            logoUrl={settings.logo_url}
-            triggerHaptic={triggerHaptic}
-          />
-        </React.Suspense>
+        <MobileMenuModal
+          isOpen={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          siteTitle={settings.site_title || 'RummyDex'}
+          logoUrl={settings.logo_url}
+          triggerHaptic={triggerHaptic}
+        />
       )}
 
       {searchOpen && (
-        <React.Suspense fallback={null}>
-          <LightSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-        </React.Suspense>
+        <LightSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       )}
     </>
   );

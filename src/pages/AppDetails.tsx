@@ -328,7 +328,6 @@ export default function AppDetails() {
 
         <AppSpecsBar 
           rating={realRatingVal} 
-          hasReviews={realReviewCount > 0}
           file_size={app.file_size} 
           category={app.category} 
           version={app.version} 

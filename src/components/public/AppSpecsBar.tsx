@@ -22,7 +22,7 @@ export function AppSpecsBar({ rating, hasReviews, file_size, category, version }
     return nonGeneric.length > 0 ? nonGeneric[0] : (parts[0] || 'General');
   }, [category]);
 
-  const isRated = hasReviews !== false && typeof rating === 'number' && rating > 0;
+  const isRated = typeof rating === 'number' && rating > 0;
 
   return (
     <div className="w-full grid grid-cols-4 py-2 xxs:py-2.5 xs:py-3.5 sm:py-4 mb-3 sm:mb-6 border-y border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/10 dark:bg-zinc-900/10">

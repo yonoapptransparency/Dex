@@ -291,10 +291,10 @@ export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (!context) {
     return {
-      apps: mockApps,
-      settings: mockSettings,
-      news: mockNews,
-      videos: mockVideos,
+      apps: mockApps as any,
+      settings: mockSettings as any,
+      news: mockNews as any,
+      videos: mockVideos as any,
       loading: false,
       loadedFromServer: true,
       appsSyncedWithServer: true,
