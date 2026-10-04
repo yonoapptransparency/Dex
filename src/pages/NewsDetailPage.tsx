@@ -197,7 +197,7 @@ export default function NewsDetailPage() {
 
   const articleTitle = newsItem.seo_title || newsItem.title || 'News Article';
   const articleDesc = newsItem.seo_description || newsItem.description || '';
-  const articleImage = newsItem.og_image_url || newsItem.image || newsItem.image_url;
+  const articleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
   const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
 
   const newsArticleSchema = {

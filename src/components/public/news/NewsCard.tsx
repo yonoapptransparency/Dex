@@ -11,7 +11,7 @@ interface NewsCardProps {
 
 function NewsCardComponent({ item, onShare }: NewsCardProps) {
   const navigate = useNavigate();
-  const coverImage = item.image || item.image_url;
+  const coverImage = item.og_image_url || item.image_url || item.logo_url || item.image;
   const readingTime = calculateReadingTime(item.content || item.description);
   const formattedDate = formatNewsDate(item.date, item.published_at);
   const snippet = getPlainTextSnippet(item.description);

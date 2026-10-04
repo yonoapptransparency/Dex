@@ -198,3 +198,5 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
   );
 };
 
+export default ReportAppModal;
+

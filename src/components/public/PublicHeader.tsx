@@ -7,9 +7,10 @@ import { getOptimizedImageUrl } from '../../seo/utils';
 import LanguageSelector from '../LanguageSelector';
 import SupportWidget from '../SupportWidget';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
+import { lazyWithRetry } from '../../lib/lazyWithRetry';
 
-const LightSearch = React.lazy(() => import('../LightSearch'));
-const MobileMenuModal = React.lazy(() => import('./MobileMenuModal'));
+const LightSearch = lazyWithRetry(() => import('../LightSearch'));
+const MobileMenuModal = lazyWithRetry(() => import('./MobileMenuModal'));
 
 export function PublicHeader() {
   const { settings } = useData();
