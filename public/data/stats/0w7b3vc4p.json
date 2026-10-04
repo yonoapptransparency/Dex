@@ -1,12 +1,1 @@
-{
-  "total": 14,
-  "published": 14,
-  "avgRating": 4.1,
-  "starCounts": {
-    "1": 0,
-    "2": 0,
-    "3": 4,
-    "4": 5,
-    "5": 5
-  }
-}
+{"total":14,"published":14,"pending":0,"rejected":0,"flagged":0,"avgRating":4.1,"ratingDistribution":{"1":0,"2":0,"3":4,"4":5,"5":5},"ratingSum":57}
