@@ -30,7 +30,7 @@ export default function FallbackRouteMatcher() {
   if (!slug || slug.match(/\.(xml|json|txt|php|png|jpg|jpeg|gif|svg|ico|webp|js|css|map|webmanifest)$/i)) {
     return (
       <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
-        <Meta title="404 - Page Not Found | RummyDex" description="Page not found." noindex={true} />
+        <Meta title="404 - Page Not Found" description="Page not found." noindex={true} />
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Page Not Found</h1>
         <Link to="/" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[16px] font-semibold text-sm">Return to Home</Link>
       </div>
@@ -99,7 +99,7 @@ export default function FallbackRouteMatcher() {
   return (
     <div className="text-center py-20 px-4 min-h-[40vh] flex flex-col justify-center items-center">
       <Meta 
-        title="404 - Page Not Found | RummyDex" 
+        title="404 - Page Not Found" 
         description="We could not resolve this link to any application listing or news bulletin." 
         noindex={true} 
       />
