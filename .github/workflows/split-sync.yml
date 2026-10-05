@@ -245,7 +245,7 @@ jobs:
             rm -rf "${REPO_NAME}_repo"
             
             # Common excludes - strictly prevent secrets/backups from leaking anywhere unvetted
-            RSYNC_EXCLUDES="--exclude=.git --exclude=.github --exclude=node_modules --exclude=dist --exclude=*.tmp --exclude=*.log --exclude=api_temp.ts --exclude=mock-2fa-state.json --exclude=autopilot_checkpoint.json* --exclude=community_local_backup.json*"
+            RSYNC_EXCLUDES="--exclude=.git --exclude=.github --exclude=node_modules --exclude=dist --exclude=*.tmp --exclude=*.log --exclude=api_temp.ts --exclude=mock-2fa-state.json --exclude=autopilot_checkpoint.json* --exclude=community_local_backup.json* --exclude=bun.lock* --exclude=bun.lockb --exclude=yarn.lock --exclude=pnpm-lock.yaml"
 
             if git clone "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git" "${REPO_NAME}_repo"; then
               cd "${REPO_NAME}_repo"
@@ -259,6 +259,14 @@ jobs:
               git remote add origin "https://x-access-token:${PAT}@github.com/yonoapptransparency/${REPO_NAME}.git"
               git checkout -b main
               rsync -rv $RSYNC_EXCLUDES "$SOURCE_DIR/" .
+            fi
+            
+            # Explicitly purge any rogue lockfiles that trigger non-npm build runners on Cloudflare/Vercel
+            rm -f bun.lock bun.lockb yarn.lock pnpm-lock.yaml
+            
+            # Ensure .npmrc is always present
+            if [ -f "$SOURCE_DIR/.npmrc" ]; then
+              cp "$SOURCE_DIR/.npmrc" .npmrc
             fi
             
             # Explicitly remove .github to prevent workflow nesting/looping
