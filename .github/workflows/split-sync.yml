@@ -8,10 +8,11 @@ on:
 
 concurrency:
   group: split-sync-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   split-and-sync:
+    if: github.repository != 'yonoapptransparency/Dex' && github.repository != 'yonoapptransparency/masterworld'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
@@ -271,6 +272,7 @@ jobs:
             
             # Explicitly remove .github to prevent workflow nesting/looping
             rm -rf .github
+            git rm -rf --ignore-unmatch .github 2>/dev/null || true
 
             if [ "$TYPE" = "public" ]; then
               echo "Enforcing Public-Only Dex Isolation..."
