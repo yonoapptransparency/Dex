@@ -1,104 +1,250 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
+import { 
+  LayoutGrid, 
+  PlusCircle, 
+  Tag, 
+  Newspaper, 
+  Video, 
+  User, 
+  Users, 
+  Headphones, 
+  Gamepad2, 
+  FileText, 
+  ShieldCheck, 
+  Scale, 
+  Gavel, 
+  AlertTriangle,
+  CheckCircle2,
+  Facebook, 
+  Instagram, 
+  Twitter, 
+  Linkedin, 
+  Youtube 
+} from 'lucide-react';
 import { useData } from '../../contexts/DataContextPublic';
-import { PublicSyncStatus } from './PublicSyncStatus';
 
 export function PublicFooter() {
   const { settings } = useData();
   const siteTitle = settings?.site_title || 'RummyDex';
 
+  const directoryLinks = [
+    { label: 'All Apps', to: '/', icon: LayoutGrid },
+    { label: 'New Apps', to: '/?tab=All+Apps', icon: PlusCircle },
+    { label: 'Categories', to: '/?tab=Categories', icon: Tag },
+    { label: 'Industry News', to: '/news', icon: Newspaper },
+    { label: 'Video Reviews', to: '/videos', icon: Video },
+  ];
+
+  const complianceLinks = [
+    { label: 'Privacy Policy', to: '/privacy', icon: ShieldCheck },
+    { label: 'Terms of Service', to: '/terms', icon: FileText },
+    { label: 'Ethics Policy', to: '/ethics', icon: Scale },
+    { label: 'Legal Notice', to: '/notice', icon: Gavel },
+    { label: 'Disclaimer', to: '/disclaimer', icon: AlertTriangle },
+  ];
+
+  const companyLinks = [
+    { label: 'About Us', to: '/about', icon: User },
+    { label: 'Developer Team', to: '/developers', icon: Users },
+    { label: 'Contact Support', to: '/contact', icon: Headphones },
+    { label: 'Responsible Gaming', to: '/responsibility', icon: Gamepad2 },
+    { label: 'Report / DMCA', to: '/report-removal', icon: FileText },
+  ];
+
   return (
-    <footer className="w-full mt-6 sm:mt-10 bg-slate-900 dark:bg-zinc-950 text-slate-300 border-t border-black/10 dark:border-white/10 z-10 transition-colors">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-8 lg:gap-12">
-          
-          {/* Brand Column (Pure Text - Ultra Lightweight & Zero Image Overhead) */}
-          <div className="flex flex-col items-start max-w-sm">
+    <footer className="w-full mt-8 sm:mt-12 bg-zinc-100 dark:bg-[#060913] text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-white/[0.08] transition-colors select-none">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        
+        {/* Brand Header Line */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 pb-5 border-b border-zinc-200/80 dark:border-white/[0.08] mb-5 sm:mb-6">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Link 
               to="/" 
-              className="text-lg xs:text-xl sm:text-2xl font-black tracking-tight text-white hover:text-blue-400 transition-colors inline-flex items-center gap-2 mb-2"
+              className="text-lg sm:text-xl font-black tracking-tight text-zinc-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1"
               aria-label={`${siteTitle} Homepage`}
             >
-              <span>{siteTitle}</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                Verified
-              </span>
+              <span>{siteTitle.replace(/dex$/i, '')}</span>
+              <span className="text-blue-600 dark:text-blue-400">{siteTitle.match(/dex$/i) ? 'Dex' : ''}</span>
             </Link>
-            <p className="text-xs text-slate-400 leading-relaxed font-normal">
-              Independent digital directory, application benchmarking, and transparent reviews.
-            </p>
+
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold tracking-wider uppercase">
+              <CheckCircle2 className="w-3 h-3 text-blue-600 dark:text-cyan-400 shrink-0" />
+              <span>Verified</span>
+            </span>
           </div>
 
-          {/* Links Grid - Crawlable & Semantic for Search Engines */}
-          <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-3 gap-6 xs:gap-8 text-left text-xs xs:text-sm">
-            
-            {/* Column 1: Directory */}
-            <div className="flex flex-col gap-2">
-              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
-                Directory
-              </h3>
-              <Link to="/" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">All Apps</Link>
-              <Link to="/new-apps" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">New Apps</Link>
-              <Link to="/categories" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Categories</Link>
-              <Link to="/news" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Industry News</Link>
-              <Link to="/videos" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Video Reviews</Link>
-            </div>
-
-            {/* Column 2: Platform Info */}
-            <div className="flex flex-col gap-2">
-              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
-                Company
-              </h3>
-              <Link to="/about" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">About Us</Link>
-              <Link to="/developers" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Developer Team</Link>
-              <Link to="/contact" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Contact Support</Link>
-              <Link to="/responsibility" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Responsible Gaming</Link>
-              <Link to="/report-removal" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Report / DMCA</Link>
-            </div>
-
-            {/* Column 3: Legal & Policy */}
-            <div className="flex flex-col gap-2 col-span-2 sm:col-span-1">
-              <h3 className="text-white font-bold text-[11px] xs:text-xs uppercase tracking-wider mb-1 text-slate-100">
-                Compliance
-              </h3>
-              <Link to="/privacy" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Privacy Policy</Link>
-              <Link to="/terms" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Terms of Service</Link>
-              <Link to="/ethics" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Ethics Policy</Link>
-              <Link to="/notice" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Legal Notice</Link>
-              <Link to="/disclaimer" className="text-slate-400 hover:text-blue-400 transition-colors py-0.5">Disclaimer</Link>
-            </div>
-
-          </div>
+          <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 leading-snug">
+            Independent application transparency, safety benchmarking, and reviews.
+          </p>
         </div>
 
-        {/* Bottom Bar: Copyright, Social Links & Sync Status */}
-        <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[11px] xs:text-xs text-slate-500 text-center sm:text-left">
-            &copy; {new Date().getFullYear()} {siteTitle}. All rights reserved.
+        {/* Compact 3-Column Navigation Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8 mb-6 sm:mb-8 text-left">
+          
+          {/* Column 1: Directory */}
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+              <span>Directory</span>
+            </h3>
+            {directoryLinks.map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={`dir-${idx}`}
+                  to={item.to}
+                  className="inline-flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-white py-0.5 transition-colors group"
+                >
+                  <IconComponent className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Column 2: Compliance & Legal */}
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>Compliance</span>
+            </h3>
+            {complianceLinks.map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={`comp-${idx}`}
+                  to={item.to}
+                  className="inline-flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-white py-0.5 transition-colors group"
+                >
+                  <IconComponent className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Column 3: Company */}
+          <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+            <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+              <span>Company</span>
+            </h3>
+            {companyLinks.map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={`comp-co-${idx}`}
+                  to={item.to}
+                  className="inline-flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-white py-0.5 transition-colors group"
+                >
+                  <IconComponent className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+        </div>
+
+        {/* Bottom Bar: Copyright & Social Links */}
+        <div className="pt-4 border-t border-zinc-200/80 dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-500 text-center sm:text-left">
+            &copy; {new Date().getFullYear()} <span className="font-semibold text-zinc-700 dark:text-zinc-300">{siteTitle}</span>. All rights reserved.
           </p>
 
-          <div className="flex items-center gap-2 xs:gap-3 flex-wrap justify-center">
-            {settings?.social_links?.facebook && (
-              <a aria-label="Facebook" href={settings.social_links.facebook} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Facebook className="w-3.5 h-3.5" /></a>
+          <div className="flex items-center gap-2.5">
+            {settings?.social_links?.facebook ? (
+              <a 
+                aria-label="Facebook" 
+                href={settings.social_links.facebook} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Facebook className="w-3.5 h-3.5 fill-current" />
+              </a>
+            ) : (
+              <a 
+                aria-label="Facebook" 
+                href="https://facebook.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Facebook className="w-3.5 h-3.5 fill-current" />
+              </a>
             )}
-            {settings?.social_links?.instagram && (
-              <a aria-label="Instagram" href={settings.social_links.instagram} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Instagram className="w-3.5 h-3.5" /></a>
+
+            {settings?.social_links?.instagram ? (
+              <a 
+                aria-label="Instagram" 
+                href={settings.social_links.instagram} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-pink-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
+            ) : (
+              <a 
+                aria-label="Instagram" 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-pink-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
             )}
+
+            {settings?.social_links?.youtube ? (
+              <a 
+                aria-label="YouTube" 
+                href={settings.social_links.youtube} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-red-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Youtube className="w-3.5 h-3.5 fill-current" />
+              </a>
+            ) : (
+              <a 
+                aria-label="YouTube" 
+                href="https://youtube.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-red-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Youtube className="w-3.5 h-3.5 fill-current" />
+              </a>
+            )}
+
             {settings?.social_links?.twitter && (
-              <a aria-label="Twitter" href={settings.social_links.twitter} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Twitter className="w-3.5 h-3.5" /></a>
+              <a 
+                aria-label="Twitter" 
+                href={settings.social_links.twitter} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-sky-500 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Twitter className="w-3.5 h-3.5 fill-current" />
+              </a>
             )}
+
             {settings?.social_links?.linkedin && (
-              <a aria-label="LinkedIn" href={settings.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-blue-700 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Linkedin className="w-3.5 h-3.5" /></a>
-            )}
-            {settings?.social_links?.youtube && (
-              <a aria-label="YouTube" href={settings.social_links.youtube} target="_blank" rel="noopener noreferrer" className="w-7 h-7 xs:w-8 xs:h-8 rounded-full bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-150"><Youtube className="w-3.5 h-3.5" /></a>
+              <a 
+                aria-label="LinkedIn" 
+                href={settings.social_links.linkedin} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-700 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+              >
+                <Linkedin className="w-3.5 h-3.5 fill-current" />
+              </a>
             )}
           </div>
 
-          <div className="scale-90 opacity-60 hover:opacity-100 transition-opacity">
-            <PublicSyncStatus />
-          </div>
         </div>
 
       </div>

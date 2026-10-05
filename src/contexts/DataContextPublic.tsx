@@ -41,8 +41,56 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
-// Multi-tier caching: SSR window.__INITIAL_DATA__ -> In-Memory Static Bundle -> Local Storage Cache -> Fast Background Revalidation
 const DATA_CACHE_KEY = 'yd_public_data_cache_v5';
+
+// Strict canonical deduplication utilities to guarantee zero duplicate app cards or news items
+const mergeUniqueApps = (baseList: AppConfig[], incomingList: AppConfig[]): AppConfig[] => {
+  const map = new Map<string, AppConfig>();
+
+  // 1. Seed base apps keyed by clean canonical slug / id
+  for (const app of (baseList || [])) {
+    if (!app) continue;
+    const key = (app.slug || app.id || '').toLowerCase().trim();
+    if (key) {
+      map.set(key, { ...app });
+    }
+  }
+
+  // 2. Merge incoming / updated items by the exact same canonical key
+  for (const app of (incomingList || [])) {
+    if (!app) continue;
+    const key = (app.slug || app.id || '').toLowerCase().trim();
+    if (key) {
+      const existing = map.get(key);
+      map.set(key, existing ? { ...existing, ...app } : { ...app });
+    }
+  }
+
+  return Array.from(map.values());
+};
+
+const mergeUniqueNews = (baseList: NewsItem[], incomingList: NewsItem[]): NewsItem[] => {
+  const map = new Map<string, NewsItem>();
+
+  for (const item of (baseList || [])) {
+    if (!item) continue;
+    const key = (item.slug || item.id || '').toLowerCase().trim();
+    if (key) {
+      map.set(key, { ...item });
+    }
+  }
+
+  for (const item of (incomingList || [])) {
+    if (!item) continue;
+    const key = (item.slug || item.id || '').toLowerCase().trim();
+    if (key) {
+      const existing = map.get(key);
+      map.set(key, existing ? { ...existing, ...item } : { ...item });
+    }
+  }
+
+  return Array.from(map.values());
+};
 
 const getInitialCache = () => {
   try {
@@ -71,27 +119,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [apps, setApps] = useState<AppConfig[]>(() => {
     const initApps = (initialCache?.apps && Array.isArray(initialCache.apps)) ? initialCache.apps : [];
     const staticApps = (staticMockApps && Array.isArray(staticMockApps) && staticMockApps.length > 0) ? staticMockApps : mockApps;
-
-    if (initApps.length > 0) {
-      const map = new Map<string, AppConfig>();
-      for (const a of staticApps) {
-        if (a && a.id) map.set(String(a.id), a);
-        if (a && a.slug) map.set(a.slug.toLowerCase(), a);
-      }
-      for (const a of initApps) {
-        if (a && a.id) {
-          const existing = map.get(String(a.id)) || {};
-          map.set(String(a.id), { ...existing, ...a });
-        }
-        if (a && a.slug) {
-          const existing = map.get(a.slug.toLowerCase()) || {};
-          map.set(a.slug.toLowerCase(), { ...existing, ...a });
-        }
-      }
-      return Array.from(new Set(map.values()));
-    }
-
-    return staticApps;
+    return mergeUniqueApps(staticApps, initApps);
   });
   
   const [settings, setSettings] = useState<GlobalSettings>(() => {
@@ -104,26 +132,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [news, setNews] = useState<NewsItem[]>(() => {
     const initNews = (initialCache?.news && Array.isArray(initialCache.news)) ? initialCache.news : [];
     const staticNews = (mockNews && Array.isArray(mockNews)) ? mockNews : [];
-
-    if (initNews.length > 0) {
-      const map = new Map<string, NewsItem>();
-      for (const n of staticNews) {
-        if (n && n.id) map.set(String(n.id).toLowerCase(), n);
-        if (n && n.slug) map.set(String(n.slug).toLowerCase(), n);
-      }
-      for (const n of initNews) {
-        if (n && n.id) {
-          const existing = map.get(String(n.id).toLowerCase()) || {};
-          map.set(String(n.id).toLowerCase(), { ...existing, ...n });
-        }
-        if (n && n.slug) {
-          const existing = map.get(String(n.slug).toLowerCase()) || {};
-          map.set(String(n.slug).toLowerCase(), { ...existing, ...n });
-        }
-      }
-      return Array.from(new Set(map.values()));
-    }
-    return staticNews;
+    return mergeUniqueNews(staticNews, initNews);
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
@@ -155,13 +164,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {}
 
           if (backup.apps && Array.isArray(backup.apps) && backup.apps.length > 0) {
-            setApps(backup.apps);
+            setApps(mergeUniqueApps(staticMockApps || mockApps, backup.apps));
           }
           if (backup.settings && Object.keys(backup.settings).length > 0) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
           if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
-            setNews(backup.news);
+            setNews(mergeUniqueNews(mockNews, backup.news));
           }
           if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
             setVideos(backup.videos);

@@ -184,7 +184,11 @@ export default function Home() {
           return ra - rb;
         });
       } else {
-        baseApps.sort((a, b) => (a.serial_number || 0) - (b.serial_number || 0));
+        baseApps.sort((a, b) => {
+          const sa = typeof a.serial_number === 'number' && a.serial_number > 0 ? a.serial_number : 999999;
+          const sb = typeof b.serial_number === 'number' && b.serial_number > 0 ? b.serial_number : 999999;
+          return sa - sb;
+        });
       }
       return baseApps;
     }
@@ -219,7 +223,9 @@ export default function Home() {
     const resultingApps = scored
       .sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
-        return (a.app.serial_number || 0) - (b.app.serial_number || 0);
+        const sa = typeof a.app.serial_number === 'number' && a.app.serial_number > 0 ? a.app.serial_number : 999999;
+        const sb = typeof b.app.serial_number === 'number' && b.app.serial_number > 0 ? b.app.serial_number : 999999;
+        return sa - sb;
       })
       .map(item => item.app);
 
