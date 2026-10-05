@@ -41,8 +41,8 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
-// Polished, high-performance DataProvider with multi-tier caching (Memory -> window.__INITIAL_DATA__ -> localStorage -> instant background sync)
-const DATA_CACHE_KEY = 'yd_public_data_cache_v4';
+// Multi-tier caching: SSR window.__INITIAL_DATA__ -> In-Memory Static Bundle -> Local Storage Cache -> Fast Background Revalidation
+const DATA_CACHE_KEY = 'yd_public_data_cache_v5';
 
 const getInitialCache = () => {
   try {
@@ -57,19 +57,6 @@ const getInitialCache = () => {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && parsed.data && Array.isArray(parsed.data.apps) && parsed.data.apps.length > 0) {
-          // If cached data has missing descriptions while staticMockApps has descriptions, discard stripped cache
-          const sample = parsed.data.apps[0];
-          const staticSample = mockApps[0];
-          if (!sample?.description_html && staticSample?.description_html) {
-            localStorage.removeItem(DATA_CACHE_KEY);
-            return null;
-          }
-          const sampleNews = parsed.data.news?.[0];
-          const staticNewsSample = mockNews[0];
-          if (staticNewsSample?.content && !sampleNews?.content) {
-            localStorage.removeItem(DATA_CACHE_KEY);
-            return null;
-          }
           return parsed.data;
         }
       }
@@ -86,15 +73,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const staticApps = (staticMockApps && Array.isArray(staticMockApps) && staticMockApps.length > 0) ? staticMockApps : mockApps;
 
     if (initApps.length > 0) {
-      // Create a unified catalog containing BOTH pre-rendered SSR apps and static catalogue
       const map = new Map<string, AppConfig>();
       for (const a of staticApps) {
         if (a && a.id) map.set(String(a.id), a);
         if (a && a.slug) map.set(a.slug.toLowerCase(), a);
       }
       for (const a of initApps) {
-        if (a && a.id) map.set(String(a.id), a);
-        if (a && a.slug) map.set(a.slug.toLowerCase(), a);
+        if (a && a.id) {
+          const existing = map.get(String(a.id)) || {};
+          map.set(String(a.id), { ...existing, ...a });
+        }
+        if (a && a.slug) {
+          const existing = map.get(a.slug.toLowerCase()) || {};
+          map.set(a.slug.toLowerCase(), { ...existing, ...a });
+        }
       }
       return Array.from(new Set(map.values()));
     }
@@ -110,11 +102,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   const [news, setNews] = useState<NewsItem[]>(() => {
-    if (initialCache?.news && Array.isArray(initialCache.news) && initialCache.news.length > 0) {
-      const hasContent = initialCache.news.some((n: any) => (n.content || n.description_html || '').length > 50);
-      if (hasContent) return initialCache.news;
+    const initNews = (initialCache?.news && Array.isArray(initialCache.news)) ? initialCache.news : [];
+    const staticNews = (mockNews && Array.isArray(mockNews)) ? mockNews : [];
+
+    if (initNews.length > 0) {
+      const map = new Map<string, NewsItem>();
+      for (const n of staticNews) {
+        if (n && n.id) map.set(String(n.id).toLowerCase(), n);
+        if (n && n.slug) map.set(String(n.slug).toLowerCase(), n);
+      }
+      for (const n of initNews) {
+        if (n && n.id) {
+          const existing = map.get(String(n.id).toLowerCase()) || {};
+          map.set(String(n.id).toLowerCase(), { ...existing, ...n });
+        }
+        if (n && n.slug) {
+          const existing = map.get(String(n.slug).toLowerCase()) || {};
+          map.set(String(n.slug).toLowerCase(), { ...existing, ...n });
+        }
+      }
+      return Array.from(new Set(map.values()));
     }
-    return mockNews;
+    return staticNews;
   });
   
   const [videos, setVideos] = useState<VideoItem[]>(() => {
@@ -151,7 +160,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (backup.settings && Object.keys(backup.settings).length > 0) {
             setSettings(prev => ({ ...prev, ...backup.settings }));
           }
-          if (backup.news && Array.isArray(backup.news)) {
+          if (backup.news && Array.isArray(backup.news) && backup.news.length > 0) {
             setNews(backup.news);
           }
           if (backup.videos && Array.isArray(backup.videos) && backup.videos.length > 0) {
@@ -171,32 +180,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
     if (isCrawler) return;
 
-    // If apps are already loaded in memory/staticData, DO NOT saturate the network with 1.1MB backup download!
-    if (apps.length === 0) {
-      fetchBackupData(false);
-    } else {
-      // Long-deferred idle sync for persistent human sessions (30s delay)
-      const idleTimer = setTimeout(() => {
-        if ('requestIdleCallback' in window) {
-          (window as any).requestIdleCallback(() => fetchBackupData(true));
-        } else {
-          fetchBackupData(true);
-        }
-      }, 30000);
-      return () => clearTimeout(idleTimer);
-    }
+    // Fast background revalidation on initial load (0ms main-thread blockage)
+    const initTimer = setTimeout(() => {
+      fetchBackupData(true);
+    }, 100);
 
-    // Periodic check every 30 minutes for live updates in background
+    // Periodic check every 10 minutes for live updates in background
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchBackupData(true);
       }
-    }, 1800000);
+    }, 600000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchBackupData(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [apps.length, fetchBackupData]);
+  }, [fetchBackupData]);
 
   const resolvedSettings = React.useMemo(() => {
     const defaultLogo = "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png";
@@ -278,7 +286,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchSettings: fetchBackupData,
     fetchNews: fetchBackupData,
     fetchVideos: fetchBackupData,
-  }), [apps, resolvedSettings, news, videos, loading, loadedFromServer, isLive, fetchBackupData, updateAppDetail]);
+  }), [apps, resolvedSettings, news, videos, loading, loadedFromServer, isLive, fetchBackupData, updateAppDetail, updateNewsDetail]);
 
   return (
     <DataContext.Provider value={value}>
@@ -327,4 +335,3 @@ export const useData = (): DataContextType => {
   }
   return context;
 };
-
