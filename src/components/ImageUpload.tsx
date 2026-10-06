@@ -286,7 +286,31 @@ export default function ImageUpload({ value, defaultValue, onChange, name, place
         } catch (_) {}
       }
 
-      // Tier 5: Try Firebase Storage
+      // Tier 4.5: Try Direct Server Base64 Upload Endpoint (/api/v1/admin/upload)
+      if (!uploadedUrl) {
+        try {
+          const reader = new FileReader();
+          const base64Data = await new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string || '');
+            reader.readAsDataURL(uploadPayload);
+          });
+          if (base64Data) {
+            const sRes = await adminFetch('/api/v1/admin/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image_base64: base64Data })
+            });
+            if (sRes.ok) {
+              const sData = await sRes.json();
+              if (sData.status === 'OK' && sData.secure_url) {
+                uploadedUrl = sData.secure_url;
+              }
+            }
+          }
+        } catch (serverUploadErr) {
+          console.warn('[ImageUpload] Server base64 upload tier fallback:', serverUploadErr);
+        }
+      }
       if (!uploadedUrl && storage) {
         try {
           const storagePromise = (async () => {

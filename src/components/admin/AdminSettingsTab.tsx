@@ -51,25 +51,50 @@ export const AdminSettingsTab = React.memo(({ settings: rawSettings, handleSaveS
       if (apiKey && apiSecret) {
         try {
           const timestamp = Math.round(Date.now() / 1000);
-          const strToSign = `timestamp=${timestamp}${apiSecret}`;
-          const signature = await generateSha1(strToSign);
+          
+          // Test with folder=rummydex_uploads
+          const strToSignWithFolder = `folder=rummydex_uploads&timestamp=${timestamp}${apiSecret}`;
+          const signatureWithFolder = await generateSha1(strToSignWithFolder);
 
-          const formData = new FormData();
-          formData.append('file', testBlob, 'test_ping.png');
-          formData.append('api_key', apiKey);
-          formData.append('timestamp', String(timestamp));
-          formData.append('signature', signature);
+          const formDataFolder = new FormData();
+          formDataFolder.append('file', testBlob, 'test_ping.png');
+          formDataFolder.append('api_key', apiKey);
+          formDataFolder.append('timestamp', String(timestamp));
+          formDataFolder.append('signature', signatureWithFolder);
+          formDataFolder.append('folder', 'rummydex_uploads');
 
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`, {
+          const resFolder = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`, {
             method: 'POST',
-            body: formData
+            body: formDataFolder
           });
-          const data = await res.json().catch(() => ({}));
-          if (res.ok && data.secure_url) {
+          const dataFolder = await resFolder.json().catch(() => ({}));
+
+          if (resFolder.ok && dataFolder.secure_url) {
             verified = true;
             successMsg = `Successfully connected to Cloudinary cloud "${cloudName}"! Signed uploads verified successfully.`;
           } else {
-            lastErrMsg = data.error?.message || `Signed test returned HTTP ${res.status}`;
+            // Test without folder
+            const strToSign = `timestamp=${timestamp}${apiSecret}`;
+            const signature = await generateSha1(strToSign);
+
+            const formData = new FormData();
+            formData.append('file', testBlob, 'test_ping.png');
+            formData.append('api_key', apiKey);
+            formData.append('timestamp', String(timestamp));
+            formData.append('signature', signature);
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`, {
+              method: 'POST',
+              body: formData
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.secure_url) {
+              verified = true;
+              successMsg = `Successfully connected to Cloudinary cloud "${cloudName}"! Signed uploads verified successfully.`;
+            } else {
+              lastErrMsg = data.error?.message || dataFolder.error?.message || `Signed test returned HTTP ${res.status}`;
+            }
           }
         } catch (signedErr: any) {
           lastErrMsg = signedErr?.message || 'Signed upload network error';
@@ -101,11 +126,28 @@ export const AdminSettingsTab = React.memo(({ settings: rawSettings, handleSaveS
         }
       }
 
-      // Test 3: Cloud Name Ping Validation (if presets/keys aren't set, verify CDN domain)
+      // Test 3: Backend Server Upload Endpoint Test
       if (!verified) {
         try {
+          const idToken = (await (globalThis as any).firebaseAuthUser?.getIdToken?.()) || undefined;
+          const sigRes = await fetch('/api/v1/admin/upload/signature', {
+            headers: idToken ? { 'Authorization': `Bearer ${idToken}` } : {}
+          });
+          if (sigRes.ok) {
+            const sigData = await sigRes.json();
+            if (sigData.status === 'OK' && sigData.cloud_name) {
+              verified = true;
+              successMsg = `Server Cloudinary service is ready for cloud "${sigData.cloud_name}"!`;
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Test 4: Cloud Name Ping Validation
+      if (!verified && cloudName) {
+        try {
           const pingRes = await fetch(`https://res.cloudinary.com/${encodeURIComponent(cloudName)}/image/upload/v1786624142/1000134293_sbicyb.png`, { method: 'HEAD' });
-          if (pingRes.ok) {
+          if (pingRes.ok || pingRes.status === 200 || pingRes.status === 304) {
             verified = true;
             successMsg = `Cloudinary cloud "${cloudName}" is reachable and active for image delivery!`;
           }
