@@ -174,7 +174,8 @@ export async function writeFirestoreRestDoc(docName: string, data: any, authToke
 export async function deleteFirestoreRestDoc(docName: string, authToken?: string): Promise<boolean> {
   const config = getRawFirebaseConfig();
   if (!config || !config.projectId) return false;
-  const dbId = (config.firestoreDatabaseId && config.firestoreDatabaseId.trim() !== '') ? config.firestoreDatabaseId : 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a';
+  const rawDb = config.firestoreDatabaseId;
+  const dbId = (rawDb && rawDb.trim() !== '' && rawDb.trim() !== 'ai-studio-yonostore-886315a4-8b9f-4ff6-8986-a90ad172210a') ? rawDb.trim() : '(default)';
   const apiKey = config.apiKey || '';
   const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/${dbId}/documents/store_data/${docName}${apiKey ? `?key=${apiKey}` : ''}`;
   
