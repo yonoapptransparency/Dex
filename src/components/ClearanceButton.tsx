@@ -165,7 +165,7 @@ export default function ClearanceButton({
                 if (isLoading || !isReady) return;
                 trackPointerMotion(e);
                 triggerHaptic(35);
-                handleKineticProceed();
+                handleKineticProceed(e);
               }}
               onPointerDown={trackPointerMotion}
               onPointerMove={trackPointerMotion}
