@@ -219,6 +219,7 @@ export default function GatewayPage() {
                  <ClearanceButton 
                    appId={app.slug || app.id} 
                    appSlug={app.slug} 
+                   appRecord={app}
                    status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} 
                  />
                </div>

@@ -7,6 +7,7 @@ import { useData } from '../contexts/DataContextPublic';
 export interface ClearanceButtonProps {
   appId: string;
   appSlug?: string;
+  appRecord?: any;
   status?: string;
   variant?: 'default' | 'compact';
   onSuccess?: () => void;
@@ -22,6 +23,7 @@ const LOADING_STEPS = [
 export default function ClearanceButton({ 
   appId, 
   appSlug, 
+  appRecord,
   onSuccess, 
   onError 
 }: ClearanceButtonProps) {
@@ -53,6 +55,7 @@ export default function ClearanceButton({
   } = useClearanceDispatch({
     appId,
     appSlug,
+    appRecord,
     cfToken,
     cfTokenRef,
     widgetIdRef,
@@ -136,7 +139,7 @@ export default function ClearanceButton({
             }}
             className="flex items-center justify-center gap-2 w-full py-3 xs:py-4 px-4 xs:px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-xl xs:rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-xs xs:text-sm text-center select-none cursor-pointer"
           >
-            <span>PROCEED</span>
+            <span>CLICK TO OPEN LINK</span>
             <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white shrink-0 ml-0.5" />
           </a>
           <p className="text-[10px] xs:text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
