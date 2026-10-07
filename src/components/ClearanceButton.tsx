@@ -148,7 +148,7 @@ export default function ClearanceButton({
         <div className="w-full flex flex-col items-center gap-3.5">
           
           {/* STEP 1: DIRECT CLOUDFLARE TURNSTILE (CLEAN & NATIVE, NO ARTIFICIAL BOX) */}
-          <div className={`w-full flex flex-col items-center justify-center transition-all duration-200 overflow-hidden ${isRendered ? 'min-h-[65px] mb-1' : 'min-h-0 h-0'}`}>
+          <div className="w-full flex flex-col items-center justify-center min-h-[65px] mb-1">
             <div 
               ref={widgetRef} 
               id={`clearance-turnstile-${appId}`} 

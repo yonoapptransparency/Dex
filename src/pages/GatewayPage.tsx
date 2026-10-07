@@ -63,22 +63,7 @@ export default function GatewayPage() {
     );
   }
 
-  const [isBotBlocked, setIsBotBlocked] = useState(false);
-
-  // Graceful interstitial only for genuinely missing apps undergoing cloud fetch
-  if (!app && (!serverAppsFetched || isRefreshing || !triedRefresh)) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
-        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Retrieving Specifications</h3>
-        <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
-          Loading specifications from the server...
-        </p>
-      </div>
-    );
-  }
-
-  if (!app || isBotBlocked) {
+  if (!app) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
         <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
@@ -235,7 +220,6 @@ export default function GatewayPage() {
                    appId={app.slug || app.id} 
                    appSlug={app.slug} 
                    status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} 
-                   onError={() => setIsBotBlocked(true)}
                  />
                </div>
             )}
