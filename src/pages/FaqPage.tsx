@@ -54,8 +54,8 @@ export default function FaqPage() {
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
       <Meta 
-        title={`Frequently Asked Questions | ${siteTitle}`}
-        description={`Find answers to frequently asked questions about ${siteTitle}, app verification, download safety, device requirements, and community reviews.`}
+        title="Frequently Asked Questions"
+        description={`Find answers to frequently asked questions about app verification, download safety, device requirements, and community reviews.`}
         canonical="https://www.rummydex.com/faq"
         faqSchema={faqSchema}
       />

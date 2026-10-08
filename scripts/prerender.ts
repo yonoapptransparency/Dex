@@ -54,7 +54,7 @@ async function prerender() {
       const seoRes = await injectSeoTags(originalTemplate, routePath, HOST, '');
       const template = typeof seoRes === 'string' ? seoRes : seoRes.html;
       
-      const cleanRoute = routePath.startsWith('/') ? routePath.substring(1) : routePath;
+      const cleanRoute = (routePath.startsWith('/') ? routePath.substring(1) : routePath).trim().replace(/\/+$/, '');
       const targetDir = path.join(distPath, cleanRoute);
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
