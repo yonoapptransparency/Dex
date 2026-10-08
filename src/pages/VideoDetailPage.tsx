@@ -43,10 +43,10 @@ export default function VideoDetailPage() {
     if (!found && !syncAttemptedRef.current[slugKey] && !triedRefresh && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
-      console.log(`Deep Link Sync: Video "${slug}" not found in local cache. Syncing latest indices...`);
+      console.info(`[VideoDetail] Video "${slug}" sync initiated for deep-link resolve.`);
       refreshAll(true)
         .catch((e: any) => {
-          console.warn("Deep Link Video Auto-Sync failed:", e.message || e);
+          console.warn("[VideoDetail] Deep-link video sync notice:", e.message || e);
         })
         .finally(() => {
           setTriedRefresh(true);
