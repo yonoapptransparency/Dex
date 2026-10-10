@@ -23,12 +23,12 @@ export function ReviewScoreSummary({
   const cleanSlug = String(appSlug || '').trim();
 
   // Unified single source of truth hook (shared with AppDetails & SEO schema)
-  const hookStats = useLiveAppStats(cleanId, cleanSlug, overallRating, Number(totalReviewCount) || 0);
+  const hookStats = useLiveAppStats(cleanId, cleanSlug, overallRating, 0);
 
   // Prefer live parent stats if available and has valid reviews
   const activeStats = (parentStats && Number(parentStats.totalReviews) > 0) ? parentStats : hookStats;
 
-  const rawCount = Number(activeStats?.totalReviews) || Number(totalReviewCount) || 0;
+  const rawCount = Number(activeStats?.totalReviews ?? activeStats?.published ?? 0);
   // Crucial reconciliation: Never show a smaller count than reviews actually displayed in feed!
   const totalCount = Math.max(rawCount, displayedReviewsCount);
   const hasRealReviews = totalCount > 0;

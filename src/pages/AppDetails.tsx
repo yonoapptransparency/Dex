@@ -253,7 +253,7 @@ export default function AppDetails() {
     : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 4.5);
   const realReviewCount = hasLiveReviews 
     ? Number(activeStats.totalReviews) 
-    : (app.review_count || app.reviews ? parseInt(String(app.review_count || app.reviews), 10) : 0);
+    : 0;
 
   const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
   const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
