@@ -203,6 +203,7 @@ export function PublicHeader() {
           siteTitle={settings.site_title || 'RummyDex'}
           logoUrl={settings.logo_url}
           triggerHaptic={triggerHaptic}
+          helplineTelegram={settings.helpline_telegram}
         />
       )}
 
