@@ -8,35 +8,30 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader({ app }: AppHeaderProps) {
-  const initialIcon = app.icon_url ? getOptimizedImageUrl(app.icon_url, 240) : '';
-  const [imgSrc, setImgSrc] = useState(initialIcon);
-  const [imgFailed, setImgFailed] = useState(false);
-
-  useEffect(() => {
-    const nextUrl = app.icon_url ? getOptimizedImageUrl(app.icon_url, 240) : '';
-    setImgSrc(nextUrl);
-    setImgFailed(false);
-  }, [app.icon_url]);
-
-  const handleImageError = () => {
-    // If optimized URL failed, try original unoptimized icon_url
-    if (app.icon_url && imgSrc !== app.icon_url) {
-      setImgSrc(app.icon_url);
-    } else {
-      setImgFailed(true);
-    }
-  };
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
   const initialLetter = (app.name || 'A').trim().substring(0, 1).toUpperCase();
+  const rawUrl = app.icon_url || '';
+  const optimizedUrl = rawUrl ? (getOptimizedImageUrl(rawUrl, 240) || rawUrl) : '';
+  const currentSrc = failedUrl === optimizedUrl ? rawUrl : optimizedUrl;
+  const isFailed = Boolean(rawUrl && failedUrl === rawUrl);
+
+  const handleImageError = () => {
+    if (failedUrl !== optimizedUrl && optimizedUrl !== rawUrl) {
+      setFailedUrl(optimizedUrl);
+    } else {
+      setFailedUrl(rawUrl);
+    }
+  };
 
   return (
     <div className="flex w-full items-center gap-2.5 xxs:gap-3 xs:gap-4 sm:gap-6 mb-3.5 sm:mb-6 px-1 xs:px-2 sm:px-4 md:px-6 mt-1 sm:mt-2">
       {/* App Icon Container - slightly bigger, clean, premium presentation */}
       <div className="relative w-[56px] h-[56px] xxs:w-[66px] xxs:h-[66px] xs:w-[80px] xs:h-[80px] sm:w-[102px] sm:h-[102px] md:w-[116px] md:h-[116px] shrink-0">
         <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[20px] sm:rounded-[24px] overflow-hidden shadow-sm bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/10 relative">
-          {app.icon_url && !imgFailed ? (
+          {rawUrl && !isFailed ? (
             <img 
-              src={imgSrc || app.icon_url} 
+              src={currentSrc} 
               alt={`${app.name} app icon`} 
               loading="eager" 
               fetchPriority="high" 

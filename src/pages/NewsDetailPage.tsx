@@ -7,6 +7,7 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
+import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import { formatNewsDate, calculateReadingTime } from '../components/public/news/newsUtils';
 
 export default function NewsDetailPage() {
@@ -135,6 +136,97 @@ export default function NewsDetailPage() {
     return null;
   }, [relatedApp, newsItem]);
 
+  // 16 Category Similar Apps (single-pass, zero garbage allocations)
+  const similarCategoryApps = useMemo(() => {
+    if (!apps || apps.length === 0) return { list: [], category: '', totalCount: 0 };
+
+    const targetCategory = (relatedApp?.category || newsItem?.category || 'Yono Apps').trim();
+    const cleanTargetCat = targetCategory.toLowerCase();
+    const isAll = cleanTargetCat === 'all' || cleanTargetCat === 'all apps';
+    const relAppId = relatedApp ? String(relatedApp.id || '') : '';
+    const relAppSlug = relatedApp ? String(relatedApp.slug || '').toLowerCase() : '';
+
+    const newApps: any[] = [];
+    const regularApps: any[] = [];
+    let totalCatCount = 0;
+
+    for (let i = 0; i < apps.length; i++) {
+      const a = apps[i];
+      if (!a) continue;
+
+      const aId = String(a.id || '');
+      const aSlug = String(a.slug || '').toLowerCase();
+      const isBaseApp = Boolean(relatedApp && (aId === relAppId || aSlug === relAppSlug));
+
+      const aCat = (a.category || '').toLowerCase();
+      const matches = isAll || aCat.includes(cleanTargetCat) || cleanTargetCat.includes(aCat);
+
+      if (matches) {
+        totalCatCount++;
+        if (!isBaseApp) {
+          const rawItem = a as any;
+          const isNew = Boolean(
+            rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
+            rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
+            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
+          );
+          if (isNew) {
+            newApps.push(a);
+          } else {
+            regularApps.push(a);
+          }
+        }
+      }
+    }
+
+    // 1. Sort new apps strictly by serial_number ascending
+    newApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
+
+    // 2. Sort regular apps strictly by serial_number ascending
+    regularApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
+
+    const maxCount = 16;
+    const pinnedNew = newApps.slice(0, Math.min(newApps.length, maxCount));
+    const remainingSlots = maxCount - pinnedNew.length;
+
+    // Balanced Circular Internal Linking:
+    // Stagger regular apps circularly starting right after the base app's serial number
+    const pickedRegular: any[] = [];
+    if (remainingSlots > 0 && regularApps.length > 0) {
+      let startIndex = 0;
+      const baseSerial = Number(relatedApp?.serial_number);
+      if (!isNaN(baseSerial) && baseSerial > 0) {
+        const nextIdx = regularApps.findIndex(a => (Number(a.serial_number) || 0) > baseSerial);
+        startIndex = nextIdx !== -1 ? nextIdx : 0;
+      } else {
+        const str = String(cleanSlug || newsItem?.slug || newsItem?.id || '');
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        startIndex = Math.abs(hash) % regularApps.length;
+      }
+
+      const countToPick = Math.min(remainingSlots, regularApps.length);
+      for (let step = 0; step < countToPick; step++) {
+        pickedRegular.push(regularApps[(startIndex + step) % regularApps.length]);
+      }
+    }
+
+    const finalList = [...pinnedNew, ...pickedRegular].map((a: any) => ({
+      id: a.id,
+      name: a.name,
+      slug: a.slug,
+      icon_url: a.icon_url || a.logo_url,
+      is_new: Boolean(a.is_new === true || a.is_new === 'true' || a.isNew || a.badge?.toLowerCase() === 'new'),
+      serial_number: a.serial_number
+    }));
+
+    return {
+      list: finalList,
+      category: targetCategory,
+      totalCount: totalCatCount
+    };
+  }, [apps, relatedApp, newsItem, cleanSlug]);
+
   const handleShare = () => {
     const url = newsItem?.canonical_url || window.location.href;
     const shareTitle = newsItem?.seo_title || newsItem?.title || 'News Article';
@@ -256,6 +348,15 @@ export default function NewsDetailPage() {
         newsItem={newsItem}
         className="my-5 sm:my-6"
       />
+
+      {/* Similar Applications in the same category (16 apps, 2 rows, smooth touch carousel) */}
+      {similarCategoryApps.list.length > 0 && (
+        <AppSimilarCarousel 
+          relatedApps={similarCategoryApps.list}
+          specificCategory={similarCategoryApps.category}
+          totalCategoryCount={similarCategoryApps.totalCount}
+        />
+      )}
 
       <div 
         className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"

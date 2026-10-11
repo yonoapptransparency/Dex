@@ -13,6 +13,7 @@ import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
 import { mockApps as staticMockApps } from '../lib/staticData';
 import { resolveAppSlug } from '../lib/slugResolver';
+import { getPrefetchedApp } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
@@ -43,7 +44,7 @@ export default function AppDetails() {
   const app = useMemo(() => {
     if (!slug) return null;
     
-    let dynamicApp = fetchedApp;
+    let dynamicApp = fetchedApp || getPrefetchedApp(slug);
     if (!dynamicApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
       dynamicApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
     }
@@ -94,65 +95,94 @@ export default function AppDetails() {
 
   const specificCategory = useMemo(() => {
     if (!app?.category) return 'All Apps';
-    const parts = app.category.split(',').map((c: string) => c.trim()).filter(Boolean);
-    const nonGeneric = parts.filter((c: string) => {
-      const lower = c.toLowerCase();
-      return lower !== 'all apps' && lower !== 'all' && lower !== 'apps' && lower !== 'general';
-    });
-    return nonGeneric.length > 0 ? nonGeneric[0] : (parts[0] || 'All Apps');
+    const first = app.category.split(',')[0]?.trim() || '';
+    return (first && !['all apps', 'all', 'apps', 'general'].includes(first.toLowerCase())) ? first : 'All Apps';
   }, [app?.category]);
 
-  const relatedApps = useMemo(() => {
-    if (!app || !Array.isArray(mockApps) || mockApps.length === 0) return [];
-    const sourceApps = mockApps;
-    const currentCats = (app.category || '').toLowerCase().split(',').map((c: string) => c.trim()).filter(Boolean);
-    const specificCats = currentCats.filter((c: string) => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
-    
-    const exactMatches: typeof sourceApps = [];
-    const tokenMatches: typeof sourceApps = [];
-    const fallbackApps: typeof sourceApps = [];
+  // Single-pass high-performance category metrics and balanced circular internal linking
+  const { relatedApps, totalCategoryAppsCount } = useMemo(() => {
+    if (!app || !Array.isArray(mockApps) || mockApps.length === 0) {
+      return { relatedApps: [], totalCategoryAppsCount: 0 };
+    }
 
+    const currentCatLower = specificCategory.toLowerCase();
+    const isAll = currentCatLower === 'all apps';
     const appId = String(app.id || '');
     const appSlug = String(app.slug || '').toLowerCase();
 
-    for (let i = 0; i < sourceApps.length; i++) {
-      const a = sourceApps[i];
-      if (String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug)) continue;
-      
-      const appCats = (a.category || '').toLowerCase().split(',').map((c: string) => c.trim()).filter(Boolean);
-      const appSpecificCats = appCats.filter((c: string) => c !== 'all apps' && c !== 'all' && c !== 'apps' && c !== 'general');
+    const newApps: any[] = [];
+    const regularApps: any[] = [];
+    let totalCatCount = 0;
 
-      if (specificCats.some((sc: string) => appSpecificCats.includes(sc))) {
-        exactMatches.push(a);
-        if (exactMatches.length >= 12) break;
-        continue;
-      }
+    for (let i = 0; i < mockApps.length; i++) {
+      const a = mockApps[i];
+      if (!a) continue;
 
-      if (tokenMatches.length < 8) {
-        const hasTokenMatch = specificCats.some((sc: string) => {
-          const tokens = sc.split(/\s+/);
-          return appSpecificCats.some((asc: string) => tokens.some((t: string) => t.length > 2 && asc.includes(t)));
-        });
-        if (hasTokenMatch) {
-          tokenMatches.push(a);
-          continue;
+      const isCurrent = String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug);
+      const aCat = (a.category || '').toLowerCase();
+      const matchesCategory = isAll || aCat.includes(currentCatLower);
+
+      if (matchesCategory) {
+        totalCatCount++;
+        if (!isCurrent) {
+          const rawItem = a as any;
+          const isNew = Boolean(
+            rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
+            rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
+            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
+          );
+          if (isNew) {
+            newApps.push(a);
+          } else {
+            regularApps.push(a);
+          }
         }
-      }
-
-      if (fallbackApps.length < 8) {
-        fallbackApps.push(a);
       }
     }
 
-    const combined = [...exactMatches, ...tokenMatches];
-    const finalApps = combined.length < 6 ? [...combined, ...fallbackApps].slice(0, 10) : combined.slice(0, 12);
-    return finalApps.map(a => ({
+    // 1. Sort new apps strictly by serial_number ascending
+    newApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
+
+    // 2. Sort regular apps strictly by serial_number ascending
+    regularApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
+
+    const maxCount = 16;
+    const pinnedNew = newApps.slice(0, Math.min(newApps.length, maxCount));
+    const remainingSlots = maxCount - pinnedNew.length;
+
+    // Balanced Circular Internal Linking:
+    // Stagger regular apps circularly starting right after current app's position
+    const pickedRegular: any[] = [];
+    if (remainingSlots > 0 && regularApps.length > 0) {
+      let startIndex = 0;
+      const currSerial = Number(app.serial_number);
+      if (!isNaN(currSerial) && currSerial > 0) {
+        const nextIdx = regularApps.findIndex(a => (Number(a.serial_number) || 0) > currSerial);
+        startIndex = nextIdx !== -1 ? nextIdx : 0;
+      } else {
+        const str = String(app.slug || app.id || '');
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        startIndex = Math.abs(hash) % regularApps.length;
+      }
+
+      const countToPick = Math.min(remainingSlots, regularApps.length);
+      for (let step = 0; step < countToPick; step++) {
+        pickedRegular.push(regularApps[(startIndex + step) % regularApps.length]);
+      }
+    }
+
+    const mapped = [...pinnedNew, ...pickedRegular].map((a: any) => ({
       id: a.id,
       name: a.name,
       slug: a.slug,
-      icon_url: a.icon_url
+      icon_url: a.icon_url,
+      is_new: Boolean(a.is_new === true || a.is_new === 'true' || a.isNew || a.badge?.toLowerCase() === 'new'),
+      serial_number: a.serial_number
     }));
-  }, [mockApps, app?.category, app?.id, app?.slug]);
+
+    return { relatedApps: mapped, totalCategoryAppsCount: totalCatCount };
+  }, [mockApps, app?.category, app?.id, app?.slug, app?.serial_number, specificCategory]);
 
   useEffect(() => {
     if (!app?.is_coming_soon || !app?.publish_date) {
@@ -179,10 +209,29 @@ export default function AppDetails() {
   }, [slug]);
 
   useEffect(() => {
+    const handlePrefetched = (evt: any) => {
+      const prefetched = evt?.detail?.app;
+      if (prefetched && slug) {
+        const curKey = slug.toLowerCase();
+        const pSlug = String(prefetched.slug || prefetched.id || '').toLowerCase();
+        if (pSlug === curKey || resolveAppSlug(curKey, [prefetched])) {
+          setFetchedApp(prefetched);
+        }
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('yd-app-details-prefetched', handlePrefetched);
+      return () => window.removeEventListener('yd-app-details-prefetched', handlePrefetched);
+    }
+  }, [slug]);
+
+  useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
+    if (app && app.description_html) return;
 
-    const resolved = fetchedApp || (app && app.description_html ? app : null) || resolveAppSlug(slugKey, staticMockApps) || resolveAppSlug(slugKey, mockApps);
+    const prefetched = getPrefetchedApp(slugKey);
+    const resolved = fetchedApp || (app && app.description_html ? app : null) || (prefetched && prefetched.description_html ? prefetched : null) || resolveAppSlug(slugKey, staticMockApps) || resolveAppSlug(slugKey, mockApps);
     const isMissingDetails = !resolved || !resolved.description_html;
 
     if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
@@ -299,7 +348,7 @@ export default function AppDetails() {
   }, [mockNews, app?.name, app?.id]);
 
   return (
-    <div className="animate-fade-in w-full">
+    <div className="w-full">
       {shareToast && (
         <div
           role="status"
@@ -340,7 +389,11 @@ export default function AppDetails() {
           handleShare={handleShare} 
         />
 
-        <AppSimilarCarousel relatedApps={relatedApps} specificCategory={specificCategory} />
+        <AppSimilarCarousel 
+          relatedApps={relatedApps} 
+          specificCategory={specificCategory} 
+          totalCategoryCount={totalCategoryAppsCount} 
+        />
 
         <AppScreenshots app={app} />
 
