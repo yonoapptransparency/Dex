@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { mockNews as staticMockNews } from '../lib/staticData';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
@@ -32,11 +31,20 @@ export default function NewsDetailPage() {
 
   const contextNewsItem = useMemo(() => {
     if (!cleanSlug) return null;
-    return mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
-           staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
-  }, [cleanSlug, mockNews]);
+    let found = fetchedNewsItem;
+    if (!found && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.news) {
+      const initNews = (window as any).__INITIAL_DATA__.news;
+      if (Array.isArray(initNews)) {
+        found = initNews.find((n: any) => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+      }
+    }
+    if (!found && Array.isArray(mockNews)) {
+      found = mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+    }
+    return found || null;
+  }, [cleanSlug, mockNews, fetchedNewsItem]);
 
-  const newsItem = fetchedNewsItem || contextNewsItem;
+  const newsItem = contextNewsItem;
 
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -242,12 +250,7 @@ export default function NewsDetailPage() {
   };
 
   if (loading && !newsItem && mockNews.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
-        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading...</p>
-      </div>
-    );
+    return null;
   }
 
   if (!newsItem && isRefreshing) {
