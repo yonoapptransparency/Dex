@@ -11,6 +11,7 @@ import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
+import { mockApps as staticMockApps } from '../lib/staticData';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getPrefetchedApp } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
@@ -43,32 +44,44 @@ export default function AppDetails() {
   const app = useMemo(() => {
     if (!slug) return null;
     
-    let resolvedApp = fetchedApp || getPrefetchedApp(slug);
-    if (!resolvedApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
-      resolvedApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
+    let dynamicApp = fetchedApp || getPrefetchedApp(slug);
+    if (!dynamicApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
+      dynamicApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
     }
-    if (!resolvedApp && Array.isArray(mockApps)) {
-      resolvedApp = resolveAppSlug(slug, mockApps);
+    if (!dynamicApp && Array.isArray(mockApps)) {
+      dynamicApp = resolveAppSlug(slug, mockApps);
     }
+    const staticApp = Array.isArray(staticMockApps) ? resolveAppSlug(slug, staticMockApps) : null;
 
-    if (!resolvedApp) return null;
+    if (!dynamicApp && !staticApp) return null;
+
+    const merged = { ...(staticApp || {}), ...(dynamicApp || {}) };
+
+    if (!merged.description_html && staticApp?.description_html) merged.description_html = staticApp.description_html;
+    if (!merged.features_html && staticApp?.features_html) merged.features_html = staticApp.features_html;
+    if ((!merged.screenshots || merged.screenshots.length === 0) && staticApp?.screenshots && staticApp.screenshots.length > 0) {
+      merged.screenshots = staticApp.screenshots;
+    }
+    if ((!merged.faqs || merged.faqs.length === 0) && staticApp?.faqs && staticApp.faqs.length > 0) merged.faqs = staticApp.faqs;
+    if (!merged.custom_admin_box_html && staticApp?.custom_admin_box_html) merged.custom_admin_box_html = staticApp.custom_admin_box_html;
+    if (!merged.release_notes && staticApp?.release_notes) merged.release_notes = staticApp.release_notes;
 
     return {
-      ...resolvedApp,
-      description_html: resolvedApp.description_html || '',
-      features_html: resolvedApp.features_html || '',
-      screenshots: Array.isArray(resolvedApp.screenshots) ? resolvedApp.screenshots : [],
-      faqs: Array.isArray(resolvedApp.faqs) ? resolvedApp.faqs : [],
-      custom_admin_box_html: resolvedApp.custom_admin_box_html || '',
-      custom_admin_box_heading: resolvedApp.custom_admin_box_heading || '',
-      release_notes: resolvedApp.release_notes || '',
-      yellow_box_msg: resolvedApp.yellow_box_msg || '',
-      red_box_msg: resolvedApp.red_box_msg || '',
-      idea_box_msg: resolvedApp.idea_box_msg || '',
-      file_size: resolvedApp.file_size || '45 MB',
-      version: resolvedApp.version || '1.0.0',
-      developer: resolvedApp.developer || 'Developer',
-      safety_status: resolvedApp.safety_status || 'Verified',
+      ...merged,
+      description_html: merged.description_html || '',
+      features_html: merged.features_html || '',
+      screenshots: Array.isArray(merged.screenshots) ? merged.screenshots : [],
+      faqs: Array.isArray(merged.faqs) ? merged.faqs : [],
+      custom_admin_box_html: merged.custom_admin_box_html || '',
+      custom_admin_box_heading: merged.custom_admin_box_heading || '',
+      release_notes: merged.release_notes || '',
+      yellow_box_msg: merged.yellow_box_msg || '',
+      red_box_msg: merged.red_box_msg || '',
+      idea_box_msg: merged.idea_box_msg || '',
+      file_size: merged.file_size || '45 MB',
+      version: merged.version || '1.0.0',
+      developer: merged.developer || 'Developer',
+      safety_status: merged.safety_status || 'Verified',
     };
   }, [slug, mockApps, fetchedApp]);
   
@@ -113,13 +126,10 @@ export default function AppDetails() {
         totalCatCount++;
         if (!isCurrent) {
           const rawItem = a as any;
-          const badgeStr = typeof rawItem.badge === 'string' ? rawItem.badge.trim().toUpperCase() : '';
-          const tagsArr = Array.isArray(rawItem.tags) ? rawItem.tags : [];
           const isNew = Boolean(
             rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
             rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
-            badgeStr === 'NEW' || badgeStr.includes('NEW') ||
-            tagsArr.some((t: any) => String(t).toUpperCase().includes('NEW'))
+            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
           );
           if (isNew) {
             newApps.push(a);
@@ -196,7 +206,6 @@ export default function AppDetails() {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
     setFetchedApp(null);
-    setIsFetchingDetails(false);
   }, [slug]);
 
   useEffect(() => {
@@ -219,17 +228,13 @@ export default function AppDetails() {
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
-    if (app && app.description_html && app.description_html.trim().length > 10) return;
+    if (app && app.description_html) return;
 
     const prefetched = getPrefetchedApp(slugKey);
-    const resolved = (fetchedApp && fetchedApp.description_html) ? fetchedApp : ((prefetched && prefetched.description_html) ? prefetched : null);
+    const resolved = fetchedApp || (app && app.description_html ? app : null) || (prefetched && prefetched.description_html ? prefetched : null) || resolveAppSlug(slugKey, staticMockApps) || resolveAppSlug(slugKey, mockApps);
+    const isMissingDetails = !resolved || !resolved.description_html;
 
-    if (resolved && resolved.description_html && resolved.description_html.trim().length > 10) {
-      if (updateAppDetail) updateAppDetail(resolved);
-      return;
-    }
-
-    if (!syncAttemptedRef.current[slugKey]) {
+    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
       syncAttemptedRef.current[slugKey] = true;
       setIsFetchingDetails(true);
 
@@ -243,17 +248,23 @@ export default function AppDetails() {
             setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
           } else if (refreshAll) {
-            refreshAll(true);
+            return refreshAll(true);
           }
         })
         .catch(() => {
-          if (refreshAll) refreshAll(true);
+          if (!triedRefresh && refreshAll) {
+            setTriedRefresh(true);
+            refreshAll(true);
+          }
         })
         .finally(() => {
           setIsFetchingDetails(false);
+          setTriedRefresh(true);
         });
+    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
+      updateAppDetail(resolved);
     }
-  }, [slug, app?.description_html, fetchedApp, updateAppDetail, refreshAll]);
+  }, [slug, mockApps, fetchedApp, triedRefresh, refreshAll, updateAppDetail]);
 
   if (!app && loading) return <AppDetailsSkeleton />;
   if (!app) return <AppNotFound slug={slug || ''} />;
