@@ -20,12 +20,23 @@ export default function NewsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const contentTopRef = useRef<HTMLDivElement>(null);
   const [copyToast, setCopyToast] = useState(false);
+  const [fetchedNews, setFetchedNews] = useState<any[]>([]);
 
   // Instantly prefetch the NewsDetailPage chunk into memory
-  // so any news card click opens instantaneously with 0ms latency
+  // and load public news feed if missing
   useEffect(() => {
     import('./NewsDetailPage').catch(() => {});
-  }, []);
+    if (!mockNews || mockNews.length === 0) {
+      fetch('/api/v1/public/news')
+        .then(res => res.json())
+        .then(data => {
+          if (data?.status === 'OK' && Array.isArray(data.news) && data.news.length > 0) {
+            setFetchedNews(data.news);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [mockNews]);
 
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
@@ -33,7 +44,8 @@ export default function NewsPage() {
   const searchTerm = searchParams.get('q') || '';
 
   const publicNewsList = useMemo(() => {
-    return (mockNews || [])
+    const listToUse = (mockNews && mockNews.length > 0) ? mockNews : fetchedNews;
+    return (listToUse || [])
       .filter(item => item && item.sync_to_public !== false)
       .sort((a, b) => {
         if (a.is_pinned && !b.is_pinned) return -1;
@@ -42,7 +54,7 @@ export default function NewsPage() {
         const dateB = new Date(b.date || b.published_at || b.created_at || 0).getTime();
         return dateB - dateA;
       });
-  }, [mockNews]);
+  }, [mockNews, fetchedNews]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();

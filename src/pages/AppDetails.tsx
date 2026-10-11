@@ -113,10 +113,13 @@ export default function AppDetails() {
         totalCatCount++;
         if (!isCurrent) {
           const rawItem = a as any;
+          const badgeStr = typeof rawItem.badge === 'string' ? rawItem.badge.trim().toUpperCase() : '';
+          const tagsArr = Array.isArray(rawItem.tags) ? rawItem.tags : [];
           const isNew = Boolean(
             rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
             rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
-            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
+            badgeStr === 'NEW' || badgeStr.includes('NEW') ||
+            tagsArr.some((t: any) => String(t).toUpperCase().includes('NEW'))
           );
           if (isNew) {
             newApps.push(a);
@@ -193,6 +196,7 @@ export default function AppDetails() {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
     setFetchedApp(null);
+    setIsFetchingDetails(false);
   }, [slug]);
 
   useEffect(() => {
@@ -215,13 +219,17 @@ export default function AppDetails() {
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
-    if (app && app.description_html) return;
+    if (app && app.description_html && app.description_html.trim().length > 10) return;
 
     const prefetched = getPrefetchedApp(slugKey);
-    const resolved = fetchedApp || (app && app.description_html ? app : null) || (prefetched && prefetched.description_html ? prefetched : null) || resolveAppSlug(slugKey, mockApps);
-    const isMissingDetails = !resolved || !resolved.description_html;
+    const resolved = (fetchedApp && fetchedApp.description_html) ? fetchedApp : ((prefetched && prefetched.description_html) ? prefetched : null);
 
-    if (isMissingDetails && !syncAttemptedRef.current[slugKey] && !triedRefresh) {
+    if (resolved && resolved.description_html && resolved.description_html.trim().length > 10) {
+      if (updateAppDetail) updateAppDetail(resolved);
+      return;
+    }
+
+    if (!syncAttemptedRef.current[slugKey]) {
       syncAttemptedRef.current[slugKey] = true;
       setIsFetchingDetails(true);
 
@@ -235,23 +243,17 @@ export default function AppDetails() {
             setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
           } else if (refreshAll) {
-            return refreshAll(true);
-          }
-        })
-        .catch(() => {
-          if (!triedRefresh && refreshAll) {
-            setTriedRefresh(true);
             refreshAll(true);
           }
         })
+        .catch(() => {
+          if (refreshAll) refreshAll(true);
+        })
         .finally(() => {
           setIsFetchingDetails(false);
-          setTriedRefresh(true);
         });
-    } else if (resolved && updateAppDetail && !mockApps.some(a => a.id === resolved.id || a.slug?.toLowerCase() === resolved.slug?.toLowerCase())) {
-      updateAppDetail(resolved);
     }
-  }, [slug, mockApps, fetchedApp, triedRefresh, refreshAll, updateAppDetail]);
+  }, [slug, app?.description_html, fetchedApp, updateAppDetail, refreshAll]);
 
   if (!app && loading) return <AppDetailsSkeleton />;
   if (!app) return <AppNotFound slug={slug || ''} />;
