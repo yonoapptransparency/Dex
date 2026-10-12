@@ -32,7 +32,14 @@ export default function NewsDetailPage() {
 
   const contextNewsItem = useMemo(() => {
     if (!cleanSlug) return null;
-    return mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
+    let fromInit = null;
+    if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.news) {
+      fromInit = (window as any).__INITIAL_DATA__.news.find((n: any) => 
+        (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug
+      );
+    }
+    return fromInit ||
+           mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
            staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
   }, [cleanSlug, mockNews]);
 
@@ -58,7 +65,7 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     const slugKey = cleanSlug || '';
-    if (!slugKey || matchedApp || hasFullBody) return;
+    if (!slugKey || (matchedApp && !newsItem) || hasFullBody) return;
 
     if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;

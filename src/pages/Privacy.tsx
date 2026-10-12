@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Privacy Policy static layout
@@ -10,7 +11,13 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import Meta from '../components/Meta';
 
 export default function Privacy() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.privacy_content && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.privacy_content, fetchSettings]);
   const privacyContent = mockSettings.privacy_content || '';
   const hasHtml = /<[a-z][\s\S]*>/i.test(privacyContent);
   

@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
@@ -6,7 +7,13 @@ import Meta from '../components/Meta';
 import { DEFAULT_DISCLAIMER_HTML } from '../lib/defaultLegalContent';
 
 export default function Disclaimer() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.disclaimer_text && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.disclaimer_text, fetchSettings]);
   
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">

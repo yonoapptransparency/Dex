@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { useData } from '../contexts/DataContextPublic';
 import { Link } from 'react-router-dom';
@@ -5,7 +6,13 @@ import { ArrowLeft, FileText } from 'lucide-react';
 import Meta from '../components/Meta';
 
 export default function Notice() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.important_notice && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.important_notice, fetchSettings]);
   
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">

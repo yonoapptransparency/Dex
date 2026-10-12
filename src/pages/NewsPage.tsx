@@ -16,10 +16,15 @@ import { getPlainTextSnippet } from '../components/public/news/newsUtils';
 const ITEMS_PER_PAGE = 9;
 
 export default function NewsPage() {
-  const { news: mockNews = [], settings: mockSettings } = useData();
+  const { news: mockNews = [], settings: mockSettings, fetchNews } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
   const contentTopRef = useRef<HTMLDivElement>(null);
   const [copyToast, setCopyToast] = useState(false);
+
+  // Trigger dedicated news fetch when user navigates to News section
+  useEffect(() => {
+    if (fetchNews) fetchNews();
+  }, [fetchNews]);
 
   // Instantly prefetch the NewsDetailPage chunk into memory
   // so any news card click opens instantaneously with 0ms latency

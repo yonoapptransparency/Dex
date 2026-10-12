@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Terms and Conditions page layout
@@ -10,7 +11,13 @@ import { ArrowLeft } from 'lucide-react';
 import Meta from '../components/Meta';
 
 export default function Terms() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.terms_content && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.terms_content, fetchSettings]);
   const termsContent = mockSettings.terms_content || '';
   const hasHtml = /<[a-z][\s\S]*>/i.test(termsContent);
   

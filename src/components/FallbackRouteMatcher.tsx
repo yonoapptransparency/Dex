@@ -7,8 +7,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { resolveAppSlug } from '../lib/slugResolver';
-import { mockApps as staticMockApps, mockNews as staticMockNews, mockVideos as staticMockVideos } from '../lib/staticData';
 import Meta from './Meta';
+
+const getInitialData = () => {
+  if (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__) {
+    return (window as any).__INITIAL_DATA__;
+  }
+  return {};
+};
 
 export default function FallbackRouteMatcher() {
   const location = useLocation();
@@ -38,20 +44,21 @@ export default function FallbackRouteMatcher() {
   }
 
   // 1. Check if slug matches an app -> Always 301 Redirect to canonical /app/:slug
-  const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, staticMockApps);
+  const initData = getInitialData();
+  const matchedApp = resolveAppSlug(slug, apps) || resolveAppSlug(slug, initData.apps || []);
   if (matchedApp && (matchedApp.slug || matchedApp.id)) {
     const targetSlug = matchedApp.slug || matchedApp.id;
     return <Navigate to={`/app/${targetSlug}`} replace />;
   }
 
   // 2. Check if slug matches news -> Redirect to /news/:slug
-  const matchedNews = news.find(n => n.slug?.toLowerCase() === slug) || staticMockNews.find(n => n.slug?.toLowerCase() === slug);
+  const matchedNews = news.find(n => n.slug?.toLowerCase() === slug) || (initData.news || []).find((n: any) => n.slug?.toLowerCase() === slug);
   if (matchedNews && matchedNews.slug) {
     return <Navigate to={`/news/${matchedNews.slug}`} replace />;
   }
 
   // 3. Check if slug matches video -> Redirect to /videos/:slug
-  const matchedVideo = videos.find(v => v.slug?.toLowerCase() === slug) || staticMockVideos.find(v => v.slug?.toLowerCase() === slug);
+  const matchedVideo = videos.find(v => v.slug?.toLowerCase() === slug) || (initData.videos || []).find((v: any) => v.slug?.toLowerCase() === slug);
   if (matchedVideo && matchedVideo.slug) {
     return <Navigate to={`/videos/${matchedVideo.slug}`} replace />;
   }

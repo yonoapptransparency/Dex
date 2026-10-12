@@ -33,8 +33,14 @@ function getYoutubeId(urlStr: string) {
 }
 
 export default function VideosPage() {
-  const { videos: mockVideos = [], settings: mockSettings, loading } = useData();
+  const { videos: mockVideos = [], settings: mockSettings, loading, fetchVideos } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if ((!mockVideos || mockVideos.length === 0) && fetchVideos) {
+      fetchVideos();
+    }
+  }, [mockVideos.length, fetchVideos]);
 
   const urlPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(urlPage) || urlPage < 1 ? 1 : urlPage;

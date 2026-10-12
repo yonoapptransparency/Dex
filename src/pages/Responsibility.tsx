@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Responsibility safety awareness details layout
@@ -10,7 +11,13 @@ import Meta from '../components/Meta';
 import { Link } from 'react-router-dom';
 
 export default function Responsibility() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.responsibility_content && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.responsibility_content, fetchSettings]);
   const responsibilityContent = mockSettings.responsibility_content || '';
   const hasHtml = /<[a-z][\s\S]*>/i.test(responsibilityContent);
   

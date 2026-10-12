@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * About page layout
@@ -10,7 +11,13 @@ import { ArrowLeft } from 'lucide-react';
 import Meta from '../components/Meta';
 
 export default function About() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.about_content && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.about_content, fetchSettings]);
   const defaultAboutContent = `
     <p>Welcome to <strong>${mockSettings?.site_title || 'Application Store'}</strong>. We are dedicated to providing a transparent, verified, and secure index of digital tools, gaming utilities, and applications.</p>
     <p>Our platform strictly evaluates applications through safe verification frameworks, threat monitoring standards, and stable node guidelines to ensure complete user privacy and safety.</p>

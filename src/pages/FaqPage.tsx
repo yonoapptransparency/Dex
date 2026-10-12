@@ -6,8 +6,14 @@ import Meta from '../components/Meta';
 import { safeHtml } from '../lib/safeHtmlPublic';
 
 export default function FaqPage() {
-  const { settings } = useData();
+  const { settings, fetchSettings } = useData();
   const siteTitle = settings?.site_title || 'RummyDex';
+
+  React.useEffect(() => {
+    if ((!settings?.website_faqs || settings.website_faqs.length === 0) && fetchSettings) {
+      fetchSettings();
+    }
+  }, [settings?.website_faqs, fetchSettings]);
 
   const faqs = useMemo(() => {
     if (settings?.website_faqs && Array.isArray(settings.website_faqs) && settings.website_faqs.length > 0) {

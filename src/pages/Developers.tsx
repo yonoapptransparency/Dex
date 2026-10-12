@@ -4,7 +4,13 @@ import { useData } from '../contexts/DataContextPublic';
 import { Github, Twitter } from 'lucide-react';
 
 export default function Developers() {
-  const { settings } = useData();
+  const { settings, fetchSettings } = useData();
+
+  React.useEffect(() => {
+    if ((!settings.developers || settings.developers.length === 0) && fetchSettings) {
+      fetchSettings();
+    }
+  }, [settings.developers, fetchSettings]);
 
   if (!settings.developers || settings.developers.length === 0) {
     return (

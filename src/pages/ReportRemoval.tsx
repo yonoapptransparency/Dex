@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 /**
  * Report & Removal Policy Page
@@ -9,7 +10,13 @@ import { ArrowLeft, Trash2, ShieldCheck } from 'lucide-react';
 import Meta from '../components/Meta';
 
 export default function ReportRemoval() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
+
+  useEffect(() => {
+    if (!mockSettings?.report_removal_content && fetchSettings) {
+      fetchSettings();
+    }
+  }, [mockSettings?.report_removal_content, fetchSettings]);
   const reportRemovalContent = mockSettings.report_removal_content || '';
   const hasHtml = /<[a-z][\s\S]*>/i.test(reportRemovalContent);
 
