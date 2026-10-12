@@ -23,11 +23,6 @@ export default function NewsDetailPage() {
     }
   }, [slug]);
 
-  const matchedApp = useMemo(() => {
-    if (!cleanSlug) return null;
-    return apps.find(a => (a.slug || '').toLowerCase().trim() === cleanSlug || (a.id || '').toLowerCase().trim() === cleanSlug);
-  }, [cleanSlug, apps]);
-
   const [fetchedNewsItem, setFetchedNewsItem] = useState<any | null>(null);
 
   const contextNewsItem = useMemo(() => {
@@ -65,7 +60,7 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     const slugKey = cleanSlug || '';
-    if (!slugKey || (matchedApp && !newsItem) || hasFullBody) return;
+    if (!slugKey || hasFullBody) return;
 
     if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
@@ -95,11 +90,7 @@ export default function NewsDetailPage() {
 
       return () => { isMounted = false; };
     }
-  }, [cleanSlug, matchedApp, hasFullBody, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
-
-  if (matchedApp && !newsItem) {
-    return <Navigate to={`/app/${matchedApp.slug || matchedApp.id}`} replace />;
-  }
+  }, [cleanSlug, hasFullBody, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
 
   const relatedApp = useMemo(() => {
     if (!newsItem) return null;
@@ -113,16 +104,6 @@ export default function NewsDetailPage() {
       if (appSlugFromLink) {
         const found = apps.find(a => a.slug?.toLowerCase() === appSlugFromLink.toLowerCase() || a.id === appSlugFromLink);
         if (found) return found;
-      }
-    }
-    const titleLower = (newsItem.title || '').toLowerCase();
-    const slugLower = (newsItem.slug || '').toLowerCase();
-    for (const app of apps) {
-      if (app.name && app.name.trim().length >= 3) {
-        const appNameLower = app.name.trim().toLowerCase();
-        if (titleLower.includes(appNameLower) || slugLower.includes(app.slug?.toLowerCase() || '')) {
-          return app;
-        }
       }
     }
     return null;
