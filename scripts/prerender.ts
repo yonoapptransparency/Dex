@@ -1,8 +1,7 @@
 // prerender.ts
 import fs from 'fs';
 import path from 'path';
-import { injectSeoTags } from '../src/seoHelper';
-import { fetchStoreData } from '../src/seoHelper';
+import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
 
 let generateAllSitemaps: any = null;
 try {
@@ -24,7 +23,10 @@ async function prerender() {
   
   try {
     const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
-    let originalTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');
+    let originalTemplate = cleanRootContainer(fs.readFileSync(indexHtmlPath, 'utf-8'));
+    // Persist pristine clean SPA template files with empty <div id="root"></div>
+    fs.writeFileSync(path.join(distPath, 'template.html'), originalTemplate, 'utf-8');
+    fs.writeFileSync(path.join(distPath, 'index.spa.html'), originalTemplate, 'utf-8');
 
     let data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
     if (!data.apps || data.apps.length === 0) {

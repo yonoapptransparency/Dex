@@ -178,7 +178,7 @@ export interface VideoItem {
   created_at: string;
 }
 
-export const mockApps: AppConfig[] = [
+export const mockApps: any[] = [
   {
     "is_coming_soon": false,
     "yellow_box_msg": "It get slightly heat on below Android 13",
@@ -204,7 +204,7 @@ export const mockApps: AppConfig[] = [
     "category": "Yono Apps",
     "features_html": "",
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1785670352/ezgif-82a15987d682a1a8_sdzpjc.webp",
-    "more_information_url": "U2FsdGVkX19spKvukgsvjPm+RvXJKFjkGZcJlNhAcgM0zg33azm+6W43265ZUSDFWu/rywERbkoV+w2KSlwuDJMKLAOozuP1LiYu7w4zaQc=",
+    "more_information_url": "U2FsdGVkX1+e0DGmmXuxGHJwkUHEhmeWm2vYlxiFSaA9ICbJfh19KhLPBisyL1dhpLz+5rg8Z7jGic3l2BfQIj6O3bpHfBUbzF8GLtIiNoM=",
     "seo_keywords": "casual game hub, arcade collection, virtual coin games, offline mini-games, spin crush app",
     "publish_date": "",
     "faqs": [],
@@ -215,7 +215,7 @@ export const mockApps: AppConfig[] = [
     "release_notes": "",
     "custom_admin_box_html": "",
     "safety_status": "Verified",
-    "encrypted_link": "U2FsdGVkX19spKvukgsvjPm+RvXJKFjkGZcJlNhAcgM0zg33azm+6W43265ZUSDFWu/rywERbkoV+w2KSlwuDJMKLAOozuP1LiYu7w4zaQc=",
+    "encrypted_link": "U2FsdGVkX1+e0DGmmXuxGHJwkUHEhmeWm2vYlxiFSaA9ICbJfh19KhLPBisyL1dhpLz+5rg8Z7jGic3l2BfQIj6O3bpHfBUbzF8GLtIiNoM=",
     "screenshots": [],
     "slug": "spin-crush",
     "rating": 4.4,
@@ -224,7 +224,7 @@ export const mockApps: AppConfig[] = [
   {
     "features_html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Rummy 77: Our Hands-On Review & Gameplay Breakdown</title>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>\nbody{font-family:Arial,Helvetica,sans-serif;color:#3c4043;max-width:700px;margin:40px auto;padding:0 20px;line-height:1.7;font-size:15px;background:#fff}\nh1{font-size:24px;color:#202124;font-weight:500;margin-bottom:20px}\np{margin:10px 0}\n.art{display:block;margin:18px 0}\n</style>\n</head>\n<body>\n\n<h1>Rummy 77: Our Hands-On Review &amp; Gameplay Breakdown</h1>\n<svg class=\"art\" width=\"80\" height=\"80\" viewBox=\"0 0 80 80\">\n<path d=\"M25 15l40 25-40 25z\" fill=\"none\" stroke=\"#1a73e8\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n</svg>\n\n<p>When it comes to digital card games, the market is flooded with apps that prioritize flashy menus over actual gameplay. When our team sat down to test Rummy 77, we wanted to see if it actually delivered a solid, reliable card-playing experience or if it was just another generic clone.</p>\n<p>After hours of hands-on testing across multiple devices, here is our neutral, unfiltered breakdown of exactly what Rummy 77 has to offer.</p>\n\n</body>\n</html>\n",
     "rating": 4.2,
-    "more_information_url": "U2FsdGVkX1/LZ4eittx01n6vN+rF6uBBlcHCccFWiI7KIzvz3DWOs1BcVXuoDAkQpVnQoaw4lipSFxkYTLW+Gv/LjdYyfHdFBDbjCZt6oOA=",
+    "more_information_url": "U2FsdGVkX19qI9Akr7LOcxwQqnYm2/B1OeoruTGgsHwna6c9WEOkO0xkEEXqMahmUZj/Np6IgqpytbhXu4FvjSzr/wZJBjJpvlmJG4RXR40=",
     "review_count": 56,
     "red_box_msg": "",
     "idea_box_msg": "",
@@ -239,7 +239,7 @@ export const mockApps: AppConfig[] = [
     "version": "1.0.6",
     "is_coming_soon": false,
     "canonical_url": "https://www.rummydex.com/app/rummy-77",
-    "encrypted_link": "U2FsdGVkX1/LZ4eittx01n6vN+rF6uBBlcHCccFWiI7KIzvz3DWOs1BcVXuoDAkQpVnQoaw4lipSFxkYTLW+Gv/LjdYyfHdFBDbjCZt6oOA=",
+    "encrypted_link": "U2FsdGVkX19qI9Akr7LOcxwQqnYm2/B1OeoruTGgsHwna6c9WEOkO0xkEEXqMahmUZj/Np6IgqpytbhXu4FvjSzr/wZJBjJpvlmJG4RXR40=",
     "custom_admin_box_heading": "",
     "url": "",
     "safety_status": "Verified",
@@ -295,9 +295,9 @@ export const mockApps: AppConfig[] = [
     "description_html": "<h2>Inside Rummy 91: The Game Library</h2>\n\n<h3>1. Strategy &amp; Skill Rooms (Classic Rummy)</h3>\n<p><strong>The Experience:</strong> <strong>Point, Pool, and Deals Rummy</strong> designed for mental exercise and strategy building.</p>\n<p><strong>Real User Benefit:</strong> It acts as a great <strong>brain-training tool</strong>. Users can sharpen their memory and card-matching skills in practice rooms at their own pace. The interface includes <strong>auto-sort features</strong>, making it incredibly easy for players to organize their hands without frustration.</p>\n\n<h3>2. The Social Lounge (Teen Patti &amp; Card Classics)</h3>\n<p><strong>The Experience:</strong> Traditional <strong>3-card games</strong> built around community and casual multiplayer fun.</p>\n<p><strong>Real User Benefit:</strong> Perfect for <strong>social gamers</strong>. Users can connect with friends or join quick casual matches. The inclusion of <strong>in-game emojis</strong> and <strong>animated avatars</strong> keeps the atmosphere lighthearted, relaxed, and focused on pure entertainment.</p>\n\n<h3>3. Quick-Play Arcade (Dragon vs Tiger &amp; Mini-Games)</h3>\n<p><strong>The Experience:</strong> Fast-paced, <strong>visually vibrant intuitive games</strong> that require zero complex tutorials.</p>\n<p><strong>Real User Benefit:</strong> Ideal for users who only have a few minutes to spare, like during a commute. These <strong>quick-tap games</strong> test observation and intuition. The <strong>lightweight code</strong> ensures the animations run smoothly without draining the phone's battery.</p>\n\n<h3>4. Nostalgic Board Games (Ludo)</h3>\n<p><strong>The Experience:</strong> A digital, <strong>multiplayer recreation</strong> of the classic family board game.</p>\n<p><strong>Real User Benefit:</strong> Brings classic offline fun to the mobile screen. Users get a <strong>simple, familiar interface</strong> that appeals to all age groups, offering a relaxing break from the heavier strategy-based card games.</p>",
     "rating": 4.2,
     "video_url": "",
-    "encrypted_link": "U2FsdGVkX1+1qrGdKwiwycA9sdz9ssvm5tIsZsAUukYY5mg9wu+T1+eZy8k4JHG1nukjXNfXuig3ZwO8mp/r7dfG371AYC+g9ryHXSszc2Q=",
+    "encrypted_link": "U2FsdGVkX1+8yhsa3B4DiYgS4lLD1MC19akD7nvNt3pbnkRzNw1mfD9YngngsEJpwhrAuWaeVh3dnM7kQdEDAgytIJ+fKvUttBP50sp3LUg=",
     "red_box_msg": "",
-    "more_information_url": "U2FsdGVkX1+1qrGdKwiwycA9sdz9ssvm5tIsZsAUukYY5mg9wu+T1+eZy8k4JHG1nukjXNfXuig3ZwO8mp/r7dfG371AYC+g9ryHXSszc2Q=",
+    "more_information_url": "U2FsdGVkX1+8yhsa3B4DiYgS4lLD1MC19akD7nvNt3pbnkRzNw1mfD9YngngsEJpwhrAuWaeVh3dnM7kQdEDAgytIJ+fKvUttBP50sp3LUg=",
     "version": "1.07.9",
     "safety_status": "Verified",
     "review_count": 47,
@@ -424,7 +424,7 @@ export const mockApps: AppConfig[] = [
   {
     "reviews": 45,
     "meta_title": "JOY RUMMY App update of 2026 model and get full technical breakdown",
-    "encrypted_link": "U2FsdGVkX1/+xXbnCntXmhL4wH3An4lmjMgqWVwpsBmy12/Ks7ZadrzoyyVBfqQjiV2Z/B8uaibXbfgGprZSAX0C12WQfSwmRKGApFc4Kfo=",
+    "encrypted_link": "U2FsdGVkX19efNYdRbMVSb0NRO1sOTUgdUwfHTsBBzxSGk7SJF30Oc3xE808Ziahf3s8uMyKak2aqzKeVoPStwHz0mYa+uBUfuDNvVSmV2M=",
     "developer": "Pixel Card Studios",
     "version": "1.0",
     "serial_number": 44,
@@ -467,7 +467,7 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "url": "",
-    "more_information_url": "U2FsdGVkX1/+xXbnCntXmhL4wH3An4lmjMgqWVwpsBmy12/Ks7ZadrzoyyVBfqQjiV2Z/B8uaibXbfgGprZSAX0C12WQfSwmRKGApFc4Kfo=",
+    "more_information_url": "U2FsdGVkX19efNYdRbMVSb0NRO1sOTUgdUwfHTsBBzxSGk7SJF30Oc3xE808Ziahf3s8uMyKak2aqzKeVoPStwHz0mYa+uBUfuDNvVSmV2M=",
     "description_html": "<h2>Technical Architecture and Application Details</h2>\n\n<p>\n  Featured prominently on <strong>RummyDex</strong>, <strong>Joy Rummy</strong> combines a <strong>lightweight system footprint</strong> with a <strong>robust multiplayer architecture</strong> to ensure accessibility across a wide array of mobile devices.\n</p>\n\n<h3>System Specifications and Footprint</h3>\n\n<ul>\n  <li>\n    <strong>Device Compatibility:</strong> Optimized for modern operating standards, requiring <strong>Android 6.0 or higher</strong> for stable background synchronization.\n  </li>\n  <li>\n    <strong>Storage Efficiency:</strong> The application package maintains a streamlined download size of approximately <strong>35 MB</strong>, ensuring rapid installation even on limited network bandwidth.\n  </li>\n  <li>\n    <strong>Content Governance:</strong> Rated <strong>\"Everyone\"</strong> on major app distribution channels, ensuring compliance with broad family-friendly content guidelines.\n  </li>\n</ul>\n\n<h3>Monetization Framework and App Economy</h3>\n\n<ul>\n  <li>\n    <strong>Freemium Model:</strong> The core application is <strong>freely accessible</strong>, sustained via integrated digital advertisements.\n  </li>\n  <li>\n    <strong>Cosmetic Enhancements:</strong> Optional in-app purchases (ranging from minor customization packs to extensive visual upgrades) are strictly restricted to <strong>aesthetic elements</strong>—such as unique card back designs, custom table felt colors, and avatar portraits—ensuring <strong>zero pay-to-win mechanics</strong>.\n  </li>\n</ul>\n\n<h3>Essential Permissions</h3>\n\n<p>\n  The application requests <strong>minimal system permissions</strong> strictly required for core functionality.\n</p>\n\n<ul>\n  <li>\n    <strong>Network State Access:</strong> Necessary for maintaining <strong>real-time lobby synchronization</strong>, global leaderboard updates, and multiplayer packet delivery.\n  </li>\n  <li>\n    <strong>Haptic Integration:</strong> Interfaces with device vibration hardware to deliver <strong>tactile feedback</strong> during card draws and turn notifications.\n  </li>\n</ul>\n\n<h2>Key Features</h2>\n\n<p>\n  <strong>Joy Rummy</strong> is a meticulously crafted, <strong>skill-based mobile card application</strong> designed to bring the traditional <strong>13-card strategy experience</strong> directly to digital screens. Built as an interactive hub for cognitive engagement and casual entertainment, the platform serves enthusiasts seeking a structured, immersive environment to test their memory, pattern recognition, and tactical decision-making.\n</p>\n\n<h3>Comprehensive Application Purpose and Educational Value</h3>\n\n<p>\n  Beyond simple entertainment, the application functions as an <strong>interactive digital academy</strong> for card game strategy, helping users sharpen their analytical skills.\n</p>\n\n<ul>\n  <li>\n    <strong>Cognitive Skill Enhancement:</strong> Players naturally develop advanced <strong>probability calculations</strong> by tracking discarded cards and evaluating the statistical likelihood of drawing missing sequences.\n  </li>\n  <li>\n    <strong>Strategic Planning:</strong> The app teaches <strong>disciplined resource management</strong>, requiring participants to balance defensive melding with offensive card collection under strict turn-based constraints.\n  </li>\n  <li>\n    <strong>Accessibility to Traditional Rules:</strong> By digitizing classic <strong>South Asian card mechanics</strong>, the platform acts as an educational bridge, allowing younger generations to learn traditional cultural card games in an organized, modern format.\n  </li>\n</ul>\n\n<h3>The Core Game Mechanics</h3>\n\n<p>\n  The application faithfully models <strong>traditional rummy architecture</strong>, ensuring an authentic experience across every digital match.\n</p>\n\n<ul>\n  <li>\n    <strong>The Table Setup:</strong> Matches accommodate <strong>2 to 6 players</strong> per virtual table. Each participant receives a starting hand of <strong>13 cards</strong> dealt from standard decks, while remaining cards populate the central draw and discard pools.\n  </li>\n  <li>\n    <strong>The Primary Objective:</strong> Participants must systematically draw and discard cards on each sequential turn to organize their hand into valid structural configurations, specifically <strong>\"Sets\"</strong> (three or four matching rank cards) and <strong>\"Runs\"</strong> (consecutive sequences of the same suit).\n  </li>\n  <li>\n    <strong>Point Evaluation and Resolution:</strong> A round successfully concludes when a player completes all required melds and declares their hand. Scoring calculates penalties based strictly on unmelded cards remaining in opponent hands, rewarding <strong>efficient tactical play</strong>.\n  </li>\n</ul>\n\n<h3>Engaging Play Modes</h3>\n\n<p>\n  To accommodate diverse user schedules and strategic goals, <strong>Joy Rummy</strong> incorporates multiple distinct operational environments.\n</p>\n\n<ul>\n  <li>\n    <strong>AI Practice Arena:</strong> An <strong>offline sandbox environment</strong> where users can experiment with unconventional card combinations and refine their strategies against computer-controlled opponents featuring adjustable difficulty scaling.\n  </li>\n  <li>\n    <strong>Custom Friend Lobbies:</strong> A dedicated social architecture allowing hosts to generate <strong>secure, private room codes</strong> for seamless, remote multiplayer sessions with family and friends.\n  </li>\n  <li>\n    <strong>Global Matchmaking:</strong> An <strong>automated quick-play queue</strong> pairing users globally with opponents of comparable skill tiers, complemented by a monthly competitive leaderboard tracking overall strategic milestones.\n  </li>\n</ul>\n\n<h2>The Hands-On User Experience</h2>\n\n<p>\n  The user interface of <strong>Joy Rummy</strong> is purposefully engineered to eliminate visual clutter, allowing players to focus entirely on <strong>tactical execution</strong> and <strong>board awareness</strong>.\n</p>\n\n<h3>Visual Design and Interaction Dynamics</h3>\n\n<ul>\n  <li>\n    <strong>Fluid Drag-and-Drop Controls:</strong> Card movement relies on a responsive <strong>physics-based system</strong> where cards snap securely into position, offering satisfying tactile feedback during fast-paced turns.\n  </li>\n  <li>\n    <strong>Smart Organization Tools:</strong> To alleviate screen-space limitations on smaller mobile displays, the app includes an <strong>\"Auto-Group\" feature</strong> that instantly categorizes hand components by suit and color.\n  </li>\n  <li>\n    <strong>Distraction-Free Signaling:</strong> The digital table utilizes <strong>minimalist, high-contrast aesthetics</strong>, featuring subtle visual glows that indicate valid meld formations without pulling focus from the broader game state.\n  </li>\n  <li>\n    <strong>Structured Communication:</strong> To maintain a positive community atmosphere, open text chat is replaced by a curated suite of <strong>animated emotes and quick phrases</strong>, enabling efficient expression without interrupting match pacing.\n  </li>\n</ul>\n\n<h3>Player Engagement and Community Feedback</h3>\n\n<p>\n  User interaction patterns and reviews highlight several core operational strengths alongside areas for continuous technical refinement.\n</p>\n\n<ul>\n  <li>\n    <strong>Rapid Match Initiation:</strong> Players frequently praise the speed of the global matchmaking queue, noting an average transition time of <strong>under ten seconds</strong> from the home screen to an active table.\n  </li>\n  <li>\n    <strong>Pacing and Advertisement Flow:</strong> As a freemium platform, video advertisements are displayed between completed rounds. While necessary for platform maintenance, some users observe that ad frequency can occasionally disrupt long gaming sessions.\n  </li>\n  <li>\n    <strong>Interface Density:</strong> While the responsive layout adapts well to modern devices, users operating older, compact smartphones occasionally report that managing 13 stacked cards requires precise touch inputs to avoid accidental discards.\n  </li>\n</ul>",
     "screenshots": [],
     "review_count": 45,
@@ -498,7 +498,7 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "features_html": "",
-    "more_information_url": "U2FsdGVkX1864ZQQ/kGi6e5br23XxJVVrBoVCztIgOnS3RuG2wvh1h932J5arpzYivbwtDQoGHbiytah4IlpqxSfRqTvBt1haJev7dhr0G0=",
+    "more_information_url": "U2FsdGVkX19oIkB33FfXRiTdevdh4q5NrF1N0Jd9ALW0wSoOJ9Tymz0hPN2zbSQ6f/ss66atC7qkxFs9B5Fqrx/N+U2s7NVMt7D9A2Zm1b0=",
     "description_html": "<h2>Overview & Core Game Mechanics</h2>\n\n<p><strong>Jaiho 91</strong> is a dedicated digital card game collection designed for skill-based entertainment, uniting the classic gameplay of <strong>Rummy</strong> and <strong>Teen Patti</strong> into a single, cohesive application. Built specifically for fun and casual engagement, the app provides a structured environment for players to practice <strong>card management</strong> and <strong>strategic thinking</strong> without real-world stakes.</p>\n\n<p>The application faithfully models traditional card architecture, ensuring an authentic experience across its primary game modes:</p>\n\n<ul>\n  <li><strong>Classic 13-Card Rummy:</strong> The game features traditional 13-card gameplay where participants must systematically arrange cards into valid sequences and sets.</li>\n  <li><strong>Teen Patti Integration:</strong> The application tests decision-making skills through Teen Patti mechanics, utilizing strict hand rankings that include <strong>Trail</strong>, <strong>Pure Sequence</strong>, <strong>Sequence</strong>, <strong>Color</strong>, <strong>Pair</strong>, and <strong>High Card</strong>.</li>\n  <li><strong>Virtual Resource System:</strong> The gameplay uses simple, betting-style mechanics that operate exclusively with <strong>virtual in-game coins</strong> for progression. The developer explicitly notes that the game is intended for entertainment purposes only; no real money gambling is offered, and virtual coins cannot be exchanged for cash or prizes.</li>\n</ul>\n\n<h3>Engaging Play Modes and Accessibility</h3>\n\n<p>To cater to both active learning and casual entertainment, the platform incorporates specific operational formats:</p>\n\n<ul>\n  <li><strong>Offline AI Challenges:</strong> A standout feature is the robust offline gameplay support, allowing users to challenge virtual, computer-controlled opponents without requiring an internet connection for most modes.</li>\n  <li><strong>Smart Hint System:</strong> The integration of a smart hint system acts as a live guide, helping players arrange their hands and make better gameplay decisions.</li>\n</ul>\n\n<h2>User Experience & Visual Design</h2>\n\n<p>The user interface of <strong>Jaiho 91</strong> is engineered specifically for clarity and rapid interaction. By prioritizing a user-friendly layout, the application ensures that the player's primary focus remains firmly on <strong>tactical execution</strong> and <strong>board awareness</strong>.</p>\n\n<h3>Visual Design and Interaction Dynamics</h3>\n\n<ul>\n  <li><strong>Fluid Interface:</strong> The application boasts easy-to-use controls complemented by attractive card designs and smooth animations, ensuring that dealing and organizing cards feels highly responsive.</li>\n  <li><strong>Fast-Paced Action:</strong> Matches are specifically tailored for fast and exciting gameplay rounds, making it highly suitable for quick gaming sessions during short breaks.</li>\n</ul>\n\n<h3>Educational and Strategic Value</h3>\n\n<p>The application serves as a strong platform for developing analytical skills through simulated matches:</p>\n\n<ul>\n  <li><strong>Skill Enhancement:</strong> By challenging AI opponents, players can practice strategic thinking and decision-making in a relaxed, risk-free digital environment.</li>\n  <li><strong>Combinational Learning:</strong> The platform encourages players to learn different card combinations and develop winning strategies at their own pace, making it highly suitable for both complete beginners and experienced players.</li>\n</ul>\n\n<h2>Technical Architecture and Application Details</h2>\n\n<p>Featured on <strong>RummyDex</strong>, <strong>Jaiho 91</strong> is optimized to deliver a high-performance experience while remaining highly accessible to a broad audience.</p>\n\n<h3>System Specifications and Footprint</h3>\n\n<ul>\n  <li><strong>Developer and Updates:</strong> The application is developed by <strong>\"Iskit tool\"</strong> and is actively maintained, with a recent major update released on <strong>July 1, 2026</strong>.</li>\n  <li><strong>Performance Optimization:</strong> The app is engineered for lightweight and smooth performance, preventing device strain or lag, which is especially beneficial during offline AI matches.</li>\n  <li><strong>Content Governance:</strong> The platform maintains an <strong>\"Everyone\"</strong> content rating, reflecting its focus on safe, family-friendly digital entertainment.</li>\n</ul>\n\n<h2>Monetization Framework and App Economy</h2>\n\n<ul>\n  <li><strong>Ad-Supported Infrastructure:</strong> The core application is free to download and access. To maintain the platform, it contains integrated digital advertisements.</li>\n  <li><strong>Closed Virtual Economy:</strong> Because the game relies entirely on virtual coins with zero real-world value, there are no aggressive pay-to-win gambling mechanisms, ensuring fair progression.</li>\n</ul>\n\n<h2>Data Safety and Privacy</h2>\n\n<p>The developer provides transparent information regarding how the application handles user data:</p>\n\n<ul>\n  <li><strong>Data Collection:</strong> The application may collect specific data types to function, such as <strong>Device or other IDs</strong>.</li>\n  <li><strong>Encryption Standards:</strong> The developer's privacy disclosures note that data is <strong>not encrypted in transit</strong>, and data privacy practices may vary based on usage, region, and age.</li>\n</ul>",
     "reviews": 44,
     "category": "Yono Apps",
@@ -522,7 +522,7 @@ export const mockApps: AppConfig[] = [
     "release_notes": "",
     "safety_status": "Verified",
     "seo_title": "Jaiho 91  : Classic Rummy, Teen Patti & Offline AI | RummyDex",
-    "encrypted_link": "U2FsdGVkX1864ZQQ/kGi6e5br23XxJVVrBoVCztIgOnS3RuG2wvh1h932J5arpzYivbwtDQoGHbiytah4IlpqxSfRqTvBt1haJev7dhr0G0=",
+    "encrypted_link": "U2FsdGVkX19oIkB33FfXRiTdevdh4q5NrF1N0Jd9ALW0wSoOJ9Tymz0hPN2zbSQ6f/ss66atC7qkxFs9B5Fqrx/N+U2s7NVMt7D9A2Zm1b0=",
     "url": "",
     "is_new": false,
     "serial_number": 46,
@@ -541,7 +541,7 @@ export const mockApps: AppConfig[] = [
     "yellow_box_msg": "",
     "is_coming_soon": false,
     "safety_status": "Verified",
-    "more_information_url": "U2FsdGVkX1/pQJJ1f5o85EKHRpcs4cGAy8zpHM0EaS0rPgw2121eG3bsJXl7pRuM5gexq7HxHvLXJUrALrbNLaHIJ83I7HoCZWMNI3NmjPM=",
+    "more_information_url": "U2FsdGVkX1/bDV5ngrsTgPfRMKDdeKcf72ihms12yuxrdved9mzHVG7GgFy5X9ggv3sP5Ki4ETCs3rcdCRuVGTTBZlxBUPjs7DXnGpahcNA=",
     "video_url": "",
     "release_notes": "",
     "version": "1.09.3",
@@ -567,7 +567,7 @@ export const mockApps: AppConfig[] = [
     "file_size": "45 MB",
     "created_at": "2026-08-06T06:23:32.759Z",
     "idea_box_msg": "",
-    "encrypted_link": "U2FsdGVkX1/pQJJ1f5o85EKHRpcs4cGAy8zpHM0EaS0rPgw2121eG3bsJXl7pRuM5gexq7HxHvLXJUrALrbNLaHIJ83I7HoCZWMNI3NmjPM=",
+    "encrypted_link": "U2FsdGVkX1/bDV5ngrsTgPfRMKDdeKcf72ihms12yuxrdved9mzHVG7GgFy5X9ggv3sP5Ki4ETCs3rcdCRuVGTTBZlxBUPjs7DXnGpahcNA=",
     "review_count": 33,
     "screenshots": [],
     "seo_title": "OK Rummy : Puzzle-Based Gameplay & Features | RummyDex",
@@ -591,7 +591,7 @@ export const mockApps: AppConfig[] = [
     "custom_admin_box_heading": ""
   },
   {
-    "encrypted_link": "U2FsdGVkX1+1LNk1ZtZUyd6zlJx9cyIfRrtTg3aZezpUFYjmTsGdU1zOPQUe4iaM4q/H2lf6f+DThvtpM3cg9dCnjsVGLb+0ynuebSWfHgI=",
+    "encrypted_link": "U2FsdGVkX1/EEdKffSNwgcROtTuHNjldsf4iDn2pcLLNteptHoE8Fr0lzHI6KON9exJqWtCPyvqxbXS1W6glFj5drL7x23cabrwNTYS/Nhw=",
     "updated_at": "2026-10-09T10:39:33.192Z",
     "version": "65.8.0",
     "red_box_msg": "",
@@ -637,7 +637,7 @@ export const mockApps: AppConfig[] = [
     "description_html": "<h2>Key Features</h2>\n\n<p><strong>Jaiho Slots</strong> re-imagines the traditional arcade spinning experience by blending classic reel mechanics with strategic puzzle elements. Designed entirely as a casual virtual playground, the application focuses on <strong>timing, pattern recognition, and structured progression</strong>. It operates exclusively within a closed virtual ecosystem, providing a highly engaging, risk-free environment for users seeking quick entertainment and daily milestone tracking.</p>\n\n<h3>Core Game Mechanics</h3>\n\n<p>The application introduces a unique, skill-based approach to virtual spinning:</p>\n\n<ul>\n  <li><strong>Tactical Reel Locking:</strong> Instead of relying purely on automated spins, players have the ability to manually lock specific reels in place during a turn. The objective is to align matching thematic symbols to clear specific puzzle boards and advance to the next stage.</li>\n  <li><strong>Timing and Reflex Challenges:</strong> The game incorporates active tap-to-stop mechanics, challenging the user's hand-eye coordination to halt the spinning reels at the precise moment a required symbol passes by.</li>\n  <li><strong>Virtual Resource Management:</strong> Players utilize a limited pool of virtual energy points to initiate spins. Managing this energy efficiently—and knowing when to lock a reel versus when to spin all columns—is key to completing levels before running out of moves.</li>\n</ul>\n\n<h3>Educational and Strategic Value</h3>\n\n<p>While designed for leisure, the app provides a solid foundation for cognitive engagement:</p>\n\n<ul>\n  <li><strong>Visual Pattern Recognition:</strong> Users train their visual processing speed by quickly identifying matching symbols across rapidly moving columns.</li>\n  <li><strong>Risk-Reward Evaluation:</strong> Players must constantly evaluate their virtual energy reserves, deciding whether to spend extra resources locking a column or risk a free spin to clear a challenging board.</li>\n</ul>\n\n<h2>User Experience</h2>\n\n<p>The interface of <strong>Jaiho Slots</strong> is engineered to evoke the vibrant, energetic feel of a digital arcade while remaining highly accessible on mobile touchscreens. The layout minimizes menu clutter to keep the player focused on the core puzzle mechanics.</p>\n\n<h3>Visual Design and Interaction Dynamics</h3>\n\n<ul>\n  <li><strong>Vibrant Thematic Stages:</strong> As players clear boards, they progress through different visual themes—from retro neon arcades to ancient treasure vaults. Each theme features unique symbols and custom background audio that enhances focus.</li>\n  <li><strong>Responsive Haptics:</strong> The application utilizes dynamic haptic feedback. Users feel a distinct, satisfying mechanical click through their device's vibration motor each time a reel locks into place or a pattern is successfully matched.</li>\n  <li><strong>Streamlined Dashboard:</strong> A centralized profile screen clearly displays the user's active missions, virtual coin balance, and unlocked achievement badges, making it easy to track daily progress at a glance.</li>\n</ul>\n\n<h3>Player Engagement and Community Feedback</h3>\n\n<p>Based on standard engagement metrics for casual arcade apps, the platform holds a strong reputation for its accessibility:</p>\n\n<ul>\n  <li><strong>Bite-Sized Pacing:</strong> Users frequently praise the short duration of the puzzle stages. A typical board can be cleared in under two minutes, making it an ideal application for quick mental breaks.</li>\n  <li><strong>Advertisement Flow:</strong> The game remains free-to-play through digital advertisements. While users appreciate the option to watch ads in exchange for bonus virtual energy, some note that mandatory video transitions between major level updates can momentarily pause the action.</li>\n  <li><strong>Offline Flexibility:</strong> The core puzzle mechanics function smoothly offline, ensuring that users can continue their progression streak even when traveling through areas with poor cellular reception.</li>\n</ul>\n\n<h2>Technical Architecture & Safety</h2>\n\n<p>Featured on <strong>RummyDex</strong>, Jaiho Slots combines high-quality animations with a highly optimized digital framework, ensuring broad accessibility across the Android ecosystem.</p>\n\n<h3>System Specifications and Footprint</h3>\n\n<ul>\n  <li><strong>Optimized Performance:</strong> The application is built to run efficiently without causing device overheating. It requires <strong>Android 6.0 or higher</strong>, ensuring compatibility with a vast majority of modern smartphones.</li>\n  <li><strong>Compact Installation:</strong> Utilizing efficient asset compression, the app maintains a lightweight download size of roughly <strong>30 MB</strong>, making it easy to install on devices with limited storage capacity.</li>\n  <li><strong>Content Governance:</strong> The platform is rated <strong>\"Everyone,\"</strong> confirming its status as a family-friendly application free from mature themes.</li>\n</ul>\n\n<h3>Monetization Framework and App Economy</h3>\n\n<ul>\n  <li><strong>Purely Virtual Ecosystem:</strong> The app operates strictly using virtual coins and energy points. It is completely free to download, with all progression tied to gameplay skill rather than external purchases.</li>\n  <li><strong>Ad-Supported Infrastructure:</strong> Platform maintenance is supported through integrated digital advertisements, allowing the developer to provide all gameplay features to users at no initial cost.</li>\n</ul>\n\n<h3>Data Safety and Permissions</h3>\n\n<p>The application is designed to operate securely, requesting only standard system permissions:</p>\n\n<ul>\n  <li><strong>Local Data Storage:</strong> The app saves user progression, unlocked themes, and virtual balances securely on the device, ensuring smooth offline functionality.</li>\n  <li><strong>Network Access:</strong> Basic internet connectivity is utilized strictly to load daily mission updates, sync global achievement boards, and deliver in-app advertisements.</li>\n</ul>",
     "serial_number": 9,
     "seo_title": "Jaiho Slots App Review: Virtual Arcade, Spin Mechanics & Features | RummyDex",
-    "more_information_url": "U2FsdGVkX1+1LNk1ZtZUyd6zlJx9cyIfRrtTg3aZezpUFYjmTsGdU1zOPQUe4iaM4q/H2lf6f+DThvtpM3cg9dCnjsVGLb+0ynuebSWfHgI=",
+    "more_information_url": "U2FsdGVkX1/EEdKffSNwgcROtTuHNjldsf4iDn2pcLLNteptHoE8Fr0lzHI6KON9exJqWtCPyvqxbXS1W6glFj5drL7x23cabrwNTYS/Nhw=",
     "meta_description": "Discover Jaiho Slots on RummyDex. Explore the app's unique pattern-matching mechanics, daily mission system, and engaging virtual arcade gameplay.",
     "is_coming_soon": false,
     "developer": "BLG PLASTO PRIVATE LIMITED",
@@ -694,9 +694,9 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "is_new": false,
-    "encrypted_link": "U2FsdGVkX191VzFrOuLyzhUMvx0GGo4Q59i//xhg/yCAWnO7+VUD3G4DXCvxzvClQQbk4gHDC9jxUTG2Ezk/xhNIcSE+93fCfXscHdZghhA=",
+    "encrypted_link": "U2FsdGVkX1+XnVeoF1W+RUiYm8rJ7gNx/aTk50Pws20Web9WQkOcA8rpxRxZDvumQ2D/S1o2Kcbnis97fUcjRSbRvwGVO09EOFLlb/MosU4=",
     "meta_title": "YONO ARCADE DOWNLOAD and FULL BEAKDOWN ABOUT APP | RummyDex",
-    "more_information_url": "U2FsdGVkX191VzFrOuLyzhUMvx0GGo4Q59i//xhg/yCAWnO7+VUD3G4DXCvxzvClQQbk4gHDC9jxUTG2Ezk/xhNIcSE+93fCfXscHdZghhA=",
+    "more_information_url": "U2FsdGVkX1+XnVeoF1W+RUiYm8rJ7gNx/aTk50Pws20Web9WQkOcA8rpxRxZDvumQ2D/S1o2Kcbnis97fUcjRSbRvwGVO09EOFLlb/MosU4=",
     "custom_admin_box_heading": "",
     "serial_number": 10
   },
@@ -720,7 +720,7 @@ export const mockApps: AppConfig[] = [
     "category": "Yono Apps",
     "features_html": "",
     "updated_at": "2026-10-09T10:49:59.902Z",
-    "more_information_url": "U2FsdGVkX1/rYG6l9jedrmNCJxE2zvstOJKxWS+tk2luLZGEq1vaQs2Y8D3h6IGbjc86FafaVvlC8jK4HUGGcNk5jdVfa0WumgwTQNp7mbI=",
+    "more_information_url": "U2FsdGVkX1/8gja+qo8zrzAFuqD1pm7M/YePDR2rDMD32aTm615OflHD46glVoJeLy7LutGDoWDKI+JEvjy8fiHAQGO2F+gac6DMn4FHX4A=",
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784877567/download_18_lljdaa.webp",
     "publish_date": "",
     "slug": "bingo-101",
@@ -737,7 +737,7 @@ export const mockApps: AppConfig[] = [
     "release_notes": "",
     "video_url": "",
     "safety_status": "Verified",
-    "encrypted_link": "U2FsdGVkX1/rYG6l9jedrmNCJxE2zvstOJKxWS+tk2luLZGEq1vaQs2Y8D3h6IGbjc86FafaVvlC8jK4HUGGcNk5jdVfa0WumgwTQNp7mbI=",
+    "encrypted_link": "U2FsdGVkX1/8gja+qo8zrzAFuqD1pm7M/YePDR2rDMD32aTm615OflHD46glVoJeLy7LutGDoWDKI+JEvjy8fiHAQGO2F+gac6DMn4FHX4A=",
     "version": "1.0",
     "reviews": 33,
     "faqs": [
@@ -757,7 +757,7 @@ export const mockApps: AppConfig[] = [
   },
   {
     "seo_title": "ABC Rummy : Classic Offline Gameplay & Features | RummyDex",
-    "more_information_url": "U2FsdGVkX1+HHpOkvGWOA7ww3/QA8ttHbPgj3BtN7C7LaytUoGqnCTfpcbo4ibt9zJCt44ObTiE0HSo386p0QaN9fngAtHRRdRmrO1SLEss=",
+    "more_information_url": "U2FsdGVkX18n7g/gbqfWGruRtLQrYGmAGf+L6YF+fvY/9PEjuKy7qSYhsrzTQz1BES3+FROPwaUnez7IfeTDNvFFxq1vggonhSjrhmX40W8=",
     "updated_at": "2026-10-09T10:51:59.754Z",
     "faqs": [
       {
@@ -789,7 +789,7 @@ export const mockApps: AppConfig[] = [
     "seo_keywords": "",
     "is_new": false,
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784878050/download_26_awtrna.webp",
-    "encrypted_link": "U2FsdGVkX1+HHpOkvGWOA7ww3/QA8ttHbPgj3BtN7C7LaytUoGqnCTfpcbo4ibt9zJCt44ObTiE0HSo386p0QaN9fngAtHRRdRmrO1SLEss=",
+    "encrypted_link": "U2FsdGVkX18n7g/gbqfWGruRtLQrYGmAGf+L6YF+fvY/9PEjuKy7qSYhsrzTQz1BES3+FROPwaUnez7IfeTDNvFFxq1vggonhSjrhmX40W8=",
     "serial_number": 12,
     "is_coming_soon": false,
     "yellow_box_msg": "",
@@ -898,7 +898,7 @@ export const mockApps: AppConfig[] = [
     "custom_admin_box_heading": "",
     "sync_to_public": true,
     "meta_description": "Get the official Love Rummy app download. Explore our neutral review covering daily missions, offline puzzle features, and level-based card progression",
-    "more_information_url": "U2FsdGVkX1/2mniD7tgQirZwcS7CTOIJhFGESuJiwqzOWxnzQjW8HFPh9ZywBt5M788wWBPdurgc0CwNhKqRlCpAcpAGk1yvI2H17W8cTLs=",
+    "more_information_url": "U2FsdGVkX1+iWt1oc7w4h1eLl10NCHwgvS14MJGycocvw1AlKax23sP8SP5/2tdgaV98BaX1cxTBXCa7uwt5GXm002g7E2NtPuHdUf7oRNQ=",
     "serial_number": 14,
     "description_html": "<article class=\"app-description-container\">\n​<section class=\"core-mechanics\">\n<h2>Love Rummy: A New Era of Milestone-Driven Card Gaming</h2>\n<p><strong>Love Rummy</strong> fundamentally redefines the digital card game landscape by moving far beyond traditional, repetitive tabletop formats. Instead of locking players into endless multiplayer lobbies, the <strong>Love Rummy</strong> application offers a highly structured, level-based puzzle and engagement platform. Specifically designed for users who thrive on unlocking milestones and tracking long-term progress, this application functions as a comprehensive interactive hub, packed with daily challenges, varied digital activities, and a deeply rewarding progression loop.</p>\n​<h3>Mastering the Core Game Mechanics</h3>\n<p>The entire architecture of the <strong>Love Rummy</strong> app is built around continuous user interaction and the satisfying journey of unlocking new stages of play:</p>\n<ul>\n<li><strong>Level-by-Level Progression:</strong> Abandoning the concept of isolated single matches, players advance through multiple, carefully structured achievement tiers. By completing specific in-game activities, users earn progression points that push their <strong>Love Rummy</strong> profile from beginner stages all the way to advanced, prestigious milestone levels.</li>\n<li><strong>Dynamic Daily Missions:</strong> The <strong>Love Rummy</strong> game engine refreshes with brand-new, specific activity goals every 24 hours. Successfully completing these daily checklists is the primary and most efficient way to earn virtual rewards and accelerate your journey to the next tier.</li>\n<li><strong>The Lucky Spin Wheel:</strong> To keep daily logins exciting, the app features a prominent interactive Lucky Spin Wheel. Users can engage with this feature every day to unlock special virtual bonuses, adding an element of thrilling unpredictability to the standard progression loop.</li>\n</ul>\n​<h3>Educational and Strategic Value</h3>\n<p>While <strong>Love Rummy</strong> is designed purely for casual entertainment, the application subtly encourages active task management and cognitive organization:</p>\n<ul>\n<li><strong>Goal Orientation:</strong> Navigating the daily missions within <strong>Love Rummy</strong> teaches users how to prioritize specific tactical tasks to maximize their daily virtual point earnings efficiently.</li>\n<li><strong>Consistency and Routine:</strong> The tiered achievement system inherently encourages regular participation, rewarding players who log in daily and methodically complete their milestone checklists over an extended period.</li>\n</ul>\n</section>\n​<section class=\"user-experience\">\n<h2>The Hands-On User Experience in Love Rummy</h2>\n<p>The user interface of <strong>Love Rummy</strong> is meticulously engineered to be highly intuitive and distraction-free. The developers have ensured that players can easily track their profile levels and jump straight into active game zones without ever getting lost in complicated, poorly designed menus.</p>\n​<h3>Visual Design and Interaction Dynamics</h3>\n<ul>\n<li><strong>Personal Profile Dashboard:</strong> The <strong>Love Rummy</strong> app features a centralized, beautifully designed hub where users can instantly view their current level, analyze their activity history, and monitor their overall progress bar in real time.</li>\n<li><strong>Smooth Navigation:</strong> Transitioning between the Lucky Spin Wheel, the daily mission log, and the active gameplay zones is incredibly seamless. This fluid architecture guarantees a highly responsive and deeply enjoyable mobile experience.</li>\n<li><strong>Clear Visual Tracking:</strong> Whenever a milestone is reached or a difficult level is conquered, the <strong>Love Rummy</strong> interface provides highly satisfying visual feedback and celebratory animations, clearly indicating what new features or profile achievements have been unlocked.</li>\n</ul>\n​<h3>Player Engagement and Community Feedback</h3>\n<p>Based on standard engagement patterns across puzzle and casual gaming platforms, <strong>Love Rummy</strong> is heavily praised for its perfectly balanced, structured pacing:</p>\n<ul>\n<li><strong>Community Connection:</strong> The application includes robust social features that allow you to invite friends. This empowers users to share their milestone progress, compare daily achievements, and explore the deep level system alongside others.</li>\n<li><strong>The Rewarding Loop:</strong> Users consistently appreciate that the level-based design of <strong>Love Rummy</strong> provides a constant sense of forward momentum. There is always a new tier to reach or a fresh daily task waiting to be completed, eliminating gameplay stagnation.</li>\n</ul>\n</section>\n​<section class=\"technical-architecture\">\n<h2>Technical Architecture and Application Details</h2>\n<p>As a featured application on the <strong>RummyDex</strong> directory, <strong>Love Rummy</strong> provides a rich, multi-leveled casual experience while maintaining excellent, top-tier performance standards across all supported Android devices.</p>\n​<h3>System Specifications and Device Footprint</h3>\n<ul>\n<li><strong>Optimized Performance:</strong> The <strong>Love Rummy</strong> application is heavily engineered to provide a smooth, lag-free experience. Advanced optimization ensures that high-quality spin animations and dynamic level transitions do not slow down your device, drain your battery, or cause thermal overheating.</li>\n<li><strong>Universal Accessibility:</strong> Holding a strict <strong>\"Everyone\" rating</strong>, the application is universally accessible. It features entirely safe, family-friendly tasks and interactive features suitable for all age groups.</li>\n</ul>\n​<h3>Monetization Framework and App Economy</h3>\n<ul>\n<li><strong>Entertainment-Only Focus:</strong> The <strong>Love Rummy</strong> platform operates strictly with virtual items, coins, and progression points. It is built entirely from the ground up for recreational engagement, stress relief, and task completion.</li>\n<li><strong>Accessible Free-to-Play Mechanics:</strong> Players can access all core daily missions, unlock every tier, and level up their profiles through regular participation without ever facing mandatory financial requirements or aggressive paywalls.</li>\n</ul>\n​<h3>Data Safety and Privacy Permissions</h3>\n<p>The <strong>Love Rummy</strong> application maintains highly transparent operational guidelines regarding user interaction and data protection:</p>\n<ul>\n<li><strong>No Third-Party Sharing:</strong> The development team explicitly states that personal data is not shared with third-party companies, making user privacy a top priority during your daily sessions.</li>\n<li><strong>Secure Profile Management:</strong> All user statistics, level progress data, and activity histories are managed directly and safely within the app's secure, locally encrypted profile system.</li>\n</ul>\n</section>\n​</article>",
     "slug": "love-rummy",
@@ -918,13 +918,13 @@ export const mockApps: AppConfig[] = [
     "rating": 4.3,
     "meta_title": "Download Love Rummy: Full Review & Features",
     "video_url": "",
-    "encrypted_link": "U2FsdGVkX1/2mniD7tgQirZwcS7CTOIJhFGESuJiwqzOWxnzQjW8HFPh9ZywBt5M788wWBPdurgc0CwNhKqRlCpAcpAGk1yvI2H17W8cTLs="
+    "encrypted_link": "U2FsdGVkX1+iWt1oc7w4h1eLl10NCHwgvS14MJGycocvw1AlKax23sP8SP5/2tdgaV98BaX1cxTBXCa7uwt5GXm002g7E2NtPuHdUf7oRNQ="
   },
   {
     "custom_admin_box_heading": "",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879544/download_36_zeiyxs.webp",
     "id": "0jfvh7lrx",
-    "encrypted_link": "U2FsdGVkX1+RFkTK7hPrfu79II1vvI9ijiOx34k75jIrqm9rOdId3mguuE6hPw5aGwe4WTptsNjVeZdIbIhHnp0iXLGu6/t347Pqhtj+8lE=",
+    "encrypted_link": "U2FsdGVkX1+8z6m1N7mhfMR9hpK4MmT5eZRGI3KBBDp7Thcnc+u1ZsDAcjw5X77MrIKmCWPjcPbu4AwiYg3G9WOTA/OFmY5LXJqSFCS8lh8=",
     "canonical_url": "https://www.rummydex.com/app/share-slots",
     "faqs": [
       {
@@ -945,7 +945,7 @@ export const mockApps: AppConfig[] = [
     "name": "SHARE SLOTS",
     "features_html": "",
     "slug": "share-slots",
-    "more_information_url": "U2FsdGVkX1+RFkTK7hPrfu79II1vvI9ijiOx34k75jIrqm9rOdId3mguuE6hPw5aGwe4WTptsNjVeZdIbIhHnp0iXLGu6/t347Pqhtj+8lE=",
+    "more_information_url": "U2FsdGVkX1+8z6m1N7mhfMR9hpK4MmT5eZRGI3KBBDp7Thcnc+u1ZsDAcjw5X77MrIKmCWPjcPbu4AwiYg3G9WOTA/OFmY5LXJqSFCS8lh8=",
     "review_count": 23,
     "meta_description": "Discover Share Slots on RummyDex. Read our comprehensive overview of its diverse arcade zone, spin mechanics, and structured daily task progression.",
     "idea_box_msg": "",
@@ -1003,7 +1003,7 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "serial_number": 16,
-    "more_information_url": "U2FsdGVkX18lLWINZNStd7LAlovlsaS/I94fOroIMCpyXPRUBplJMwn3ToqS5zDQFBnDFkEq+eaeVxSSxRB+6k3B8L2vjxaV0qpKSYDQ12s=",
+    "more_information_url": "U2FsdGVkX195Lb759ApnLSSBX8Bb77g24Onpz5EPsjLqkYWRkGQJk3n+qwtMMfHmvYCxHnXbeu9Oslm3DHBTXm44GoAr+dPQOD7mkbDH9gs=",
     "screenshots": [],
     "sync_to_public": true,
     "rating": 4.1,
@@ -1027,7 +1027,7 @@ export const mockApps: AppConfig[] = [
     "canonical_url": "https://www.rummydex.com/app/yono-vip",
     "category": "Yono Apps, All Apps",
     "red_box_msg": "",
-    "encrypted_link": "U2FsdGVkX18lLWINZNStd7LAlovlsaS/I94fOroIMCpyXPRUBplJMwn3ToqS5zDQFBnDFkEq+eaeVxSSxRB+6k3B8L2vjxaV0qpKSYDQ12s=",
+    "encrypted_link": "U2FsdGVkX195Lb759ApnLSSBX8Bb77g24Onpz5EPsjLqkYWRkGQJk3n+qwtMMfHmvYCxHnXbeu9Oslm3DHBTXm44GoAr+dPQOD7mkbDH9gs=",
     "description_html": "<h2>Part 1: Key Features and Core Mechanics of YONO VIP</h2>\n\n<p>If you are tired of the standard, repetitive digital board formats, YONO VIP completely flips the script. Instead of sitting at a traditional virtual table, this application throws players into a vibrant, futuristic digital grid. The game is structured entirely around spatial reasoning and fast-paced puzzle-solving, offering a fresh, \"cyber-arcade\" experience where your primary goal is to stabilize a virtual energy core.</p>\n\n<h3>The \"Crazy\" Core Gameplay</h3>\n\n<p>The mechanics here are wildly different from anything else in the casual arcade space:</p>\n\n<ul>\n  <li><strong>Node Routing:</strong> The main gameplay involves linking scattered energy nodes across a complex, multi-layered grid. You must draw paths with your finger to connect matching nodes without ever letting the energy streams cross one another.</li>\n  <li><strong>Glitch Defense Rounds:</strong> As you progress to higher levels, the game introduces moving obstacles called \"glitches.\" These digital anomalies wander the board and will sever your connections if they touch your lines, forcing you to rapidly swipe and reroute your energy paths in real-time before the timer runs out.</li>\n  <li><strong>The Quantum Spin Wheel:</strong> To support your progression, the app features a daily holographic spin wheel. Instead of standard coins, you spin to collect \"Virtual Energy Cells,\" which act as the game's internal resource for unlocking massive new grid layouts and advanced puzzle zones.</li>\n</ul>\n\n<h3>Strategic Value and Brain Training</h3>\n\n<p>This is not a game of luck; it is a pure test of visual processing and spatial awareness:</p>\n\n<ul>\n  <li><strong>Dynamic Problem Solving:</strong> You are constantly analyzing a chaotic screen, figuring out the most efficient geometrical paths to connect points A and B under a strict time limit.</li>\n  <li><strong>Reflex Testing:</strong> The introduction of moving obstacles means your puzzle-solving cannot be static. You have to adapt your strategy on the fly, sharpening your hand-eye coordination.</li>\n</ul>\n\n<h2>Part 2: The Hands-On User Experience</h2>\n\n<p>The developers have built an interface that makes you feel like you are operating a highly advanced, futuristic computer terminal. It is a massive departure from the standard mobile game aesthetic, prioritizing immersion and sleek visual feedback.</p>\n\n<h3>Visual Design and Interaction Dynamics</h3>\n\n<ul>\n  <li><strong>Cyberpunk Aesthetics:</strong> The entire app utilizes a stunning dark mode illuminated by sharp neon blues, purples, and greens. The animations are incredibly fluid, with energy streams glowing brightly as soon as a successful connection is made.</li>\n  <li><strong>Immersive Haptic Feedback:</strong> The tactile response in this app is phenomenal. When you lock a node into place, your device delivers a heavy, satisfying mechanical \"thud\" through its vibration motor. If a glitch breaks your line, you feel a sharp, static-like buzz.</li>\n  <li><strong>Command Center Dashboard:</strong> Your daily missions and achievement trackers aren't just simple lists. They are presented as a futuristic command console, showing you exactly how many nodes you've connected, your current puzzle tier, and what challenges you need to complete next to level up your virtual profile.</li>\n</ul>\n\n<h3>Player Engagement and Feedback</h3>\n\n<ul>\n  <li><strong>Highly Addictive Loop:</strong> Users rave about the \"just one more level\" feeling. Because the early grids can be solved in under 30 seconds, it is incredibly easy to lose track of time while playing.</li>\n  <li><strong>Zero Frustration:</strong> While the puzzles get extremely complicated, the app never penalizes you for experimenting. You can clear your paths and restart a grid instantly with zero load times.</li>\n</ul>\n\n<h2>Part 3: Technical Architecture and Application Details</h2>\n\n<p>Featured on RummyDex, YONO VIP manages to deliver high-end, glowing visual effects while remaining incredibly friendly to your device's hardware.</p>\n\n<h3>System Specifications and Footprint</h3>\n\n<ul>\n  <li><strong>Battery Optimization:</strong> A common issue with neon-heavy puzzle games is battery drain, but YONO VIP is coded with a highly efficient graphics engine. You can play for extended sessions without your smartphone overheating or rapidly losing charge.</li>\n  <li><strong>Robust Offline Mode:</strong> The core node-routing puzzles do not require a server connection. You can play through hundreds of grid levels completely offline, making it the perfect distraction while flying or commuting underground.</li>\n  <li><strong>Universal Accessibility:</strong> The application holds an \"Everyone\" rating. The mechanics are entirely neutral, focusing solely on puzzle-solving and geometric strategy without any mature themes.</li>\n</ul>"
   },
   {
@@ -1058,7 +1058,7 @@ export const mockApps: AppConfig[] = [
     "slug": "maha-games",
     "reviews": 23,
     "meta_description": "Explore Maha Games on RummyDex. Dive into a crazy physics-based puzzle hub featuring gravity-defying mechanics, level building, and offline challenges.",
-    "encrypted_link": "U2FsdGVkX19enyEYfPKtgl16NqEpMfQaldRH1x22/ZIH0WMveBfPMxS3PnOog8DT6GUkEfkn3yurnU3VnGv9tVBj52zQqYKjCk47cn/KIWE=",
+    "encrypted_link": "U2FsdGVkX190TUiK8eVJTpP76iP+w+csZ8dNurnG5ROTTObKgfRWdaw3V2Fjvjdw98qfNXm6NNoQmKjXCC+s/0Q8LSmql+DZ7OKJhA9PKQc=",
     "safety_status": "Verified",
     "video_url": "",
     "release_notes": "",
@@ -1076,7 +1076,7 @@ export const mockApps: AppConfig[] = [
     "canonical_url": "https://www.rummydex.com/app/maha-games",
     "updated_at": "2026-10-09T10:44:17.792Z",
     "features_html": "",
-    "more_information_url": "U2FsdGVkX19enyEYfPKtgl16NqEpMfQaldRH1x22/ZIH0WMveBfPMxS3PnOog8DT6GUkEfkn3yurnU3VnGv9tVBj52zQqYKjCk47cn/KIWE=",
+    "more_information_url": "U2FsdGVkX190TUiK8eVJTpP76iP+w+csZ8dNurnG5ROTTObKgfRWdaw3V2Fjvjdw98qfNXm6NNoQmKjXCC+s/0Q8LSmql+DZ7OKJhA9PKQc=",
     "meta_title": "Maha Games : Gravity Puzzles, Physics Hub & Features | RummyDex",
     "sync_to_public": true,
     "file_size": "35 MB",
@@ -1101,7 +1101,7 @@ export const mockApps: AppConfig[] = [
     "publish_date": "",
     "safety_status": "Verified",
     "seo_keywords": "",
-    "more_information_url": "U2FsdGVkX1/8uVp6esD9ErlNXvdd7qkymwq7JRKxe03zV2CJA9ghIth53hxRpQMStuItQgL7khZaw3nT8B0VNYUm7wPMcdULNjWyRLqwZmc=",
+    "more_information_url": "U2FsdGVkX1+o4eoejG78YX5oNs78TmjbmmeVFlR7HJAKoBbWmCS6g7TfSbz4qTuTWQ7dLeDPYtxcRKY1gNos5Iw0Ii9zhiPy7yuAbtjcByU=",
     "custom_admin_box_heading": "",
     "sync_to_public": true,
     "serial_number": 18,
@@ -1138,7 +1138,7 @@ export const mockApps: AppConfig[] = [
     "red_box_msg": "",
     "meta_title": "Rummy Ludo App Review: Board Tactics, Tile Drafting & Features | RummyDex",
     "canonical_url": "https://www.rummydex.com/app/rummy-ludo",
-    "encrypted_link": "U2FsdGVkX1/8uVp6esD9ErlNXvdd7qkymwq7JRKxe03zV2CJA9ghIth53hxRpQMStuItQgL7khZaw3nT8B0VNYUm7wPMcdULNjWyRLqwZmc="
+    "encrypted_link": "U2FsdGVkX1+o4eoejG78YX5oNs78TmjbmmeVFlR7HJAKoBbWmCS6g7TfSbz4qTuTWQ7dLeDPYtxcRKY1gNos5Iw0Ii9zhiPy7yuAbtjcByU="
   },
   {
     "url": "",
@@ -1190,10 +1190,10 @@ export const mockApps: AppConfig[] = [
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879711/download_38_pmpbnu.webp",
     "publish_date": "",
     "file_size": "50 MB",
-    "encrypted_link": "U2FsdGVkX1/HGYpUtxLCEZVVg9rHJ7d4zDOk5p/IhKOOtHO94YSCOKg321VxSq02Hwr1GRQWYvkEyO6KQRzd7ahdH6zQBsE4xRCJd/n40Fw=",
+    "encrypted_link": "U2FsdGVkX19TvQAUrfXq+lVtMiTNpTJLOSD3o/iUHKXa+PJGLHB7nNa42Zo5oTFvGQ6IbzAx+aL/pMnPoFHnV8gRpkEzCsxxqv/Y3w8xsvc=",
     "release_notes": "",
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784879711/download_38_pmpbnu.webp",
-    "more_information_url": "U2FsdGVkX1/HGYpUtxLCEZVVg9rHJ7d4zDOk5p/IhKOOtHO94YSCOKg321VxSq02Hwr1GRQWYvkEyO6KQRzd7ahdH6zQBsE4xRCJd/n40Fw="
+    "more_information_url": "U2FsdGVkX19TvQAUrfXq+lVtMiTNpTJLOSD3o/iUHKXa+PJGLHB7nNa42Zo5oTFvGQ6IbzAx+aL/pMnPoFHnV8gRpkEzCsxxqv/Y3w8xsvc="
   },
   {
     "features_html": "",
@@ -1204,14 +1204,14 @@ export const mockApps: AppConfig[] = [
     "video_url": "",
     "custom_admin_box_heading": "",
     "rating": 3.7,
-    "encrypted_link": "U2FsdGVkX18HlofhFKUW677NH8VC2FBidRzDFoFI9SDWGxyaM6F/3hw4tF/wX0bj56aLdA64Ax7Dj7vt/nzS+GesG6ynZNzrFniUvFgUsa4=",
+    "encrypted_link": "U2FsdGVkX1+LPwmvnMH/SkW/NwBcYhcEC2A1krBnAzDTjrWHtOGpEn5MxSD9G+/SHZkt/Zkk7B1ycZYEA5nA1Z6NQ+7TiOfjrZNaW3MTvPQ=",
     "screenshots": [],
     "seo_description": "Discover 777 Game on RummyDex. Step away from standard digital boards and explore this crazy, high-speed 3D spatial puzzle featuring the 7-Cube Matrix.",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1784878294/download_27_ex1vzp.webp",
     "id": "jl9bx9llw",
     "custom_admin_box_html": "",
     "canonical_url": "https://www.rummydex.com/app/777-game",
-    "more_information_url": "U2FsdGVkX18HlofhFKUW677NH8VC2FBidRzDFoFI9SDWGxyaM6F/3hw4tF/wX0bj56aLdA64Ax7Dj7vt/nzS+GesG6ynZNzrFniUvFgUsa4=",
+    "more_information_url": "U2FsdGVkX1+LPwmvnMH/SkW/NwBcYhcEC2A1krBnAzDTjrWHtOGpEn5MxSD9G+/SHZkt/Zkk7B1ycZYEA5nA1Z6NQ+7TiOfjrZNaW3MTvPQ=",
     "reviews": 23,
     "is_new": false,
     "updated_at": "2026-10-09T10:47:50.037Z",
@@ -1382,7 +1382,7 @@ export const mockApps: AppConfig[] = [
     "is_new": false,
     "red_box_msg": "",
     "reviews": 29,
-    "encrypted_link": "U2FsdGVkX18m9pvfrKIh9PMxmzvl6IGWToJVdva/ELZIynI7gYmBnHMiOX6bS5UxeFKCQ63LLsf3WVulSu5WAYdrOkbLFGp4WkXyEDs0zpQ=",
+    "encrypted_link": "U2FsdGVkX18rK079yzhKkUexMA9yVsT4/fMPMXocqNXV1TV8nZwqEhAm/IvWRZLA4gAsNcWWGvXWr+waq57NSwWm83A1GeKpPqeXjQNje4E=",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786501994/1000134012_11zon_awjhul.webp",
     "created_at": "2026-08-12T02:35:14.901Z",
     "custom_admin_box_heading": "",
@@ -1397,7 +1397,7 @@ export const mockApps: AppConfig[] = [
     "meta_description": "Get the ultimate Gold Rummy app experience. Enjoy fast-paced 13-card matches, smooth interface mechanics, daily rewards, and seamless gameplay on any network.",
     "sync_to_public": true,
     "screenshots": [],
-    "more_information_url": "U2FsdGVkX18m9pvfrKIh9PMxmzvl6IGWToJVdva/ELZIynI7gYmBnHMiOX6bS5UxeFKCQ63LLsf3WVulSu5WAYdrOkbLFGp4WkXyEDs0zpQ=",
+    "more_information_url": "U2FsdGVkX18rK079yzhKkUexMA9yVsT4/fMPMXocqNXV1TV8nZwqEhAm/IvWRZLA4gAsNcWWGvXWr+waq57NSwWm83A1GeKpPqeXjQNje4E=",
     "description_html": "<h2>Key Features</h2>\n<ul>\n  <li><strong>Classic Gameplay:</strong> A realistic and authentic digital adaptation of the popular <strong>13-card game</strong> focused heavily on <strong>tabletop strategy</strong> and <strong>meld building</strong>.</li>\n  <li><strong>Network Optimization:</strong> Engineered from the ground up to provide a smooth, fast-paced gameplay experience even on slower <strong>2G or 3G mobile connections</strong>.</li>\n  <li><strong>Global Multiplayer & Social:</strong> Play online with a <strong>large community of players</strong>, chat during matches, and send <strong>fun interactive gifts</strong> to your opponents.</li>\n  <li><strong>Generous Reward System:</strong> Earn <strong>huge virtual chip bonuses</strong> by completing <strong>daily activities</strong>, <strong>leveling up</strong>, and sharing <strong>lucky cards</strong> with your friends.</li>\n  <li><strong>Multilingual Support:</strong> The app effectively breaks language barriers by offering gameplay in multiple languages, including <strong>English, Gujarati, Marathi, Telugu, Urdu, and Bangla</strong>.</li>\n</ul>\n\n<h2>Hands-On Review</h2>\n<ul>\n  <li><strong>First Impressions:</strong> The <strong>clean, modern interface</strong> immediately stands out, and the recently updated <strong>guided onboarding</strong> makes learning the basics and jumping into the action incredibly fast.</li>\n  <li><strong>Gameplay Flow:</strong> The <strong>card handling</strong> feels highly responsive, and I appreciate that the app runs flawlessly even when my mobile network drops to lower speeds. The ability to interact with opponents by sending <strong>fun in-game gifts</strong>, like <strong>tomatoes or donkeys</strong>, keeps the atmosphere lighthearted and engaging.</li>\n  <li><strong>Match Pacing:</strong> The rounds move quickly, and the internal <strong>matchmaking</strong> easily finds players at a similar skill level, which perfectly prevents any long, boring, or frustrating delays.</li>\n  <li><strong>Visuals and Polish:</strong> Laying off cards triggers <strong>highly satisfying animations</strong>, and the <strong>charming sound effects</strong> perfectly complement the <strong>crisp table graphics</strong> to make the entire session relaxing.</li>\n</ul>\n\n<h2>Detailed Gameplay & Interior Features</h2>\n\n<h3>Game Structure & Virtual Lobby</h3>\n<p>The internal architecture of the game accommodates a vibrant virtual table typically designed for <strong>2 to 5 active players</strong>, heavily focusing on traditional <strong>sequence-building mechanics</strong> and <strong>fast-paced rounds</strong>. The primary user interface is built entirely around forming <strong>valid melds</strong>, quickly <strong>laying off cards</strong>, and successfully <strong>declaring your hand</strong> before your opponents can react, ensuring a highly competitive, smooth, and deeply engaging virtual card room environment for all returning and new users.</p>\n\n<h3>The Initial Deal & Card Mechanics</h3>\n<p>At the exact start of every round, the <strong>automated dealer</strong> seamlessly distributes a full hand of <strong>13 cards</strong> to all seated participants at the table by utilizing <strong>two standard card decks</strong>. The highly intuitive digital mechanics allow you to easily pick up a <strong>face-up or face-down card</strong> and exchange it with an unwanted card from your hand, enabling you to experiment with different combinations and find the most optimal path for forming sequences without ever struggling against the screen's user interface.</p>\n\n<h3>Deep Strategy & Meld Requirements</h3>\n<p>A standout interior gameplay mechanic is the strict requirement for building correct combinations, where players must form a minimum of <strong>two valid sequences</strong> to successfully declare a win. You must strategically secure a <strong>pure sequence</strong>, known as the <strong>First Life</strong>, while simultaneously navigating the flexible rules for the <strong>Second Life sequence</strong>, providing a deep layer of <strong>tactical thinking</strong> that creates a highly replayable and perfectly tailored personalized digital gaming experience.</p>\n\n<h3>Internal Scoring System & Penalties</h3>\n<p>The internal computational logic of the game heavily rewards both speed and accurate decision-making, as every participant starts the round with <strong>80 points</strong> and must urgently work to reduce their score to zero. The exact moment a player successfully goes out with the correct sets, the backend system instantly calculates the total point values remaining in the opposing players' hands, permanently adjusting the <strong>leaderboard rankings</strong> and shifting the momentum of the entire session.</p>\n\n<h3>Reward Triggers & Long-Term Progression</h3>\n<p>Throughout the interior gameplay loop, the system constantly tracks your moment-to-moment performance to actively trigger various <strong>in-game milestones</strong>, <strong>unlockable items</strong>, and <strong>massive virtual reward payouts</strong>. Successfully executing complex melds or inviting friends to the platform allows you to claim up to <strong>1 crore in virtual chips</strong> and <strong>daily bonuses</strong>, providing a continuous, immensely satisfying sense of long-term progression as you master the intricate <strong>13-card tabletop strategies</strong>.</p>",
     "safety_status": "Verified",
     "slug": "gold-rummy",
@@ -1458,8 +1458,8 @@ export const mockApps: AppConfig[] = [
     "serial_number": 25,
     "video_url": "",
     "seo_keywords": "",
-    "more_information_url": "U2FsdGVkX18tIGNTViTMNBtzJY8vv6PlxmlwutpyJ8JHDmiVqPt4bukmNjeWeujAY7tHg4bq/ZBaky1Wk3QuY/d8zLmzaRmO3onpfllYimY=",
-    "encrypted_link": "U2FsdGVkX18tIGNTViTMNBtzJY8vv6PlxmlwutpyJ8JHDmiVqPt4bukmNjeWeujAY7tHg4bq/ZBaky1Wk3QuY/d8zLmzaRmO3onpfllYimY=",
+    "more_information_url": "U2FsdGVkX1+tHLe58tyytzc9W8qUlTjq/rGGW2q4IWUc751raL0NC6YxHJJqIE/IkT2LwtClRdDCbG6WkHSdO3SAhj8y5kaxhWyxVr210Ik=",
+    "encrypted_link": "U2FsdGVkX1+tHLe58tyytzc9W8qUlTjq/rGGW2q4IWUc751raL0NC6YxHJJqIE/IkT2LwtClRdDCbG6WkHSdO3SAhj8y5kaxhWyxVr210Ik=",
     "name": "DHAN GAME",
     "slug": "dhan-game",
     "faqs": [
@@ -1515,7 +1515,7 @@ export const mockApps: AppConfig[] = [
     "rating": 4.6,
     "seo_title": "Yono Games App: Ultimate Virtual Arcade & Puzzle Collection",
     "id": "83kr7f5cx",
-    "more_information_url": "U2FsdGVkX1/P1iJQ70/HAh+d6AZlADfGDT8SOr5E5rpejdUW+5Jkpn5eG4oo/hqgKcp9G/TaLQewPeHHx3BfhIxR/RGeOiu2iBjpDq88qrs=",
+    "more_information_url": "U2FsdGVkX1+MAIY4Ytdxd/7RYU8I33B2Fe8OJOow8nwM6hfXb3OVJw5cAVUwx2asZu92h74GQ+K10n3i1cHQEjlMGOtgi6U5rwI4imFNwL8=",
     "video_url": "",
     "reviews": 23,
     "seo_description": "Explore the Yono Games app. Dive into a massive collection of offline puzzles, strategic board challenges, and interactive digital arcade experiences without needing internet.",
@@ -1534,10 +1534,10 @@ export const mockApps: AppConfig[] = [
     "features_html": "",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786545477/1000134097_11zon_avladx.webp",
     "custom_admin_box_heading": "",
-    "encrypted_link": "U2FsdGVkX1/P1iJQ70/HAh+d6AZlADfGDT8SOr5E5rpejdUW+5Jkpn5eG4oo/hqgKcp9G/TaLQewPeHHx3BfhIxR/RGeOiu2iBjpDq88qrs="
+    "encrypted_link": "U2FsdGVkX1+MAIY4Ytdxd/7RYU8I33B2Fe8OJOow8nwM6hfXb3OVJw5cAVUwx2asZu92h74GQ+K10n3i1cHQEjlMGOtgi6U5rwI4imFNwL8="
   },
   {
-    "more_information_url": "U2FsdGVkX1+i0LdT17qOEdav4doOBnE6IOR2bQIw0dD2fIPE9vN+X6Ezw8YFHWgYF9crabiadD0Ml/4HseZY/P1mY3in+6PvYYvOjTjm7wg=",
+    "more_information_url": "U2FsdGVkX1/lEAwfmllKbQVKl/UBD3Tphc1mtrSrwV8pHCIoKhuxFexGmEc/oieR9GyR1GK3N8LxOlYfcxxyBeFGcc+inNbO/lgA1nyIt1E=",
     "slug": "yono-rummy",
     "name": "YONO RUMMY",
     "canonical_url": "https://www.rummydex.com/app/yono-rummy",
@@ -1577,7 +1577,7 @@ export const mockApps: AppConfig[] = [
     "screenshots": [],
     "serial_number": 27,
     "version": "1.09.39",
-    "encrypted_link": "U2FsdGVkX1+i0LdT17qOEdav4doOBnE6IOR2bQIw0dD2fIPE9vN+X6Ezw8YFHWgYF9crabiadD0Ml/4HseZY/P1mY3in+6PvYYvOjTjm7wg=",
+    "encrypted_link": "U2FsdGVkX1/lEAwfmllKbQVKl/UBD3Tphc1mtrSrwV8pHCIoKhuxFexGmEc/oieR9GyR1GK3N8LxOlYfcxxyBeFGcc+inNbO/lgA1nyIt1E=",
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786545477/1000134094_11zon_zf9ocy.webp",
     "video_url": "",
     "reviews": 23,
@@ -1647,7 +1647,7 @@ export const mockApps: AppConfig[] = [
     "meta_description": "Step into the Boss Rummy app! Experience a creative blend of classic card strategy and virtual tycoon management",
     "red_box_msg": "",
     "id": "pdwnq0nu8",
-    "encrypted_link": "U2FsdGVkX190QJfsA3atyHZFlw/QJbKM/AyYFYpsdoJghthZs/ow+PbLeWr6GoTSIXP60cM7D/YGKGml5vwWcLJa8TCJ6gXNcH7x1YdP75c=",
+    "encrypted_link": "U2FsdGVkX186mGujKokdtN8tyJOlkwZ0KYsOiXXNOBJ/kTO+V7gpqE23cqRZCUZkg8yR6jFmxlOv6bliHqQe19Wf7/BOqe9N8VsOf4rDfxs=",
     "description_html": "<h2>Key Features</h2>\n<ul>\n  <li><strong>Tycoon Progression Mechanics:</strong> Merges traditional card gameplay with a unique digital club management system, where your match victories help visually upgrade your virtual headquarters.</li>\n  <li><strong>Boss Tournament Mode:</strong> Compete in structured, offline AI brackets featuring distinct characters with varying playstyles, culminating in high-stakes digital boss battles.</li>\n  <li><strong>Luxury Customization:</strong> Unlock opulent table felts, gold-trimmed digital card decks, and exclusive VIP avatars that reflect your rising status within the application.</li>\n  <li><strong>Advanced Match Analytics:</strong> A detailed post-game dashboard breaks down your discard efficiency and sequence building, helping you continuously refine your tactical approach.</li>\n  <li><strong>Dynamic Audio Engine:</strong> The soundscape shifts seamlessly from relaxed, ambient lounge jazz in the main hub to intense, cinematic beats during the final tournament rounds.</li>\n</ul>\n\n<h2>My Hands-On Review</h2>\n<ul>\n  <li><strong>First Impressions:</strong> Opening the game feels entirely different from a standard card application. Instead of a generic lobby, I am placed into a highly customizable \"Boss Office\" that serves as the central hub. It feels incredibly premium, highly creative, and immediately engaging.</li>\n  <li><strong>Gameplay Flow:</strong> The core card mechanics are buttery smooth, but what really hooked me was the overarching objective. Winning hands does not just increase a meaningless high score; it yields virtual resources that I can use to buy digital furniture and visually expand my in-game club.</li>\n  <li><strong>Match Pacing & Experience:</strong> The computer opponents are exceptionally well-programmed. Each virtual \"Boss\" has a specific tell or preferred strategy, making it feel like I am reading real players. It forces me to constantly adapt my approach rather than relying on the exact same sequence-building habits every time.</li>\n  <li><strong>Visuals and Polish:</strong> The aesthetics are incredibly sharp, leaning heavily into a luxury VIP theme. The animations for declaring a winning hand feature a satisfying golden flair, and the app never stutters or lags, even during complex visual screen transitions.</li>\n</ul>\n\n<h2>Interior Features & Detailed Gameplay Experience</h2>\n<ul>\n  <li><strong>The Tycoon Hub Architecture:</strong> The core digital environment completely replaces traditional menus with an interactive, stylized room. This primary interface allows you to visually track your progression. As you win card matches, you reinvest your virtual earnings to unlock the VIP Lounge, High Roller tables, and digital trophies that permanently decorate your personal hub, giving a tangible sense of growth.</li>\n  <li><strong>Personality-Driven AI Mechanics:</strong> During the single-player campaign, you do not face random algorithms. The internal system assigns distinct behavioral profiles to different computer opponents. Some AI characters aggressively hoard high-value cards, while others discard quickly to bait you, forcing you to deeply analyze the discard pile and adjust your tactics mid-match to secure a win.</li>\n  <li><strong>The Boss Challenge System:</strong> A standout interior feature is the episodic tournament structure. You must defeat three standard AI opponents before facing the \"Zone Boss\" in a specialized match where unique house rules—like hidden trumps or inverted point values—are temporarily activated. This creative twist completely flips the standard strategic playbook and keeps the gameplay feeling fresh.</li>\n  <li><strong>Precision Card Handling:</strong> The underlying physics engine driving the card interactions is highly refined. The drag-and-drop interface utilizes subtle haptic feedback, meaning your device vibrates gently when a valid meld is formed or an illegal move is attempted. This provides a highly tactile and immersive desktop-style experience right on a mobile screen.</li>\n  <li><strong>Tactical Replay Engine:</strong> After a particularly intense tournament final, the application’s backend compiles a strategic replay. This built-in analytical tool allows you to rewind the match and observe the exact moment your opponent completed their sequence, providing immense educational value for mastering advanced card combinations and improving your future strategies.</li>\n</ul>",
     "slug": "boss-rummy",
     "name": "BOSS RUMMY",
@@ -1685,7 +1685,7 @@ export const mockApps: AppConfig[] = [
     "sync_to_public": true,
     "screenshots": [],
     "reviews": 8,
-    "more_information_url": "U2FsdGVkX190QJfsA3atyHZFlw/QJbKM/AyYFYpsdoJghthZs/ow+PbLeWr6GoTSIXP60cM7D/YGKGml5vwWcLJa8TCJ6gXNcH7x1YdP75c=",
+    "more_information_url": "U2FsdGVkX186mGujKokdtN8tyJOlkwZ0KYsOiXXNOBJ/kTO+V7gpqE23cqRZCUZkg8yR6jFmxlOv6bliHqQe19Wf7/BOqe9N8VsOf4rDfxs=",
     "review_count": 8,
     "idea_box_msg": "",
     "meta_title": "Boss Rummy App Download: Master the Cards & Build Your Virtual Empire",
@@ -1731,7 +1731,7 @@ export const mockApps: AppConfig[] = [
     "slug": "gogo-rummy",
     "canonical_url": "https://www.rummydex.com/app/gogo-rummy",
     "developer": "RUZSOFT",
-    "more_information_url": "U2FsdGVkX19dg1U61U5CfA9IpMPmQkKD27SA+EPMNpGAIp0+e1RjajeLV6K7NfkZ4t3Co+NuRxeBMjvTDC+bPEuneTmJiwC0zxtttOprg84=",
+    "more_information_url": "U2FsdGVkX18l1O8qDvaWS+9T7UDOPEu75eDIr4RCqH3bAEnm4jNzlP4UYiE2lJ+hJg9ginhc1UB+Xj299z69lYhzyr8LjUHuLJNVLHQFXWg=",
     "seo_title": "GOGO RUMMY App Download: Tile-Matching Puzzle & Strategy",
     "idea_box_msg": "",
     "version": "1.60.8",
@@ -1748,7 +1748,7 @@ export const mockApps: AppConfig[] = [
     "category": "Yono Apps",
     "created_at": "2026-08-12T14:42:45.357Z",
     "serial_number": 30,
-    "encrypted_link": "U2FsdGVkX19dg1U61U5CfA9IpMPmQkKD27SA+EPMNpGAIp0+e1RjajeLV6K7NfkZ4t3Co+NuRxeBMjvTDC+bPEuneTmJiwC0zxtttOprg84="
+    "encrypted_link": "U2FsdGVkX18l1O8qDvaWS+9T7UDOPEu75eDIr4RCqH3bAEnm4jNzlP4UYiE2lJ+hJg9ginhc1UB+Xj299z69lYhzyr8LjUHuLJNVLHQFXWg="
   },
   {
     "icon_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786545949/1000134114_11zon_1_mymv9y.webp",
@@ -1762,13 +1762,13 @@ export const mockApps: AppConfig[] = [
     "meta_description": "Discover the Rummy 888 app. Enjoy a highly polished 13-card game featuring smart offline AI opponents, dynamic daily challenges, and a luxurious digital table experience.",
     "features_html": "",
     "og_image_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786545949/1000134114_11zon_1_mymv9y.webp",
-    "encrypted_link": "U2FsdGVkX1+85i24w3SZraQGGirh9XJEswVYLRBzJhQr35+Tym8pu0GlY7YPzJIIG5xAQsq5eFAwA7COfCloVGr9pFlCfvCr8JBI34iF3zQ=",
+    "encrypted_link": "U2FsdGVkX1/yEMVvfWFSIuYjZSxszGv+d4RtIPOwnqY50dXE1jE3otr8oYlycdIXu2QtiD4sy/AuISne+ZU8IdFzpK+Sk6/EZXfnhmONc0w=",
     "meta_title": "Rummy 888 App DOWNLOAD 2026 VERSION",
     "seo_keywords": "",
     "is_new": false,
     "seo_description": "Discover the Rummy 888 app. Enjoy a highly polished 13-card game featuring smart offline AI opponents, dynamic daily challenges, and a luxurious digital table experience.",
     "publish_date": "",
-    "more_information_url": "U2FsdGVkX1+85i24w3SZraQGGirh9XJEswVYLRBzJhQr35+Tym8pu0GlY7YPzJIIG5xAQsq5eFAwA7COfCloVGr9pFlCfvCr8JBI34iF3zQ=",
+    "more_information_url": "U2FsdGVkX1/yEMVvfWFSIuYjZSxszGv+d4RtIPOwnqY50dXE1jE3otr8oYlycdIXu2QtiD4sy/AuISne+ZU8IdFzpK+Sk6/EZXfnhmONc0w=",
     "file_size": "53 MB",
     "reviews": 8,
     "slug": "rummy-888",
@@ -1827,9 +1827,9 @@ export const mockApps: AppConfig[] = [
     "safety_status": "Verified",
     "release_notes": "",
     "custom_admin_box_heading": "",
-    "encrypted_link": "U2FsdGVkX1/zxXIrtfcoUaQ4XxT7s4yP/xNFtI2twQYVCFZogSr//FR2YFLW8aU1v/BnGR2sKLwsKPo4BEMBxj9OHgtyYcAmVPOLZQrgqiE=",
+    "encrypted_link": "U2FsdGVkX18DNGaHfwPLJ8uKi1Xzh517A+g6B/8TVOTiprlEsxZwf6wLnnNGKkijqvnKEMqTAPSE6q97EaIkC3ogZxEDV9GoNIJCWIqBwfM=",
     "reviews": 8,
-    "more_information_url": "U2FsdGVkX1/zxXIrtfcoUaQ4XxT7s4yP/xNFtI2twQYVCFZogSr//FR2YFLW8aU1v/BnGR2sKLwsKPo4BEMBxj9OHgtyYcAmVPOLZQrgqiE=",
+    "more_information_url": "U2FsdGVkX18DNGaHfwPLJ8uKi1Xzh517A+g6B/8TVOTiprlEsxZwf6wLnnNGKkijqvnKEMqTAPSE6q97EaIkC3ogZxEDV9GoNIJCWIqBwfM=",
     "serial_number": 32,
     "version": "1.0.6",
     "slug": "win-rummy",
@@ -2924,7 +2924,7 @@ export const mockApps: AppConfig[] = [
     "yellow_box_msg": "",
     "is_coming_soon": false,
     "serial_number": 56,
-    "more_information_url": "U2FsdGVkX192dBkGjrw264roW5RV5b6UEMIdU3UYhf1iAM9D6BOhn6sF85xOW1qNxr/89O3TWQpoH23M5ccuH/4Mu8FIa/M5pxlWOg1ltk4=",
+    "more_information_url": "U2FsdGVkX1/pITQVM8X6IQJijMM1N/zoWz+wutgYV/UMmw6E2z8bLvAs3TOwEzD6+OoBQwGmoxneJF0Baoke+IfEVDMg/TWf2CCoo8k+6TY=",
     "created_at": "2026-09-03T10:23:36.928Z",
     "id": "0hj4fm6zm",
     "custom_admin_box_heading": "",
@@ -2952,7 +2952,7 @@ export const mockApps: AppConfig[] = [
     "category": "Yono Apps",
     "file_size": "15.2 MB",
     "publish_date": "",
-    "encrypted_link": "U2FsdGVkX192dBkGjrw264roW5RV5b6UEMIdU3UYhf1iAM9D6BOhn6sF85xOW1qNxr/89O3TWQpoH23M5ccuH/4Mu8FIa/M5pxlWOg1ltk4=",
+    "encrypted_link": "U2FsdGVkX1/pITQVM8X6IQJijMM1N/zoWz+wutgYV/UMmw6E2z8bLvAs3TOwEzD6+OoBQwGmoxneJF0Baoke+IfEVDMg/TWf2CCoo8k+6TY=",
     "seo_keywords": "",
     "custom_admin_box_html": "",
     "og_image_url": "",
@@ -2978,11 +2978,11 @@ export const mockApps: AppConfig[] = [
     "version": "65.8.0",
     "seo_description": "Jump into Rumble Rummy! Build tight card sets, execute quick Rumble knocks, and outsmart rivals in this fast-paced head-to-head tactical card game.",
     "is_new": false,
-    "encrypted_link": "U2FsdGVkX1/bR5N0USFmbwXymqcp9hedfuDTl/JdxmW0bQOtoSh+MwmE9hfvRCd1e27kyHAbPQqi3qwM6jW1SwdxXC8x6gdSwHx8n+uNLqE=",
+    "encrypted_link": "U2FsdGVkX1/kMSO4hVWvGgojCIsBaU/4shrJFPmHs5ZBtF47U7mr0XETxXU8egvge9LdZI5R64JIcf4gxdj08BEUGvv6q6f8PHO5q6pEN9o=",
     "serial_number": 57,
     "reviews": 8,
     "developer": "RedForge Interactive",
-    "more_information_url": "U2FsdGVkX1/bR5N0USFmbwXymqcp9hedfuDTl/JdxmW0bQOtoSh+MwmE9hfvRCd1e27kyHAbPQqi3qwM6jW1SwdxXC8x6gdSwHx8n+uNLqE=",
+    "more_information_url": "U2FsdGVkX1/kMSO4hVWvGgojCIsBaU/4shrJFPmHs5ZBtF47U7mr0XETxXU8egvge9LdZI5R64JIcf4gxdj08BEUGvv6q6f8PHO5q6pEN9o=",
     "icon_url": "https://res.cloudinary.com/veqj16xh/image/upload/v1788431767/rummydex_uploads/ih1aeuo3zmn0z3tjtrqt.webp",
     "name": "RUMBLE RUMMY",
     "id": "rer0jsbkw",
@@ -3067,10 +3067,10 @@ export const mockApps: AppConfig[] = [
     "seo_description": "Check out our hands-on review of the Spin Winner app by PK Gaming World. See how the daily wheels, quick spins, and virtual rewards stack up for casual players.",
     "id": "us9ki7awa",
     "is_new": false,
-    "encrypted_link": "U2FsdGVkX1+XJknWyT22huWdkKJeARC4zeREUBfvohWB9N5L96omddPhffSJWiSanYaTsC7cEpNzahjwFd22abWqgCDTZsHwbeRNyPvB9TE=",
+    "encrypted_link": "U2FsdGVkX199yyzx9JATN44FdrQneZXde+IsDqOEXuKvrvcrUK9WH7nWyJ6E0IijOEJFIektRQvDe6NdIPWhU9jNBIdz+Ij6xLw2P8scbaA=",
     "created_at": "2026-09-03T10:39:17.067Z",
     "developer": "PK Gaming World",
-    "more_information_url": "U2FsdGVkX1+XJknWyT22huWdkKJeARC4zeREUBfvohWB9N5L96omddPhffSJWiSanYaTsC7cEpNzahjwFd22abWqgCDTZsHwbeRNyPvB9TE=",
+    "more_information_url": "U2FsdGVkX199yyzx9JATN44FdrQneZXde+IsDqOEXuKvrvcrUK9WH7nWyJ6E0IijOEJFIektRQvDe6NdIPWhU9jNBIdz+Ij6xLw2P8scbaA=",
     "seo_title": "Spin Winner App Review: Daily Wheels & Virtual Arcade Rewards",
     "review_count": 8,
     "description_html": "<h2>Key Features</h2>\n<ul>\n  <li><strong>Exciting Spin Wheel:</strong> Test your luck every day by spinning a colorful virtual wheel to unlock <strong>mystery gifts</strong> and <strong>boosters</strong>.</li>\n  <li><strong>Unlimited Wheel Chances:</strong> Spin the wheel as often as you like with <strong>unlimited chances</strong>, completely bypassing annoying cooldown timers or energy restrictions.</li>\n  <li><strong>Daily Challenges:</strong> Come back every day to complete new tasks, claim <strong>daily bonuses</strong>, and quickly stack up your <strong>virtual coins</strong>.</li>\n  <li><strong>Lightweight Install:</strong> The file size sits at a very manageable <strong>26.7 MB</strong>, meaning it downloads fast and will not hog your device's internal storage.</li>\n  <li><strong>Premium Arcade Graphics:</strong> Enjoy a purely simulated arcade experience featuring <strong>high-quality animations</strong>, a simple intuitive interface, and smooth gameplay.</li>\n</ul>\n\n<h2>My Hands-On Review</h2>\n\n<h3>First Impressions</h3>\n<p>I downloaded this because I just wanted something incredibly simple to tap on while watching TV. Right off the bat, the interface is <strong>super intuitive and colorful</strong> without being overwhelming. There was no massive registration wall, so I just opened the app and the giant wheel was sitting there waiting for me.</p>\n\n<h3>Gameplay Flow</h3>\n<p>The whole experience is just built around the <strong>wheel mechanic</strong>. You hit the button, watch the wheel blur, and wait to see where the ticker stops. It is fast, <strong>highly responsive</strong>, and totally frictionless. I didn't have to navigate through five different sub-menus just to take a spin.</p>\n\n<h3>Match Pacing & Experience</h3>\n<p>Because it features <strong>unlimited wheels of fortune</strong> without arbitrary energy meters, the pacing is entirely up to you. I love that I can do a <strong>rapid-fire session of fifty spins</strong> in a few minutes, or just casually log in once to grab my daily reward and immediately close the app.</p>\n\n<h3>Visuals and Polish</h3>\n<p>The animations look premium for such a small file size. The wheel spins fluidly, the colors pop, and the little visual celebrations when you land on a <strong>jackpot-style segment</strong> are incredibly satisfying to watch. It runs flawlessly without causing my phone to <strong>lag or overheat</strong>.</p>\n\n<h2>Interior Features & Detailed Gameplay Experience</h2>\n\n<h3>The Main Arcade Dashboard</h3>\n<p>The interior interface keeps all the clutter out of the way, centering entirely on the large, brightly colored spin wheel. At the very top of your screen, your current <strong>virtual coin balance</strong> updates in real-time, giving you a clear view of your progress without distracting from the actual gameplay loop. It feels exactly like sitting in front of an <strong>arcade cabinet</strong>.</p>\n\n<h3>The Physics-Based Spin Mechanic</h3>\n<p>Pressing the central button triggers a highly satisfying, <strong>physics-based rotation</strong> of the wheel. The underlying game engine randomizes the momentum every single time, meaning the wheel gradually slows down with a <strong>realistic ticking effect</strong> before landing on a random segment. This builds a great sense of anticipation right before the pointer locks into a prize slot.</p>\n\n<h3>Managing Your Daily Challenges</h3>\n<p>Off to the side of the main wheel, there is a dedicated tab containing your <strong>daily tasks and challenges</strong>. These are usually simple milestones, like spinning a specific number of times in a row or landing on certain colored segments. Checking these off adds a nice layer of structure to the game, giving you something specific to aim for beyond just spinning blindly.</p>\n\n<h3>The Virtual Economy & Boosters</h3>\n<p>Every successful stop on the wheel drops <strong>virtual coins or mystery gifts</strong> directly into your digital wallet. As your balance grows, you can occasionally unlock <strong>special boosters</strong> that might temporarily multiply the value of the wheel's segments. It creates a surprisingly addictive loop where your previous wins actively help you rack up even higher scores on your next session.</p>\n\n<h3>Continuous Unrestricted Play</h3>\n<p>Unlike many casual games that force you to stop playing after you run out of \"lives,\" this application uses an <strong>unlimited spin system</strong>. The internal architecture does not track energy levels or enforce cooldown periods between your pulls. You have complete freedom to sit there and spin the wheel non-stop for twenty minutes, making it the ultimate tool for <strong>killing time during long commutes</strong>.</p>",
@@ -3091,7 +3091,7 @@ export const mockApps: AppConfig[] = [
     "yellow_box_msg": "",
     "custom_admin_box_html": "",
     "rating": 3.8,
-    "more_information_url": "U2FsdGVkX18Z1H8tbiTiz0BkBAgDaEjHfZah0CnaGpzoxMik3sC/w6vXkFIpLCNyq5/atxdNh8QOqRPbVVHoFZfOHmVSqGcYWbfWhXWCYG8=",
+    "more_information_url": "U2FsdGVkX19NANP7loa9sDjGk0vC/D01QuN1W5Ka5r95iOycQVxQ37VfPrNGSvS9iocukCrvJDLe89nyQgKOYjrBrVn8YtrSfp+vinUu/7k=",
     "video_url": "",
     "sync_to_public": true,
     "serial_number": 59,
@@ -3127,7 +3127,7 @@ export const mockApps: AppConfig[] = [
     ],
     "og_image_url": "",
     "seo_keywords": "",
-    "encrypted_link": "U2FsdGVkX18Z1H8tbiTiz0BkBAgDaEjHfZah0CnaGpzoxMik3sC/w6vXkFIpLCNyq5/atxdNh8QOqRPbVVHoFZfOHmVSqGcYWbfWhXWCYG8=",
+    "encrypted_link": "U2FsdGVkX19NANP7loa9sDjGk0vC/D01QuN1W5Ka5r95iOycQVxQ37VfPrNGSvS9iocukCrvJDLe89nyQgKOYjrBrVn8YtrSfp+vinUu/7k=",
     "publish_date": "",
     "icon_url": "https://res.cloudinary.com/veqj16xh/image/upload/v1788432079/rummydex_uploads/j2hlgscf1zxrb171k1oh.webp",
     "id": "quyol591v",
@@ -3193,7 +3193,7 @@ export const mockApps: AppConfig[] = [
     "developer": "Gridlogic Casual Studios",
     "id": "3h6d8psbv",
     "meta_description": "Download the Top Rummy app today! Master complex card-matching puzzles, navigate an expansive campaign map, and defeat smart AI bosses in this highly strategic, level-based adventure.",
-    "encrypted_link": "U2FsdGVkX1/8Eg+Q1a+Z8KNDtRy2Uk6re156y9JhuOliDLMXZqpdDOEpIEwFUFxn2XDR7hgRjMjt+mFH6B1aUv8AyIFrz6N1aLO2jZPH3bg=",
+    "encrypted_link": "U2FsdGVkX1/SLgBYlTwVVcEtnUW4P2Sw65/85cn+EDjJrfQcfnKJcf8BY0Ifue6iJRjIkSYr1SG8el1RIEotBR1oKMfMil+ELv4JYdN1mBc=",
     "serial_number": 61,
     "seo_title": "Top Rummy App Download: Strategic Card Puzzles & Campaign Levels",
     "description_html": "<h2>Key Features</h2>\n<ul>\n  <li><strong>Level-Based Campaign:</strong> Progress through hundreds of structured puzzle nodes across a sprawling world map, leaving repetitive endless matches behind.</li>\n  <li><strong>Strict Turn Limits:</strong> Every stage challenges your logic by restricting the number of draws and discards you can make, turning classic card matching into a tight puzzle.</li>\n  <li><strong>Adaptive AI Bosses:</strong> Face off against computer opponents that learn your discard habits and aggressively block your sequences during high-stakes checkpoint levels.</li>\n  <li><strong>Three-Star Mastery:</strong> Earn perfect ratings by completing stages with high efficiency, which permanently unlocks premium cosmetic card backs and digital avatars.</li>\n  <li><strong>Tactical Power-Ups:</strong> Collect and deploy strategic inventory items like \"Deck Peek\" and \"Wild Swap\" to overcome the most punishing puzzle conditions.</li>\n</ul>\n\n<h2>Hands-On Review</h2>\n\n<h3>First Impressions</h3>\n<p>The moment I launched <strong>Top Rummy</strong>, I was pleasantly surprised to see a <strong>vibrant, winding world map</strong> instead of a traditional card lobby. It immediately sets a professional, goal-oriented tone. Clicking on the very first stage dropped me right into a <strong>guided tutorial</strong> that seamlessly explained the puzzle mechanics without dragging on too long.</p>\n\n<h3>Gameplay Flow</h3>\n<p>The mechanics feel incredibly deliberate and thoughtful. Because I only have a <strong>set number of turns</strong> to complete my sequences, I cannot just randomly draw cards hoping for a lucky break. I find myself staring at my hand, constantly <strong>calculating probabilities</strong> and planning my moves <strong>three steps in advance</strong>, which is highly engaging.</p>\n\n<h3>Match Pacing & Experience</h3>\n<p>The pacing is absolutely perfect for my daily routine. A single puzzle node usually takes me around <strong>two to three minutes</strong> to solve. If I make a critical mistake and run out of turns, <strong>restarting the level is instantaneous</strong>. It is an amazing way to keep my brain active during a commute without feeling stressed.</p>\n\n<h3>Visuals and Polish</h3>\n<p>The digital presentation is top-tier. Successfully grouping a complex set of cards triggers a <strong>crisp, snappy animation</strong> that feels highly tactile. The <strong>relaxing acoustic background music</strong> keeps my focus sharp, and the visual feedback when you earn a perfect <strong>three-star rating</strong> at the end of a difficult stage is immensely satisfying.</p>\n\n<h2>Detailed Gameplay Experience</h2>\n\n<h3>The Campaign Map & Stage Progression</h3>\n<p>The interior structure completely replaces traditional open casino tables with an expansive, visually striking <strong>campaign map</strong> divided into distinct themed regional zones. Rather than simply playing endless identical matches without a goal, you must carefully navigate from node to node, unlocking new card-matching challenges that progressively introduce <strong>complex environmental modifiers</strong> and <strong>strict turn limits</strong>. This structured, linear progression gives the entire gaming experience a deeply satisfying sense of purpose, actively pushing you to master the core card mechanics before advancing to the higher-tier difficulty zones.</p>\n\n<h3>Turn-Based Puzzle Mechanics</h3>\n<p>At the exact start of every puzzle node, the internal system deals a fixed hand of cards and presents a highly specific <strong>win condition</strong>, such as forming three pure sequences before the smart AI opponent clears their own board. The highly tactile <strong>drag-and-drop interface</strong> allows you to meticulously organize your digital hand, experimenting with different potential melds and strategic sequence combinations without fighting the screen. Because you are strictly limited by a visible <strong>turn counter</strong>, every single card draw and discard must be carefully calculated, transforming a standard card match into an intense, highly tactical brain-teaser.</p>\n\n<h3>Adaptive Difficulty & Boss Nodes</h3>\n<p>As you dive significantly deeper into the sprawling campaign map, the internal backend algorithm dynamically scales the intelligence and difficulty of the computer-controlled opponents to perfectly match your current overall win rate. At the very end of every major map sector, you must conquer a highly specialized <strong>\"Boss Node\"</strong> where the AI is specifically programmed to aggressively hoard the exact suits you need to complete your sequences. Successfully beating these incredibly difficult stages requires you to completely rethink your standard playing style and utilize <strong>advanced defensive discarding tactics</strong> to ultimately outsmart the digital opponent.</p>\n\n<h3>The Three-Star Scoring Engine</h3>\n<p>The underlying computational scoring engine does not just reward you with a simple victory for completing a level; it strictly grades your overall strategic efficiency based entirely on <strong>how many turns you had remaining</strong> when you finally declared your winning hand. Finishing a highly difficult puzzle node with multiple turns to spare earns you a flawless <strong>three-star rating</strong>, which subsequently unlocks exclusive cosmetic upgrades like <strong>glowing golden card backs</strong> and <strong>fully animated profile avatars</strong>. This clever internal mechanic adds massive replay value to the application, constantly encouraging dedicated players to revisit older stages to perfectly optimize their winning strategies.</p>\n\n<h3>Tactical Boosters & Resource Strategy</h3>\n<p>To actively help players overcome the most punishing and complex late-game stages, the application introduces a sophisticated, easy-to-use inventory system filled with powerful, single-use <strong>tactical boosters</strong> that are earned purely through consistent gameplay. You can strategically deploy a <strong>\"Deck Peek\"</strong> power-up to instantly preview the next three upcoming card draws, or activate a <strong>\"Wild Swap\"</strong> to forcefully complete a broken sequence when you are heavily cornered by the stage's strict turn limit. Knowing exactly when to carefully conserve these highly valuable tools and when to aggressively unleash them during a massive boss stage adds a deeply rewarding layer of <strong>resource management</strong> to the overarching puzzle experience.</p>",
@@ -3228,7 +3228,7 @@ export const mockApps: AppConfig[] = [
     "sync_to_public": true,
     "is_coming_soon": false,
     "yellow_box_msg": "",
-    "more_information_url": "U2FsdGVkX1/8Eg+Q1a+Z8KNDtRy2Uk6re156y9JhuOliDLMXZqpdDOEpIEwFUFxn2XDR7hgRjMjt+mFH6B1aUv8AyIFrz6N1aLO2jZPH3bg=",
+    "more_information_url": "U2FsdGVkX1/SLgBYlTwVVcEtnUW4P2Sw65/85cn+EDjJrfQcfnKJcf8BY0Ifue6iJRjIkSYr1SG8el1RIEotBR1oKMfMil+ELv4JYdN1mBc=",
     "custom_admin_box_html": "",
     "created_at": "2026-09-03T10:42:34.090Z",
     "video_url": "",
@@ -3311,7 +3311,7 @@ export const mockApps: AppConfig[] = [
     "meta_title": "Slots Spin App Download: Mechanical Gear Puzzle & Logic Strategy",
     "seo_title": "Slots Spin App Download: Mechanical Gear Puzzle & Logic Strategy",
     "reviews": 3,
-    "encrypted_link": "U2FsdGVkX1+zonKEf5vx17XdFAp3yk2mmZIesioFviPACZVaVbZ2OhpAl59UL++dO4zL4wYTIof3uyqxIm9TUcZxfPpu8+bDgzXWSf8zNMs=",
+    "encrypted_link": "U2FsdGVkX181fD+ZweS/3M2DdHq7NEWQROjxIATMcU9A2zQz38Ni1+nhdlMJPIwUTiAqopWr8I6Bhg68E4RgH6GdM3/U/P3y3zueaFtASBI=",
     "developer": "Nexus Puzzle Studios",
     "release_notes": "",
     "icon_url": "https://res.cloudinary.com/veqj16xh/image/upload/v1788432190/rummydex_uploads/k9pnwqtqevhsfwzknw30.webp",
@@ -3330,7 +3330,7 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "version": "1.07.9",
-    "more_information_url": "U2FsdGVkX1+zonKEf5vx17XdFAp3yk2mmZIesioFviPACZVaVbZ2OhpAl59UL++dO4zL4wYTIof3uyqxIm9TUcZxfPpu8+bDgzXWSf8zNMs=",
+    "more_information_url": "U2FsdGVkX181fD+ZweS/3M2DdHq7NEWQROjxIATMcU9A2zQz38Ni1+nhdlMJPIwUTiAqopWr8I6Bhg68E4RgH6GdM3/U/P3y3zueaFtASBI=",
     "safety_status": "Verified",
     "red_box_msg": "",
     "custom_admin_box_html": "",
@@ -3377,12 +3377,12 @@ export const mockApps: AppConfig[] = [
       }
     ],
     "screenshots": [],
-    "encrypted_link": "U2FsdGVkX18vwk/OzPE/+e2VIiNTeo40SZew3KNfi8KPPMJJ8FsliRbDwNk10zRnKLsI0XEyRDZMGiogsUzT446tz6pVVd9CbJvDNk+Fnn4=",
+    "encrypted_link": "U2FsdGVkX19pb12ax67GSXtAXk9dCiuWFdn00b8LTv9M1E+gEXO+eUjGTpHVDM58MNdBoQWL2NqsIXZH3V4utJ3n7WHf6MbtJKMt4zrbiX0=",
     "og_image_url": "",
     "release_notes": "",
     "custom_admin_box_html": "",
     "category": "Yono Apps",
-    "more_information_url": "U2FsdGVkX18vwk/OzPE/+e2VIiNTeo40SZew3KNfi8KPPMJJ8FsliRbDwNk10zRnKLsI0XEyRDZMGiogsUzT446tz6pVVd9CbJvDNk+Fnn4=",
+    "more_information_url": "U2FsdGVkX19pb12ax67GSXtAXk9dCiuWFdn00b8LTv9M1E+gEXO+eUjGTpHVDM58MNdBoQWL2NqsIXZH3V4utJ3n7WHf6MbtJKMt4zrbiX0=",
     "rating": 4.3,
     "yellow_box_msg": "",
     "is_coming_soon": false,
@@ -3455,10 +3455,10 @@ export const mockApps: AppConfig[] = [
     "publish_date": "",
     "seo_keywords": "",
     "custom_admin_box_heading": "",
-    "encrypted_link": "U2FsdGVkX1+GbgXFbpuDnBhWbJ8WaYCFYY8k6rWulp2FE5MzIXhy48yjSSFiZSSMeffyu69uHjyThTCBbKiHsOZPwi/goZYjk/KP5/YewpmBTf6TGiuQEdKWv6ilQOKW",
+    "encrypted_link": "U2FsdGVkX1/ZQoRR35ZjE7N/8wxkAth5j6ZJmenh5UzWg5qx1yclgjlokwIgj2c3yjL0+0zcD/PjtW/GrrLAfFqxGFYQ+vIBnTFOIHCPpzNTYwqDa46nuYQQ/Q1xVLZ2",
     "og_image_url": "",
     "file_size": "52.8 MB",
-    "more_information_url": "U2FsdGVkX1+GbgXFbpuDnBhWbJ8WaYCFYY8k6rWulp2FE5MzIXhy48yjSSFiZSSMeffyu69uHjyThTCBbKiHsOZPwi/goZYjk/KP5/YewpmBTf6TGiuQEdKWv6ilQOKW",
+    "more_information_url": "U2FsdGVkX1/ZQoRR35ZjE7N/8wxkAth5j6ZJmenh5UzWg5qx1yclgjlokwIgj2c3yjL0+0zcD/PjtW/GrrLAfFqxGFYQ+vIBnTFOIHCPpzNTYwqDa46nuYQQ/Q1xVLZ2",
     "screenshots": [],
     "version": "26.06.22",
     "created_at": "2026-09-03T16:45:21.225Z",
@@ -3527,7 +3527,7 @@ export const mockApps: AppConfig[] = [
     "release_notes": "",
     "publish_date": "",
     "version": "1.07.9",
-    "encrypted_link": "U2FsdGVkX1/siz8bSoIAhxaPOI4klYlNlqWcGQzwQMnfvBbfTreLIkxvMat1l7u4nz14XrTcV3BaIsuR/qVlsUl8tTYbBqm60C3S7f9O7IE=",
+    "encrypted_link": "U2FsdGVkX19iVdyX9aSrH73sag0nJtdGvwK9lbSHbnk80p//kVTC1E0wEuuLQzMCxbrybq3eSQUk6+NQyCgoPlXPEliJsX5gtmkCRuz1WH8=",
     "seo_keywords": "",
     "video_url": "",
     "og_image_url": "",
@@ -3552,7 +3552,7 @@ export const mockApps: AppConfig[] = [
     "seo_description": "Download the Spin 101 app! Master angular momentum, control rotating platforms, and solve 101 complex physics puzzles in this educational spatial strategy game.",
     "custom_admin_box_heading": "",
     "rating": 4.2,
-    "more_information_url": "U2FsdGVkX1/siz8bSoIAhxaPOI4klYlNlqWcGQzwQMnfvBbfTreLIkxvMat1l7u4nz14XrTcV3BaIsuR/qVlsUl8tTYbBqm60C3S7f9O7IE=",
+    "more_information_url": "U2FsdGVkX19iVdyX9aSrH73sag0nJtdGvwK9lbSHbnk80p//kVTC1E0wEuuLQzMCxbrybq3eSQUk6+NQyCgoPlXPEliJsX5gtmkCRuz1WH8=",
     "icon_url": "https://res.cloudinary.com/veqj16xh/image/upload/v1788454523/rummydex_uploads/qat26qydzzshbkfslrob.png",
     "name": "SPIN 101",
     "slug": "spin-101"
@@ -3570,9 +3570,9 @@ export const mockApps: AppConfig[] = [
     "canonical_url": "https://www.rummydex.com/app/jaiho-spin",
     "developer": "Dharma Puzzle Studios",
     "red_box_msg": "",
-    "more_information_url": "U2FsdGVkX19qzQHZMPdWrdqiv+kd2m0fQvlkbykVf0N6HD3iWXJhNctx0FzDh1lt1KeK0KzxKA9uyQRRjqJCGZadhuXlyvjWzoDSTOppJGg=",
+    "more_information_url": "U2FsdGVkX18m1c/ZZOTSj9ndKmv/itKg4f8I8s+OcgDCe86cPi2lhtvemTHou3Di5mRoUS1i226o/sf67oYCjgCGFqM59IFXgTaQ6R6JLiY=",
     "features_html": "",
-    "encrypted_link": "U2FsdGVkX19qzQHZMPdWrdqiv+kd2m0fQvlkbykVf0N6HD3iWXJhNctx0FzDh1lt1KeK0KzxKA9uyQRRjqJCGZadhuXlyvjWzoDSTOppJGg=",
+    "encrypted_link": "U2FsdGVkX18m1c/ZZOTSj9ndKmv/itKg4f8I8s+OcgDCe86cPi2lhtvemTHou3Di5mRoUS1i226o/sf67oYCjgCGFqM59IFXgTaQ6R6JLiY=",
     "file_size": "56.4 MB",
     "serial_number": 68,
     "created_at": "2026-09-03T16:56:44.008Z",
@@ -3614,7 +3614,7 @@ export const mockApps: AppConfig[] = [
   {
     "seo_title": "RUMMY ZIP: High-Speed Cyber Puzzle",
     "name": "RUMMY ZIP",
-    "encrypted_link": "U2FsdGVkX1+cG2mpNzGxOdAJpylFu13EjQWz2oSNF1mBnUYevnr4fwkD+N3RAaqU4PmW7RayO8anTHJIqXIhpgEJy6XSuOddbE69xTWJhqo=",
+    "encrypted_link": "U2FsdGVkX1/1iHFuC7O0JaxjkIiuuMPyV1MaStyi33CGhybkBXfo7p2GROzLTTHRdhFj5mTEUQzOExAotZgZJBAprDry8/gLNDrlhdrne0I=",
     "slug": "rummy-zip",
     "safety_status": "Verified",
     "seo_description": "Download RUMMY ZIP to experience a high-speed cyber sorting puzzle. Defragment servers, manage memory buffers, and clear 200 intense data grid levels.",
@@ -3651,7 +3651,7 @@ export const mockApps: AppConfig[] = [
     "rating": 3.7,
     "features_html": "",
     "sync_to_public": true,
-    "more_information_url": "U2FsdGVkX1+cG2mpNzGxOdAJpylFu13EjQWz2oSNF1mBnUYevnr4fwkD+N3RAaqU4PmW7RayO8anTHJIqXIhpgEJy6XSuOddbE69xTWJhqo=",
+    "more_information_url": "U2FsdGVkX1/1iHFuC7O0JaxjkIiuuMPyV1MaStyi33CGhybkBXfo7p2GROzLTTHRdhFj5mTEUQzOExAotZgZJBAprDry8/gLNDrlhdrne0I=",
     "canonical_url": "",
     "created_at": "2026-09-27T13:05:55.019Z",
     "yellow_box_msg": "Security Protocol: Avoid downloading modified or third-party APK packages from unauthorized mirrors. Always verify file hash integrity to prevent compromised installations and data corruption.",
@@ -3678,10 +3678,10 @@ export const mockApps: AppConfig[] = [
     "category": "Yono Apps",
     "created_at": "2026-09-27T13:36:55.500Z",
     "publish_date": "",
-    "encrypted_link": "U2FsdGVkX18eC1OT5MOOuXzZIqdc5oWXJfr+AOLgV7b1lM53b+2jMRbamc10nwdxVJugDVDKiSmI9nuDgMtg7jMu2HA8g9MK5kElSX7MWdU=",
+    "encrypted_link": "U2FsdGVkX1/6oUumPkeTsMKunEgT7hUdxyuy+o5orBnlbHf7UfXglOkdbMwJQE8TzdxCa/ZAHR248xd7E5UCDTXT1xsmPJ5dzW+C/eckCJM=",
     "meta_title": "Jeet Spin App Download: Gyroscopic Physics & Momentum Arena",
     "file_size": "48.7 MB",
-    "more_information_url": "U2FsdGVkX18eC1OT5MOOuXzZIqdc5oWXJfr+AOLgV7b1lM53b+2jMRbamc10nwdxVJugDVDKiSmI9nuDgMtg7jMu2HA8g9MK5kElSX7MWdU=",
+    "more_information_url": "U2FsdGVkX1/6oUumPkeTsMKunEgT7hUdxyuy+o5orBnlbHf7UfXglOkdbMwJQE8TzdxCa/ZAHR248xd7E5UCDTXT1xsmPJ5dzW+C/eckCJM=",
     "features_html": "",
     "version": "1.0",
     "idea_box_msg": "Equip a high-mass gyroscope base via the Jeet Spin loadout menu before attempting stages with heavy magnetic bumpers to maintain your spin momentum through forced collisions.\n",
@@ -3797,7 +3797,7 @@ export const mockApps: AppConfig[] = [
     "version": "1.09.3",
     "name": "JAIHO RUMMY",
     "slug": "jaiho-rummy",
-    "encrypted_link": "U2FsdGVkX188zT0lMk+KfOPE/8D4ygsdmUHMZFoLA7trr9pMcCXJGHJDgo5+ICp8XZ0MKfRy0KznDnjas85N2bBcnuKm8JAode/bWjgYYBs=",
+    "encrypted_link": "U2FsdGVkX19l39R02MrL1JHA/73FzZVyOyGZIMLEvjzPxQ1kEwl8Wiuef14xwpSJPR0BqulyuBnLbesoNpRQsqc4nKdppos+IwUiXJAY40c=",
     "reviews": 2,
     "meta_description": "Download the official Jaiho Rummy app APK to play real-time 13-card Points, Pool, and Deals rummy with zero lag, instant card auto-sort, and verified players",
     "safety_status": "Verified",
@@ -3816,7 +3816,7 @@ export const mockApps: AppConfig[] = [
     "canonical_url": "",
     "updated_at": "2026-10-12T17:17:46.356Z",
     "features_html": "",
-    "more_information_url": "U2FsdGVkX188zT0lMk+KfOPE/8D4ygsdmUHMZFoLA7trr9pMcCXJGHJDgo5+ICp8XZ0MKfRy0KznDnjas85N2bBcnuKm8JAode/bWjgYYBs=",
+    "more_information_url": "U2FsdGVkX19l39R02MrL1JHA/73FzZVyOyGZIMLEvjzPxQ1kEwl8Wiuef14xwpSJPR0BqulyuBnLbesoNpRQsqc4nKdppos+IwUiXJAY40c=",
     "meta_title": "Jaiho Rummy App Download: Play 13-Card Indian Rummy Online",
     "sync_to_public": true,
     "file_size": "47.8 MB",
@@ -3827,7 +3827,7 @@ export const mockApps: AppConfig[] = [
   }
 ];
 
-export const saveMockApps = (apps: AppConfig[]) => {
+export const saveMockApps = (apps: any[]) => {
   try {
     localStorage.setItem('rummystore_apps', JSON.stringify(apps));
   } catch (e) {
@@ -3836,7 +3836,7 @@ export const saveMockApps = (apps: AppConfig[]) => {
   mockApps.splice(0, mockApps.length, ...apps);
 };
 
-export const mockSettings: GlobalSettings = {
+export const mockSettings: any = {
   "site_title": "RummyDex",
   "meta_description": "Your trusted bridge to the best mobile card games. Explore RummyDex for hands-on reviews, real-time news, and complete app knowledge",
   "logo_url": "https://res.cloudinary.com/diewalae4/image/upload/v1786624142/1000134293_sbicyb.png",
@@ -3978,7 +3978,7 @@ export const mockSettings: GlobalSettings = {
   "terms_meta_title": "RummyDex Terms & Conditions: Safe App Directory Guidelines"
 };
 
-export const saveMockSettings = (settings: GlobalSettings) => {
+export const saveMockSettings = (settings: any) => {
   try {
     localStorage.setItem('rummystore_settings', JSON.stringify(settings));
   } catch (e) {
@@ -3987,7 +3987,7 @@ export const saveMockSettings = (settings: GlobalSettings) => {
   Object.assign(mockSettings, settings);
 };
 
-export const mockNews: NewsItem[] = [
+export const mockNews: any[] = [
   {
     "image_url": "https://res.cloudinary.com/veqj16xh/image/upload/v1791698251/rummydex_uploads/tfwevdgpxw8h8oeb97a5.webp",
     "published_at": "2026-10-11T05:57:18.593Z",
@@ -5233,7 +5233,7 @@ export const mockNews: NewsItem[] = [
   }
 ];
 
-export const saveMockNews = (newsList: NewsItem[]) => {
+export const saveMockNews = (newsList: any[]) => {
   try {
     localStorage.setItem('rummystore_news', JSON.stringify(newsList));
   } catch (e) {
@@ -5242,7 +5242,7 @@ export const saveMockNews = (newsList: NewsItem[]) => {
   mockNews.splice(0, mockNews.length, ...newsList);
 };
 
-export const mockVideos: VideoItem[] = [
+export const mockVideos: any[] = [
   {
     "id": "i9id3pita",
     "created_at": "2026-10-05T13:33:26.258Z",

@@ -11,6 +11,7 @@ import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
+import { mockApps as staticMockApps } from '../lib/staticData';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getPrefetchedApp } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
@@ -43,24 +44,66 @@ export default function AppDetails() {
   const app = useMemo(() => {
     if (!slug) return null;
     
+    // 1. Resolve app from available sources (fetched, prefetched, client state, SSR initial data, and static catalogue)
     let resolvedApp = fetchedApp || getPrefetchedApp(slug);
+    if (!resolvedApp && Array.isArray(mockApps)) {
+      resolvedApp = resolveAppSlug(slug, mockApps);
+    }
     if (!resolvedApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
       resolvedApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
     }
-    if (!resolvedApp && Array.isArray(mockApps)) {
-      resolvedApp = resolveAppSlug(slug, mockApps);
+    if (!resolvedApp && Array.isArray(staticMockApps)) {
+      resolvedApp = resolveAppSlug(slug, staticMockApps);
     }
 
     if (!resolvedApp) return null;
 
+    // 2. High-reliability fallback: If resolvedApp is missing rich content (description_html, features_html, etc.),
+    // immediately recover them from staticMockApps or mockApps so the user and web crawlers see the full overview with 0ms delay.
+    let descHtml = resolvedApp.description_html || '';
+    let featHtml = resolvedApp.features_html || '';
+    let screenShots = Array.isArray(resolvedApp.screenshots) && resolvedApp.screenshots.length > 0 ? resolvedApp.screenshots : [];
+    let faqsList = Array.isArray(resolvedApp.faqs) && resolvedApp.faqs.length > 0 ? resolvedApp.faqs : [];
+    let customBoxHtml = resolvedApp.custom_admin_box_html || '';
+    let customBoxHeading = resolvedApp.custom_admin_box_heading || '';
+
+    const fallbackApp = resolveAppSlug(slug, staticMockApps || []) || 
+                        (typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps ? resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps) : null) ||
+                        resolveAppSlug(slug, mockApps || []);
+
+    if (fallbackApp) {
+      if (!descHtml || descHtml.trim().length <= 10) {
+        if (fallbackApp.description_html && fallbackApp.description_html.trim().length > 10) {
+          descHtml = fallbackApp.description_html;
+        }
+      }
+      if (!featHtml || featHtml.trim().length <= 5) {
+        if (fallbackApp.features_html && fallbackApp.features_html.trim().length > 5) {
+          featHtml = fallbackApp.features_html;
+        }
+      }
+      if (screenShots.length === 0 && Array.isArray(fallbackApp.screenshots) && fallbackApp.screenshots.length > 0) {
+        screenShots = fallbackApp.screenshots;
+      }
+      if (faqsList.length === 0 && Array.isArray(fallbackApp.faqs) && fallbackApp.faqs.length > 0) {
+        faqsList = fallbackApp.faqs;
+      }
+      if (!customBoxHtml && fallbackApp.custom_admin_box_html) {
+        customBoxHtml = fallbackApp.custom_admin_box_html;
+      }
+      if (!customBoxHeading && fallbackApp.custom_admin_box_heading) {
+        customBoxHeading = fallbackApp.custom_admin_box_heading;
+      }
+    }
+
     return {
       ...resolvedApp,
-      description_html: resolvedApp.description_html || '',
-      features_html: resolvedApp.features_html || '',
-      screenshots: Array.isArray(resolvedApp.screenshots) ? resolvedApp.screenshots : [],
-      faqs: Array.isArray(resolvedApp.faqs) ? resolvedApp.faqs : [],
-      custom_admin_box_html: resolvedApp.custom_admin_box_html || '',
-      custom_admin_box_heading: resolvedApp.custom_admin_box_heading || '',
+      description_html: descHtml,
+      features_html: featHtml,
+      screenshots: screenShots,
+      faqs: faqsList,
+      custom_admin_box_html: customBoxHtml,
+      custom_admin_box_heading: customBoxHeading,
       release_notes: resolvedApp.release_notes || '',
       yellow_box_msg: resolvedApp.yellow_box_msg || '',
       red_box_msg: resolvedApp.red_box_msg || '',
@@ -219,13 +262,17 @@ export default function AppDetails() {
   useEffect(() => {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
-    if (app && app.description_html && app.description_html.trim().length > 10) return;
+
+    // Check if fetchedApp is already loaded for this slug
+    const fetchedSlug = fetchedApp ? String(fetchedApp.slug || fetchedApp.id || '').toLowerCase() : '';
+    if (fetchedApp && (fetchedSlug === slugKey || resolveAppSlug(slugKey, [fetchedApp]))) {
+      return;
+    }
 
     const prefetched = getPrefetchedApp(slugKey);
-    const resolved = (fetchedApp && fetchedApp.description_html) ? fetchedApp : ((prefetched && prefetched.description_html) ? prefetched : null);
-
-    if (resolved && resolved.description_html && resolved.description_html.trim().length > 10) {
-      if (updateAppDetail) updateAppDetail(resolved);
+    if (prefetched && prefetched.description_html && prefetched.description_html.trim().length > 10) {
+      setFetchedApp(prefetched);
+      if (updateAppDetail) updateAppDetail(prefetched);
       return;
     }
 
@@ -253,7 +300,7 @@ export default function AppDetails() {
           setIsFetchingDetails(false);
         });
     }
-  }, [slug, app?.description_html, fetchedApp, updateAppDetail, refreshAll]);
+  }, [slug, fetchedApp, updateAppDetail, refreshAll]);
 
   if (!app && loading) return <AppDetailsSkeleton />;
   if (!app) return <AppNotFound slug={slug || ''} />;

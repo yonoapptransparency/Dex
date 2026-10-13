@@ -33,9 +33,27 @@ export default function NewsDetailPage() {
         (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug
       );
     }
-    return fromInit ||
+    const found = fromInit ||
            mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
            staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+
+    if (found) {
+      const contentStr = found.content || found.description_html || '';
+      const descStr = found.description || '';
+      const isFull = contentStr.trim().length > 250 && contentStr.trim() !== descStr.trim();
+
+      if (!isFull) {
+        const fallback = staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+        if (fallback && (fallback.content || fallback.description_html)) {
+          return {
+            ...found,
+            content: fallback.content || fallback.description_html || '',
+            description_html: fallback.description_html || fallback.content || ''
+          };
+        }
+      }
+    }
+    return found;
   }, [cleanSlug, mockNews]);
 
   const newsItem = fetchedNewsItem || contextNewsItem;
@@ -55,12 +73,22 @@ export default function NewsDetailPage() {
     if (!newsItem) return false;
     const c = newsItem.content?.trim() || '';
     const d = newsItem.description_html?.trim() || '';
-    return c.length >= 20 || d.length >= 20;
+    const desc = newsItem.description?.trim() || '';
+
+    const isChetFull = c.length > 250 && c !== desc;
+    const isDetFull = d.length > 250 && d !== desc;
+    return isChetFull || isDetFull;
   }, [newsItem]);
 
   useEffect(() => {
     const slugKey = cleanSlug || '';
-    if (!slugKey || hasFullBody) return;
+    if (!slugKey) return;
+
+    // Check if fetchedNewsItem is already loaded for this slug
+    const fetchedSlug = fetchedNewsItem ? String(fetchedNewsItem.slug || fetchedNewsItem.id || '').toLowerCase() : '';
+    if (fetchedNewsItem && (fetchedSlug === slugKey || fetchedSlug === cleanSlug)) {
+      return;
+    }
 
     if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
       syncAttemptedRef.current[slugKey] = true;
@@ -90,7 +118,7 @@ export default function NewsDetailPage() {
 
       return () => { isMounted = false; };
     }
-  }, [cleanSlug, hasFullBody, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
+  }, [cleanSlug, hasFullBody, fetchedNewsItem, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
 
   const relatedApp = useMemo(() => {
     if (!newsItem) return null;
