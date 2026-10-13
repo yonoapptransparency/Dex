@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/rummy-91</loc>
+    <lastmod>2026-10-13T18:19:29+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1785780996/download_22_vgi4h1_1_jjm7jx.webp</image:loc>
+      <image:title>RUMMY 91</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/rummy-77</loc>
+    <lastmod>2026-10-13T18:06:48+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1785722974/1000132690_11zon_1_l43qhv.jpg</image:loc>
+      <image:title>RUMMY 77</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/jaiho-rummy</loc>
     <lastmod>2026-10-12T17:17:46+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -328,26 +348,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879087/download_32_cyvkev.webp</image:loc>
       <image:title>JOY RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/rummy-91</loc>
-    <lastmod>2026-10-09T10:30:36+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1785780996/download_22_vgi4h1_1_jjm7jx.webp</image:loc>
-      <image:title>RUMMY 91</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/rummy-77</loc>
-    <lastmod>2026-10-09T10:28:22+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1785722974/1000132690_11zon_1_l43qhv.jpg</image:loc>
-      <image:title>RUMMY 77</image:title>
     </image:image>
   </url>
   <url>
