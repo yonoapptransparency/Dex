@@ -1,6 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/joy-rummy</loc>
+    <lastmod>2026-10-14T01:55:56+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879087/download_32_cyvkev.webp</image:loc>
+      <image:title>JOY RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/abc-rummy</loc>
+    <lastmod>2026-10-14T01:50:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784878050/download_26_awtrna.webp</image:loc>
+      <image:title>ABC RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/bingo-101</loc>
+    <lastmod>2026-10-14T01:43:27+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784877567/download_18_lljdaa.webp</image:loc>
+      <image:title>BINGO 101</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/spin-101</loc>
+    <lastmod>2026-10-14T01:37:29+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788454523/rummydex_uploads/qat26qydzzshbkfslrob.png</image:loc>
+      <image:title>SPIN 101</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/rummy-ludo</loc>
+    <lastmod>2026-10-14T01:24:14+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879252/download_34_wrdzdw.webp</image:loc>
+      <image:title>RUMMY LUDO</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/jaiho-91</loc>
+    <lastmod>2026-10-14T01:19:36+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784877512/download_16_fznggx.webp</image:loc>
+      <image:title>JAIHO 91</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/rummy-91</loc>
     <lastmod>2026-10-13T18:19:29+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -221,26 +281,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rummydex.com/app/abc-rummy</loc>
-    <lastmod>2026-10-09T10:51:59+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784878050/download_26_awtrna.webp</image:loc>
-      <image:title>ABC RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/bingo-101</loc>
-    <lastmod>2026-10-09T10:49:59+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784877567/download_18_lljdaa.webp</image:loc>
-      <image:title>BINGO 101</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.rummydex.com/app/777-game</loc>
     <lastmod>2026-10-09T10:47:50+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -258,16 +298,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879711/download_38_pmpbnu.webp</image:loc>
       <image:title>789 JACKPORTS</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/rummy-ludo</loc>
-    <lastmod>2026-10-09T10:45:32+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879252/download_34_wrdzdw.webp</image:loc>
-      <image:title>RUMMY LUDO</image:title>
     </image:image>
   </url>
   <url>
@@ -331,26 +361,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rummydex.com/app/jaiho-91</loc>
-    <lastmod>2026-10-09T10:33:27+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784877512/download_16_fznggx.webp</image:loc>
-      <image:title>JAIHO 91</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/joy-rummy</loc>
-    <lastmod>2026-10-09T10:31:42+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1784879087/download_32_cyvkev.webp</image:loc>
-      <image:title>JOY RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.rummydex.com/app/yono-arcade</loc>
     <lastmod>2026-10-09T09:48:17+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -398,16 +408,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_webp,q_auto,w_800/v1786540130/1000134073_11zon_zn5wg8.webp</image:loc>
       <image:title>DHAN GAME</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/spin-101</loc>
-    <lastmod>2026-10-09T09:33:51+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_webp,q_auto,w_800/v1788454523/rummydex_uploads/qat26qydzzshbkfslrob.png</image:loc>
-      <image:title>SPIN 101</image:title>
     </image:image>
   </url>
   <url>
