@@ -211,6 +211,7 @@ export default function AppDetails() {
       slug: a.slug,
       icon_url: a.icon_url,
       is_new: Boolean(a.is_new === true || a.is_new === 'true' || a.isNew || a.badge?.toLowerCase() === 'new'),
+      is_hot: Boolean(a.is_hot === true || a.is_hot === 'true' || a.isHot || a.badge?.toLowerCase() === 'hot'),
       serial_number: a.serial_number
     }));
 

@@ -33,27 +33,26 @@ export default function NewsDetailPage() {
         (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug
       );
     }
-    const found = fromInit ||
-           mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug) ||
-           staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
 
-    if (found) {
-      const contentStr = found.content || found.description_html || '';
-      const descStr = found.description || '';
-      const isFull = contentStr.trim().length > 250 && contentStr.trim() !== descStr.trim();
+    const fromMock = mockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
+    const fromStatic = staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
 
-      if (!isFull) {
-        const fallback = staticMockNews.find(n => (n.slug || '').toLowerCase().trim() === cleanSlug || (n.id || '').toLowerCase().trim() === cleanSlug);
-        if (fallback && (fallback.content || fallback.description_html)) {
-          return {
-            ...found,
-            content: fallback.content || fallback.description_html || '',
-            description_html: fallback.description_html || fallback.content || ''
-          };
-        }
-      }
-    }
-    return found;
+    const candidates = [fromInit, fromMock, fromStatic].filter(Boolean);
+    if (candidates.length === 0) return null;
+
+    // Pick candidate with richest content
+    candidates.sort((a, b) => {
+      const aLen = Math.max((a.content || '').length, (a.description_html || '').length);
+      const bLen = Math.max((b.content || '').length, (b.description_html || '').length);
+      return bLen - aLen;
+    });
+
+    const best = candidates[0];
+    return {
+      ...best,
+      content: best.content || best.description_html || best.description || '',
+      description_html: best.description_html || best.content || best.description || ''
+    };
   }, [cleanSlug, mockNews]);
 
   const newsItem = fetchedNewsItem || contextNewsItem;
@@ -71,9 +70,9 @@ export default function NewsDetailPage() {
 
   const hasFullBody = useMemo(() => {
     if (!newsItem) return false;
-    const c = newsItem.content?.trim() || '';
-    const d = newsItem.description_html?.trim() || '';
-    const desc = newsItem.description?.trim() || '';
+    const c = (newsItem.content || '').trim();
+    const d = (newsItem.description_html || '').trim();
+    const desc = (newsItem.description || '').trim();
 
     const isChetFull = c.length > 250 && c !== desc;
     const isDetFull = d.length > 250 && d !== desc;
@@ -90,9 +89,11 @@ export default function NewsDetailPage() {
       return;
     }
 
-    if (!syncAttemptedRef.current[slugKey] && !isRefreshing) {
+    if (!syncAttemptedRef.current[slugKey]) {
       syncAttemptedRef.current[slugKey] = true;
-      setIsRefreshing(true);
+      if (!hasFullBody) {
+        setIsRefreshing(true);
+      }
 
       let isMounted = true;
       fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {
@@ -109,7 +110,7 @@ export default function NewsDetailPage() {
           }
         })
         .catch(err => {
-          console.warn("Fast news body fetch warning:", err);
+          console.warn("News body fetch fallback notice:", err);
           if (!newsItem && refreshAll) refreshAll(true);
         })
         .finally(() => {
@@ -118,7 +119,7 @@ export default function NewsDetailPage() {
 
       return () => { isMounted = false; };
     }
-  }, [cleanSlug, hasFullBody, fetchedNewsItem, newsItem, isRefreshing, updateNewsDetail, refreshAll]);
+  }, [cleanSlug, hasFullBody, fetchedNewsItem, newsItem, updateNewsDetail, refreshAll]);
 
   const relatedApp = useMemo(() => {
     if (!newsItem) return null;
@@ -181,12 +182,17 @@ export default function NewsDetailPage() {
         totalCatCount++;
         if (!isBaseApp) {
           const rawItem = a as any;
+          const isHot = Boolean(
+            rawItem.is_hot === true || rawItem.is_hot === 'true' || rawItem.is_hot === 1 ||
+            rawItem.isHot === true || rawItem.isHot === 'true' || rawItem.isHot === 1 ||
+            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'hot')
+          );
           const isNew = Boolean(
             rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
             rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
             (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
           );
-          if (isNew) {
+          if (isHot || isNew) {
             newApps.push(a);
           } else {
             regularApps.push(a);
@@ -233,6 +239,7 @@ export default function NewsDetailPage() {
       slug: a.slug,
       icon_url: a.icon_url || a.logo_url,
       is_new: Boolean(a.is_new === true || a.is_new === 'true' || a.isNew || a.badge?.toLowerCase() === 'new'),
+      is_hot: Boolean(a.is_hot === true || a.is_hot === 'true' || a.isHot || a.badge?.toLowerCase() === 'hot'),
       serial_number: a.serial_number
     }));
 

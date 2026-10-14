@@ -9,6 +9,7 @@ export interface RelatedAppItem {
   slug: string;
   icon_url: string;
   is_new?: boolean;
+  is_hot?: boolean;
   serial_number?: number;
 }
 
@@ -74,11 +75,15 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                 fetchPriority="low"
                 referrerPolicy="no-referrer"
               />
-              {relatedApp.is_new && (
+              {relatedApp.is_hot ? (
+                <span className="absolute -top-1.5 -right-1.5 z-20 bg-[#d32f2f] text-white font-black text-[7.5px] xxs:text-[8px] xs:text-[9px] px-1.5 py-0.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-white dark:border-zinc-900 uppercase tracking-wider leading-none select-none pointer-events-none flex items-center justify-center">
+                  HOT
+                </span>
+              ) : relatedApp.is_new ? (
                 <span className="absolute -top-1.5 -right-1.5 z-20 bg-[#008738] text-white font-black text-[7.5px] xxs:text-[8px] xs:text-[9px] px-1.5 py-0.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-white dark:border-zinc-900 uppercase tracking-wider leading-none select-none pointer-events-none flex items-center justify-center">
                   NEW
                 </span>
-              )}
+              ) : null}
             </div>
             <span className="text-[9.5px] xxs:text-[10.5px] xs:text-[11.5px] sm:text-[12px] font-semibold text-center text-zinc-800 dark:text-zinc-200 line-clamp-2 w-full px-0.5 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors pointer-events-none select-none">
               {relatedApp.name}

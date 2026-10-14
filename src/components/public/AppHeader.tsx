@@ -57,11 +57,15 @@ export default function AppHeader({ app }: AppHeaderProps) {
           {app.developer || "Developer"}
         </div>
         <div className="text-[8px] xxs:text-[9px] xs:text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-1.5 xs:gap-x-2.5 gap-y-0.5 mt-0.5 font-medium">
-          {app.is_new && (
+          {app.is_hot ? (
+            <span className="bg-[#d32f2f] text-white px-1.5 py-0.5 rounded uppercase font-black tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px] shadow-xs">
+              HOT
+            </span>
+          ) : app.is_new ? (
             <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px]">
               New
             </span>
-          )}
+          ) : null}
           {app.safety_status === 'Verified' ? (
             <span className="flex items-center text-emerald-600 dark:text-emerald-400 gap-1 font-semibold">
               <ShieldCheck className="w-3 h-3 xxs:w-3.5 xxs:h-3.5 xs:w-4 xs:h-4 text-emerald-500" /> Verified
