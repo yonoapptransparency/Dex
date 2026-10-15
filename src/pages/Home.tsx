@@ -258,15 +258,17 @@ export default function Home() {
             const nextCount = Math.min(prev + ITEMS_PER_PAGE, filteredApps.length);
             const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
             try {
-              const url = new URL(window.location.href);
-              url.searchParams.set('page', String(nextPage));
-              window.history.replaceState(null, '', url.toString());
+              if (typeof window !== 'undefined' && window.scrollY > 50) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('page', String(nextPage));
+                window.history.replaceState(null, '', url.toString());
+              }
             } catch (_) {}
             return nextCount;
           });
         }
       },
-      { rootMargin: '0px 0px 800px 0px', threshold: 0 }
+      { rootMargin: '0px 0px 300px 0px', threshold: 0 }
     );
 
     observer.observe(sentinelRef.current);

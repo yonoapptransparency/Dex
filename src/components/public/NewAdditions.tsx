@@ -53,7 +53,14 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
                     }}
                   />
                 </div>
-                {app.is_hot ? (
+                {app.is_hot && app.is_new ? (
+                  <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
+                    <span className="inline-flex items-center rounded-[6px] xs:rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.18)] font-black text-[7px] xs:text-[8px] sm:text-[9px] uppercase tracking-wider block">
+                      <span className="bg-[#d32f2f] text-white px-1 xs:px-1.5 py-0.5">HOT</span>
+                      <span className="bg-[#008738] text-white px-1 xs:px-1.5 py-0.5">NEW</span>
+                    </span>
+                  </div>
+                ) : app.is_hot ? (
                   <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
                     <span className="bg-[#d32f2f] text-white text-[7px] xs:text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-[6px] xs:rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">
                       HOT

@@ -57,13 +57,18 @@ export default function AppHeader({ app }: AppHeaderProps) {
           {app.developer || "Developer"}
         </div>
         <div className="text-[8px] xxs:text-[9px] xs:text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-1.5 xs:gap-x-2.5 gap-y-0.5 mt-0.5 font-medium">
-          {app.is_hot ? (
+          {app.is_hot && app.is_new ? (
+            <span className="inline-flex items-center rounded overflow-hidden shadow-xs font-black uppercase tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px]">
+              <span className="bg-[#d32f2f] text-white px-1.5 py-0.5">HOT</span>
+              <span className="bg-[#008738] text-white px-1.5 py-0.5">NEW</span>
+            </span>
+          ) : app.is_hot ? (
             <span className="bg-[#d32f2f] text-white px-1.5 py-0.5 rounded uppercase font-black tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px] shadow-xs">
               HOT
             </span>
           ) : app.is_new ? (
-            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px]">
-              New
+            <span className="bg-[#008738] text-white px-1.5 py-0.5 rounded uppercase font-black tracking-wider text-[8px] xxs:text-[9px] xs:text-[10px] shadow-xs">
+              NEW
             </span>
           ) : null}
           {app.safety_status === 'Verified' ? (

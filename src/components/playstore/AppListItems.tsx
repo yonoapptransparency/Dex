@@ -149,7 +149,14 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               }}
             />
           </div>
-          {app.is_hot ? (
+          {app.is_hot && app.is_new ? (
+            <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
+              <span className="inline-flex items-center rounded-[6px] xs:rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.18)] font-black text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] uppercase tracking-wider block">
+                <span className="bg-[#d32f2f] text-white px-1 xs:px-1.5 py-0.5">HOT</span>
+                <span className="bg-[#008738] text-white px-1 xs:px-1.5 py-0.5">NEW</span>
+              </span>
+            </div>
+          ) : app.is_hot ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
               <span className="bg-[#d32f2f] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
             </div>
@@ -230,7 +237,14 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
               }}
             />
           </div>
-          {app.is_hot ? (
+          {app.is_hot && app.is_new ? (
+            <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
+              <span className="inline-flex items-center rounded-[6px] xs:rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.18)] font-black text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] uppercase tracking-wider block">
+                <span className="bg-[#d32f2f] text-white px-1 xs:px-1.5 py-0.5">HOT</span>
+                <span className="bg-[#008738] text-white px-1 xs:px-1.5 py-0.5">NEW</span>
+              </span>
+            </div>
+          ) : app.is_hot ? (
             <div className="absolute -top-1.5 -right-2 z-20 pointer-events-none">
               <span className="bg-[#d32f2f] text-white text-[7px] xxs:text-[8px] xs:text-[9px] sm:text-[10px] font-black px-1.5 xs:px-2 py-0.5 rounded-[6px] xs:rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] uppercase tracking-wider block">HOT</span>
             </div>

@@ -75,7 +75,12 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                 fetchPriority="low"
                 referrerPolicy="no-referrer"
               />
-              {relatedApp.is_hot ? (
+              {relatedApp.is_hot && relatedApp.is_new ? (
+                <span className="absolute -top-1.5 -right-1.5 z-20 inline-flex items-center rounded-full overflow-hidden shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-white dark:border-zinc-900 font-black text-[7.5px] xxs:text-[8px] xs:text-[9px] uppercase tracking-wider leading-none select-none pointer-events-none">
+                  <span className="bg-[#d32f2f] text-white px-1 xs:px-1.5 py-0.5">HOT</span>
+                  <span className="bg-[#008738] text-white px-1 xs:px-1.5 py-0.5">NEW</span>
+                </span>
+              ) : relatedApp.is_hot ? (
                 <span className="absolute -top-1.5 -right-1.5 z-20 bg-[#d32f2f] text-white font-black text-[7.5px] xxs:text-[8px] xs:text-[9px] px-1.5 py-0.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-white dark:border-zinc-900 uppercase tracking-wider leading-none select-none pointer-events-none flex items-center justify-center">
                   HOT
                 </span>
