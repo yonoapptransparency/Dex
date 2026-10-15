@@ -271,6 +271,7 @@ async function prerender() {
     // 3. Clean Robots.txt with only one master sitemap entry
     let robots = `User-agent: *
 Allow: /
+Allow: /api/v1/public/
 Disallow: /api/
 Disallow: /admin/
 Disallow: /login/

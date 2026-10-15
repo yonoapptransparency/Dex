@@ -264,7 +264,16 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase() || '';
     if (!slugKey) return;
 
-    // Check if fetchedApp is already loaded for this slug
+    // 1. Never trigger background network XHR calls during crawler passes (Googlebot, Bingbot, Lighthouse)
+    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
+    if (isCrawler) return;
+
+    // 2. Check if app already has complete rich content (description & features) from pre-render or memory
+    if (app && app.description_html && app.description_html.trim().length > 15) {
+      return;
+    }
+
+    // 3. Check if fetchedApp is already loaded for this slug
     const fetchedSlug = fetchedApp ? String(fetchedApp.slug || fetchedApp.id || '').toLowerCase() : '';
     if (fetchedApp && (fetchedSlug === slugKey || resolveAppSlug(slugKey, [fetchedApp]))) {
       return;
@@ -290,18 +299,16 @@ export default function AppDetails() {
           if (data?.status === 'OK' && data?.app) {
             setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
-          } else if (refreshAll) {
-            refreshAll(true);
           }
         })
         .catch(() => {
-          if (refreshAll) refreshAll(true);
+          // Graceful fallback to static local cache - never trigger recursive backup-data network storms
         })
         .finally(() => {
           setIsFetchingDetails(false);
         });
     }
-  }, [slug, fetchedApp, updateAppDetail, refreshAll]);
+  }, [slug, fetchedApp, app, updateAppDetail]);
 
   if (!app && loading) return <AppDetailsSkeleton />;
   if (!app) return <AppNotFound slug={slug || ''} />;
