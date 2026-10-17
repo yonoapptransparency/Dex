@@ -134,8 +134,8 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               alt={`${app.name} app icon`} 
               width={88}
               height={88}
-              loading={index !== undefined && index <= 8 ? "eager" : "lazy"}
-              fetchPriority={index !== undefined && index <= 8 ? "high" : "low"}
+              loading={index !== undefined && index <= 3 ? "eager" : "lazy"}
+              fetchPriority={index !== undefined && index === 1 ? "high" : "low"}
               decoding="async"
               className="w-full h-full object-cover block"
               referrerPolicy="no-referrer"

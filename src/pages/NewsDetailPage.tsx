@@ -83,7 +83,14 @@ export default function NewsDetailPage() {
     const slugKey = cleanSlug || '';
     if (!slugKey) return;
 
-    // Check if fetchedNewsItem is already loaded for this slug
+    // 1. Never trigger background network XHR calls during crawler passes (Googlebot, Bingbot, Lighthouse)
+    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
+    if (isCrawler) return;
+
+    // 2. If news item already has complete rich content from SSR / initialData, bypass client fetch completely
+    if (hasFullBody) return;
+
+    // 3. Check if fetchedNewsItem is already loaded for this slug
     const fetchedSlug = fetchedNewsItem ? String(fetchedNewsItem.slug || fetchedNewsItem.id || '').toLowerCase() : '';
     if (fetchedNewsItem && (fetchedSlug === slugKey || fetchedSlug === cleanSlug)) {
       return;
@@ -91,9 +98,7 @@ export default function NewsDetailPage() {
 
     if (!syncAttemptedRef.current[slugKey]) {
       syncAttemptedRef.current[slugKey] = true;
-      if (!hasFullBody) {
-        setIsRefreshing(true);
-      }
+      setIsRefreshing(true);
 
       let isMounted = true;
       fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {

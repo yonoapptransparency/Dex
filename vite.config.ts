@@ -523,7 +523,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), adminAuthDevPlugin(env)],
     envPrefix: ['VITE_', 'ADMIN_'],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.ADMIN_PASSWORD': JSON.stringify(adminPass),
@@ -699,6 +699,9 @@ export default defineConfig(({mode}) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('staticData')) {
+              return 'catalog-data';
+            }
             if (id.includes('node_modules')) {
               // Group heavy animation and firebase into async standalone chunks
               if (id.includes('firebase')) {
@@ -706,6 +709,9 @@ export default defineConfig(({mode}) => {
               }
               if (id.includes('framer-motion') || id.includes('motion')) {
                 return 'vendor-motion';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
               }
               // Group core app runtime together so browser executes in 1 parallel network request
               if (
