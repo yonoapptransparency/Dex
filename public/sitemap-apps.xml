@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/hi-rummy</loc>
+    <lastmod>2026-10-17T14:54:33+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792248549/rummydex_uploads/dju1yghqaiekyege3mrq.webp</image:loc>
+      <image:title>HI RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/jaiho-play</loc>
     <lastmod>2026-10-16T04:05:18+00:00</lastmod>
     <changefreq>daily</changefreq>
