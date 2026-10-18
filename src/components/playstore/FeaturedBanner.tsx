@@ -71,7 +71,9 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
                   {...(i === 0 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
                   width={800}
                   height={400}
-                  src={getOptimizedImageUrl(item.image, 800) || `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=400&fit=crop`} 
+                  src={getOptimizedImageUrl(item.image, 600) || `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=400&fit=crop`}
+                  srcSet={item.image ? `${getOptimizedImageUrl(item.image, 400)} 400w, ${getOptimizedImageUrl(item.image, 600)} 600w, ${getOptimizedImageUrl(item.image, 800)} 800w` : undefined}
+                  sizes="(max-width: 640px) 100vw, 800px"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 pointer-events-none"
                   alt={item.title || "Featured banner"}
                   referrerPolicy="no-referrer"

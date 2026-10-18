@@ -152,7 +152,12 @@ export default function Home() {
     }
   }, [searchParams, categoryParam, location, mockSettings.categories]);
 
+  const isInitialFilterMount = useRef(true);
   useEffect(() => {
+    if (isInitialFilterMount.current) {
+      isInitialFilterMount.current = false;
+      return;
+    }
     setVisibleCount(ITEMS_PER_PAGE);
   }, [deferredSearchTerm, deferredActiveTab, deferredRatingFilter, deferredSortBy]);
 

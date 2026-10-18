@@ -34,12 +34,12 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
               <div className="relative w-full aspect-square">
                 <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[20px] sm:rounded-[24px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/10 shadow-sm group-hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.1)] transition-all">
                   <img 
-                    src={getOptimizedImageUrl(app.icon_url, 180) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
+                    src={getOptimizedImageUrl(app.icon_url, 120) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                     alt={app.name} 
                     referrerPolicy="no-referrer"
-                    loading={index < 5 ? "eager" : "lazy"}
+                    loading={index < 4 ? "eager" : "lazy"}
                     decoding="async"
-                    {...(index < 5 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
+                    {...(index === 0 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
                     width={104}
                     height={104}
                     className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300 block" 
