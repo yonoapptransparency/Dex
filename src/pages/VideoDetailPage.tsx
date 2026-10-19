@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { mockVideos as staticMockVideos } from '../lib/staticData';
+import { mockVideos as staticMockVideos } from '../lib/lightFallback';
 import { ArrowLeft, MessageSquare, Send, Calendar, ShieldAlert } from 'lucide-react';
 
 interface Comment {

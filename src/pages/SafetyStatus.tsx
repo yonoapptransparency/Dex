@@ -5,7 +5,7 @@
 
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { mockApps as staticMockApps } from '../lib/staticData';
+import { mockApps as staticMockApps } from '../lib/lightFallback';
 import Meta from '../components/Meta';
 import { ShieldCheck, ArrowLeft, Sparkles, LayoutGrid, Info, CheckCircle2 } from 'lucide-react';
 import NeutralSyncButton from '../components/NeutralSyncButton';

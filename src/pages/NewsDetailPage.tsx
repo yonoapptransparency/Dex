@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { mockNews as staticMockNews } from '../lib/staticData';
+import { mockNews as staticMockNews } from '../lib/lightFallback';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';

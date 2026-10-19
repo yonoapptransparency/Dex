@@ -1,11 +1,10 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { ShieldAlert, ShieldCheck, ArrowLeft, Shield } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import ClearanceButton from '../components/ClearanceButton';
-import { mockApps as staticMockApps } from '../lib/staticData';
+import { mockApps as staticMockApps } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getOptimizedImageUrl } from '../seo/utils';
 

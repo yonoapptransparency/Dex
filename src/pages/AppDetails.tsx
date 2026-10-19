@@ -11,7 +11,7 @@ import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
-import { mockApps as staticMockApps } from '../lib/staticData';
+import { mockApps as staticMockApps } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getPrefetchedApp } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
@@ -439,14 +439,20 @@ export default function AppDetails() {
           totalCategoryCount={totalCategoryAppsCount} 
         />
 
-        <AppScreenshots app={app} />
+        <div className="[content-visibility:auto] [contain-intrinsic-size:0_300px]">
+          <AppScreenshots app={app} />
+        </div>
 
-        <AppAboutSection app={app} isFetching={isFetchingDetails && !app.description_html} />
+        <div className="[content-visibility:auto] [contain-intrinsic-size:0_400px]">
+          <AppAboutSection app={app} isFetching={isFetchingDetails && !app.description_html} />
+        </div>
 
-        <AppSafetyBoxes app={app} />
+        <div className="[content-visibility:auto] [contain-intrinsic-size:0_200px]">
+          <AppSafetyBoxes app={app} />
+        </div>
       </div>
 
-      <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
+      <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <UserReviews 
           key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
           appId={app.id} 
@@ -458,7 +464,9 @@ export default function AppDetails() {
         />
       </div>
       
-      <AppFaqSection faqs={app.faqs} />
+      <div className="[content-visibility:auto] [contain-intrinsic-size:0_300px]">
+        <AppFaqSection faqs={app.faqs} />
+      </div>
     </div>
   );
 }
