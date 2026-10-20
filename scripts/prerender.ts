@@ -1,4 +1,5 @@
 // prerender.ts
+process.env.NODE_ENV = 'production';
 import fs from 'fs';
 import path from 'path';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
@@ -129,6 +130,7 @@ async function prerender() {
     await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
+    await generateRoute('/developer');
     await generateRoute('/contact');
     await generateRoute('/privacy');
     await generateRoute('/report-removal');
