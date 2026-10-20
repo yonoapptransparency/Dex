@@ -560,7 +560,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), adminAuthDevPlugin(env)],
     envPrefix: ['VITE_'],
     define: {
-      __ADMIN_ENABLED__: true,
+      __ADMIN_ENABLED__: false,
       'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : (process.env.NODE_ENV || 'development')),
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
