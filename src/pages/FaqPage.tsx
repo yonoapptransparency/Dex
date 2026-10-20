@@ -96,7 +96,7 @@ export default function FaqPage() {
             <details
               key={`faq-page-${idx}`}
               className="group rounded-2xl border transition-colors duration-200 overflow-hidden bg-slate-50/70 dark:bg-zinc-900/60 border-black/5 dark:border-white/5 open:bg-slate-50 open:dark:bg-zinc-900/90 open:border-blue-200 open:dark:border-blue-900/40 shadow-xs"
-              open={idx === 0}
+              open
             >
               <summary className="list-none [&::-webkit-details-marker]:hidden w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 select-none">
                 <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-start gap-3">

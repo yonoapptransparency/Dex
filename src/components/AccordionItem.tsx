@@ -37,21 +37,22 @@ export default function AccordionItem({ question, answer, isWebsiteFaq }: Accord
         </div>
       </button>
       
-      {isOpen && (
-        <div className="overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 border-t border-black/5 dark:border-white/5">
-          <div className={cn(
-            "text-slate-600 dark:text-slate-400 leading-relaxed",
-            isWebsiteFaq ? "px-4 pb-4 pt-3 text-xs sm:text-sm font-normal bg-zinc-50/50 dark:bg-zinc-900/40" : "px-3 pb-3 pt-2 text-xs"
-          )}>
-            <div className={cn("flex flex-col items-start gap-2 w-full")}>
-              <div 
-                className="prose prose-zinc dark:prose-invert prose-xs sm:prose-sm max-w-none w-full break-words overflow-wrap-anywhere whitespace-normal leading-relaxed text-slate-600 dark:text-slate-300"
-                dangerouslySetInnerHTML={{ __html: safeHtml(answer) }}
-              />
-            </div>
+      <div className={cn(
+        "overflow-hidden border-t border-black/5 dark:border-white/5",
+        isOpen ? "block animate-in fade-in slide-in-from-top-1 duration-150" : "hidden"
+      )}>
+        <div className={cn(
+          "text-slate-600 dark:text-slate-400 leading-relaxed",
+          isWebsiteFaq ? "px-4 pb-4 pt-3 text-xs sm:text-sm font-normal bg-zinc-50/50 dark:bg-zinc-900/40" : "px-3 pb-3 pt-2 text-xs"
+        )}>
+          <div className={cn("flex flex-col items-start gap-2 w-full")}>
+            <div 
+              className="prose prose-zinc dark:prose-invert prose-xs sm:prose-sm max-w-none w-full break-words overflow-wrap-anywhere whitespace-normal leading-relaxed text-slate-600 dark:text-slate-300"
+              dangerouslySetInnerHTML={{ __html: safeHtml(answer) }}
+            />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

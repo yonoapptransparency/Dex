@@ -439,20 +439,20 @@ export default function AppDetails() {
           totalCategoryCount={totalCategoryAppsCount} 
         />
 
-        <div className="[content-visibility:auto] [contain-intrinsic-size:0_300px]">
+        <div>
           <AppScreenshots app={app} />
         </div>
 
-        <div className="[content-visibility:auto] [contain-intrinsic-size:0_400px]">
+        <div>
           <AppAboutSection app={app} isFetching={isFetchingDetails && !app.description_html} />
         </div>
 
-        <div className="[content-visibility:auto] [contain-intrinsic-size:0_200px]">
+        <div>
           <AppSafetyBoxes app={app} />
         </div>
       </div>
 
-      <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
+      <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
         <UserReviews 
           key={`${app.id}_${app.slug || ''}_${reviewsRefreshKey}`} 
           appId={app.id} 
@@ -464,7 +464,7 @@ export default function AppDetails() {
         />
       </div>
       
-      <div className="[content-visibility:auto] [contain-intrinsic-size:0_300px]">
+      <div>
         <AppFaqSection faqs={app.faqs} />
       </div>
     </div>
