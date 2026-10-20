@@ -81,7 +81,7 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
 
       {menuOpen && (
         <div
-          className="absolute right-0 top-full mt-1 w-48 xs:w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[120] transition-all duration-150 animate-in fade-in zoom-in-95"
+          className="absolute right-0 bottom-full mb-1 w-48 xs:w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[200] transition-all duration-150 animate-in fade-in zoom-in-95"
         >
           <button
             type="button"
@@ -115,7 +115,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
   }, [app.is_coming_soon, app.publish_date]);
   
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app)}
@@ -203,7 +203,7 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
   }, [app.is_coming_soon, app.publish_date]);
 
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[60]' : 'z-1'} [content-visibility:auto] [contain-intrinsic-size:auto_84px]`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app)}

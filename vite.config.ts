@@ -552,7 +552,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), adminAuthDevPlugin(env)],
     envPrefix: ['VITE_'],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.FIREBASE_PROJECT_ID': JSON.stringify(firebaseConfig.projectId || env.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID),
@@ -571,6 +571,12 @@ export default defineConfig(({mode}) => {
         { find: 'react-helmet-async', replacement: path.resolve(__dirname, 'src/lib/react-helmet-async-shim.tsx') },
 
         // Fallback aliases for Dex or Masterworld repositories where certain files are removed
+        { 
+          find: /.*\/seo\/renderers(?:\/index)?$/, 
+          replacement: fs.existsSync(path.resolve(__dirname, 'src/seo/renderers/index.ts')) 
+            ? path.resolve(__dirname, 'src/seo/renderers/index.ts') 
+            : path.resolve(__dirname, 'src/lib/dummyRenderers.ts') 
+        },
         { 
           find: /.*\/pages\/AdminDashboard$/, 
           replacement: fs.existsSync(path.resolve(__dirname, 'src/pages/AdminDashboard.tsx')) 
