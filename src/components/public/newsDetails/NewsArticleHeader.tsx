@@ -88,6 +88,8 @@ export const NewsArticleHeader: React.FC<NewsArticleHeaderProps> = ({
           <img 
             src={getOptimizedImageUrl(logoUrl, 1200) || logoUrl} 
             alt={title}
+            width={1200}
+            height={675}
             loading="eager"
             fetchPriority="high"
             decoding="async"

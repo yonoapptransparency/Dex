@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Flag, X, Check } from 'lucide-react';
 import { submitLiveReport } from '../lib/communityFirebase';
 
@@ -50,9 +51,9 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
     }
   };
 
-  return (
+  const modalNode = (
     <div 
-      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -196,7 +197,13 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(modalNode, document.body);
+  }
+  return modalNode;
 };
+
 
 export default ReportAppModal;
 

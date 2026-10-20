@@ -316,55 +316,97 @@ export default function NewsDetailPage() {
   }
 
   const articleTitle = newsItem.seo_title || newsItem.title || 'News Article';
-  const articleDesc = newsItem.seo_description || newsItem.description || '';
-  const articleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
+  const bodyContent = newsItem.content || newsItem.description_html || newsItem.description || '';
+  const plainBody = bodyContent.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+  const articleDesc = newsItem.seo_description || newsItem.description || plainBody.substring(0, 160);
+  const rawArticleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
   const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
+  const datePublished = newsItem.published_at || newsItem.created_at || newsItem.date || '';
+  const dateModified = newsItem.updated_at || datePublished;
+  const authorName = newsItem.ceo_name || newsItem.author || 'RummyDex Editorial Team';
+  const articleCategory = newsItem.category || 'General';
 
   const newsArticleSchema = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    "headline": newsItem.title,
-    "description": articleDesc,
-    "image": articleImage ? [articleImage] : [],
-    "datePublished": newsItem.date || newsItem.published_at || newsItem.created_at,
-    "dateModified": newsItem.updated_at || newsItem.date || newsItem.published_at,
-    "author": {
-      "@type": "Person",
-      "name": newsItem.ceo_name || "RummyDex Editorial Team"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "RummyDex",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.rummydex.com/logo.png"
-      }
-    },
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": canonicalUrl
+    },
+    "headline": newsItem.title,
+    "description": articleDesc,
+    "articleBody": plainBody || articleDesc,
+    "image": rawArticleImage ? [rawArticleImage] : [],
+    "datePublished": datePublished,
+    "dateModified": dateModified,
+    "articleSection": articleCategory,
+    "inLanguage": "en",
+    "isAccessibleForFree": true,
+    "author": {
+      "@type": "Person",
+      "name": authorName
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": mockSettings?.site_title || "RummyDex",
+      "url": "https://www.rummydex.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": mockSettings?.logo_url || "https://www.rummydex.com/logo.png"
+      }
     }
   };
 
-  const bodyContent = newsItem.content || newsItem.description_html || newsItem.description || '';
+  const newsBreadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.rummydex.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "News",
+        "item": "https://www.rummydex.com/news"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": newsItem.title,
+        "item": canonicalUrl
+      }
+    ]
+  };
 
   return (
-    <article className="max-w-3xl mx-auto px-3 sm:px-0 pb-20">
+    <article className="max-w-3xl mx-auto px-3 sm:px-0 pb-20 text-left">
       <Meta 
         title={articleTitle}
         description={articleDesc}
-        image={articleImage}
+        keywords={newsItem.seo_keywords}
+        image={rawArticleImage}
+        type="article"
+        publishedTime={datePublished}
+        modifiedTime={dateModified}
+        author={authorName}
+        section={articleCategory}
+        tags={Array.isArray(newsItem.tags) ? newsItem.tags : undefined}
         canonical={canonicalUrl}
         schema={newsArticleSchema}
+        breadcrumbSchema={newsBreadcrumbSchema}
       />
 
       <NewsArticleHeader 
         title={newsItem.title || 'News Article'}
-        category={newsItem.category || 'General'}
-        formattedDate={formatNewsDate(newsItem.date, newsItem.published_at)}
-        author={newsItem.ceo_name || 'RummyDex Editorial Team'}
-        readingTime={calculateReadingTime(newsItem.content || newsItem.description)}
-        logoUrl={articleImage}
+        category={articleCategory}
+        formattedDate={formatNewsDate(newsItem.date, newsItem.published_at, newsItem.created_at)}
+        author={authorName}
+        readingTime={calculateReadingTime(bodyContent)}
+        logoUrl={rawArticleImage}
         copied={copied}
         onShare={handleShare}
       />

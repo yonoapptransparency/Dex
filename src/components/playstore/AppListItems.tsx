@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Star, ShieldCheck, MoreVertical, Share2, Flag } from 'lucide-react';
 import { cn, safeVibrate } from '../../lib/utilsPublic';
@@ -8,23 +9,57 @@ import { preloadAppDetails } from '../../lib/preloadHelper';
 const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpen: boolean) => void }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = React.useState<{ top: number; right: number; openUpward: boolean }>({
+    top: 0,
+    right: 16,
+    openUpward: false
+  });
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const updateMenuPosition = React.useCallback(() => {
+    if (!buttonRef.current || typeof window === 'undefined') return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const menuHeight = 96;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUpward = spaceBelow < menuHeight + 16 && rect.top > menuHeight + 16;
+    const top = openUpward ? Math.max(8, rect.top - menuHeight - 6) : Math.min(window.innerHeight - menuHeight - 8, rect.bottom + 6);
+    const right = Math.max(8, window.innerWidth - rect.right);
+    setCoords({ top, right, openUpward });
+  }, []);
 
   React.useEffect(() => {
     onMenuToggle?.(menuOpen);
-  }, [menuOpen, onMenuToggle]);
+    if (menuOpen) {
+      updateMenuPosition();
+    }
+  }, [menuOpen, onMenuToggle, updateMenuPosition]);
 
   React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+    if (!menuOpen) return;
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      const target = event.target as Node;
+      if (
+        buttonRef.current && !buttonRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setMenuOpen(false);
       }
     }
+    function handleScrollOrResize() {
+      setMenuOpen(false);
+    }
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
     };
-  }, []);
+  }, [menuOpen]);
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,13 +75,19 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
       })
       .then(() => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => {
+          setCopied(false);
+          setMenuOpen(false);
+        }, 1200);
       })
       .catch(() => {});
     } else {
       navigator.clipboard.writeText(appUrl).then(() => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => {
+          setCopied(false);
+          setMenuOpen(false);
+        }, 1200);
       }).catch(() => {});
     }
   };
@@ -60,17 +101,18 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
 
   return (
     <div 
-      className={`absolute right-1 xs:right-2 sm:right-4 top-1/2 -translate-y-1/2 ${menuOpen ? 'z-[100]' : 'z-20'}`} 
-      ref={menuRef} 
+      className={`absolute right-1 xs:right-2 sm:right-4 top-1/2 -translate-y-1/2 ${menuOpen ? 'z-50' : 'z-20'}`} 
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
       <button
+        ref={buttonRef}
         type="button"
         aria-expanded={menuOpen}
         aria-haspopup="true"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          if (!menuOpen) updateMenuPosition();
           setMenuOpen(!menuOpen);
         }}
         className="p-1.5 xs:p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-full transition-all cursor-pointer relative"
@@ -79,16 +121,26 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
         <MoreVertical className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
       </button>
 
-      {menuOpen && (
+      {menuOpen && typeof document !== 'undefined' && createPortal(
         <div
-          className="absolute right-0 bottom-full mb-1 w-48 xs:w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[200] transition-all duration-150 animate-in fade-in zoom-in-95"
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: `${coords.top}px`,
+            right: `${coords.right}px`,
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className="w-48 xs:w-52 bg-zinc-900 text-white rounded-xl shadow-2xl border border-zinc-700/80 overflow-hidden py-1 z-[99999] transition-all duration-150 animate-in fade-in zoom-in-95"
         >
           <button
             type="button"
             onClick={handleShare}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5 text-zinc-400" />
+            <Share2 className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span>{copied ? 'Link Copied!' : 'Share app'}</span>
           </button>
           <button
@@ -96,10 +148,11 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
             onClick={handleOpenReport}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold hover:bg-zinc-800 transition-colors text-left border-t border-zinc-800/60 h-[44px] cursor-pointer"
           >
-            <Flag className="w-3.5 h-3.5 text-zinc-400" />
+            <Flag className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span>Flag as inappropriate</span>
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
