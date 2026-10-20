@@ -8,7 +8,7 @@ import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
-import { formatNewsDate, calculateReadingTime } from '../components/public/news/newsUtils';
+import { formatNewsDate, calculateReadingTime } from '../lib/newsUtils';
 
 export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();

@@ -24,6 +24,7 @@ export default function GatewayPage() {
   
   const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isBotBlocked, setIsBotBlocked] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
   const isActuallyComingSoon = app?.is_coming_soon;
@@ -32,6 +33,7 @@ export default function GatewayPage() {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
     setIsRefreshing(false);
+    setIsBotBlocked(false);
   }, [slug]);
 
   // Automatically trigger a silent cloud sync only if the requested app is completely unknown
@@ -62,9 +64,15 @@ export default function GatewayPage() {
     );
   }
 
-  if (!app) {
+  // Disguised Phantom 404 State (triggered if app does not exist OR if an automated bot/crawler is detected)
+  if (!app || isBotBlocked) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
+        <Meta
+          title="404 - Page Not Found"
+          description="The requested page could not be found."
+          noindex={true}
+        />
         <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl flex items-center justify-center mb-6">
           <ShieldAlert className="w-8 h-8" />
         </div>
@@ -82,63 +90,6 @@ export default function GatewayPage() {
     );
   }
 
-  const stripHtml = (html: string) => {
-    if (!html) return '';
-    const stripped = html.replace(/<[^>]*>?/gm, ' ');
-    return stripped.replace(/\s+/g, ' ').trim();
-  };
-
-  const cleanSeoDescription = (rawDesc: string) => {
-    if (!rawDesc) return '';
-    const trimmed = rawDesc.trim();
-    if (trimmed.startsWith('<') || trimmed.includes('<meta ')) {
-      const metaMatch = trimmed.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
-      if (metaMatch && metaMatch[1]) {
-        return metaMatch[1].trim();
-      }
-      const ogMatch = trimmed.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i);
-      if (ogMatch && ogMatch[1]) {
-        return ogMatch[1].trim();
-      }
-      return stripHtml(trimmed).substring(0, 160);
-    }
-    return trimmed;
-  };
-
-  const cleanedAppDesc = cleanSeoDescription(app.seo_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} technical specs.`);
-
-  const realRatingVal = parseFloat(String(app.rating));
-  const realReviewCount = parseInt(String((app as any)?.review_count || ''), 10);
-  const ratingVal = (!isNaN(realRatingVal) && realRatingVal > 0) ? realRatingVal : 4.5;
-  const reviewCountVal = (!isNaN(realReviewCount) && realReviewCount > 0) ? realReviewCount : 120;
-
-  const softwareSchema: any = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": app.name,
-    "description": cleanedAppDesc,
-    "applicationCategory": app.category || 'GameApplication',
-    "operatingSystem": "Android",
-    "softwareVersion": app.version || '1.0.0',
-    "image": app.og_image_url || app.icon_url,
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "INR"
-    }
-  };
-
-  if (reviewCountVal > 0 && ratingVal > 0) {
-    softwareSchema.aggregateRating = {
-      "@type": "AggregateRating",
-      "ratingValue": parseFloat(ratingVal.toFixed(1)),
-      "ratingCount": Math.round(reviewCountVal),
-      "reviewCount": Math.round(reviewCountVal),
-      "bestRating": 5,
-      "worstRating": 1
-    };
-  }
-
   return (
     <div className="animate-fade-in select-none pb-40 w-full bg-zinc-50/30 dark:bg-zinc-950/20 min-h-screen">
       {/* Sleek Premium Back Button */}
@@ -152,12 +103,10 @@ export default function GatewayPage() {
         </Link>
       </div>
 
+      {/* Zero-SEO / Strict NoIndex Security Directive (No Schema, No Canonical, No OpenGraph) */}
       <Meta 
         title={`Verification Portal — ${app.name}`}
-        description={`Verification specifications and technical details for ${app.name}.`}
-        image={app.og_image_url || app.icon_url}
-        canonical={`https://www.rummydex.com/app/${app.slug}`}
-        schema={softwareSchema}
+        description="Verification Portal"
         noindex={true}
       />
       
@@ -189,7 +138,7 @@ export default function GatewayPage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <h2 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-tight mb-1.5 xs:mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h2>
+              <h1 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-tight mb-1.5 xs:mb-2 text-zinc-800 dark:text-zinc-100">{app.name}</h1>
               <div className="flex flex-wrap justify-center items-center gap-1.5">
                 <span className="inline-flex items-center px-2.5 xs:px-3 py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/[0.04] shadow-sm">
                   ID: {app.serial_number || app.id}
@@ -220,6 +169,7 @@ export default function GatewayPage() {
                    appSlug={app.slug} 
                    appRecord={app}
                    status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} 
+                   onError={() => setIsBotBlocked(true)}
                  />
                </div>
             )}
