@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
-import { ReviewForm } from './public/ReviewForm';
+
 import { useReviews } from '../hooks/useReviews';
 
 import { ReviewScoreSummary } from './public/ReviewScoreSummary';
@@ -29,9 +29,30 @@ export default function UserReviews({
   totalReviewCount 
 }: UserReviewsProps) {
   
-  // Instant immediate render with SWR cache baseline (0ms latency, zero layout shift)
-  const [inView, setInView] = useState(true);
+  const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (inView) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setInView(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: '300px' }
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    } else {
+      setInView(true);
+    }
+  }, [inView]);
 
   const {
     reviews,
@@ -84,33 +105,17 @@ export default function UserReviews({
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
       <div className="flex flex-col gap-6 sm:gap-8">
         
-        {/* Harmonious Top Grid: Score Summary on left, Review Form on right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
-          <div className="lg:col-span-5 w-full">
-            <ReviewScoreSummary 
-              key={`stats_${appId}_${appSlug || ''}`}
-              appId={appId} 
-              appSlug={appSlug} 
-              overallRating={overallRating} 
-              totalReviewCount={totalReviewCount} 
-              stats={stats}
-              displayedReviewsCount={displayedReviews.length}
-            />
-          </div>
-
-          <div className="lg:col-span-7 w-full flex flex-col gap-4 sm:gap-6">
-            <ReviewForm 
-              appId={appId} 
-              appSlug={appSlug} 
-              appName={appTitle}
-              onSuccess={(newRev) => {
-                setInView(true);
-                if (newRev && newRev.id) {
-                  setReviews(prev => [newRev, ...prev.filter(r => r.id !== newRev.id)]);
-                }
-              }} 
-            />
-          </div>
+        {/* Harmonious Score Summary */}
+        <div className="w-full">
+          <ReviewScoreSummary 
+            key={`stats_${appId}_${appSlug || ''}`}
+            appId={appId} 
+            appSlug={appSlug} 
+            overallRating={overallRating} 
+            totalReviewCount={totalReviewCount} 
+            stats={stats}
+            displayedReviewsCount={displayedReviews.length}
+          />
         </div>
 
         {/* Reviews Feed Section */}
@@ -126,7 +131,7 @@ export default function UserReviews({
                       className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                         activeFilter === 'all'
                           ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
-                          : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-750 text-zinc-500 dark:text-zinc-400'
+                          : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
                       }`}
                     >
                       All Reviews
@@ -149,7 +154,7 @@ export default function UserReviews({
                       className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                         activeFilter === 'critical'
                           ? 'bg-rose-600 text-white shadow-sm'
-                          : 'bg-rose-500/5 text-rose-650 dark:text-rose-450 dark:bg-rose-500/10 hover:bg-rose-500/10'
+                          : 'bg-rose-500/5 text-rose-600 dark:text-rose-400 dark:bg-rose-500/10 hover:bg-rose-500/10'
                       }`}
                     >
                       <AlertCircle className="w-3 h-3" />
@@ -157,7 +162,7 @@ export default function UserReviews({
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-650 dark:text-zinc-400 shrink-0 select-none">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 shrink-0 select-none">
                     <span>Sort:</span>
                     <div className="flex bg-zinc-100 dark:bg-zinc-800/80 rounded-lg p-0.5">
                       <button

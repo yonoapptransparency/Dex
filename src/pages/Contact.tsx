@@ -126,7 +126,7 @@ export default function Contact() {
 
             <>
               <div>
-                <label htmlFor="contact-name" className="block text-sm font-semibold text-zinc-750 dark:text-zinc-300 mb-2">Name</label>
+                <label htmlFor="contact-name" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Name</label>
                 <input id="contact-name" required type="text" placeholder="Your Name" value={username} onChange={e => setUsername(e.target.value)} className="w-full p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
               </div>
               <div>

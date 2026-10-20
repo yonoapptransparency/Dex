@@ -176,7 +176,7 @@ export function ReviewItem({
             aria-label={`Report review by ${rev.username || 'user'}`}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ml-auto ${
               isReported || rev.reported
-                ? 'bg-rose-500/10 text-rose-650 dark:text-rose-400 cursor-default font-black'
+                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 cursor-default font-black'
                 : 'bg-black/5 hover:bg-rose-500/10 hover:text-rose-600 dark:bg-white/5 dark:hover:bg-rose-500/15 text-zinc-500 dark:text-zinc-400 active:scale-95 cursor-pointer'
             }`}
           >

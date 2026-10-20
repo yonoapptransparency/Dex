@@ -140,7 +140,7 @@ export function renderHome(apps: any[], settings: any, news: any[], _videos: any
   const heroHtml = `
     <div class="w-full relative py-1 sm:py-1.5 px-4 overflow-hidden flex flex-col items-center justify-center text-center my-0">
       <div class="max-w-4xl mx-auto flex flex-col items-center justify-center gap-1">
-        <h1 class="font-sans font-black tracking-tight text-center leading-none text-base xs:text-xl sm:text-2xl md:text-3.5xl bg-gradient-to-r from-zinc-950 via-zinc-800 to-zinc-900 bg-clip-text text-transparent dark:from-white dark:via-zinc-200 dark:to-zinc-300 select-text block max-w-3xl filter drop-shadow-sm">
+        <h1 class="font-sans font-black tracking-tight text-center leading-none text-base xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl bg-gradient-to-r from-zinc-950 via-zinc-800 to-zinc-900 bg-clip-text text-transparent dark:from-white dark:via-zinc-200 dark:to-zinc-300 select-text block max-w-3xl filter drop-shadow-sm">
           ${escapeHtml(heroText)}
         </h1>
         ${heroSubtitle ? `<p class="text-[9px] sm:text-[10px] font-bold tracking-[0.18em] text-zinc-900/60 dark:text-zinc-100/60 uppercase max-w-2xl select-text pt-0.5 leading-tight">${escapeHtml(heroSubtitle)}</p>` : ''}

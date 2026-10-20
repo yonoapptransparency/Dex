@@ -86,11 +86,7 @@ async function prerender() {
       await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
     }
 
-    // 2.1 Generate Gateway Moreinfo Routes for instant CDN delivery (Zero 404s)
-    for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
-      const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
-      await Promise.all(batch.map((app: any) => generateRoute(`/moreinfo/${app.slug}`)));
-    }
+
 
     // 3. Generate Category Routes & Catalogs
     await generateRoute('/categories');
@@ -141,6 +137,9 @@ async function prerender() {
     await generateRoute('/notice');
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
+    await generateRoute('/faq');
+    await generateRoute('/faqs');
+    await generateRoute('/safety');
 
     // 6. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
     let rawDomain = 'https://www.rummydex.com';

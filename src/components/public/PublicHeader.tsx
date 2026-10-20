@@ -35,6 +35,7 @@ export function PublicHeader() {
   return (
     <>
       <header 
+        suppressHydrationWarning={true}
         className={`sticky top-0 z-50 transition-transform duration-200 ease-out will-change-transform ${
           isHeaderHidden ? '-translate-y-full pointer-events-none' : 'translate-y-0 pointer-events-auto'
         } ${
