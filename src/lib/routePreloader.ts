@@ -4,36 +4,34 @@
  * Guarantees 0ms navigation lag with zero loading screen flash.
  */
 
-import * as Pages from './pageComponents';
-
 type RouteLoader = () => Promise<any>;
 
 const routeRegistry: Record<string, RouteLoader> = {
   '/': () => import('../pages/Home'),
-  '/app/': () => Pages.AppDetails.preload(),
+  '/app/': () => import('../pages/AppDetails'),
   '/category/': () => import('../pages/Home'),
   '/categories': () => import('../pages/Home'),
   '/new-apps': () => import('../pages/Home'),
-  '/news': () => Pages.NewsPage.preload(),
-  '/news/': () => Pages.NewsDetailPage.preload(),
-  '/videos': () => Pages.VideosPage.preload(),
-  '/videos/': () => Pages.VideoDetailPage.preload(),
-  '/video/': () => Pages.VideoDetailPage.preload(),
-  '/developers': () => Pages.Developers.preload(),
-  '/about': () => Pages.About.preload(),
-  '/contact': () => Pages.Contact.preload(),
-  '/privacy': () => Pages.Privacy.preload(),
-  '/terms': () => Pages.Terms.preload(),
-  '/responsibility': () => Pages.Responsibility.preload(),
-  '/notice': () => Pages.Notice.preload(),
-  '/ethics': () => Pages.Ethics.preload(),
-  '/disclaimer': () => Pages.Disclaimer.preload(),
-  '/report-removal': () => Pages.ReportRemoval.preload(),
-  '/safety': () => Pages.SafetyStatus.preload(),
-  '/safety-status': () => Pages.SafetyStatus.preload(),
-  '/faq': () => Pages.FaqPage.preload(),
-  '/faqs': () => Pages.FaqPage.preload(),
-  '/moreinfo/': () => Pages.GatewayPage.preload(),
+  '/news': () => import('../pages/NewsPage'),
+  '/news/': () => import('../pages/NewsDetailPage'),
+  '/videos': () => import('../pages/VideosPage'),
+  '/videos/': () => import('../pages/VideoDetailPage'),
+  '/video/': () => import('../pages/VideoDetailPage'),
+  '/developers': () => import('../pages/Developers'),
+  '/about': () => import('../pages/About'),
+  '/contact': () => import('../pages/Contact'),
+  '/privacy': () => import('../pages/Privacy'),
+  '/terms': () => import('../pages/Terms'),
+  '/responsibility': () => import('../pages/Responsibility'),
+  '/notice': () => import('../pages/Notice'),
+  '/ethics': () => import('../pages/Ethics'),
+  '/disclaimer': () => import('../pages/Disclaimer'),
+  '/report-removal': () => import('../pages/ReportRemoval'),
+  '/safety': () => import('../pages/SafetyStatus'),
+  '/safety-status': () => import('../pages/SafetyStatus'),
+  '/faq': () => import('../pages/FaqPage'),
+  '/faqs': () => import('../pages/FaqPage'),
+  '/moreinfo/': () => import('../pages/GatewayPage'),
 };
 
 const preloadedSet = new Set<string>();
@@ -71,9 +69,9 @@ export function preloadRoute(rawPath: string): Promise<any> {
       else if (!path.slice(1).includes('/') && path.length > 1 && !path.startsWith('/admin') && !path.startsWith('/login') && !path.startsWith('/masterworld')) {
         // Root slug route (e.g. /:slug) -> preload FallbackRouteMatcher and primary detail views
         return Promise.all([
-          Pages.FallbackRouteMatcher.preload(),
-          Pages.AppDetails.preload(),
-          Pages.NewsDetailPage.preload()
+          import('../components/FallbackRouteMatcher'),
+          import('../pages/AppDetails'),
+          import('../pages/NewsDetailPage')
         ]).catch(() => {});
       }
     }
