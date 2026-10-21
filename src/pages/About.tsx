@@ -18,19 +18,11 @@ export default function About() {
       fetchSettings();
     }
   }, [mockSettings?.about_content, fetchSettings]);
-  const defaultAboutContent = `
-    <p>Welcome to <strong>${mockSettings?.site_title || 'Application Store'}</strong>. We are dedicated to providing a transparent, verified, and secure index of digital tools, gaming utilities, and applications.</p>
-    <p>Our platform strictly evaluates applications through safe verification frameworks, threat monitoring standards, and stable node guidelines to ensure complete user privacy and safety.</p>
-    <h3>Our Core Mission</h3>
-    <p>We aim to empower users by delivering reliable application specifications, direct download node references, comprehensive gameplay insights, and real-time security status checks.</p>
-    <h3>Verification & Safety Standards</h3>
-    <p>Every application listed on our directory undergoes automated threat analysis and manual integrity audits to protect users against unauthorized modifications, malware, or compromised distribution channels.</p>
-  `;
-  const rawAboutContent = mockSettings?.about_content?.trim() || defaultAboutContent;
+  const rawAboutContent = mockSettings?.about_content?.trim() || '';
   const hasHtml = /<[a-z][\s\S]*>/i.test(rawAboutContent);
 
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
+    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20 min-h-[70vh]">
       <Meta 
         title={mockSettings?.about_meta_title || "About Us"}
         description={mockSettings?.about_meta_description || "Learn more about our platform mission, safe verification frameworks, threat monitoring standards, and stable node guidelines."}

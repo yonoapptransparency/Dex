@@ -16,7 +16,7 @@ export default function Disclaimer() {
   }, [mockSettings?.disclaimer_text, fetchSettings]);
   
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20">
+    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20 min-h-[70vh]">
       <div className="mb-10">
         <Link 
           to="/" 

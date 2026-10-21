@@ -2,6 +2,7 @@ import React from 'react';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { Github, Twitter } from 'lucide-react';
+import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function Developers() {
   const { settings, fetchSettings } = useData();
@@ -58,7 +59,7 @@ export default function Developers() {
               >
                 <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white dark:border-zinc-800 shadow-xl group-hover:scale-105 transition-transform duration-500">
                   <img 
-                    src={dev.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=random`} 
+                    src={dev.image_url ? getOptimizedImageUrl(dev.image_url, 256) : `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=random`} 
                     alt={dev.name} 
                     loading="lazy"
                     decoding="async"

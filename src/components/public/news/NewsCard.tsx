@@ -6,16 +6,18 @@ import { calculateReadingTime, formatNewsDate, getPlainTextSnippet } from './new
 
 interface NewsCardProps {
   item: any;
+  index?: number;
   onShare: (item: any) => void;
 }
 
-function NewsCardComponent({ item, onShare }: NewsCardProps) {
+function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
   const navigate = useNavigate();
   const coverImage = item.og_image_url || item.image_url || item.logo_url || item.image;
   const readingTime = calculateReadingTime(item.content || item.description);
   const formattedDate = formatNewsDate(item.date, item.published_at);
   const snippet = getPlainTextSnippet(item.description);
   const articleUrl = `/news/${item.slug || item.id}`;
+  const isEager = typeof index === 'number' && index < 3;
 
   const prefetchArticle = () => {
     import('../../../pages/NewsDetailPage').catch(() => {});
@@ -33,7 +35,7 @@ function NewsCardComponent({ item, onShare }: NewsCardProps) {
       onClick={handleCardClick}
       onPointerEnter={prefetchArticle}
       onTouchStart={prefetchArticle}
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '380px' }}
+      style={isEager ? undefined : { contentVisibility: 'auto', containIntrinsicSize: '380px' }}
       className="bg-white dark:bg-zinc-900 overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-200 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 cursor-pointer text-left"
     >
       {coverImage ? (
@@ -43,13 +45,13 @@ function NewsCardComponent({ item, onShare }: NewsCardProps) {
           tabIndex={-1}
         >
           <img 
-            src={getOptimizedImageUrl(coverImage, 540) || coverImage} 
+            src={getOptimizedImageUrl(coverImage, 600) || coverImage} 
             alt={item.title || 'News article thumbnail'} 
             className="w-full h-full object-cover block transition-transform duration-200 group-hover:scale-[1.02]"
-            loading="lazy"
+            loading={isEager ? 'eager' : 'lazy'}
             decoding="async"
-            width={480}
-            height={270}
+            width={600}
+            height={338}
           />
           {item.is_pinned && (
             <div className="absolute top-2.5 left-2.5 bg-amber-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1 z-10">

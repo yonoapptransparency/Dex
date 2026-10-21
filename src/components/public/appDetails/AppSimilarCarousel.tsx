@@ -32,26 +32,6 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
     ? totalCategoryCount 
     : relatedApps.length;
 
-  // Detect automated search bots & crawlers to avoid opening 20+ simultaneous Cloudinary network sockets
-  const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
-
-  // For human visitors, progressively activate off-screen icons on interaction or idle delay
-  const [showDeferredIcons, setShowDeferredIcons] = React.useState(false);
-
-  React.useEffect(() => {
-    if (isCrawler) return;
-    const timer = setTimeout(() => {
-      setShowDeferredIcons(true);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [isCrawler]);
-
-  const handleInteraction = React.useCallback(() => {
-    if (!showDeferredIcons) {
-      setShowDeferredIcons(true);
-    }
-  }, [showDeferredIcons]);
-
   return (
     <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
       <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
@@ -76,18 +56,12 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
       </div>
 
       <div 
-        onScroll={handleInteraction}
-        onTouchStart={handleInteraction}
-        onMouseEnter={handleInteraction}
         className="grid grid-rows-2 grid-flow-col gap-x-3 xxs:gap-x-4 xs:gap-x-5 gap-y-3 xxs:gap-y-3.5 xs:gap-y-4 overflow-x-auto pt-2.5 pb-2 snap-x snap-proximity touch-pan-y overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-2 xs:-mx-4 px-2 xs:px-4 sm:mx-0 sm:px-0"
         style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y pan-x', overscrollBehaviorX: 'contain' }}
       >
         {relatedApps.map((relatedApp, index) => {
-          const isEager = index < 4;
-          const shouldLoadImage = isEager || (!isCrawler && showDeferredIcons);
-          const iconSrc = shouldLoadImage
-            ? (getOptimizedImageUrl(relatedApp.icon_url, 160) || 'https://via.placeholder.com/160')
-            : SVG_PLACEHOLDER;
+          const isEager = index < 8;
+          const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 160) || 'https://via.placeholder.com/160';
 
           return (
             <Link
@@ -103,8 +77,8 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                   height={86}
                   decoding="async"
                   className="w-[58px] h-[58px] xxs:w-[66px] xxs:h-[66px] xs:w-[76px] xs:h-[76px] sm:w-[86px] sm:h-[86px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover group-hover:scale-105 transition-transform duration-200 block pointer-events-none select-none"
-                  loading="lazy"
-                  fetchPriority="low"
+                  loading={isEager ? "eager" : "lazy"}
+                  fetchPriority={isEager ? "high" : "low"}
                   referrerPolicy="no-referrer"
                 />
                 {relatedApp.is_hot && relatedApp.is_new ? (

@@ -21,10 +21,12 @@ export default function NewsPage() {
   const contentTopRef = useRef<HTMLDivElement>(null);
   const [copyToast, setCopyToast] = useState(false);
 
-  // Trigger dedicated news fetch when user navigates to News section
+  // Trigger dedicated news fetch only when full news list is not already in memory
   useEffect(() => {
-    if (fetchNews) fetchNews();
-  }, [fetchNews]);
+    if (fetchNews && (!mockNews || mockNews.length <= 8)) {
+      fetchNews();
+    }
+  }, [fetchNews, mockNews?.length]);
 
   // Instantly prefetch the NewsDetailPage chunk into memory
   // so any news card click opens instantaneously with 0ms latency
@@ -164,7 +166,7 @@ export default function NewsPage() {
   const canonicalUrl = `${window.location.origin}/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
 
   return (
-    <div className="w-full text-zinc-900 dark:text-zinc-100 pb-20">
+    <div className="w-full text-zinc-900 dark:text-zinc-100 pb-20 min-h-[70vh]">
       <Meta 
         title={seoTitle}
         description={seoDescription}
@@ -253,8 +255,8 @@ export default function NewsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 px-3 sm:px-0">
-          {currentNewsSlice.map(item => (
-            <NewsCard key={item.id || item.slug} item={item} onShare={handleShare} />
+          {currentNewsSlice.map((item, idx) => (
+            <NewsCard key={item.id || item.slug} item={item} index={idx} onShare={handleShare} />
           ))}
         </div>
       )}

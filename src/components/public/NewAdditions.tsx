@@ -37,7 +37,7 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
                     src={getOptimizedImageUrl(app.icon_url, 120) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                     alt={app.name} 
                     referrerPolicy="no-referrer"
-                    loading={index < 4 ? "eager" : "lazy"}
+                    loading={index < 6 ? "eager" : "lazy"}
                     decoding="async"
                     {...(index === 0 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
                     width={104}
