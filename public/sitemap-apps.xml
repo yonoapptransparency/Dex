@@ -1,6 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/spin-rummy</loc>
+    <lastmod>2026-10-21T15:32:36+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792595718/rummydex_uploads/tn67lmgrfwqpdtznva2y.webp</image:loc>
+      <image:title>SPIN RUMMY</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596639/rummydex_uploads/imbyy6inizcf2svf6tza.webp</image:loc>
+      <image:caption>Screenshot 1 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596658/rummydex_uploads/adznuayrhtomm1pwzj8c.webp</image:loc>
+      <image:caption>Screenshot 2 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596672/rummydex_uploads/g2sohd1go80vjyuy4uag.webp</image:loc>
+      <image:caption>Screenshot 3 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596680/rummydex_uploads/uelddmsuqjr45vkwaymg.webp</image:loc>
+      <image:caption>Screenshot 4 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596690/rummydex_uploads/eeqnaah1j7dpvu6tv6by.webp</image:loc>
+      <image:caption>Screenshot 5 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1792596696/rummydex_uploads/yanpevqptkj8tok90vj6.webp</image:loc>
+      <image:caption>Screenshot 6 of SPIN RUMMY showing gameplay</image:caption>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/gold-rummy</loc>
     <lastmod>2026-10-19T14:36:52+00:00</lastmod>
     <changefreq>weekly</changefreq>
