@@ -239,7 +239,13 @@ export default function AppDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
-    setFetchedApp(null);
+    if (fetchedApp && slug) {
+      const curKey = slug.toLowerCase().trim();
+      const fSlug = String(fetchedApp.slug || fetchedApp.id || '').toLowerCase().trim();
+      if (fSlug !== curKey && !resolveAppSlug(curKey, [fetchedApp])) {
+        setFetchedApp(null);
+      }
+    }
     setIsFetchingDetails(false);
   }, [slug]);
 

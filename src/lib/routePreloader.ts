@@ -4,82 +4,11 @@
  * Guarantees 0ms navigation lag with zero loading screen flash.
  */
 
-type RouteLoader = () => Promise<any>;
-
-const routeRegistry: Record<string, RouteLoader> = {
-  '/': () => import('../pages/Home'),
-  '/app/': () => import('../pages/AppDetails'),
-  '/category/': () => import('../pages/Home'),
-  '/categories': () => import('../pages/Home'),
-  '/new-apps': () => import('../pages/Home'),
-  '/news': () => import('../pages/NewsPage'),
-  '/news/': () => import('../pages/NewsDetailPage'),
-  '/videos': () => import('../pages/VideosPage'),
-  '/videos/': () => import('../pages/VideoDetailPage'),
-  '/video/': () => import('../pages/VideoDetailPage'),
-  '/developers': () => import('../pages/Developers'),
-  '/about': () => import('../pages/About'),
-  '/contact': () => import('../pages/Contact'),
-  '/privacy': () => import('../pages/Privacy'),
-  '/terms': () => import('../pages/Terms'),
-  '/responsibility': () => import('../pages/Responsibility'),
-  '/notice': () => import('../pages/Notice'),
-  '/ethics': () => import('../pages/Ethics'),
-  '/disclaimer': () => import('../pages/Disclaimer'),
-  '/report-removal': () => import('../pages/ReportRemoval'),
-  '/safety': () => import('../pages/SafetyStatus'),
-  '/safety-status': () => import('../pages/SafetyStatus'),
-  '/faq': () => import('../pages/FaqPage'),
-  '/faqs': () => import('../pages/FaqPage'),
-  '/moreinfo/': () => import('../pages/GatewayPage'),
-};
-
-const preloadedSet = new Set<string>();
-
 /**
- * Preloads the JavaScript chunk for a given path or URL
+ * All public routes are bundled directly in the main public bundle,
+ * guaranteeing 0ms route transitions with zero network delay and zero Suspense fallbacks.
  */
-export function preloadRoute(rawPath: string): Promise<any> {
-  if (!rawPath || typeof rawPath !== 'string') return Promise.resolve();
-
-  try {
-    // Strip host, query params, hash
-    let path = rawPath;
-    if (path.startsWith('http')) {
-      const url = new URL(path);
-      path = url.pathname;
-    }
-    path = path.split('?')[0].split('#')[0].toLowerCase().trim();
-
-    if (!path.startsWith('/')) path = '/' + path;
-    if (path.length > 1 && path.endsWith('/')) {
-      path = path.replace(/\/+$/, '');
-    }
-
-    // Check exact match first
-    let loader = routeRegistry[path];
-
-    // If not exact, check prefix matches (e.g. /app/rummy-77 -> /app/)
-    if (!loader) {
-      if (path.startsWith('/app/')) loader = routeRegistry['/app/'];
-      else if (path.startsWith('/category/') || path.startsWith('/categories/')) loader = routeRegistry['/category/'];
-      else if (path.startsWith('/news/')) loader = routeRegistry['/news/'];
-      else if (path.startsWith('/videos/') || path.startsWith('/video/')) loader = routeRegistry['/videos/'];
-      else if (path.startsWith('/moreinfo/') || path.startsWith('/gateway/') || path.startsWith('/info/')) loader = routeRegistry['/moreinfo/'];
-      else if (!path.slice(1).includes('/') && path.length > 1 && !path.startsWith('/admin') && !path.startsWith('/login') && !path.startsWith('/masterworld')) {
-        // Root slug route (e.g. /:slug) -> preload FallbackRouteMatcher and primary detail views
-        return Promise.all([
-          import('../components/FallbackRouteMatcher'),
-          import('../pages/AppDetails'),
-          import('../pages/NewsDetailPage')
-        ]).catch(() => {});
-      }
-    }
-
-    if (loader) {
-      return loader().catch(() => {});
-    }
-  } catch (_) {}
+export function preloadRoute(_rawPath: string): Promise<any> {
   return Promise.resolve();
 }
 
@@ -118,6 +47,8 @@ export function startIdleRoutePreloader(): void {
     window.addEventListener('load', () => setTimeout(runIdle, 8000), { once: true });
   }
 }
+
+const preloadedSet = new Set<string>();
 
 /**
  * Listens for touchstart, pointerover, or focus on anchor links to trigger instant preloading

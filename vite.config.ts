@@ -521,24 +521,9 @@ function adminAuthDevPlugin(env: Record<string, string>) {
         next();
       });
     },
-    async transformIndexHtml(html: string, ctx: any) {
-      if (!ctx?.server) {
-        // In production build (vite build), keep template placeholders intact so
-        // tsx scripts/prerender.ts can generate pristine, route-isolated SEO tags and SSR HTML!
-        return html;
-      }
-      try {
-        const url = ctx?.originalUrl || ctx?.url || '/';
-        if (url.startsWith('/admin') || url.startsWith('/masterworld') || url.startsWith('/@') || url.startsWith('/node_modules')) {
-          return html;
-        }
-        const { injectSeoTags } = await import('./src/seoHelper');
-        const result = await injectSeoTags(html, url, 'https://www.rummydex.com');
-        return typeof result === 'string' ? result : (result?.html || html);
-      } catch (err) {
-        console.warn('Vite transformIndexHtml SSR error:', err);
-        return html;
-      }
+    async transformIndexHtml(html: string) {
+      // Return pristine html; server.ts handles all route-isolated SEO injection cleanly via injectSeoTags
+      return html;
     }
   };
 }
@@ -560,7 +545,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), adminAuthDevPlugin(env)],
     envPrefix: ['VITE_'],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : (process.env.NODE_ENV || 'development')),
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
