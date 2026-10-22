@@ -2,15 +2,9 @@
 process.env.NODE_ENV = 'production';
 import fs from 'fs';
 import path from 'path';
+import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
-
-let generateAllSitemaps: any = null;
-try {
-  const sitemapMod = require('../src/lib/sitemapGenerator');
-  generateAllSitemaps = sitemapMod.generateAllSitemaps;
-} catch (e) {
-  console.warn('sitemapGenerator module not loaded synchronously, will attempt dynamic fallback:', (e as any)?.message);
-}
+import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
 
 async function prerender() {
   console.log('Static Prerendering started...');
@@ -25,6 +19,22 @@ async function prerender() {
   try {
     const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
     let originalTemplate = cleanRootContainer(fs.readFileSync(indexHtmlPath, 'utf-8'));
+
+    // Inline compiled Vite CSS directly into <head> to eliminate render-blocking CSS network round-trips and prevent FOUC (A1, A2, A10)
+    originalTemplate = originalTemplate.replace(
+      /<link\s+rel=["']stylesheet["'][^>]*href=["']\/?assets\/([^"']+\.css)["'][^>]*\/?>/gi,
+      (fullMatch, cssFileName) => {
+        try {
+          const cssFilePath = path.join(distPath, 'assets', cssFileName);
+          if (fs.existsSync(cssFilePath)) {
+            const cssContent = fs.readFileSync(cssFilePath, 'utf-8');
+            return `<style id="vite-inline-css">${cssContent}</style>`;
+          }
+        } catch (_) {}
+        return fullMatch;
+      }
+    );
+
     // Persist pristine clean SPA template files with empty <div id="root"></div>
     fs.writeFileSync(path.join(distPath, 'template.html'), originalTemplate, 'utf-8');
     fs.writeFileSync(path.join(distPath, 'index.spa.html'), originalTemplate, 'utf-8');
@@ -143,90 +153,10 @@ async function prerender() {
     await generateRoute('/faqs');
     await generateRoute('/safety');
 
-    // 6. Generate Master Sitemap Index (sitemap.xml) and Sub-Sitemaps
-    let rawDomain = 'https://www.rummydex.com';
-    const host = rawDomain.replace(/\/$/, '');
-    const today = new Date().toISOString();
+    // 6. Generate Master Sitemap Index (sitemap.xml), Sub-Sitemaps, and GZip (.xml.gz) companions
+    const host = 'https://www.rummydex.com';
 
-    const escapeXml = (unsafe: any) => {
-      if (typeof unsafe !== 'string') unsafe = String(unsafe || '');
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    };
-
-    const cleanSlug = (slug: string) => {
-      if (!slug) return '';
-      return escapeXml(encodeURI(slug.trim().replace(/^\/+|\/+$/g, '')));
-    };
-
-    const getField = (obj: any, field: string) => obj && obj[field];
-
-    const getFormattedDate = (obj: any) => {
-      const dateStr = getField(obj, 'updated_at') || getField(obj, 'created_at') || getField(obj, 'published_at') || getField(obj, 'date');
-      if (dateStr) {
-        try {
-          if (typeof dateStr === 'object' && dateStr !== null && (dateStr as any).seconds) {
-            return new Date((dateStr as any).seconds * 1000).toISOString();
-          }
-          if (typeof dateStr === 'object' && dateStr !== null && (dateStr as any)._seconds) {
-            return new Date((dateStr as any)._seconds * 1000).toISOString();
-          }
-          const date = new Date(dateStr);
-          if (!isNaN(date.getTime())) {
-            return date.toISOString();
-          }
-        } catch(e) {}
-      }
-      return today;
-    };
-
-    // Calculate latest dates
-    let latestAppDate = today;
-    if (data.apps && data.apps.length > 0) {
-      let maxTs = 0;
-      for (const a of data.apps) {
-        const d = new Date(getFormattedDate(a)).getTime();
-        if (d > maxTs) maxTs = d;
-      }
-      if (maxTs > 0) latestAppDate = new Date(maxTs).toISOString();
-    }
-
-    let latestNewsDate = today;
-    if (data.news && data.news.length > 0) {
-      let maxTs = 0;
-      for (const n of data.news) {
-        const d = new Date(getFormattedDate(n)).getTime();
-        if (d > maxTs) maxTs = d;
-      }
-      if (maxTs > 0) latestNewsDate = new Date(maxTs).toISOString();
-    }
-
-    let latestVideoDate = today;
-    if (data.videos && data.videos.length > 0) {
-      let maxTs = 0;
-      for (const v of data.videos) {
-        const d = new Date(getFormattedDate(v)).getTime();
-        if (d > maxTs) maxTs = d;
-      }
-      if (maxTs > 0) latestVideoDate = new Date(maxTs).toISOString();
-    }
-
-    // 1. One Main Master Sitemap Index: sitemap.xml
-    const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap><loc>${host}/sitemap-apps.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-static.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-news.xml</loc><lastmod>${latestNewsDate}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-videos.xml</loc><lastmod>${latestVideoDate}</lastmod></sitemap>
-  <sitemap><loc>${host}/sitemap-developers.xml</loc><lastmod>${latestAppDate}</lastmod></sitemap>
-</sitemapindex>`;
-    fs.writeFileSync(path.join(distPath, 'sitemap.xml'), sitemapIndexXml, 'utf-8');
-
-    // Remove unwanted duplicate/unwanted sitemap files if present in dist
+    // Remove unwanted duplicate/legacy sitemap files if present in dist
     const unwantedFiles = [
       'sitemap_index.xml', 'sitemap-index.xml', 'sitemapindex.xml',
       'sitemap_apps.xml', 'sitemap-app.xml', 'sitemap_app.xml',
@@ -251,22 +181,22 @@ async function prerender() {
       }
     }
 
-    // 2. Generate and write all sub-sitemaps
     const publicPath = path.resolve(process.cwd(), 'public');
+    const sitemaps = generateAllSitemaps(data, host);
 
-    if (typeof generateAllSitemaps === 'function') {
-      const sitemaps = generateAllSitemaps(data, host);
+    for (const [filename, xmlContent] of Object.entries(sitemaps)) {
+      const xmlStr = xmlContent as string;
+      const gzBuffer = zlib.gzipSync(Buffer.from(xmlStr, 'utf-8'), { level: 9 });
 
-      for (const [filename, xmlContent] of Object.entries(sitemaps)) {
-        fs.writeFileSync(path.join(distPath, filename), xmlContent as string, 'utf-8');
-        if (fs.existsSync(publicPath)) {
-          try {
-            fs.writeFileSync(path.join(publicPath, filename), xmlContent as string, 'utf-8');
-          } catch (e) {}
-        }
+      fs.writeFileSync(path.join(distPath, filename), xmlStr, 'utf-8');
+      fs.writeFileSync(path.join(distPath, `${filename}.gz`), gzBuffer);
+
+      if (fs.existsSync(publicPath)) {
+        try {
+          fs.writeFileSync(path.join(publicPath, filename), xmlStr, 'utf-8');
+          fs.writeFileSync(path.join(publicPath, `${filename}.gz`), gzBuffer);
+        } catch (e) {}
       }
-    } else {
-      console.warn('generateAllSitemaps function not available, skipping sub-sitemaps generation.');
     }
 
     // 3. Clean Robots.txt with only one master sitemap entry

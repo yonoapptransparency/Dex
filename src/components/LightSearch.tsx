@@ -88,10 +88,10 @@ export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
       trends = (settings.trending_searches as string).split(',').map(s => s.trim()).filter(Boolean);
     }
     
-    if (trends.length === 0 && apps.length > 0) {
+    if (trends.length === 0 && (apps || []).length > 0) {
       const allAppKeywords = new Set<string>();
-      apps.forEach(a => {
-        if (a.seo_keywords) {
+      (apps || []).forEach(a => {
+        if (a && a.seo_keywords) {
           a.seo_keywords.split(',').forEach(k => allAppKeywords.add(k.trim()));
         }
       });
@@ -105,7 +105,7 @@ export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
 
   // Instant lightweight scored search (Play Store search algorithm)
   const results = query.trim().length > 0
-    ? apps.filter(app => {
+    ? (apps || []).filter(app => {
         if (!app || !app.name) return false;
         const q = query.toLowerCase().trim();
         return (

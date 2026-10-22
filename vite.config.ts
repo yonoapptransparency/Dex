@@ -545,7 +545,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), adminAuthDevPlugin(env)],
     envPrefix: ['VITE_'],
     define: {
-      __ADMIN_ENABLED__: false,
+      __ADMIN_ENABLED__: true,
       'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : (process.env.NODE_ENV || 'development')),
       'process.env.ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
       'process.env.VITE_ADMIN_PATH': JSON.stringify(env.ADMIN_PATH || 'admin'),
@@ -558,9 +558,33 @@ export default defineConfig(({mode}) => {
       'process.env.FIREBASE_MESSAGING_ID': JSON.stringify(firebaseConfig.messagingSenderId || env.FIREBASE_MESSAGING_ID || process.env.FIREBASE_MESSAGING_ID)
     },
 
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'react-router-dom',
+        'clsx',
+        'tailwind-merge',
+        'lucide-react',
+        'crypto-js',
+        'dompurify',
+        'lenis',
+        'otpauth'
+      ],
+      force: true
+    },
+
     resolve: {
       dedupe: ['react', 'react-dom', 'react-is'],
       alias: [
+        { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
+        { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
+        { find: /^react-dom\/client$/, replacement: path.resolve(__dirname, 'node_modules/react-dom/client') },
+        { find: /^react\/jsx-runtime$/, replacement: path.resolve(__dirname, 'node_modules/react/jsx-runtime') },
+        { find: /^react\/jsx-dev-runtime$/, replacement: path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime') },
         { find: '@', replacement: path.resolve(__dirname, '.') },
         { find: 'react-helmet-async', replacement: path.resolve(__dirname, 'src/lib/react-helmet-async-shim.tsx') },
         { find: 'react-i18next', replacement: path.resolve(__dirname, 'src/i18n.ts') },

@@ -19,14 +19,13 @@ interface WebsiteTitleHeroProps {
 
 export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps) => {
   const visible = settings.hero_title_visible !== false;
-  
-  if (!visible) return null;
-
-  // Defaults
   const text = settings.hero_title_text ?? '';
   const subtitle = settings.hero_title_subtitle ?? '';
-  
-  if (!text && !subtitle) return null;
+
+  if (!visible || (!text && !subtitle)) {
+    const fallbackH1 = (settings as any).site_title || 'RummyDex';
+    return <h1 className="sr-only">{fallbackH1}</h1>;
+  }
 
   const style = settings.hero_title_style || 'modern';
   const color = settings.hero_title_color || 'classic-dark';
