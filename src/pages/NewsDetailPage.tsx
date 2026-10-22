@@ -65,8 +65,12 @@ export default function NewsDetailPage() {
     window.scrollTo(0, 0);
     setIsRefreshing(false);
     setCopied(false);
-    setFetchedNewsItem(null);
-  }, [slug]);
+    setFetchedNewsItem((prev: any) => {
+      if (!prev) return null;
+      const prevSlug = String(prev.slug || prev.id || '').toLowerCase().trim();
+      return prevSlug === cleanSlug ? prev : null;
+    });
+  }, [slug, cleanSlug]);
 
   const hasFullBody = useMemo(() => {
     if (!newsItem) return false;

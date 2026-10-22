@@ -27,9 +27,9 @@ export default function Ethics() {
         </Link>
       </div>
       <Meta 
-        title={mockSettings.ethics_heading || 'Ethics & Safety'}
-        description="Official ethics & safety guidelines outlining operational standards and compliance parameters."
-        canonical={window.location.origin + "/ethics"}
+        title={mockSettings.ethics_meta_title || mockSettings.ethics_heading || 'Ethics & Safety'}
+        description={mockSettings.ethics_meta_description || `Our commitment to ethics, safety, and transparent reviews at ${mockSettings.site_title || 'RummyDex'}.`}
+        canonical="https://www.rummydex.com/ethics"
       />
 
       <div className="animate-fade-in">

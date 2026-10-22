@@ -281,15 +281,43 @@ export default function Home() {
   }, [hasMore, filteredApps.length]);
 
   const bannerItems = mockSettings.banners || [];
+  const cleanPathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const isNewAppsRoute = cleanPathLower === '/new-apps';
+  const isCategoriesIndexRoute = cleanPathLower === '/categories';
+  const siteTitleLabel = mockSettings.site_title || 'RummyDex';
+
+  const resolvedTitle = isNewAppsRoute
+    ? 'New Apps & Latest Releases'
+    : isCategoriesIndexRoute
+    ? 'App Categories & Genres'
+    : categoryParam
+    ? `${activeTab} - Download & Reviews`
+    : (mockSettings.seo_title || mockSettings.site_title);
+
+  const resolvedDescription = isNewAppsRoute
+    ? `Explore the newest released Rummy, Teen Patti, and card game apps with verified ratings on ${siteTitleLabel}.`
+    : isCategoriesIndexRoute
+    ? `Browse all gaming and entertainment application categories on ${siteTitleLabel}.`
+    : categoryParam
+    ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates on ${siteTitleLabel}.`
+    : (mockSettings.seo_description || mockSettings.meta_description);
+
+  const resolvedCanonical = isNewAppsRoute
+    ? 'https://www.rummydex.com/new-apps'
+    : isCategoriesIndexRoute
+    ? 'https://www.rummydex.com/categories'
+    : categoryParam
+    ? `https://www.rummydex.com/category/${categoryParam}`
+    : 'https://www.rummydex.com';
 
   return (
     <div className="select-none min-h-screen">
       <Meta 
-        title={categoryParam ? `${activeTab} - Download & Reviews` : (mockSettings.seo_title || mockSettings.site_title)}
-        description={categoryParam ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates.` : (mockSettings.seo_description || mockSettings.meta_description)}
+        title={resolvedTitle}
+        description={resolvedDescription}
         keywords={mockSettings.seo_keywords}
-        canonical={categoryParam ? `https://www.rummydex.com/category/${categoryParam}` : `https://www.rummydex.com`}
-        faqSchema={mockSettings.website_faqs && mockSettings.website_faqs.length > 0 ? {
+        canonical={resolvedCanonical}
+        faqSchema={(!categoryParam && !isNewAppsRoute && !isCategoriesIndexRoute && mockSettings.website_faqs && mockSettings.website_faqs.length > 0) ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": mockSettings.website_faqs.map(faq => ({

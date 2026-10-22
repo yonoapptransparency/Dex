@@ -27,9 +27,9 @@ export default function Disclaimer() {
         </Link>
       </div>
       <Meta 
-        title={mockSettings.disclaimer_heading || 'Disclaimer'}
-        description="Official disclaimer notes, policy limitations, and user responsibility details."
-        canonical={window.location.origin + "/disclaimer"}
+        title={mockSettings.disclaimer_meta_title || mockSettings.disclaimer_heading || 'Disclaimer'}
+        description={mockSettings.disclaimer_meta_description || `Read the official disclaimer regarding the content and apps on ${mockSettings.site_title || 'RummyDex'}.`}
+        canonical="https://www.rummydex.com/disclaimer"
       />
 
       <div className="animate-fade-in">
