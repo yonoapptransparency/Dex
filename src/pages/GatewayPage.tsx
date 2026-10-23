@@ -4,6 +4,7 @@ import { useData } from '../contexts/DataContextPublic';
 import { ShieldAlert, ShieldCheck, ArrowLeft, Shield } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import ClearanceButton from '../components/ClearanceButton';
+import { inspectMobileEnvironment } from '../hooks/useClearanceDispatch';
 import { mockApps as staticMockApps } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getOptimizedImageUrl } from '../seo/utils';
@@ -33,8 +34,29 @@ export default function GatewayPage() {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
     setIsRefreshing(false);
-    setIsBotBlocked(false);
+    const env = inspectMobileEnvironment();
+    setIsBotBlocked(env.isBot || env.isHeadless || env.isDesktop);
   }, [slug]);
+
+  // Strict v10.0 Mobile-Only Hardware, WebGL GPU & Mouse-Pointer Trap
+  useEffect(() => {
+    const env = inspectMobileEnvironment();
+    if (env.isBot || env.isHeadless || env.isDesktop) {
+      setIsBotBlocked(true);
+      return;
+    }
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' || e.isTrusted === false) {
+        setIsBotBlocked(true);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, []);
 
   // Automatically trigger a silent cloud sync only if the requested app is completely unknown
   useEffect(() => {
@@ -64,7 +86,7 @@ export default function GatewayPage() {
     );
   }
 
-  // Disguised Phantom 404 State (triggered if app does not exist OR if an automated bot/crawler is detected)
+  // Disguised Phantom 404 State (triggered if app does not exist OR if an automated bot/crawler/desktop is detected)
   if (!app || isBotBlocked) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto">
@@ -167,7 +189,6 @@ export default function GatewayPage() {
                  <ClearanceButton 
                    appId={app.slug || app.id} 
                    appSlug={app.slug} 
-                   appRecord={app}
                    status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'} 
                    onError={() => setIsBotBlocked(true)}
                  />

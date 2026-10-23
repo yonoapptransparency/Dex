@@ -26,7 +26,7 @@ import UserReviews from '../components/UserReviews';
 import { AppDetailsNavigation } from '../components/public/appDetails/AppDetailsNavigation';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import AppNotFound from '../components/public/appDetails/AppNotFound';
-import { buildFaqSchema, buildSoftwareSchema, buildBreadcrumbSchema } from '../components/public/appDetails/appDetailsSchemas';
+import { buildFaqSchema, buildSoftwareSchema, buildBreadcrumbSchema, buildProductSchema } from '../components/public/appDetails/appDetailsSchemas';
 
 export { AppDetailsSkeleton };
 
@@ -362,6 +362,7 @@ export default function AppDetails() {
     : 0;
 
   const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
+  const productSchema = buildProductSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
   const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
 
   const copyToClipboard = () => {
@@ -426,6 +427,7 @@ export default function AppDetails() {
         image={ogImage}
         canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
         schema={softwareSchema}
+        productSchema={productSchema}
         faqSchema={faqSchema}
         breadcrumbSchema={breadcrumbSchema}
       />

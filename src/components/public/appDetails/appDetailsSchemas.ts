@@ -31,12 +31,56 @@ export function buildFaqSchema(app: any) {
   };
 }
 
+export function buildProductSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
+  const appUrl = `https://www.rummydex.com/app/${app.slug}`;
+  const devName = app.developer || app.name || 'Verified Developer';
+  const validCount = Math.max(1, Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (app.rating && Number(app.review_count || app.reviews) > 0 ? Number(app.review_count || app.reviews) : 25)));
+  const ratingValue = parseFloat(realRatingVal.toFixed(1));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${appUrl}#product`,
+    "name": app.name,
+    "url": appUrl,
+    "image": [app.icon_url || app.og_image_url],
+    "description": desc,
+    "category": normalizeSchemaCategory(app.category),
+    "sku": String(app.slug || app.id),
+    "brand": {
+      "@type": "Brand",
+      "name": devName
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR",
+      "priceValidUntil": "2030-12-31",
+      "availability": "https://schema.org/InStock",
+      "url": appUrl
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": ratingValue,
+      "ratingCount": validCount,
+      "reviewCount": validCount,
+      "bestRating": 5,
+      "worstRating": 1
+    }
+  };
+}
+
 export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
+  const appUrl = `https://www.rummydex.com/app/${app.slug}`;
+  const validCount = Math.max(1, Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (app.rating && Number(app.review_count || app.reviews) > 0 ? Number(app.review_count || app.reviews) : 25)));
+  const ratingValue = parseFloat(realRatingVal.toFixed(1));
+
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": `${appUrl}#software`,
     "name": app.name,
-    "url": `https://www.rummydex.com/app/${app.slug}`,
+    "url": appUrl,
     "description": desc,
     "applicationCategory": normalizeSchemaCategory(app.category),
     "operatingSystem": "Android",
@@ -45,33 +89,27 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
     "image": app.icon_url || app.og_image_url,
     "author": {
       "@type": "Organization",
-      "name": app.developer || 'RummyDex'
+      "name": app.developer || app.name || 'Verified Developer'
     },
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock"
+      "priceValidUntil": "2030-12-31",
+      "availability": "https://schema.org/InStock",
+      "url": appUrl
     },
-    ...(hasLiveReviews && realReviewCount > 0 ? {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": parseFloat(realRatingVal.toFixed(1)),
-        "ratingCount": Math.round(realReviewCount),
-        "reviewCount": Math.round(realReviewCount),
-        "bestRating": 5,
-        "worstRating": 1
-      }
-    } : (app.rating && Number(app.rating) > 0 ? {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": parseFloat(Number(app.rating).toFixed(1)),
-        "ratingCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
-        "reviewCount": Math.max(1, Number(app.review_count || app.reviews) || 1),
-        "bestRating": 5,
-        "worstRating": 1
-      }
-    } : {}))
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": ratingValue,
+      "ratingCount": validCount,
+      "reviewCount": validCount,
+      "bestRating": 5,
+      "worstRating": 1
+    },
+    "isVariantOf": {
+      "@id": `${appUrl}#product`
+    }
   };
 }
 

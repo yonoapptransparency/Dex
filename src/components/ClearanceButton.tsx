@@ -7,7 +7,6 @@ import { useData } from '../contexts/DataContextPublic';
 export interface ClearanceButtonProps {
   appId: string;
   appSlug?: string;
-  appRecord?: any;
   status?: string;
   variant?: 'default' | 'compact';
   onSuccess?: () => void;
@@ -23,13 +22,12 @@ const LOADING_STEPS = [
 export default function ClearanceButton({ 
   appId, 
   appSlug, 
-  appRecord,
   onSuccess, 
   onError 
 }: ClearanceButtonProps) {
   const { settings } = useData();
 
-  // Step 1: Initialize Visible Cloudflare Turnstile Verification Hook
+  // Step 1: Initialize Visible Cloudflare Turnstile Verification Hook with cData App-ID Binding
   const {
     widgetRef,
     widgetIdRef,
@@ -41,7 +39,11 @@ export default function ClearanceButton({
     setErrorMessage,
     resetTurnstile,
     executeTurnstile
-  } = useTurnstileVerification({ onError, siteKey: settings?.turnstile_site_key });
+  } = useTurnstileVerification({
+    onError,
+    siteKey: settings?.turnstile_site_key,
+    appId: appSlug || appId
+  });
 
   // Step 2: Initialize Clearance Dispatch & Bot Protection Hook
   const {
@@ -55,7 +57,6 @@ export default function ClearanceButton({
   } = useClearanceDispatch({
     appId,
     appSlug,
-    appRecord,
     cfToken,
     cfTokenRef,
     widgetIdRef,

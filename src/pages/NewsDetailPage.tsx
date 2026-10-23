@@ -341,7 +341,7 @@ export default function NewsDetailPage() {
   const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
   const datePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
   const dateModified = newsItem.updated_at || datePublished;
-  const authorName = newsItem.ceo_name || newsItem.author || 'RummyDex Editorial Team';
+  const authorName = newsItem.ceo_name || newsItem.author || 'Editorial Team';
   const articleCategory = newsItem.category || 'General';
 
   const newsArticleSchema = {
