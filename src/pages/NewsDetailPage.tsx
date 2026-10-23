@@ -77,6 +77,7 @@ export default function NewsDetailPage() {
 
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -105,16 +106,16 @@ export default function NewsDetailPage() {
     const slugKey = cleanSlug || '';
     if (!slugKey) return;
 
-    // 1. Never trigger background network XHR calls during crawler passes (Googlebot, Bingbot, Lighthouse)
-    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
-    if (isCrawler) return;
+    // 1. If news item already has complete rich content from SSR / initialData, bypass client fetch completely
+    if (hasFullBody) {
+      setRemoteCheckDoneSlug(slugKey);
+      return;
+    }
 
-    // 2. If news item already has complete rich content from SSR / initialData, bypass client fetch completely
-    if (hasFullBody) return;
-
-    // 3. Check if fetchedNewsItem is already loaded for this slug
+    // 2. Check if fetchedNewsItem is already loaded for this slug
     const fetchedSlug = fetchedNewsItem ? String(fetchedNewsItem.slug || fetchedNewsItem.id || '').toLowerCase() : '';
     if (fetchedNewsItem && (fetchedSlug === slugKey || fetchedSlug === cleanSlug)) {
+      setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
@@ -142,7 +143,10 @@ export default function NewsDetailPage() {
           if (!newsItem && refreshAll) refreshAll(true);
         })
         .finally(() => {
-          if (isMounted) setIsRefreshing(false);
+          if (isMounted) {
+            setIsRefreshing(false);
+            setRemoteCheckDoneSlug(slugKey);
+          }
         });
 
       return () => { isMounted = false; };
@@ -292,22 +296,13 @@ export default function NewsDetailPage() {
     }
   };
 
-  if (loading && !newsItem && mockNews.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
-        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!newsItem && isRefreshing) {
+  if (!newsItem && (loading || isRefreshing || (cleanSlug && remoteCheckDoneSlug !== cleanSlug))) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Checking Updates</h3>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2">Loading Article</h3>
         <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
-          Verifying article status from the network...
+          Loading article content...
         </p>
       </div>
     );

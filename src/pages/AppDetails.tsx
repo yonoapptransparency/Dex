@@ -31,7 +31,7 @@ import { buildFaqSchema, buildSoftwareSchema, buildBreadcrumbSchema } from '../c
 export { AppDetailsSkeleton };
 
 export default function AppDetails() {
-  const { apps: mockApps, news: mockNews, settings: mockSettings, loading, refreshAll, updateAppDetail } = useData();
+  const { apps: mockApps, news: mockNews, settings: mockSettings, loading, refreshAll, updateAppDetail, mergeCatalogApps } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
@@ -39,6 +39,7 @@ export default function AppDetails() {
 
   const [fetchedApp, setFetchedApp] = useState<any | null>(null);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
 
   // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
@@ -267,28 +268,27 @@ export default function AppDetails() {
   }, [slug]);
 
   useEffect(() => {
-    const slugKey = slug?.toLowerCase() || '';
+    const slugKey = slug?.toLowerCase().trim() || '';
     if (!slugKey) return;
 
-    // 1. Never trigger background network XHR calls during crawler passes (Googlebot, Bingbot, Lighthouse)
-    const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
-    if (isCrawler) return;
-
-    // 2. Check if app already has complete rich content (description & features) from pre-render or memory
-    if (app && app.description_html && app.description_html.trim().length > 15) {
+    // 1. Check if app already has complete rich content (description & features) from pre-render or memory
+    if (app && app.description_html && app.description_html.trim().length > 15 && Array.isArray(mockApps) && mockApps.length > 5) {
+      setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
-    // 3. Check if fetchedApp is already loaded for this slug
+    // 2. Check if fetchedApp is already loaded for this slug
     const fetchedSlug = fetchedApp ? String(fetchedApp.slug || fetchedApp.id || '').toLowerCase() : '';
     if (fetchedApp && (fetchedSlug === slugKey || resolveAppSlug(slugKey, [fetchedApp]))) {
+      setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
     const prefetched = getPrefetchedApp(slugKey);
-    if (prefetched && prefetched.description_html && prefetched.description_html.trim().length > 10) {
+    if (prefetched && prefetched.description_html && prefetched.description_html.trim().length > 10 && Array.isArray(mockApps) && mockApps.length > 5) {
       setFetchedApp(prefetched);
       if (updateAppDetail) updateAppDetail(prefetched);
+      setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
@@ -303,20 +303,27 @@ export default function AppDetails() {
         })
         .then(data => {
           if (data?.status === 'OK' && data?.app) {
+            if (Array.isArray(data.catalogApps) && data.catalogApps.length > 0 && mergeCatalogApps) {
+              mergeCatalogApps(data.catalogApps);
+            }
             setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
           }
         })
         .catch(() => {
-          // Graceful fallback to static local cache - never trigger recursive backup-data network storms
+          // Graceful fallback to static local cache
         })
         .finally(() => {
           setIsFetchingDetails(false);
+          setRemoteCheckDoneSlug(slugKey);
         });
     }
-  }, [slug, fetchedApp, app, updateAppDetail]);
+  }, [slug, fetchedApp, app, mockApps, updateAppDetail, mergeCatalogApps]);
 
-  if (!app && loading) return <AppDetailsSkeleton />;
+  const cleanSlugKey = slug?.toLowerCase().trim() || '';
+  if (!app && (loading || isFetchingDetails || (cleanSlugKey && remoteCheckDoneSlug !== cleanSlugKey))) {
+    return <AppDetailsSkeleton />;
+  }
   if (!app) return <AppNotFound slug={slug || ''} />;
 
   const title = app.seo_title || app.meta_title || app.name;
@@ -442,7 +449,8 @@ export default function AppDetails() {
         <AppSimilarCarousel 
           relatedApps={relatedApps} 
           specificCategory={specificCategory} 
-          totalCategoryCount={totalCategoryAppsCount} 
+          totalCategoryCount={totalCategoryAppsCount}
+          isLoading={relatedApps.length === 0 && (loading || isFetchingDetails || (Array.isArray(mockApps) && mockApps.length <= 1))}
         />
 
         <div>

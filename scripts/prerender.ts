@@ -5,7 +5,56 @@ import path from 'path';
 import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
 import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
-import { compileCanonicalApp, compileCanonicalNews } from '../src/lib/githubSync';
+import { formatPageTitle } from '../src/lib/seoUtils';
+
+function sanitizePublicApp(app: any): any {
+  if (!app || typeof app !== 'object') return app;
+  const copy = { ...app };
+  const hasSecureLink = Boolean(
+    copy.has_secure_link ||
+    copy.more_information_url ||
+    copy.download_url ||
+    copy.encrypted_link ||
+    copy.encrypted_download_url ||
+    (copy.url && !String(copy.url).includes('com.rummydex') && !String(copy.url).includes('com.example'))
+  );
+  copy.has_secure_link = hasSecureLink;
+  delete copy.more_information_url;
+  delete copy.download_url;
+  delete copy.encrypted_link;
+  delete copy.encrypted_download_url;
+  if (copy.url && (String(copy.url).includes('com.rummydex') || String(copy.url).includes('com.example'))) {
+    copy.url = '';
+  }
+  if (typeof copy.slug === 'string') {
+    copy.slug = copy.slug.trim().replace(/^\/+|\/+$/g, '');
+  }
+  const rawSeoTitle = String(copy.seo_title || copy.meta_title || '').trim();
+  if (rawSeoTitle) {
+    const cleanTitle = formatPageTitle(rawSeoTitle, '');
+    copy.seo_title = cleanTitle;
+    copy.meta_title = cleanTitle;
+  }
+  return copy;
+}
+
+function sanitizePublicNews(newsItem: any): any {
+  if (!newsItem || typeof newsItem !== 'object') return newsItem;
+  const copy = { ...newsItem };
+  if (typeof copy.slug === 'string') {
+    copy.slug = copy.slug.trim().replace(/^\/+|\/+$/g, '');
+  }
+  if (typeof copy.title === 'string' && copy.title.trim()) {
+    copy.title = formatPageTitle(copy.title.trim(), '');
+  }
+  const rawSeoTitle = String(copy.seo_title || copy.meta_title || '').trim();
+  if (rawSeoTitle) {
+    const cleanTitle = formatPageTitle(rawSeoTitle, '');
+    copy.seo_title = cleanTitle;
+    copy.meta_title = cleanTitle;
+  }
+  return copy;
+}
 
 async function syncStaticDataAndSitemaps() {
   const host = 'https://www.rummydex.com';
@@ -31,10 +80,10 @@ async function syncStaticDataAndSitemaps() {
 
   const publicApps = (data.apps || [])
     .filter((a: any) => a && a.sync_to_public !== false)
-    .map((a: any) => compileCanonicalApp(a, { stripDownloadLinks: true }));
+    .map((a: any) => sanitizePublicApp(a));
   const publicNews = (data.news || [])
     .filter((n: any) => n && n.sync_to_public !== false)
-    .map((n: any) => compileCanonicalNews(n));
+    .map((n: any) => sanitizePublicNews(n));
 
   if (publicApps.length > 0) {
     const publicPayload = {
@@ -250,9 +299,17 @@ async function prerender() {
       }
     }
 
-    // 3. Clean Robots.txt with only one master sitemap entry
+    // 3. Standardized Robots.txt with explicit public Allow paths, Disallow security paths, and all Sitemaps
     let robots = `User-agent: *
 Allow: /
+Allow: /app/
+Allow: /news/
+Allow: /category/
+Allow: /categories
+Allow: /new-apps
+Allow: /videos/
+Allow: /developers
+Allow: /assets/
 Allow: /api/v1/public/
 Disallow: /api/
 Disallow: /admin/
@@ -274,8 +331,15 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
+Disallow: /safety
+Disallow: /safety-status
 
 Sitemap: ${host}/sitemap.xml
+Sitemap: ${host}/sitemap-apps.xml
+Sitemap: ${host}/sitemap-news.xml
+Sitemap: ${host}/sitemap-categories.xml
+Sitemap: ${host}/sitemap-videos.xml
+Sitemap: ${host}/sitemap-static.xml
 `;
     fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
     if (fs.existsSync(publicPath)) {

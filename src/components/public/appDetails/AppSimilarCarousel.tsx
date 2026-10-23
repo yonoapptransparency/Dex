@@ -17,6 +17,7 @@ interface AppSimilarCarouselProps {
   relatedApps: RelatedAppItem[];
   specificCategory: string;
   totalCategoryCount?: number;
+  isLoading?: boolean;
 }
 
 const SVG_PLACEHOLDER = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 86 86'%3E%3Crect width='86' height='86' rx='20' fill='%23e4e4e7'/%3E%3C/svg%3E";
@@ -24,9 +25,31 @@ const SVG_PLACEHOLDER = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://w
 export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({ 
   relatedApps, 
   specificCategory,
-  totalCategoryCount
+  totalCategoryCount,
+  isLoading = false
 }) => {
-  if (!relatedApps || relatedApps.length === 0) return null;
+  if ((!relatedApps || relatedApps.length === 0) && !isLoading) return null;
+
+  if ((!relatedApps || relatedApps.length === 0) && isLoading) {
+    return (
+      <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0 min-h-[228px] xs:min-h-[248px] sm:min-h-[268px]">
+        <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
+          <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100">
+            Similar Applications
+          </h2>
+          <div className="h-7 w-24 rounded-full bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse" />
+        </div>
+        <div className="grid grid-rows-2 grid-flow-col gap-x-3 xxs:gap-x-4 xs:gap-x-5 gap-y-3 xxs:gap-y-3.5 xs:gap-y-4 overflow-hidden pt-2.5 pb-2 px-2 xs:px-4 sm:px-0">
+          {Array.from({ length: 12 }).map((_, idx) => (
+            <div key={idx} className="flex flex-col items-center gap-1.5 w-[68px] xxs:w-[76px] xs:w-[86px] sm:w-[98px] shrink-0">
+              <div className="w-[58px] h-[58px] xxs:w-[66px] xxs:h-[66px] xs:w-[76px] xs:h-[76px] sm:w-[86px] sm:h-[86px] rounded-[24%] bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse" />
+              <div className="h-3 w-14 rounded bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   const displayTotal = totalCategoryCount && totalCategoryCount > 0 
     ? totalCategoryCount 
