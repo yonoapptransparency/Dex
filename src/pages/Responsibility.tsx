@@ -33,8 +33,8 @@ export default function Responsibility() {
         </Link>
       </div>
       <Meta 
-        title={mockSettings?.responsibility_meta_title || "Responsibility & Safety"}
-        description={mockSettings?.responsibility_meta_description || "Official safety guidelines advising users on secure gaming techniques and safety benchmarks."}
+        title={mockSettings?.responsibility_meta_title || "Responsible Gaming"}
+        description={mockSettings?.responsibility_meta_description || `Information and resources for responsible gaming and app usage on ${mockSettings?.site_title || 'RummyDex'}.`}
         canonical={window.location.origin + "/responsibility"}
       />
 

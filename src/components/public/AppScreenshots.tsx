@@ -84,8 +84,9 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
             <img 
               src={getOptimizedImageUrl(imgUrl, 400)} 
               alt={`${app.name} screenshot ${i + 1} - gameplay preview`} 
-              loading={i === 0 ? "eager" : "lazy"} 
-              fetchPriority={i === 0 ? "high" : "auto"}
+              width={150}
+              height={267}
+              loading="lazy" 
               decoding="async"
               className="w-full h-full object-cover select-none pointer-events-none" 
               referrerPolicy="no-referrer"

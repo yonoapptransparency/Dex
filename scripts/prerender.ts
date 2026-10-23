@@ -152,6 +152,7 @@ async function prerender() {
     await generateRoute('/faq');
     await generateRoute('/faqs');
     await generateRoute('/safety');
+    await generateRoute('/safety-status');
 
     // 6. Generate Master Sitemap Index (sitemap.xml), Sub-Sitemaps, and GZip (.xml.gz) companions
     const host = 'https://www.rummydex.com';

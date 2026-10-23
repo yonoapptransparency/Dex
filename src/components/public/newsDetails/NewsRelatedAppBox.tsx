@@ -31,12 +31,12 @@ export function NewsRelatedAppBox({ downloadTarget, relatedApp, newsItem, classN
             alt={appName}
             width={52}
             height={52}
-            className="w-13 h-13 rounded-2xl object-cover shadow-sm shrink-0 border border-black/5 dark:border-white/10"
-            loading="eager"
+            className="w-[52px] h-[52px] rounded-2xl object-cover shadow-sm shrink-0 border border-black/5 dark:border-white/10"
+            loading="lazy"
             decoding="async"
           />
         ) : (
-          <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
+          <div className="w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
             {appName?.[0] || 'R'}
           </div>
         )}

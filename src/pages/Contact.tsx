@@ -21,8 +21,8 @@ export default function Contact() {
   return (
     <div className="max-w-7xl mx-auto py-16 px-6 sm:px-10 animate-fade-in pb-20 min-h-[70vh]">
       <Meta 
-        title={mockSettings?.contact_meta_title || "Contact Us"}
-        description={mockSettings?.contact_meta_description || "Get in touch with our helpdesk team. Submit your inquiries, app suggestions, or feedback securely."}
+        title={mockSettings?.contact_meta_title || "Contact Support"}
+        description={mockSettings?.contact_meta_description || `Get in touch with ${mockSettings?.site_title || 'RummyDex'} support for any queries or assistance.`}
         canonical={window.location.origin + "/contact"}
       />
       <div className="mb-10">

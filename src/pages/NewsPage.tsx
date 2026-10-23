@@ -162,7 +162,7 @@ export default function NewsPage() {
 
   const baseTitle = mockSettings?.news_meta_title || "News & Updates";
   const seoTitle = safeCurrentPage > 1 ? `${baseTitle} - Page ${safeCurrentPage}` : baseTitle;
-  const seoDescription = mockSettings?.news_meta_description || "Stay updated with the latest news, transmissions, security releases, and intelligence updates.";
+  const seoDescription = mockSettings?.news_meta_description || "The latest gaming news, reports, and transparency updates.";
   const canonicalUrl = `${window.location.origin}/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
 
   return (

@@ -60,7 +60,6 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
         style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y pan-x', overscrollBehaviorX: 'contain' }}
       >
         {relatedApps.map((relatedApp, index) => {
-          const isEager = index < 8;
           const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 160) || 'https://via.placeholder.com/160';
 
           return (
@@ -77,8 +76,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                   height={86}
                   decoding="async"
                   className="w-[58px] h-[58px] xxs:w-[66px] xxs:h-[66px] xs:w-[76px] xs:h-[76px] sm:w-[86px] sm:h-[86px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover group-hover:scale-105 transition-transform duration-200 block pointer-events-none select-none"
-                  loading={isEager ? "eager" : "lazy"}
-                  fetchPriority={isEager ? "high" : "low"}
+                  loading="lazy"
                   referrerPolicy="no-referrer"
                 />
                 {relatedApp.is_hot && relatedApp.is_new ? (

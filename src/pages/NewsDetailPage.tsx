@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockNews as staticMockNews } from '../lib/lightFallback';
@@ -13,6 +13,24 @@ import { formatNewsDate, calculateReadingTime } from '../lib/newsUtils';
 export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();
   const { slug } = useParams();
+  const navigate = useNavigate();
+
+  const handleHtmlClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target) return;
+    const href = target.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('/') && !href.startsWith('//')) {
+      e.preventDefault();
+      navigate(href);
+    } else if (href.startsWith('https://www.rummydex.com') || href.startsWith('http://www.rummydex.com')) {
+      try {
+        const url = new URL(href);
+        e.preventDefault();
+        navigate(url.pathname + url.search + url.hash);
+      } catch (_) {}
+    }
+  };
   
   const cleanSlug = useMemo(() => {
     if (!slug) return '';
@@ -433,6 +451,7 @@ export default function NewsDetailPage() {
       )}
 
       <div 
+        onClick={handleHtmlClick}
         className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
         dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
       />

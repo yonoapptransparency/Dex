@@ -86,7 +86,9 @@ export const NewsArticleHeader: React.FC<NewsArticleHeaderProps> = ({
       {logoUrl && (
         <div className="w-full aspect-video max-h-[420px] overflow-hidden mb-5 sm:mb-6 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 border border-black/5 dark:border-white/5 relative">
           <img 
-            src={getOptimizedImageUrl(logoUrl, 1200) || logoUrl} 
+            src={getOptimizedImageUrl(logoUrl, 800) || logoUrl} 
+            srcSet={`${getOptimizedImageUrl(logoUrl, 480)} 480w, ${getOptimizedImageUrl(logoUrl, 800)} 800w, ${getOptimizedImageUrl(logoUrl, 1200)} 1200w`}
+            sizes="(max-width: 640px) 100vw, 768px"
             alt={title}
             width={1200}
             height={675}
