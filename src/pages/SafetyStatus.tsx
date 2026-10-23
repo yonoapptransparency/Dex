@@ -81,7 +81,6 @@ export default function SafetyStatus() {
                   width={96}
                   height={96}
                   className="w-full h-full object-cover rounded-[20px]" 
-                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

@@ -66,7 +66,6 @@ export default function Developers() {
                     width={128}
                     height={128}
                     className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
                 

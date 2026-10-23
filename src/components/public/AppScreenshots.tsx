@@ -89,7 +89,6 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
               loading="lazy" 
               decoding="async"
               className="w-full h-full object-cover select-none pointer-events-none" 
-              referrerPolicy="no-referrer"
             />
           </button>
         ))}
@@ -135,7 +134,6 @@ export default function AppScreenshots({ app }: AppScreenshotsProps) {
                   alt={`${app.name} screenshot ${i + 1} - gameplay preview`} 
                   className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-sm border border-black/5 dark:border-white/5"
                   loading={i === currentIndex ? "eager" : "lazy"}
-                  referrerPolicy="no-referrer"
                   draggable={false}
                 />
               </div>

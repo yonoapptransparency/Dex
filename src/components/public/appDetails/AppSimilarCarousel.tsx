@@ -77,7 +77,6 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                   decoding="async"
                   className="w-[58px] h-[58px] xxs:w-[66px] xxs:h-[66px] xs:w-[76px] xs:h-[76px] sm:w-[86px] sm:h-[86px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover group-hover:scale-105 transition-transform duration-200 block pointer-events-none select-none"
                   loading="lazy"
-                  referrerPolicy="no-referrer"
                 />
                 {relatedApp.is_hot && relatedApp.is_new ? (
                   <span className="absolute -top-1.5 -right-1.5 z-20 inline-flex items-center rounded-full overflow-hidden shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-white dark:border-zinc-900 font-black text-[7.5px] xxs:text-[8px] xs:text-[9px] uppercase tracking-wider leading-none select-none pointer-events-none">

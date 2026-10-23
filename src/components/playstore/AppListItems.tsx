@@ -191,7 +191,6 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               fetchPriority={index !== undefined && index <= 6 ? "high" : "low"}
               decoding="async"
               className="w-full h-full object-cover block"
-              referrerPolicy="no-referrer"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (app.icon_url && target.src !== app.icon_url) {
@@ -279,7 +278,6 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
               fetchPriority={rank <= 8 ? "high" : "low"}
               decoding="async"
               className="w-full h-full object-cover block"
-              referrerPolicy="no-referrer"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (app.icon_url && target.src !== app.icon_url) {

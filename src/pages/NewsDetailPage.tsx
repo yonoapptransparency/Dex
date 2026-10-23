@@ -129,9 +129,10 @@ export default function NewsDetailPage() {
         .then(res => res.json())
         .then(data => {
           if (!isMounted) return;
-          if (data.status === 'OK' && data.news) {
-            setFetchedNewsItem(data.news);
-            updateNewsDetail?.(data.news);
+          const resolvedNews = data?.news || data?.newsItem;
+          if (data?.status === 'OK' && resolvedNews) {
+            setFetchedNewsItem(resolvedNews);
+            updateNewsDetail?.(resolvedNews);
           } else if (!newsItem && refreshAll) {
             refreshAll(true);
           }
@@ -337,13 +338,13 @@ export default function NewsDetailPage() {
     );
   }
 
-  const articleTitle = newsItem.seo_title || newsItem.title || 'News Article';
+  const articleTitle = newsItem.seo_title || newsItem.meta_title || newsItem.title || 'News Article';
   const bodyContent = newsItem.content || newsItem.description_html || newsItem.description || '';
   const plainBody = bodyContent.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-  const articleDesc = newsItem.seo_description || newsItem.description || plainBody.substring(0, 160);
+  const articleDesc = newsItem.seo_description || newsItem.meta_description || newsItem.description || plainBody.substring(0, 160);
   const rawArticleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
   const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
-  const datePublished = newsItem.published_at || newsItem.created_at || newsItem.date || '';
+  const datePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
   const dateModified = newsItem.updated_at || datePublished;
   const authorName = newsItem.ceo_name || newsItem.author || 'RummyDex Editorial Team';
   const articleCategory = newsItem.category || 'General';
@@ -355,7 +356,8 @@ export default function NewsDetailPage() {
       "@type": "WebPage",
       "@id": canonicalUrl
     },
-    "headline": newsItem.title,
+    "name": articleTitle,
+    "headline": articleTitle,
     "description": articleDesc,
     "articleBody": plainBody || articleDesc,
     "image": rawArticleImage ? [rawArticleImage] : [],
@@ -463,6 +465,68 @@ export default function NewsDetailPage() {
         newsItem={newsItem}
         className="my-8"
       />
+
+      {/* 3. Latest News & Updates Internal Linking */}
+      {(() => {
+        const itemKey = String(newsItem.slug || newsItem.id || '').toLowerCase().trim();
+        const recentNews = (Array.isArray(mockNews) ? mockNews : [])
+          .filter((n: any) => {
+            if (!n || n.sync_to_public === false) return false;
+            const nKey = String(n.slug || n.id || '').toLowerCase().trim();
+            return Boolean(nKey && nKey !== itemKey);
+          })
+          .sort((a: any, b: any) => {
+            if (a.is_pinned && !b.is_pinned) return -1;
+            if (!a.is_pinned && b.is_pinned) return 1;
+            const dateA = new Date(a.date || a.published_at || a.created_at || 0).getTime();
+            const dateB = new Date(b.date || b.published_at || b.created_at || 0).getTime();
+            return dateB - dateA;
+          })
+          .slice(0, 6);
+
+        if (recentNews.length === 0) return null;
+
+        return (
+          <section aria-labelledby="recent-news-heading" className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 text-left">
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <h2 id="recent-news-heading" className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                Latest News &amp; Updates
+              </h2>
+              <Link to="/news" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline no-underline">
+                View all news →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {recentNews.map((rn: any) => {
+                const rnSlug = String(rn.slug || rn.id || '').trim();
+                const rnTitle = rn.title || 'News Article';
+                const rnCat = rn.category || 'Update';
+                const rnDate = formatNewsDate(rn.date, rn.published_at, rn.created_at);
+                return (
+                  <Link
+                    key={rn.id || rnSlug}
+                    to={`/news/${encodeURIComponent(rnSlug)}`}
+                    className="p-3.5 rounded-xl border border-zinc-200/70 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition-colors flex flex-col justify-between gap-1.5 no-underline"
+                  >
+                    <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-snug">
+                      {rnTitle}
+                    </h3>
+                    <div className="flex items-center gap-2 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                      <span className="text-blue-600 dark:text-blue-400 font-semibold">{rnCat}</span>
+                      {rnDate && (
+                        <>
+                          <span>•</span>
+                          <span>{rnDate}</span>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
     </article>
   );
 }

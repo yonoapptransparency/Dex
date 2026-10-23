@@ -76,7 +76,6 @@ export const FeaturedBanner = React.memo(({ items }: BannerProps) => {
                   sizes="(max-width: 640px) 100vw, 800px"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 pointer-events-none"
                   alt={item.title || "Featured banner"}
-                  referrerPolicy="no-referrer"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=400&fit=crop`;
                   }}

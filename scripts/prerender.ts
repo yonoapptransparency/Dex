@@ -5,8 +5,75 @@ import path from 'path';
 import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
 import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
+import { compileCanonicalApp, compileCanonicalNews } from '../src/lib/githubSync';
+
+async function syncStaticDataAndSitemaps() {
+  const host = 'https://www.rummydex.com';
+  const publicPath = path.resolve(process.cwd(), 'public');
+  const staticJsonPath = path.join(process.cwd(), 'src/lib/staticData.json');
+
+  let data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
+  if (!data.apps || data.apps.length === 0) {
+    try {
+      if (fs.existsSync(staticJsonPath)) {
+        const rawStatic = JSON.parse(fs.readFileSync(staticJsonPath, 'utf8'));
+        data = {
+          apps: rawStatic.apps || rawStatic.mockApps || [],
+          news: rawStatic.news || rawStatic.mockNews || [],
+          videos: rawStatic.videos || rawStatic.mockVideos || [],
+          settings: rawStatic.settings || rawStatic.mockSettings || {}
+        };
+      }
+    } catch (e) {
+      console.warn('Fallback staticData load error:', e);
+    }
+  }
+
+  const publicApps = (data.apps || [])
+    .filter((a: any) => a && a.sync_to_public !== false)
+    .map((a: any) => compileCanonicalApp(a, { stripDownloadLinks: true }));
+  const publicNews = (data.news || [])
+    .filter((n: any) => n && n.sync_to_public !== false)
+    .map((n: any) => compileCanonicalNews(n));
+
+  if (publicApps.length > 0) {
+    const publicPayload = {
+      apps: publicApps,
+      settings: data.settings || {},
+      news: publicNews,
+      videos: data.videos || [],
+      reviews: data.reviews || []
+    };
+    try {
+      fs.writeFileSync(staticJsonPath, JSON.stringify(publicPayload), 'utf8');
+      console.log(`Synced live Firestore data into src/lib/staticData.json (${publicApps.length} apps, ${publicNews.length} news items).`);
+    } catch (e) {
+      console.warn('Failed writing staticData.json:', e);
+    }
+  }
+
+  if (fs.existsSync(publicPath)) {
+    const sitemaps = generateAllSitemaps({ ...data, apps: publicApps, news: publicNews }, host);
+    for (const [filename, xmlContent] of Object.entries(sitemaps)) {
+      const xmlStr = xmlContent as string;
+      const gzBuffer = zlib.gzipSync(Buffer.from(xmlStr, 'utf-8'), { level: 9 });
+      try {
+        fs.writeFileSync(path.join(publicPath, filename), xmlStr, 'utf-8');
+        fs.writeFileSync(path.join(publicPath, `${filename}.gz`), gzBuffer);
+      } catch (e) {}
+    }
+  }
+
+  return { ...data, apps: publicApps, news: publicNews };
+}
 
 async function prerender() {
+  if (process.argv.includes('--sync-only')) {
+    console.log('Running pre-build Firestore staticData & sitemap sync...');
+    await syncStaticDataAndSitemaps();
+    return;
+  }
+
   console.log('Static Prerendering started...');
   const distPath = path.resolve(process.cwd(), 'dist');
   const indexHtmlPath = path.join(distPath, 'index.html');
@@ -39,26 +106,7 @@ async function prerender() {
     fs.writeFileSync(path.join(distPath, 'template.html'), originalTemplate, 'utf-8');
     fs.writeFileSync(path.join(distPath, 'index.spa.html'), originalTemplate, 'utf-8');
 
-    let data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
-    if (!data.apps || data.apps.length === 0) {
-      try {
-        const staticJsonPath = path.join(process.cwd(), 'src/lib/staticData.json');
-        if (fs.existsSync(staticJsonPath)) {
-          const rawStatic = JSON.parse(fs.readFileSync(staticJsonPath, 'utf8'));
-          data = {
-            apps: rawStatic.apps || rawStatic.mockApps || [],
-            news: rawStatic.news || rawStatic.mockNews || [],
-            videos: rawStatic.videos || rawStatic.mockVideos || [],
-            settings: rawStatic.settings || rawStatic.mockSettings || {}
-          };
-        }
-      } catch (e) {
-        console.warn('Fallback staticData load error:', e);
-      }
-    }
-    if (!data.apps) {
-      data.apps = [];
-    }
+    const data = await syncStaticDataAndSitemaps();
     
     // Helper to generate both directory index.html and direct .html file for any route
     const generateRoute = async (routePath: string) => {
@@ -90,11 +138,11 @@ async function prerender() {
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
     // 2. Generate Application Routes (Only for public synced apps)
-    const appsToPrerender = (data.apps || []).filter((a: any) => a.slug && a.sync_to_public !== false);
+    const appsToPrerender = (data.apps || []).filter((a: any) => a && a.slug && a.sync_to_public !== false);
     const BATCH_SIZE = 25;
     for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
       const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
-      await Promise.all(batch.map((app: any) => generateRoute(`/app/${app.slug}`)));
+      await Promise.all(batch.map((app: any) => generateRoute(`/app/${String(app.slug).trim()}`)));
     }
 
 
@@ -123,15 +171,17 @@ async function prerender() {
 
     // 4. Generate News Routes (Only for public synced news)
     for (const newsItem of data.news || []) {
-      if (newsItem.slug && newsItem.sync_to_public !== false) {
-        await generateRoute(`/news/${newsItem.slug}`);
+      const cleanNewsSlug = String(newsItem.slug || newsItem.id || '').trim();
+      if (cleanNewsSlug && newsItem.sync_to_public !== false) {
+        await generateRoute(`/news/${cleanNewsSlug}`);
       }
     }
 
     // 5. Generate Video Routes
     for (const videoItem of data.videos || []) {
-      if (videoItem.slug) {
-        await generateRoute(`/videos/${videoItem.slug}`);
+      const cleanVideoSlug = String(videoItem.slug || '').trim();
+      if (cleanVideoSlug) {
+        await generateRoute(`/videos/${cleanVideoSlug}`);
       }
     }
 
