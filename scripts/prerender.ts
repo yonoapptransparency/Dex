@@ -85,10 +85,13 @@ async function syncStaticDataAndSitemaps() {
     .filter((n: any) => n && n.sync_to_public !== false)
     .map((n: any) => sanitizePublicNews(n));
 
+  const publicSettings = { ...(data.settings || {}) };
+  delete publicSettings.turnstile_secret_key;
+
   if (publicApps.length > 0) {
     const publicPayload = {
       apps: publicApps,
-      settings: data.settings || {},
+      settings: publicSettings,
       news: publicNews,
       videos: data.videos || [],
       reviews: data.reviews || []
@@ -186,15 +189,21 @@ async function prerender() {
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
-    // 2. Generate Application Routes (Only for public synced apps)
+    // 2. Generate Application Routes & Gateway Shell Routes (Only for public synced apps)
     const appsToPrerender = (data.apps || []).filter((a: any) => a && a.slug && a.sync_to_public !== false);
     const BATCH_SIZE = 25;
     for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
       const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
-      await Promise.all(batch.map((app: any) => generateRoute(`/app/${String(app.slug).trim()}`)));
+      await Promise.all(
+        batch.flatMap((app: any) => {
+          const cleanSlug = String(app.slug).trim();
+          return [
+            generateRoute(`/app/${cleanSlug}`),
+            generateRoute(`/moreinfo/${cleanSlug}`),
+          ];
+        })
+      );
     }
-
-
 
     // 3. Generate Category Routes & Catalogs
     await generateRoute('/categories');
@@ -299,55 +308,12 @@ async function prerender() {
       }
     }
 
-    // 3. Standardized Robots.txt with explicit public Allow paths, Disallow security paths, and all Sitemaps
-    let robots = `User-agent: *
-Allow: /
-Allow: /app/
-Allow: /news/
-Allow: /category/
-Allow: /categories
-Allow: /new-apps
-Allow: /videos/
-Allow: /developers
-Allow: /assets/
-Allow: /api/v1/public/
-Disallow: /api/
-Disallow: /admin/
-Disallow: /login/
-Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
-Disallow: /download/
-Disallow: /download/*
-Disallow: /gateway/
-Disallow: /gateway/*
-Disallow: /info/
-Disallow: /info/*
-Disallow: /moreinfo/
-Disallow: /moreinfo/*
-Disallow: /moredetail/
-Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
-
-Sitemap: ${host}/sitemap.xml
-Sitemap: ${host}/sitemap-apps.xml
-Sitemap: ${host}/sitemap-news.xml
-Sitemap: ${host}/sitemap-categories.xml
-Sitemap: ${host}/sitemap-videos.xml
-Sitemap: ${host}/sitemap-static.xml
-`;
-    fs.writeFileSync(path.join(distPath, 'robots.txt'), robots, 'utf-8');
-    if (fs.existsSync(publicPath)) {
-      try {
-        fs.writeFileSync(path.join(publicPath, 'robots.txt'), robots, 'utf-8');
-      } catch (e) {}
+    // 3. Copy authoritative public/robots.txt (with per-UA Disallow rules) to dist/robots.txt
+    const publicRobotsPath = path.join(publicPath, 'robots.txt');
+    if (fs.existsSync(publicRobotsPath)) {
+      fs.copyFileSync(publicRobotsPath, path.join(distPath, 'robots.txt'));
     }
-    console.log('Generated robots.txt and standardized sitemaps in dist and public');
+    console.log('Generated sitemaps and copied robots.txt to dist');
 
     // 4. Ensure Cloudflare Pages SPA redirects and headers exist in dist
     const redirectsSrc = path.join(publicPath, '_redirects');

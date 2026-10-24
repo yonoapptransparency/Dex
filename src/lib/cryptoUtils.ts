@@ -1,0 +1,76 @@
+import CryptoJS from 'crypto-js';
+
+export function getEnvSecretKeys(explicitKey?: string): string[] {
+  const keys: string[] = [];
+  const add = (k?: string) => {
+    if (k && typeof k === 'string' && k.trim().length > 0 && !keys.includes(k.trim())) {
+      keys.push(k.trim());
+    }
+  };
+  add(explicitKey);
+  if (typeof process !== 'undefined' && process.env) {
+    add(process.env.AES_KEY);
+    add(process.env.AES_KEY_PREVIOUS);
+    add(process.env.AES_SECRET);
+  }
+  return keys;
+}
+
+export function getAesSecret(): string {
+  const keys = getEnvSecretKeys();
+  return keys[0] || '';
+}
+
+export function encryptData(plainText: string, secretKey?: string): string {
+  if (!plainText || typeof plainText !== 'string') return '';
+  const trimmed = plainText.trim();
+  if (!trimmed) return '';
+  const keys = getEnvSecretKeys(secretKey);
+  const key = keys[0];
+  if (!key) {
+    return trimmed;
+  }
+  return CryptoJS.AES.encrypt(trimmed, key).toString();
+}
+
+export function decryptData(cipherText: string, secretKey?: string): string {
+  if (!cipherText || typeof cipherText !== 'string') return '';
+  const cleanText = cipherText.trim();
+  if (!cleanText) return '';
+
+  if (cleanText.startsWith('http://') || cleanText.startsWith('https://')) {
+    return cleanText;
+  }
+
+  const keysToTry = getEnvSecretKeys(secretKey);
+  for (const key of keysToTry) {
+    try {
+      const bytes = CryptoJS.AES.decrypt(cleanText, key);
+      const originalText = bytes.toString(CryptoJS.enc.Utf8);
+      if (
+        originalText &&
+        (originalText.startsWith('http://') ||
+          originalText.startsWith('https://') ||
+          originalText.startsWith('{') ||
+          originalText.startsWith('['))
+      ) {
+        return originalText.trim();
+      }
+    } catch {
+      // Try next configured env key
+    }
+  }
+
+  return '';
+}
+
+export function generateSha1(input: string): string {
+  return CryptoJS.SHA1(input).toString(CryptoJS.enc.Hex);
+}
+
+export function getFallbackAes(): string {
+  return getAesSecret();
+}
+
+export const safeEncrypt = encryptData;
+export const safeDecrypt = decryptData;

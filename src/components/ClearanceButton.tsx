@@ -1,223 +1,141 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, RefreshCw, Info } from 'lucide-react';
+import { useData } from '../contexts/DataContextPublic';
 import { useTurnstileVerification } from '../hooks/useTurnstileVerification';
 import { useClearanceDispatch } from '../hooks/useClearanceDispatch';
-import { useData } from '../contexts/DataContextPublic';
 
-export interface ClearanceButtonProps {
+interface ClearanceButtonProps {
   appId: string;
   appSlug?: string;
-  status?: string;
-  variant?: 'default' | 'compact';
-  onSuccess?: () => void;
-  onError?: () => void;
+  nv: 0 | 1;
+  status?: 'Verified' | 'Caution' | 'Unsafe';
+  onBotBlocked?: () => void;
 }
 
-const LOADING_STEPS = [
-  'VERIFYING SECURITY...',
-  'CONNECTING TO SERVER...',
-  'RESOLVING LINK...'
-];
-
-export default function ClearanceButton({ 
-  appId, 
-  appSlug, 
-  onSuccess, 
-  onError 
+export default function ClearanceButton({
+  appId,
+  appSlug,
+  nv,
+  onBotBlocked,
 }: ClearanceButtonProps) {
   const { settings } = useData();
+  const cleanSlug = (appSlug || appId || 'item').replace(/[^a-zA-Z0-9_-]/g, '-');
 
-  // Step 1: Initialize Visible Cloudflare Turnstile Verification Hook with cData App-ID Binding
   const {
-    widgetRef,
-    widgetIdRef,
-    cfToken,
-    cfTokenRef,
     isReady,
-    isRendered,
-    errorMessage,
-    setErrorMessage,
-    resetTurnstile,
-    executeTurnstile
+    isBotBlocked,
+    setIsBotBlocked,
+    uiTimeoutExceeded,
+    widgetRef,
+    cfTokenRef,
+    nonceRef,
+    envRef,
+    restartVerification,
+    wipeSessionSecrets,
   } = useTurnstileVerification({
-    onError,
-    siteKey: settings?.turnstile_site_key,
-    appId: appSlug || appId
+    appId,
+    adminTurnstileSiteKey: (settings as any)?.turnstile_site_key,
   });
 
-  // Step 2: Initialize Clearance Dispatch & Bot Protection Hook
   const {
-    isLoading,
-    destinationUrl,
-    isUnavailable,
-    setIsUnavailable,
-    handleKineticProceed,
-    trackPointerMotion,
-    closeAndWipeLink
+    setButtonRef,
+    isDispatching,
+    unavailableMessage,
+    needsManualRetry,
+    handleManualRetry,
   } = useClearanceDispatch({
     appId,
-    appSlug,
-    cfToken,
-    cfTokenRef,
-    widgetIdRef,
+    nv,
     isReady,
-    resetTurnstile,
-    executeTurnstile,
-    onSuccess,
-    onError,
-    setErrorMessage
+    cfTokenRef,
+    nonceRef,
+    envRef,
+    setIsBotBlocked,
+    restartVerification,
+    wipeSessionSecrets,
   });
 
-  // Dynamic progression steps during verification
-  const [loadingStepIndex, setLoadingStepIndex] = useState<number>(0);
-
-  useEffect(() => {
-    if (!isLoading) {
-      setLoadingStepIndex(0);
-      return;
+  if (isBotBlocked) {
+    if (onBotBlocked) {
+      onBotBlocked();
     }
-
-    const interval = setInterval(() => {
-      setLoadingStepIndex((prev) => (prev + 1 < LOADING_STEPS.length ? prev + 1 : prev));
-    }, 350);
-
-    return () => clearInterval(interval);
-  }, [isLoading]);
-
-  // Safe Haptic feedback (supported in Android Chrome and modern mobile browsers)
-  const triggerHaptic = useCallback((pattern: number | number[] = 40) => {
-    try {
-      if (typeof window !== 'undefined' && 'navigator' in window && typeof navigator.vibrate === 'function') {
-        navigator.vibrate(pattern);
-      }
-    } catch (_) {}
-  }, []);
-
-  // When Cloudflare verification succeeds, fire subtle haptic feedback
-  useEffect(() => {
-    if (isReady && cfToken) {
-      triggerHaptic([30, 40]);
-    }
-  }, [isReady, cfToken, triggerHaptic]);
-
-  // ─── CASE A: UNAVAILABLE NOTICE ───
-  if (isUnavailable) {
-    return (
-      <div className="w-full bg-zinc-100 dark:bg-zinc-800/60 border border-black/5 dark:border-white/5 rounded-2xl p-5 text-center flex flex-col items-center gap-3 animate-fade-in select-none">
-        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-          The requested package link is currently unavailable.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setIsUnavailable(false);
-            closeAndWipeLink();
-          }}
-          className="py-2.5 px-5 text-xs font-bold rounded-xl bg-zinc-800 hover:bg-zinc-900 text-white dark:bg-zinc-200 dark:hover:bg-white dark:text-zinc-900 transition-colors cursor-pointer"
-        >
-          Check Again
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="w-full flex flex-col items-center gap-4 select-none">
-      
-      {/* ─── CASE B: SINGLE-USE LINK READY (POPUP-BLOCKER FALLBACK) ─── */}
-      {destinationUrl ? (
-        <div className="w-full flex flex-col items-center gap-2 animate-fade-in">
-          <a
-            href={destinationUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            referrerPolicy="no-referrer"
-            onClick={() => {
-              // Once clicked, immediately close and wipe from memory
-              setTimeout(() => {
-                closeAndWipeLink();
-              }, 300);
-            }}
-            className="flex items-center justify-center gap-2 w-full py-3 xs:py-4 px-4 xs:px-6 text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-xl xs:rounded-2xl transition-all font-black shadow-lg shadow-emerald-500/25 uppercase tracking-wider text-xs xs:text-sm text-center select-none cursor-pointer"
-          >
-            <span>CLICK TO OPEN LINK</span>
-            <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white shrink-0 ml-0.5" />
-          </a>
-          <p className="text-[10px] xs:text-[11px] text-zinc-400 dark:text-zinc-500 text-center">
-            Tap above to proceed. Link expires immediately after use.
+    <div className="w-full flex flex-col items-center gap-3.5 select-none">
+      {/* §5.5: Always-visible Turnstile widget container stays in layout (never display:none, never off-screen) and reserves ~65px height */}
+      <div
+        ref={widgetRef}
+        className="w-full min-h-[65px] flex items-center justify-center overflow-hidden rounded-xl"
+        aria-label="Verification container"
+      />
+
+      {/* Unavailable Package Notice (§5.7 G7 & §5.9) */}
+      {unavailableMessage ? (
+        <div className="w-full rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-center flex flex-col items-center gap-2">
+          <Info className="w-5 h-5 text-amber-500 shrink-0" />
+          <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed">
+            {unavailableMessage}
           </p>
         </div>
-      ) : (
-        /* ─── CASE C: TWO-STAGE SECURITY PIPELINE ─── */
-        <div className="w-full flex flex-col items-center gap-3.5">
-          
-          {/* STEP 1: DIRECT CLOUDFLARE TURNSTILE (CLEAN & NATIVE, NO ARTIFICIAL BOX) */}
-          <div className="w-full flex flex-col items-center justify-center min-h-[65px] mb-1">
-            <div 
-              ref={widgetRef} 
-              id={`clearance-turnstile-${appId}`} 
-              className="flex items-center justify-center min-w-0 w-full max-w-[300px]"
-            />
-          </div>
-
-          {/* STEP 2: PROCEED BUTTON (ACTIVE & RESPONSIVE WITH ONE-BY-ONE VERIFICATION PROGRESSION) */}
-          <div className="relative w-full">
-            <button
-              type="button"
-              id={`gateway-cta-${appId}`}
-              onClick={(e) => {
-                if (isLoading || !isReady) return;
-                trackPointerMotion(e);
-                triggerHaptic(35);
-                handleKineticProceed(e);
-              }}
-              onPointerDown={trackPointerMotion}
-              onPointerMove={trackPointerMotion}
-              onTouchStart={trackPointerMotion}
-              onTouchMove={trackPointerMotion}
-              disabled={isLoading || !isReady}
-              className={`relative overflow-hidden group flex items-center justify-center gap-2 xs:gap-2.5 w-full py-3.5 xs:py-4 px-4 xs:px-6 rounded-xl xs:rounded-2xl transition-all font-black uppercase tracking-wider text-xs xs:text-sm text-center select-none shadow-lg ${
-                isLoading
-                  ? 'bg-[#1557d6] text-white cursor-wait opacity-95 shadow-blue-500/20'
-                  : isReady
-                  ? 'bg-[#1a68ff] hover:bg-blue-600 active:bg-blue-700 text-white shadow-blue-500/30 active:scale-[0.98] cursor-pointer'
-                  : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed shadow-none border border-black/5 dark:border-white/5'
-              }`}
-              aria-label={isLoading ? 'Verifying clearance' : isReady ? 'Proceed' : 'Verifying security'}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
-                  <span className="animate-fade-in tracking-wider">
-                    {LOADING_STEPS[loadingStepIndex] || 'CONNECTING...'}
-                  </span>
-                </>
-              ) : isReady ? (
-                <>
-                  <ShieldCheck className="w-4 h-4 text-white/90 shrink-0" />
-                  <span>PROCEED</span>
-                  <ArrowRight className="w-4 h-4 text-white/80 shrink-0 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
-                </>
-              ) : (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0 text-zinc-400 dark:text-zinc-500" />
-                  <span className="tracking-wider">VERIFYING...</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Error Notice */}
-          {errorMessage && (
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-500 text-center animate-fade-in mt-1">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
+      ) : needsManualRetry ? (
+        <div className="w-full rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 p-4 text-center flex flex-col items-center gap-3">
+          <p className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Please try again
+          </p>
+          <button
+            type="button"
+            onClick={handleManualRetry}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Try Again</span>
+          </button>
         </div>
+      ) : uiTimeoutExceeded && !isReady ? (
+        <div className="w-full rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 p-4 text-center flex flex-col items-center gap-3">
+          <p className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed">
+            Verification could not be completed. Please check your connection and reload.
+          </p>
+          <button
+            type="button"
+            onClick={handleManualRetry}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Reload Verification</span>
+          </button>
+        </div>
+      ) : (
+        <button
+          ref={setButtonRef}
+          type="button"
+          id={`clearance-btn-${cleanSlug}`}
+          disabled={!isReady || isDispatching}
+          className={`w-full py-4 px-8 rounded-2xl flex items-center justify-center gap-2.5 font-extrabold text-sm sm:text-base tracking-wide transition-all shadow-md ${
+            isReady && !isDispatching
+              ? 'premium-action-btn premium-action-btn-blowing text-white cursor-pointer active:scale-[0.98]'
+              : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-black/5 dark:border-white/5 cursor-not-allowed'
+          }`}
+        >
+          {isDispatching ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>CONNECTING…</span>
+            </>
+          ) : isReady ? (
+            <>
+              <span>PROCEED</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          ) : (
+            <>
+              <span className="w-4 h-4 border-2 border-zinc-400/30 border-t-zinc-500 dark:border-t-zinc-300 rounded-full animate-spin" />
+              <span>VERIFYING…</span>
+            </>
+          )}
+        </button>
       )}
-
     </div>
   );
 }
