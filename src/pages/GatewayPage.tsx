@@ -123,13 +123,27 @@ export default function GatewayPage() {
 
   // 1. High-Availability Background Static Dataset Loader
   useEffect(() => {
+    let active = true;
     loadFullStaticDataset()
       .then((ds) => {
-        if (ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
+        if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
           setStaticApps(ds.apps);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback fetch from public staticData.json if dynamic import failed
+        fetch('/public-api/staticData.json')
+          .then((r) => r.json())
+          .then((data) => {
+            if (active && data?.apps && Array.isArray(data.apps)) {
+              setStaticApps(data.apps);
+            }
+          })
+          .catch(() => {});
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // 2. Instant Multi-Tier Slug Resolution
@@ -225,9 +239,13 @@ export default function GatewayPage() {
     return null;
   }
 
+  const isCatalogReady = staticApps.length > 0 || mockApps.length > 0;
   if (
     !app &&
-    (loading || isFetchingDetails || (cleanSlugKey && remoteCheckDoneSlug !== cleanSlugKey))
+    (!isCatalogReady ||
+      loading ||
+      isFetchingDetails ||
+      (cleanSlugKey && remoteCheckDoneSlug !== cleanSlugKey))
   ) {
     return (
       <div className="flex flex-col items-center justify-center py-24 min-h-[50vh]">
