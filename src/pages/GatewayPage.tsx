@@ -6,6 +6,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import ClearanceButton from '../components/ClearanceButton';
 import { loadFullStaticDataset } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
+import { getPrefetchedApp } from '../lib/preloadHelper';
 import { getOptimizedImageUrl } from '../seo/utils';
 import { NAV_BREADCRUMB_TTL_MS } from '../lib/gateConfig';
 import { collectEnv } from '../lib/deviceProbe';
@@ -31,6 +32,7 @@ export default function GatewayPage() {
 
   const [fetchedApp, setFetchedApp] = useState<any | null>(null);
   const [staticApps, setStaticApps] = useState<any[]>([]);
+  const [staticLoaded, setStaticLoaded] = useState<boolean>(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState<boolean>(false);
   const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
   const [isBotBlocked, setIsBotBlocked] = useState<boolean>(false);
@@ -128,11 +130,20 @@ export default function GatewayPage() {
       .then((ds) => {
         if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
           setStaticApps(ds.apps);
+          setStaticLoaded(true);
+          return;
         }
+        return fetch('/public-api/staticData.json')
+          .then((r) => r.json())
+          .then((data) => {
+            if (active && data?.apps && Array.isArray(data.apps)) {
+              setStaticApps(data.apps);
+            }
+          });
       })
       .catch(() => {
         // Fallback fetch from public staticData.json if dynamic import failed
-        fetch('/public-api/staticData.json')
+        return fetch('/public-api/staticData.json')
           .then((r) => r.json())
           .then((data) => {
             if (active && data?.apps && Array.isArray(data.apps)) {
@@ -140,6 +151,9 @@ export default function GatewayPage() {
             }
           })
           .catch(() => {});
+      })
+      .finally(() => {
+        if (active) setStaticLoaded(true);
       });
     return () => {
       active = false;
@@ -159,8 +173,19 @@ export default function GatewayPage() {
       }
     }
 
+    const prefetched = getPrefetchedApp(cleanSlugKey);
+    if (prefetched) return prefetched;
+
     const resolvedFromMock = resolveAppSlug(cleanSlugKey, mockApps);
     if (resolvedFromMock) return resolvedFromMock;
+
+    if (typeof window !== 'undefined' && Array.isArray((window as any).__INITIAL_DATA__?.apps)) {
+      const resolvedFromInitial = resolveAppSlug(
+        cleanSlugKey,
+        (window as any).__INITIAL_DATA__.apps
+      );
+      if (resolvedFromInitial) return resolvedFromInitial;
+    }
 
     const resolvedFromStatic = resolveAppSlug(cleanSlugKey, staticApps);
     if (resolvedFromStatic) return resolvedFromStatic;
@@ -239,10 +264,9 @@ export default function GatewayPage() {
     return null;
   }
 
-  const isCatalogReady = staticApps.length > 0 || mockApps.length > 0;
   if (
     !app &&
-    (!isCatalogReady ||
+    (!staticLoaded ||
       loading ||
       isFetchingDetails ||
       (cleanSlugKey && remoteCheckDoneSlug !== cleanSlugKey))
