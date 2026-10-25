@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, ThumbsUp, AlertCircle, Loader2 } from 'lucide-react';
 import ReviewItem from './public/ReviewItem';
+import { ReviewForm } from './public/ReviewForm';
 
 import { useReviews } from '../hooks/useReviews';
 
@@ -115,6 +116,18 @@ export default function UserReviews({
             totalReviewCount={totalReviewCount} 
             stats={stats}
             displayedReviewsCount={displayedReviews.length}
+          />
+        </div>
+
+        {/* Review Submission Form */}
+        <div className="w-full">
+          <ReviewForm
+            appId={appId}
+            appSlug={appSlug}
+            appName={appTitle}
+            onSuccess={(newReview) => {
+              setReviews(prev => [newReview, ...prev.filter(r => r.id !== newReview.id)]);
+            }}
           />
         </div>
 

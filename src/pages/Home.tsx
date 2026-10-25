@@ -6,7 +6,6 @@
 import { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
-import { cleanFaqQuestion } from '../lib/seoUtils';
 import Meta from '../components/Meta';
 import { FeaturedBanner, PlayStoreTabs, TopChartItem, AppListItem } from '../components/PlayStoreUI';
 import { WebsiteTitleHero } from '../components/WebsiteTitleHero';
@@ -295,11 +294,11 @@ export default function Home() {
     : (mockSettings.seo_title || mockSettings.site_title);
 
   const resolvedDescription = isNewAppsRoute
-    ? ((mockSettings as any).new_apps_meta_description || `Explore the newest released Rummy, Teen Patti, and card game apps with verified ratings on ${siteTitleLabel}.`)
+    ? ((mockSettings as any).new_apps_meta_description || `Explore the newest released Rummy, Teen Patti, and card game apps with verified ratings.`)
     : isCategoriesIndexRoute
-    ? ((mockSettings as any).categories_meta_description || `Browse all gaming and entertainment application categories on ${siteTitleLabel}.`)
+    ? ((mockSettings as any).categories_meta_description || `Browse all gaming and entertainment application categories.`)
     : categoryParam
-    ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates on ${siteTitleLabel}.`
+    ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates.`
     : (mockSettings.seo_description || mockSettings.meta_description);
 
   const resolvedCanonical = isNewAppsRoute
@@ -317,18 +316,6 @@ export default function Home() {
         description={resolvedDescription}
         keywords={mockSettings.seo_keywords}
         canonical={resolvedCanonical}
-        faqSchema={(!categoryParam && !isNewAppsRoute && !isCategoriesIndexRoute && mockSettings.website_faqs && mockSettings.website_faqs.length > 0) ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": mockSettings.website_faqs.map(faq => ({
-            "@type": "Question",
-            "name": cleanFaqQuestion(faq.question),
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": typeof faq.answer === 'string' ? faq.answer.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : faq.answer
-            }
-          }))
-        } : undefined}
       />
       {!deferredSearchTerm && (
         <WebsiteTitleHero settings={mockSettings} />

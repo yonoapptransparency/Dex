@@ -39,31 +39,26 @@ export default function FaqPage() {
     ];
   }, [settings?.website_faqs]);
 
-  const faqSchema = useMemo(() => {
-    const list = faqs.map((f: any) => ({
-      "@type": "Question",
-      "name": String(f.question || '').replace(/<[^>]*>?/gm, ' ').trim(),
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": String(f.answer || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
-      }
-    }));
-    return {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": "https://www.rummydex.com/faq#faq",
-      "url": "https://www.rummydex.com/faq",
-      "mainEntity": list
-    };
-  }, [faqs]);
+  const pageTitle = settings?.faq_meta_title || "Frequently Asked Questions";
+  const pageDesc = settings?.faq_meta_description || `Everything you need to know about ${siteTitle}, app verification, and downloads.`;
+  const webPageSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://www.rummydex.com/faq#webpage",
+    "url": "https://www.rummydex.com/faq",
+    "name": pageTitle,
+    "headline": pageTitle,
+    "description": pageDesc,
+    "inLanguage": "en"
+  }), [pageTitle, pageDesc]);
 
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 md:px-8 py-12 animate-fade-in pb-20 min-h-[70vh]">
       <Meta 
-        title={settings?.faq_meta_title || "Frequently Asked Questions"}
-        description={settings?.faq_meta_description || `Everything you need to know about ${siteTitle}, app verification, and downloads.`}
+        title={pageTitle}
+        description={pageDesc}
         canonical="https://www.rummydex.com/faq"
-        faqSchema={faqSchema}
+        schema={webPageSchema}
       />
       
       <div className="mb-10">

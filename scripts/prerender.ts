@@ -189,18 +189,41 @@ async function prerender() {
     let homeTemplate = typeof homeRes === 'string' ? homeRes : homeRes.html;
     fs.writeFileSync(indexHtmlPath, homeTemplate, 'utf-8');
 
-    // 2. Generate Application Routes & Gateway Shell Routes (Only for public synced apps)
+    // 2. Generate Application Routes & Per-App Review Slices (Only for public synced apps; /moreinfo gateway routes are excluded from static pre-rendering)
     const appsToPrerender = (data.apps || []).filter((a: any) => a && a.slug && a.sync_to_public !== false);
+    
+    // Generate per-app static review JSON slices
+    let staticReviewsMap: Record<string, any> = {};
+    const staticRevsPath = path.join(process.cwd(), 'src/lib/communityStaticReviews.json');
+    if (fs.existsSync(staticRevsPath)) {
+      try {
+        staticReviewsMap = JSON.parse(fs.readFileSync(staticRevsPath, 'utf8'));
+      } catch (_) {}
+    }
+
+    const publicDataReviewsDir = path.join(process.cwd(), 'public/data/reviews');
+    const distDataReviewsDir = path.join(distPath, 'data/reviews');
+    if (!fs.existsSync(publicDataReviewsDir)) fs.mkdirSync(publicDataReviewsDir, { recursive: true });
+    if (!fs.existsSync(distDataReviewsDir)) fs.mkdirSync(distDataReviewsDir, { recursive: true });
+
+    appsToPrerender.forEach((app: any) => {
+      const cleanSlug = String(app.slug).trim().toLowerCase();
+      const cleanId = String(app.id || '').trim().toLowerCase();
+      const appRevs = staticReviewsMap[cleanSlug] || staticReviewsMap[cleanId] || [];
+      const jsonContent = JSON.stringify(appRevs);
+      try {
+        fs.writeFileSync(path.join(publicDataReviewsDir, `${cleanSlug}.json`), jsonContent, 'utf8');
+        fs.writeFileSync(path.join(distDataReviewsDir, `${cleanSlug}.json`), jsonContent, 'utf8');
+      } catch (_) {}
+    });
+
     const BATCH_SIZE = 25;
     for (let i = 0; i < appsToPrerender.length; i += BATCH_SIZE) {
       const batch = appsToPrerender.slice(i, i + BATCH_SIZE);
       await Promise.all(
-        batch.flatMap((app: any) => {
+        batch.map((app: any) => {
           const cleanSlug = String(app.slug).trim();
-          return [
-            generateRoute(`/app/${cleanSlug}`),
-            generateRoute(`/moreinfo/${cleanSlug}`),
-          ];
+          return generateRoute(`/app/${cleanSlug}`);
         })
       );
     }

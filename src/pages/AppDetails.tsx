@@ -26,7 +26,7 @@ import UserReviews from '../components/UserReviews';
 import { AppDetailsNavigation } from '../components/public/appDetails/AppDetailsNavigation';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import AppNotFound from '../components/public/appDetails/AppNotFound';
-import { buildFaqSchema, buildSoftwareSchema, buildBreadcrumbSchema, buildProductSchema } from '../components/public/appDetails/appDetailsSchemas';
+import { buildSoftwareSchema, buildWebPageSchema, buildBreadcrumbSchema } from '../components/public/appDetails/appDetailsSchemas';
 
 export { AppDetailsSkeleton };
 
@@ -201,23 +201,30 @@ export default function AppDetails() {
     regularApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
 
     const maxCount = 16;
-    const pinnedNew = newApps.slice(0, Math.min(newApps.length, maxCount));
+    const strSeed = String(app.slug || app.id || '');
+    let seedHash = 0;
+    for (let i = 0; i < strSeed.length; i++) seedHash = ((seedHash << 5) - seedHash) + strSeed.charCodeAt(i);
+    const absSeed = Math.abs(seedHash);
+
+    const maxNewSlots = Math.min(newApps.length, 6);
+    const pinnedNew: any[] = [];
+    if (maxNewSlots > 0 && newApps.length > 0) {
+      const newStart = absSeed % newApps.length;
+      for (let s = 0; s < maxNewSlots; s++) {
+        pinnedNew.push(newApps[(newStart + s) % newApps.length]);
+      }
+    }
     const remainingSlots = maxCount - pinnedNew.length;
 
     // Balanced Circular Internal Linking:
     // Stagger regular apps circularly starting right after current app's position
     const pickedRegular: any[] = [];
     if (remainingSlots > 0 && regularApps.length > 0) {
-      let startIndex = 0;
+      let startIndex = absSeed % regularApps.length;
       const currSerial = Number(app.serial_number);
       if (!isNaN(currSerial) && currSerial > 0) {
         const nextIdx = regularApps.findIndex(a => (Number(a.serial_number) || 0) > currSerial);
-        startIndex = nextIdx !== -1 ? nextIdx : 0;
-      } else {
-        const str = String(app.slug || app.id || '');
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        startIndex = Math.abs(hash) % regularApps.length;
+        if (nextIdx !== -1) startIndex = nextIdx;
       }
 
       const countToPick = Math.min(remainingSlots, regularApps.length);
@@ -409,8 +416,6 @@ export default function AppDetails() {
   const desc = cleanSeoDescription(app.seo_description || app.meta_description) || (app.description_html ? stripHtml(app.description_html).substring(0, 160) : `${app.name} application specifications`);
   const ogImage = app.og_image_url || app.icon_url;
 
-  const faqSchema = buildFaqSchema(app);
-  
   const staticStats = getCachedLiveAppStats(app?.id, app?.slug) || getCachedLiveAppStats(slug, slug);
   const activeStats = (liveStats && Number(liveStats.totalReviews) > 0) ? liveStats : staticStats;
   const hasLiveReviews = Boolean(activeStats && Number(activeStats.totalReviews) > 0);
@@ -423,7 +428,7 @@ export default function AppDetails() {
     : configuredCount;
 
   const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
-  const productSchema = buildProductSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
+  const webPageSchema = buildWebPageSchema(app, title, desc);
   const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
 
   const copyToClipboard = () => {
@@ -450,21 +455,24 @@ export default function AppDetails() {
     }
   };
 
-  const relatedNewsCount = useMemo(() => {
-    if (!mockNews || !Array.isArray(mockNews)) return 0;
+  const relatedNewsArticles = useMemo(() => {
+    if (!mockNews || !Array.isArray(mockNews)) return [];
     const nameLower = (app?.name || '').toLowerCase().trim();
     const appId = app?.id;
+    const appSlugLower = (app?.slug || '').toLowerCase().trim();
     return mockNews.filter(n => {
       if (!n || n.sync_to_public === false) return false;
-      if (appId && n.related_app_id === appId) return true;
+      if (appId && (n.related_app_id === appId || String(n.related_app_id).toLowerCase() === appSlugLower)) return true;
       if (!nameLower) return false;
       return (
         n.title?.toLowerCase().includes(nameLower) ||
         n.description?.toLowerCase().includes(nameLower) ||
         (Array.isArray(n.tags) && n.tags.some((t: string) => t.toLowerCase() === nameLower))
       );
-    }).length;
-  }, [mockNews, app?.name, app?.id]);
+    });
+  }, [mockNews, app?.name, app?.id, app?.slug]);
+
+  const relatedNewsCount = relatedNewsArticles.length;
 
   return (
     <div className="w-full">
@@ -487,9 +495,7 @@ export default function AppDetails() {
         keywords={app.seo_keywords}
         image={ogImage}
         canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
-        schema={softwareSchema}
-        productSchema={productSchema}
-        faqSchema={faqSchema}
+        schema={[softwareSchema, webPageSchema]}
         breadcrumbSchema={breadcrumbSchema}
       />
       <div className="w-full">
@@ -528,6 +534,36 @@ export default function AppDetails() {
           <AppSafetyBoxes app={app} />
         </div>
       </div>
+
+      {relatedNewsArticles.length > 0 && (
+        <aside data-nosnippet aria-labelledby="app-related-news-heading" className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8 text-left">
+          <div className="py-5 border-t border-black/5 dark:border-white/5">
+            <h2 id="app-related-news-heading" className="text-base xs:text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+              Related News &amp; Updates
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {relatedNewsArticles.slice(0, 6).map((rn: any) => {
+                const rnSlug = String(rn.slug || rn.id || '').trim();
+                const rnTitle = rn.title || 'News Article';
+                return (
+                  <a
+                    key={rn.id || rnSlug}
+                    href={`/news/${encodeURIComponent(rnSlug)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/news/${encodeURIComponent(rnSlug)}`);
+                    }}
+                    className="p-3 rounded-xl border border-zinc-200/70 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition-colors flex items-center justify-between gap-2 no-underline"
+                  >
+                    <span className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2">{rnTitle}</span>
+                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400 shrink-0">Read →</span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
+      )}
 
       <div className="px-1 xs:px-2 sm:px-4 md:px-6 mb-6 xs:mb-8">
         <UserReviews 

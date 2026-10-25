@@ -33,7 +33,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
 
   if ((!relatedApps || relatedApps.length === 0) && isLoading) {
     return (
-      <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0 min-h-[228px] xs:min-h-[248px] sm:min-h-[268px]">
+      <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0 min-h-[228px] xs:min-h-[248px] sm:min-h-[268px]">
         <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
           <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100">
             Similar Applications
@@ -48,7 +48,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
             </div>
           ))}
         </div>
-      </section>
+      </aside>
     );
   }
 
@@ -57,7 +57,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
     : relatedApps.length;
 
   return (
-    <section aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
+    <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
       <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
         <div className="flex items-center gap-2 min-w-0">
           <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold flex items-center gap-1.5 xs:gap-2 text-zinc-900 dark:text-zinc-100 truncate">
@@ -84,7 +84,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
         style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y pan-x', overscrollBehaviorX: 'contain' }}
       >
         {relatedApps.map((relatedApp, index) => {
-          const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 160) || 'https://via.placeholder.com/160';
+          const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 96) || 'https://via.placeholder.com/96';
 
           return (
             <Link
@@ -102,6 +102,7 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
                   width={86}
                   height={86}
                   decoding="async"
+                  fetchPriority="low"
                   className="w-[58px] h-[58px] xxs:w-[66px] xxs:h-[66px] xs:w-[76px] xs:h-[76px] sm:w-[86px] sm:h-[86px] rounded-[24%] shadow-[0_2px_8px_rgba(0,0,0,0.08)] object-cover group-hover:scale-105 transition-transform duration-200 block pointer-events-none select-none"
                   loading="lazy"
                 />
@@ -127,6 +128,6 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
           );
         })}
       </div>
-    </section>
+    </aside>
   );
 };

@@ -248,23 +248,30 @@ export default function NewsDetailPage() {
     regularApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
 
     const maxCount = 16;
-    const pinnedNew = newApps.slice(0, Math.min(newApps.length, maxCount));
+    const strSeed = String(cleanSlug || newsItem?.slug || newsItem?.id || '');
+    let seedHash = 0;
+    for (let i = 0; i < strSeed.length; i++) seedHash = ((seedHash << 5) - seedHash) + strSeed.charCodeAt(i);
+    const absSeed = Math.abs(seedHash);
+
+    const maxNewSlots = Math.min(newApps.length, 6);
+    const pinnedNew: any[] = [];
+    if (maxNewSlots > 0 && newApps.length > 0) {
+      const newStart = absSeed % newApps.length;
+      for (let s = 0; s < maxNewSlots; s++) {
+        pinnedNew.push(newApps[(newStart + s) % newApps.length]);
+      }
+    }
     const remainingSlots = maxCount - pinnedNew.length;
 
     // Balanced Circular Internal Linking:
-    // Stagger regular apps circularly starting right after the base app's serial number
+    // Stagger regular apps circularly starting right after the base app's serial number or hash seed
     const pickedRegular: any[] = [];
     if (remainingSlots > 0 && regularApps.length > 0) {
-      let startIndex = 0;
+      let startIndex = absSeed % regularApps.length;
       const baseSerial = Number(relatedApp?.serial_number);
       if (!isNaN(baseSerial) && baseSerial > 0) {
         const nextIdx = regularApps.findIndex(a => (Number(a.serial_number) || 0) > baseSerial);
-        startIndex = nextIdx !== -1 ? nextIdx : 0;
-      } else {
-        const str = String(cleanSlug || newsItem?.slug || newsItem?.id || '');
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        startIndex = Math.abs(hash) % regularApps.length;
+        if (nextIdx !== -1) startIndex = nextIdx;
       }
 
       const countToPick = Math.min(remainingSlots, regularApps.length);
@@ -386,6 +393,17 @@ export default function NewsDetailPage() {
     }
   };
 
+  const newsWebPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${canonicalUrl}#webpage`,
+    "url": canonicalUrl,
+    "name": articleTitle,
+    "headline": articleTitle,
+    "description": articleDesc,
+    "inLanguage": "en"
+  };
+
   const newsBreadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -425,7 +443,7 @@ export default function NewsDetailPage() {
         section={articleCategory}
         tags={Array.isArray(newsItem.tags) ? newsItem.tags : undefined}
         canonical={canonicalUrl}
-        schema={newsArticleSchema}
+        schema={[newsArticleSchema, newsWebPageSchema]}
         breadcrumbSchema={newsBreadcrumbSchema}
       />
 
@@ -448,15 +466,6 @@ export default function NewsDetailPage() {
         className="my-5 sm:my-6"
       />
 
-      {/* Similar Applications in the same category (16 apps, 2 rows, smooth touch carousel) */}
-      {similarCategoryApps.list.length > 0 && (
-        <AppSimilarCarousel 
-          relatedApps={similarCategoryApps.list}
-          specificCategory={similarCategoryApps.category}
-          totalCategoryCount={similarCategoryApps.totalCount}
-        />
-      )}
-
       <div 
         onClick={handleHtmlClick}
         className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
@@ -470,6 +479,15 @@ export default function NewsDetailPage() {
         newsItem={newsItem}
         className="my-8"
       />
+
+      {/* Similar Applications in the same category (Placed below primary article body) */}
+      {similarCategoryApps.list.length > 0 && (
+        <AppSimilarCarousel 
+          relatedApps={similarCategoryApps.list}
+          specificCategory={similarCategoryApps.category}
+          totalCategoryCount={similarCategoryApps.totalCount}
+        />
+      )}
 
       {/* 3. Latest News & Updates Internal Linking */}
       {(() => {

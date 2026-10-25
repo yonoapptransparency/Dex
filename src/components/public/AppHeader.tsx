@@ -12,7 +12,7 @@ export default function AppHeader({ app }: AppHeaderProps) {
 
   const initialLetter = (app.name || 'A').trim().substring(0, 1).toUpperCase();
   const rawUrl = app.icon_url || '';
-  const optimizedUrl = rawUrl ? (getOptimizedImageUrl(rawUrl, 160) || rawUrl) : '';
+  const optimizedUrl = rawUrl ? (getOptimizedImageUrl(rawUrl, 512) || rawUrl) : '';
   const currentSrc = failedUrl === optimizedUrl ? rawUrl : optimizedUrl;
   const isFailed = Boolean(rawUrl && failedUrl === rawUrl);
 
@@ -33,6 +33,7 @@ export default function AppHeader({ app }: AppHeaderProps) {
             <img 
               src={currentSrc} 
               alt={`${app.name} app icon`} 
+              itemProp="image"
               loading="eager" 
               fetchPriority="high" 
               decoding="async"
