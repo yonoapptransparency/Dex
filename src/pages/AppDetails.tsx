@@ -3,7 +3,7 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState, useRef } from 'react';
@@ -33,6 +33,7 @@ export { AppDetailsSkeleton };
 export default function AppDetails() {
   const { apps: mockApps, news: mockNews, settings: mockSettings, loading, refreshAll, updateAppDetail, mergeCatalogApps } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
+  const navigate = useNavigate();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
@@ -44,17 +45,36 @@ export default function AppDetails() {
   // Instant multi-tier app resolution: Prioritizes full specifications, descriptions, and metadata
   const app = useMemo(() => {
     if (!slug) return null;
-    
+    const cleanKey = slug.toLowerCase().trim();
+
+    // Only use fetchedApp if it explicitly matches the current slug
+    const validFetchedApp =
+      fetchedApp &&
+      (String(fetchedApp.slug || '').toLowerCase().trim() === cleanKey ||
+        String(fetchedApp.id || '').toLowerCase().trim() === cleanKey ||
+        Boolean(resolveAppSlug(cleanKey, [fetchedApp])))
+        ? fetchedApp
+        : null;
+
     // 1. Resolve app from available sources (fetched, prefetched, client state, SSR initial data, and static catalogue)
-    let resolvedApp = fetchedApp || getPrefetchedApp(slug);
+    const prefetched = getPrefetchedApp(cleanKey);
+    const validPrefetched =
+      prefetched &&
+      (String(prefetched.slug || '').toLowerCase().trim() === cleanKey ||
+        String(prefetched.id || '').toLowerCase().trim() === cleanKey ||
+        Boolean(resolveAppSlug(cleanKey, [prefetched])))
+        ? prefetched
+        : null;
+
+    let resolvedApp = validFetchedApp || validPrefetched;
     if (!resolvedApp && Array.isArray(mockApps)) {
-      resolvedApp = resolveAppSlug(slug, mockApps);
+      resolvedApp = resolveAppSlug(cleanKey, mockApps);
     }
     if (!resolvedApp && typeof window !== 'undefined' && (window as any).__INITIAL_DATA__?.apps) {
-      resolvedApp = resolveAppSlug(slug, (window as any).__INITIAL_DATA__.apps);
+      resolvedApp = resolveAppSlug(cleanKey, (window as any).__INITIAL_DATA__.apps);
     }
     if (!resolvedApp && Array.isArray(staticMockApps)) {
-      resolvedApp = resolveAppSlug(slug, staticMockApps);
+      resolvedApp = resolveAppSlug(cleanKey, staticMockApps);
     }
 
     if (!resolvedApp) return null;
@@ -146,8 +166,8 @@ export default function AppDetails() {
     let totalCatCount = 0;
 
     for (let i = 0; i < mockApps.length; i++) {
-      const a = mockApps[i];
-      if (!a) continue;
+      const a = mockApps[i] as any;
+      if (!a || a.sync_to_public === false || a.is_Safety_alert === true || a.status === 'flagged') continue;
 
       const isCurrent = String(a.id) === appId || (a.slug && a.slug.toLowerCase() === appSlug);
       const aCat = (a.category || '').toLowerCase();
@@ -237,25 +257,28 @@ export default function AppDetails() {
 
   const isActuallyComingSoon = app?.is_coming_soon && (timeRemaining === null || timeRemaining > 0);
 
+  const activeSlugRef = useRef<string>(slug?.toLowerCase().trim() || '');
+  activeSlugRef.current = slug?.toLowerCase().trim() || '';
+
   useEffect(() => {
     window.scrollTo(0, 0);
     setTriedRefresh(false);
-    if (fetchedApp && slug) {
-      const curKey = slug.toLowerCase().trim();
-      const fSlug = String(fetchedApp.slug || fetchedApp.id || '').toLowerCase().trim();
-      if (fSlug !== curKey && !resolveAppSlug(curKey, [fetchedApp])) {
-        setFetchedApp(null);
-      }
-    }
+    const curKey = slug?.toLowerCase().trim() || '';
+    setFetchedApp((prev: any) => {
+      if (!prev || !curKey) return null;
+      const fSlug = String(prev.slug || prev.id || '').toLowerCase().trim();
+      if (fSlug === curKey || resolveAppSlug(curKey, [prev])) return prev;
+      return null;
+    });
     setIsFetchingDetails(false);
   }, [slug]);
 
   useEffect(() => {
     const handlePrefetched = (evt: any) => {
       const prefetched = evt?.detail?.app;
-      if (prefetched && slug) {
-        const curKey = slug.toLowerCase();
-        const pSlug = String(prefetched.slug || prefetched.id || '').toLowerCase();
+      const curKey = activeSlugRef.current;
+      if (prefetched && curKey) {
+        const pSlug = String(prefetched.slug || prefetched.id || '').toLowerCase().trim();
         if (pSlug === curKey || resolveAppSlug(curKey, [prefetched])) {
           setFetchedApp(prefetched);
         }
@@ -268,24 +291,52 @@ export default function AppDetails() {
   }, [slug]);
 
   useEffect(() => {
+    if (app?.slug && slug) {
+      const canonicalSlug = String(app.slug).trim().replace(/^\/+|\/+$/g, '');
+      const requestedSlug = String(slug).trim().replace(/^\/+|\/+$/g, '');
+      if (
+        canonicalSlug &&
+        requestedSlug &&
+        canonicalSlug.toLowerCase() !== requestedSlug.toLowerCase() &&
+        Boolean(resolveAppSlug(requestedSlug, [app]))
+      ) {
+        navigate(`/app/${canonicalSlug}`, { replace: true });
+      }
+    }
+  }, [app, slug, navigate]);
+
+  useEffect(() => {
     const slugKey = slug?.toLowerCase().trim() || '';
     if (!slugKey) return;
 
     // 1. Check if app already has complete rich content (description & features) from pre-render or memory
-    if (app && app.description_html && app.description_html.trim().length > 15 && Array.isArray(mockApps) && mockApps.length > 5) {
+    const isFullPreRenderedApp = Boolean(
+      app &&
+      !(app as any)._isTrimmed &&
+      ((app as any)._isFullApp ||
+        (app.description_html && app.description_html.trim().length > 15 && Array.isArray(app.screenshots) && app.screenshots.length > 0))
+    );
+    if (isFullPreRenderedApp && Array.isArray(mockApps) && mockApps.length > 5) {
       setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
     // 2. Check if fetchedApp is already loaded for this slug
-    const fetchedSlug = fetchedApp ? String(fetchedApp.slug || fetchedApp.id || '').toLowerCase() : '';
+    const fetchedSlug = fetchedApp ? String(fetchedApp.slug || fetchedApp.id || '').toLowerCase().trim() : '';
     if (fetchedApp && (fetchedSlug === slugKey || resolveAppSlug(slugKey, [fetchedApp]))) {
       setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
     const prefetched = getPrefetchedApp(slugKey);
-    if (prefetched && prefetched.description_html && prefetched.description_html.trim().length > 10 && Array.isArray(mockApps) && mockApps.length > 5) {
+    if (
+      prefetched &&
+      (String(prefetched.slug || prefetched.id || '').toLowerCase().trim() === slugKey || resolveAppSlug(slugKey, [prefetched])) &&
+      prefetched.description_html &&
+      prefetched.description_html.trim().length > 10 &&
+      Array.isArray(mockApps) &&
+      mockApps.length > 5
+    ) {
       setFetchedApp(prefetched);
       if (updateAppDetail) updateAppDetail(prefetched);
       setRemoteCheckDoneSlug(slugKey);
@@ -303,19 +354,28 @@ export default function AppDetails() {
         })
         .then(data => {
           if (data?.status === 'OK' && data?.app) {
-            if (Array.isArray(data.catalogApps) && data.catalogApps.length > 0 && mergeCatalogApps) {
+            if (
+              Array.isArray(data.catalogApps) &&
+              data.catalogApps.length > 0 &&
+              mergeCatalogApps &&
+              (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
+            ) {
               mergeCatalogApps(data.catalogApps);
             }
-            setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
+            if (activeSlugRef.current === slugKey) {
+              setFetchedApp(data.app);
+            }
           }
         })
         .catch(() => {
           // Graceful fallback to static local cache
         })
         .finally(() => {
-          setIsFetchingDetails(false);
-          setRemoteCheckDoneSlug(slugKey);
+          if (activeSlugRef.current === slugKey) {
+            setIsFetchingDetails(false);
+            setRemoteCheckDoneSlug(slugKey);
+          }
         });
     }
   }, [slug, fetchedApp, app, mockApps, updateAppDetail, mergeCatalogApps]);
@@ -357,9 +417,10 @@ export default function AppDetails() {
   const realRatingVal = hasLiveReviews
     ? Math.max(1.0, Math.min(5.0, parseFloat(String(activeStats.averageRating))))
     : (app.rating ? Math.max(1.0, Math.min(5.0, parseFloat(String(app.rating)))) : 4.5);
+  const configuredCount = parseInt(String(app.review_count || (app as any).reviews || '').replace(/[^0-9]/g, ''), 10) || 0;
   const realReviewCount = hasLiveReviews 
     ? Number(activeStats.totalReviews) 
-    : 0;
+    : configuredCount;
 
   const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
   const productSchema = buildProductSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);

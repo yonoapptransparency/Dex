@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { getOptimizedImageUrl } from '../../../seo/utils';
+import { preloadAppDetails } from '../../../lib/preloadHelper';
 
 export interface RelatedAppItem {
   id: string | number;
@@ -89,6 +90,9 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
             <Link
               key={`${relatedApp.id}-${index}`}
               to={`/app/${relatedApp.slug}`}
+              onMouseEnter={() => preloadAppDetails(relatedApp.slug)}
+              onFocus={() => preloadAppDetails(relatedApp.slug)}
+              onTouchStart={() => preloadAppDetails(relatedApp.slug)}
               className="flex flex-col items-center justify-start gap-1 xxs:gap-1.5 xs:gap-2 w-[68px] xxs:w-[76px] xs:w-[86px] sm:w-[98px] snap-start group shrink-0 active:scale-95 transition-transform duration-150 ease-out"
             >
               <div className="relative inline-block shrink-0">

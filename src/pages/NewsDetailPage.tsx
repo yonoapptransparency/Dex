@@ -9,6 +9,7 @@ import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleH
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import { formatNewsDate, calculateReadingTime } from '../lib/newsUtils';
+import { getOptimizedImageUrl, normalizeIsoDate } from '../seo/utils';
 
 export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();
@@ -73,7 +74,14 @@ export default function NewsDetailPage() {
     };
   }, [cleanSlug, mockNews]);
 
-  const newsItem = fetchedNewsItem || contextNewsItem;
+  const validFetchedNews = useMemo(() => {
+    if (!fetchedNewsItem || !cleanSlug) return null;
+    const fSlug = String(fetchedNewsItem.slug || '').toLowerCase().trim();
+    const fId = String(fetchedNewsItem.id || '').toLowerCase().trim();
+    return fSlug === cleanSlug || fId === cleanSlug ? fetchedNewsItem : null;
+  }, [fetchedNewsItem, cleanSlug]);
+
+  const newsItem = validFetchedNews || contextNewsItem;
 
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -338,15 +346,17 @@ export default function NewsDetailPage() {
   const plainBody = bodyContent.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
   const articleDesc = newsItem.seo_description || newsItem.meta_description || newsItem.description || plainBody.substring(0, 160);
   const rawArticleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
+  const optimizedArticleImage = rawArticleImage ? (getOptimizedImageUrl(rawArticleImage, 1200) || rawArticleImage) : '';
   const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
-  const datePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
-  const dateModified = newsItem.updated_at || datePublished;
+  const rawDatePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
+  const datePublished = normalizeIsoDate(rawDatePublished);
+  const dateModified = normalizeIsoDate(newsItem.updated_at || rawDatePublished, datePublished);
   const authorName = newsItem.ceo_name || newsItem.author || 'Editorial Team';
   const articleCategory = newsItem.category || 'General';
 
   const newsArticleSchema = {
     "@context": "https://schema.org",
-    "@type": "NewsArticle",
+    "@type": ["NewsArticle", "Article"],
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": canonicalUrl
@@ -355,7 +365,7 @@ export default function NewsDetailPage() {
     "headline": articleTitle,
     "description": articleDesc,
     "articleBody": plainBody || articleDesc,
-    "image": rawArticleImage ? [rawArticleImage] : [],
+    "image": optimizedArticleImage ? [optimizedArticleImage] : [],
     "datePublished": datePublished,
     "dateModified": dateModified,
     "articleSection": articleCategory,

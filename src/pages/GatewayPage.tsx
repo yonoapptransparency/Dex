@@ -42,10 +42,18 @@ export default function GatewayPage() {
   });
 
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
+  const activeSlugRef = useRef<string>(cleanSlugKey);
+  activeSlugRef.current = cleanSlugKey;
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+    setFetchedApp((prev: any) => {
+      if (!prev || !cleanSlugKey) return null;
+      const fSlug = String(prev.slug || prev.id || '').toLowerCase().trim();
+      if (fSlug === cleanSlugKey || resolveAppSlug(cleanSlugKey, [prev])) return prev;
+      return null;
+    });
+  }, [slug, cleanSlugKey]);
 
   // Step 5.2: Check 3-source navProof (router location.state.nav, window.__rdNav, sessionStorage)
   // with one-time redirect and loop guard
@@ -216,21 +224,26 @@ export default function GatewayPage() {
             if (
               Array.isArray(data.catalogApps) &&
               data.catalogApps.length > 0 &&
-              mergeCatalogApps
+              mergeCatalogApps &&
+              (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
             ) {
               mergeCatalogApps(data.catalogApps);
             }
-            setFetchedApp(data.app);
             if (updateAppDetail) updateAppDetail(data.app);
+            if (activeSlugRef.current === cleanSlugKey) {
+              setFetchedApp(data.app);
+            }
           }
         })
         .catch(() => {})
         .finally(() => {
-          setIsFetchingDetails(false);
-          setRemoteCheckDoneSlug(cleanSlugKey);
+          if (activeSlugRef.current === cleanSlugKey) {
+            setIsFetchingDetails(false);
+            setRemoteCheckDoneSlug(cleanSlugKey);
+          }
         });
     }
-  }, [cleanSlugKey, navState.checked, app, updateAppDetail, mergeCatalogApps]);
+  }, [cleanSlugKey, navState.checked, app, mockApps, updateAppDetail, mergeCatalogApps]);
 
   // Disguised 404 UI (§5.3 & §5.9): styled "404 — Page Not Found" screen with neutral "Home" link to "/"
   if (isBotBlocked) {

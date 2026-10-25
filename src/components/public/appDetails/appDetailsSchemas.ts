@@ -1,5 +1,5 @@
 import { cleanFaqQuestion } from '../../../lib/seoUtils';
-import { normalizeSchemaCategory } from '../../../seo/utils';
+import { normalizeSchemaCategory, getOptimizedImageUrl } from '../../../seo/utils';
 
 export function buildFaqSchema(app: any) {
   if (!app.faqs || !Array.isArray(app.faqs) || app.faqs.length === 0) return null;
@@ -34,16 +34,19 @@ export function buildFaqSchema(app: any) {
 export function buildProductSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
   const devName = app.developer || app.name || 'Verified Developer';
-  const validCount = Math.max(1, Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (app.rating && Number(app.review_count || app.reviews) > 0 ? Number(app.review_count || app.reviews) : 25)));
+  const configuredCount = parseInt(String(app.review_count || app.reviews || '').replace(/[^0-9]/g, ''), 10) || 0;
+  const validCount = Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (realReviewCount > 0 ? realReviewCount : configuredCount));
   const ratingValue = parseFloat(realRatingVal.toFixed(1));
+  const rawImg = app.icon_url || app.og_image_url || '';
+  const optimizedImg = getOptimizedImageUrl(rawImg, 512) || rawImg;
 
-  return {
+  const schema: any = {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": `${appUrl}#product`,
     "name": app.name,
     "url": appUrl,
-    "image": [app.icon_url || app.og_image_url],
+    "image": [optimizedImg],
     "description": desc,
     "category": normalizeSchemaCategory(app.category),
     "sku": String(app.slug || app.id),
@@ -58,24 +61,32 @@ export function buildProductSchema(app: any, desc: string, hasLiveReviews: boole
       "priceValidUntil": "2030-12-31",
       "availability": "https://schema.org/InStock",
       "url": appUrl
-    },
-    "aggregateRating": {
+    }
+  };
+
+  if (validCount > 0) {
+    schema["aggregateRating"] = {
       "@type": "AggregateRating",
       "ratingValue": ratingValue,
       "ratingCount": validCount,
       "reviewCount": validCount,
       "bestRating": 5,
       "worstRating": 1
-    }
-  };
+    };
+  }
+
+  return schema;
 }
 
 export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
-  const validCount = Math.max(1, Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (app.rating && Number(app.review_count || app.reviews) > 0 ? Number(app.review_count || app.reviews) : 25)));
+  const configuredCount = parseInt(String(app.review_count || app.reviews || '').replace(/[^0-9]/g, ''), 10) || 0;
+  const validCount = Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (realReviewCount > 0 ? realReviewCount : configuredCount));
   const ratingValue = parseFloat(realRatingVal.toFixed(1));
+  const rawImg = app.icon_url || app.og_image_url || '';
+  const optimizedImg = getOptimizedImageUrl(rawImg, 512) || rawImg;
 
-  return {
+  const schema: any = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "@id": `${appUrl}#software`,
@@ -86,7 +97,7 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
     "operatingSystem": "Android",
     "softwareVersion": app.version || '1.0.0',
     "fileSize": app.file_size || '45 MB',
-    "image": app.icon_url || app.og_image_url,
+    "image": optimizedImg,
     "author": {
       "@type": "Organization",
       "name": app.developer || app.name || 'Verified Developer'
@@ -99,18 +110,23 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
       "availability": "https://schema.org/InStock",
       "url": appUrl
     },
-    "aggregateRating": {
+    "isVariantOf": {
+      "@id": `${appUrl}#product`
+    }
+  };
+
+  if (validCount > 0) {
+    schema["aggregateRating"] = {
       "@type": "AggregateRating",
       "ratingValue": ratingValue,
       "ratingCount": validCount,
       "reviewCount": validCount,
       "bestRating": 5,
       "worstRating": 1
-    },
-    "isVariantOf": {
-      "@id": `${appUrl}#product`
-    }
-  };
+    };
+  }
+
+  return schema;
 }
 
 export function buildBreadcrumbSchema(app: any, specificCategory: string) {

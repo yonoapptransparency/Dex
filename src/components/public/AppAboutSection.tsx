@@ -113,7 +113,9 @@ export default function AppAboutSection({ app, isFetching }: AppAboutSectionProp
             )}
 
             {/* Key Features */}
-            {app.features_html && (
+            {app.features_html &&
+              app.features_html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().toLowerCase() !==
+              (app.description_html || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().toLowerCase() && (
               <div className="pt-5 sm:pt-6 border-t border-black/5 dark:border-white/5">
                 <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2 sm:mb-3">
                   Key App Features

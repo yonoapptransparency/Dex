@@ -150,6 +150,45 @@ export default function VideoDetailPage() {
     return urlStr.split('/').pop()?.split('?')[0] || '';
   }
   const videoId = extractYoutubeId(videoItem.youtube_url);
+  const canonicalVideoUrl = videoItem.canonical_url || `https://www.rummydex.com/videos/${encodeURIComponent(videoItem.slug || videoItem.id)}`;
+  const rawUploadDate = (videoItem as any).updated_at || videoItem.created_at || (videoItem as any).published_at || (videoItem as any).date || '2026-09-01T00:00:00.000Z';
+  const parsedUploadDate = Date.parse(String(rawUploadDate));
+  const uploadDateIso = !isNaN(parsedUploadDate) && parsedUploadDate > 0 ? new Date(parsedUploadDate).toISOString() : '2026-09-01T00:00:00.000Z';
+
+  const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": videoItem.title,
+    "description": videoItem.seo_description || videoItem.description || videoItem.title,
+    "thumbnailUrl": videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : 'https://www.rummydex.com/logo.png',
+    "uploadDate": uploadDateIso,
+    "contentUrl": videoItem.youtube_url
+  };
+
+  const videoBreadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.rummydex.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Videos",
+        "item": "https://www.rummydex.com/videos"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": videoItem.title,
+        "item": canonicalVideoUrl
+      }
+    ]
+  };
 
   return (
     <div className="animate-fade-in max-w-[1550px] mx-auto px-3 sm:px-6 md:px-10 pb-12">
@@ -158,9 +197,11 @@ export default function VideoDetailPage() {
         description={videoItem.seo_description || videoItem.description}
         keywords={videoItem.seo_keywords}
         image={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-        url={window.location.href}
+        url={canonicalVideoUrl}
         type="website"
-        canonical={videoItem.canonical_url || (window.location.origin + "/videos/" + encodeURIComponent(videoItem.slug || videoItem.id))}
+        canonical={canonicalVideoUrl}
+        schema={videoSchema}
+        breadcrumbSchema={videoBreadcrumbSchema}
       />
       
       <div className="mb-6 pt-4">

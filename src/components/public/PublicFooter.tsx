@@ -30,8 +30,8 @@ export function PublicFooter() {
 
   const directoryLinks = [
     { label: 'All Apps', to: '/', icon: LayoutGrid },
-    { label: 'New Apps', to: '/?tab=All+Apps', icon: PlusCircle },
-    { label: 'Categories', to: '/?tab=Categories', icon: Tag },
+    { label: 'New Apps', to: '/new-apps', icon: PlusCircle },
+    { label: 'Categories', to: '/categories', icon: Tag },
     { label: 'Industry News', to: '/news', icon: Newspaper },
     { label: 'Video Reviews', to: '/videos', icon: Video },
   ];

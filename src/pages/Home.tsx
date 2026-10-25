@@ -287,17 +287,17 @@ export default function Home() {
   const siteTitleLabel = mockSettings.site_title || 'RummyDex';
 
   const resolvedTitle = isNewAppsRoute
-    ? 'New Apps & Latest Releases'
+    ? ((mockSettings as any).new_apps_meta_title || 'New Apps & Latest Releases')
     : isCategoriesIndexRoute
-    ? 'App Categories & Genres'
+    ? ((mockSettings as any).categories_meta_title || 'App Categories & Genres')
     : categoryParam
     ? `${activeTab} - Download & Reviews`
     : (mockSettings.seo_title || mockSettings.site_title);
 
   const resolvedDescription = isNewAppsRoute
-    ? `Explore the newest released Rummy, Teen Patti, and card game apps with verified ratings on ${siteTitleLabel}.`
+    ? ((mockSettings as any).new_apps_meta_description || `Explore the newest released Rummy, Teen Patti, and card game apps with verified ratings on ${siteTitleLabel}.`)
     : isCategoriesIndexRoute
-    ? `Browse all gaming and entertainment application categories on ${siteTitleLabel}.`
+    ? ((mockSettings as any).categories_meta_description || `Browse all gaming and entertainment application categories on ${siteTitleLabel}.`)
     : categoryParam
     ? `Explore top ${activeTab}, verified reviews, download ratings, and bonus updates on ${siteTitleLabel}.`
     : (mockSettings.seo_description || mockSettings.meta_description);
