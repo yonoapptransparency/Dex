@@ -11,7 +11,7 @@ import LightSearch from '../LightSearch';
 import { MobileMenuModal } from './MobileMenuModal';
 
 export function PublicHeader() {
-  const { settings } = useData();
+  const { settings, apps = [], fetchApps } = useData();
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -136,7 +136,7 @@ export function PublicHeader() {
             <div className="flex items-center gap-3 ml-4 border-l border-zinc-200 dark:border-zinc-800 pl-4 h-6">
               <button 
                 type="button"
-                onClick={() => { triggerHaptic(); setSearchOpen(true); }}
+                onClick={() => { triggerHaptic(); if (apps.length < 25 && fetchApps) fetchApps(); setSearchOpen(true); }}
                 className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-800/50 hover:bg-zinc-200/50 transition-all text-left px-4 py-1.5 w-44 lg:w-52 rounded-full group outline-none focus:ring-2 focus:ring-blue-500/20"
                 aria-label="Search Store"
               >
@@ -166,7 +166,7 @@ export function PublicHeader() {
           <div className="md:hidden flex items-center gap-1 xxs:gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             <button 
               type="button"
-              onClick={() => { triggerHaptic(); setSearchOpen(true); }}
+              onClick={() => { triggerHaptic(); if (apps.length < 25 && fetchApps) fetchApps(); setSearchOpen(true); }}
               className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-zinc-100 dark:bg-zinc-800 rounded-full active:scale-95 transition-all text-zinc-500"
               aria-label="Search"
             >

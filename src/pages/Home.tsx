@@ -250,7 +250,22 @@ export default function Home() {
     return resultingApps;
   }, [mockApps, deferredSearchTerm, deferredRatingFilter, deferredSortBy]);
 
-  const hasMore = visibleCount < filteredApps.length;
+  const activeTabLower = deferredActiveTab.toLowerCase().trim();
+  const isHomeTab = activeTabLower === 'all apps' || 
+                    activeTabLower === 'all' || 
+                    activeTabLower === 'home' || 
+                    activeTabLower === 'apps';
+
+  const tabFilteredApps = useMemo(() => {
+    if (deferredSearchTerm || isHomeTab) return filteredApps;
+    if (activeTabLower === 'top charts' || activeTabLower === 'categories') return filteredApps;
+    return filteredApps.filter(app => {
+      const appCategories = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
+      return appCategories.some(cat => cat === activeTabLower || cat.includes(activeTabLower) || activeTabLower.includes(cat));
+    });
+  }, [filteredApps, deferredSearchTerm, isHomeTab, activeTabLower]);
+
+  const hasMore = visibleCount < tabFilteredApps.length;
 
   useEffect(() => {
     if (!sentinelRef.current || !hasMore) return;
@@ -259,7 +274,7 @@ export default function Home() {
       (entries) => {
         if (entries[0].isIntersecting) {
           setVisibleCount((prev) => {
-            const nextCount = Math.min(prev + ITEMS_PER_PAGE, filteredApps.length);
+            const nextCount = Math.min(prev + ITEMS_PER_PAGE, tabFilteredApps.length);
             const nextPage = Math.ceil(nextCount / ITEMS_PER_PAGE);
             try {
               if (typeof window !== 'undefined' && window.scrollY > 50) {
@@ -277,7 +292,7 @@ export default function Home() {
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [hasMore, filteredApps.length]);
+  }, [hasMore, tabFilteredApps.length]);
 
   const bannerItems = mockSettings.banners || [];
   const cleanPathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
@@ -389,30 +404,17 @@ export default function Home() {
       )}
 
       {(() => {
-        const activeTabLower = deferredActiveTab.toLowerCase();
-        const isHomeTab = activeTabLower === 'all apps' || 
-                          activeTabLower === 'all' || 
-                          activeTabLower === 'home' || 
-                          activeTabLower === 'apps';
         const isExcluded = isHomeTab || activeTabLower === 'top charts' || activeTabLower === 'categories';
         
-        return !isExcluded && (
+        return !isExcluded && !deferredSearchTerm && (
           <div className="animate-fade-in space-y-2 px-0 sm:px-1">
-            {(() => {
-              const currentTabLower = deferredActiveTab.toLowerCase().trim();
-              const tabApps = filteredApps.filter(app => {
-                if (deferredSearchTerm) return true;
-                const appCategories = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
-                return appCategories.some(cat => cat === currentTabLower || cat.includes(currentTabLower) || currentTabLower.includes(cat));
-              });
-              return tabApps.length > 0 ? (
-                tabApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
-              ) : (
-                <div className="text-center py-20 text-slate-400">
-                  <p className="text-lg">No apps found in {deferredActiveTab}</p>
-                </div>
-              );
-            })()}
+            {tabFilteredApps.length > 0 ? (
+              tabFilteredApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
+            ) : (
+              <div className="text-center py-20 text-slate-400">
+                <p className="text-lg">No apps found in {deferredActiveTab}</p>
+              </div>
+            )}
           </div>
         );
       })()}
@@ -423,7 +425,7 @@ export default function Home() {
         </div>
       )}
 
-      {!hasMore && filteredApps.length > 0 && !deferredSearchTerm && (
+      {!hasMore && tabFilteredApps.length > 0 && !deferredSearchTerm && activeTabLower !== 'categories' && (
         <div className="pt-4 pb-2 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-3 w-full max-w-xs justify-center mb-1">
             <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
@@ -433,7 +435,7 @@ export default function Home() {
             <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
           </div>
           <p className="text-xs text-slate-400 dark:text-zinc-600">
-            Showing all {filteredApps.length} verified applications
+            Showing all {tabFilteredApps.length} verified applications
           </p>
         </div>
       )}

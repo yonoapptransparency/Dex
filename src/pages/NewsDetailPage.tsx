@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { mockNews as staticMockNews } from '../lib/lightFallback';
+import { mockNews as staticMockNews, loadFullStaticDataset } from '../lib/lightFallback';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
-import { formatNewsDate, calculateReadingTime } from '../lib/newsUtils';
+import { formatNewsDate, calculateReadingTime, getNextNewsChain } from '../lib/newsUtils';
 import { getOptimizedImageUrl, normalizeIsoDate } from '../seo/utils';
 
 export default function NewsDetailPage() {
@@ -44,6 +44,9 @@ export default function NewsDetailPage() {
 
   const [fetchedNewsItem, setFetchedNewsItem] = useState<any | null>(null);
 
+  const activeSlugRef = useRef<string>(cleanSlug);
+  activeSlugRef.current = cleanSlug;
+
   const contextNewsItem = useMemo(() => {
     if (!cleanSlug) return null;
     let fromInit = null;
@@ -67,10 +70,15 @@ export default function NewsDetailPage() {
     });
 
     const best = candidates[0];
+    const fullHtml = (best.content && best.content.trim().length > 10)
+      ? best.content
+      : ((best.description_html && best.description_html.trim().length > 10) ? best.description_html : '');
+
     return {
       ...best,
-      content: best.content || best.description_html || best.description || '',
-      description_html: best.description_html || best.content || best.description || ''
+      content: fullHtml,
+      description_html: fullHtml,
+      description: best.description || ''
     };
   }, [cleanSlug, mockNews]);
 
@@ -78,7 +86,7 @@ export default function NewsDetailPage() {
     if (!fetchedNewsItem || !cleanSlug) return null;
     const fSlug = String(fetchedNewsItem.slug || '').toLowerCase().trim();
     const fId = String(fetchedNewsItem.id || '').toLowerCase().trim();
-    return fSlug === cleanSlug || fId === cleanSlug ? fetchedNewsItem : null;
+    return (fSlug === cleanSlug || fId === cleanSlug) ? fetchedNewsItem : null;
   }, [fetchedNewsItem, cleanSlug]);
 
   const newsItem = validFetchedNews || contextNewsItem;
@@ -103,11 +111,7 @@ export default function NewsDetailPage() {
     if (!newsItem) return false;
     const c = (newsItem.content || '').trim();
     const d = (newsItem.description_html || '').trim();
-    const desc = (newsItem.description || '').trim();
-
-    const isChetFull = c.length > 250 && c !== desc;
-    const isDetFull = d.length > 250 && d !== desc;
-    return isChetFull || isDetFull;
+    return c.length > 250 || d.length > 250;
   }, [newsItem]);
 
   useEffect(() => {
@@ -121,23 +125,38 @@ export default function NewsDetailPage() {
     }
 
     // 2. Check if fetchedNewsItem is already loaded for this slug
-    const fetchedSlug = fetchedNewsItem ? String(fetchedNewsItem.slug || fetchedNewsItem.id || '').toLowerCase() : '';
-    if (fetchedNewsItem && (fetchedSlug === slugKey || fetchedSlug === cleanSlug)) {
+    const fetchedSlug = fetchedNewsItem ? String(fetchedNewsItem.slug || fetchedNewsItem.id || '').toLowerCase().trim() : '';
+    if (fetchedNewsItem && fetchedSlug === slugKey && ((fetchedNewsItem.content || '').length > 250)) {
       setRemoteCheckDoneSlug(slugKey);
       return;
     }
 
+    // 3. Instant 0ms memory fallback from static dataset (instant FCP/LCP when switching URLs)
+    loadFullStaticDataset().then(dataset => {
+      if (activeSlugRef.current !== slugKey) return;
+      const match = (dataset?.news || []).find((n: any) =>
+        (n.slug || '').toLowerCase().trim() === slugKey || (n.id || '').toLowerCase().trim() === slugKey
+      );
+      if (match && ((match.content || '').length > 250 || (match.description_html || '').length > 250)) {
+        setFetchedNewsItem(match);
+        updateNewsDetail?.(match);
+      }
+    }).catch(() => {});
+
+    // 4. Concurrently query public API for real-time Firestore updates
     if (!syncAttemptedRef.current[slugKey]) {
       syncAttemptedRef.current[slugKey] = true;
       setIsRefreshing(true);
 
-      let isMounted = true;
       fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {
         headers: { 'Accept': 'application/json' }
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then(data => {
-          if (!isMounted) return;
+          if (activeSlugRef.current !== slugKey) return;
           const resolvedNews = data?.news || data?.newsItem;
           if (data?.status === 'OK' && resolvedNews) {
             setFetchedNewsItem(resolvedNews);
@@ -151,15 +170,13 @@ export default function NewsDetailPage() {
           if (!newsItem && refreshAll) refreshAll(true);
         })
         .finally(() => {
-          if (isMounted) {
+          if (activeSlugRef.current === slugKey) {
             setIsRefreshing(false);
             setRemoteCheckDoneSlug(slugKey);
           }
         });
-
-      return () => { isMounted = false; };
     }
-  }, [cleanSlug, hasFullBody, fetchedNewsItem, newsItem, updateNewsDetail, refreshAll]);
+  }, [cleanSlug, hasFullBody]);
 
   const relatedApp = useMemo(() => {
     if (!newsItem) return null;
@@ -466,11 +483,20 @@ export default function NewsDetailPage() {
         className="my-5 sm:my-6"
       />
 
-      <div 
-        onClick={handleHtmlClick}
-        className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
-        dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
-      />
+      {bodyContent ? (
+        <div 
+          onClick={handleHtmlClick}
+          className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
+          dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
+        />
+      ) : (
+        <div className="mt-6 space-y-4 animate-pulse">
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6"></div>
+          <div className="h-24 bg-zinc-100 dark:bg-zinc-900 rounded-xl w-full"></div>
+        </div>
+      )}
 
       {/* 2. App View/Download Action Box (Directly after the full HTML body) */}
       <NewsRelatedAppBox 
@@ -489,24 +515,9 @@ export default function NewsDetailPage() {
         />
       )}
 
-      {/* 3. Latest News & Updates Internal Linking */}
+      {/* 3. Latest News & Updates Internal Linking ("Next, Next, Next" Daisy-Chain Engine) */}
       {(() => {
-        const itemKey = String(newsItem.slug || newsItem.id || '').toLowerCase().trim();
-        const recentNews = (Array.isArray(mockNews) ? mockNews : [])
-          .filter((n: any) => {
-            if (!n || n.sync_to_public === false) return false;
-            const nKey = String(n.slug || n.id || '').toLowerCase().trim();
-            return Boolean(nKey && nKey !== itemKey);
-          })
-          .sort((a: any, b: any) => {
-            if (a.is_pinned && !b.is_pinned) return -1;
-            if (!a.is_pinned && b.is_pinned) return 1;
-            const dateA = new Date(a.date || a.published_at || a.created_at || 0).getTime();
-            const dateB = new Date(b.date || b.published_at || b.created_at || 0).getTime();
-            return dateB - dateA;
-          })
-          .slice(0, 6);
-
+        const recentNews = getNextNewsChain(newsItem, mockNews, 6);
         if (recentNews.length === 0) return null;
 
         return (

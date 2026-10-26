@@ -1,4 +1,4 @@
-import { normalizeSchemaCategory, getOptimizedImageUrl } from '../../../seo/utils';
+import { normalizeSchemaCategory, getOptimizedImageUrl, stripHtml, cleanFaqQuestion } from '../../../seo/utils';
 
 export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
@@ -101,6 +101,25 @@ export function buildBreadcrumbSchema(app: any, specificCategory: string) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": breadcrumbElements
+  };
+}
+
+export function buildFaqSchema(app: any) {
+  const rawFaqs = Array.isArray(app?.faqs) ? app.faqs : [];
+  const validFaqs = rawFaqs.filter((f: any) => f && f.question && f.answer && stripHtml(f.question).length > 0 && stripHtml(f.answer).length > 0);
+  if (validFaqs.length === 0) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": validFaqs.map((faq: any) => ({
+      "@type": "Question",
+      "name": cleanFaqQuestion(stripHtml(faq.question)) || stripHtml(faq.question),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": stripHtml(faq.answer)
+      }
+    }))
   };
 }
 

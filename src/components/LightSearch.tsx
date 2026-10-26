@@ -13,12 +13,15 @@ interface LightSearchProps {
 export default function LightSearch({ isOpen, onClose }: LightSearchProps) {
   const [query, setQuery] = useState('');
   const [history, setHistory] = useState<string[]>([]);
-  const { apps, settings } = useData();
+  const { apps, settings, fetchApps } = useData();
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
+      if (apps.length < 25 && fetchApps) {
+        fetchApps();
+      }
       document.body.style.overflow = 'hidden';
       // Fast auto-focus
       const timer = setTimeout(() => {

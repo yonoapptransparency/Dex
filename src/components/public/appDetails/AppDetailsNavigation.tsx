@@ -5,9 +5,12 @@ import { ArrowLeft, Newspaper, ArrowRight } from 'lucide-react';
 interface AppDetailsNavigationProps {
   appName: string;
   relatedNewsCount: number;
+  relatedNewsSlug?: string;
 }
 
-export const AppDetailsNavigation: React.FC<AppDetailsNavigationProps> = ({ appName, relatedNewsCount }) => {
+export const AppDetailsNavigation: React.FC<AppDetailsNavigationProps> = ({ appName, relatedNewsCount, relatedNewsSlug }) => {
+  const newsLink = relatedNewsSlug ? `/news/${encodeURIComponent(relatedNewsSlug)}` : `/news?q=${encodeURIComponent(appName)}`;
+
   return (
     <div className="flex items-center justify-between gap-2 xs:gap-3 px-1 xs:px-2 sm:px-4 md:px-6 mb-3 xs:mb-4">
       <Link 
@@ -22,7 +25,7 @@ export const AppDetailsNavigation: React.FC<AppDetailsNavigationProps> = ({ appN
 
       {/* Lightweight Related News Gateway Button */}
       <Link
-        to={`/news?q=${encodeURIComponent(appName)}`}
+        to={newsLink}
         className="inline-flex items-center gap-1 xs:gap-1.5 px-2 xs:px-3 py-1 xs:py-1.5 rounded-full text-[11px] xs:text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200/90 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 transition-all shadow-xs group cursor-pointer active:scale-95 shrink-0"
         title={`Read latest news and updates for ${appName}`}
       >

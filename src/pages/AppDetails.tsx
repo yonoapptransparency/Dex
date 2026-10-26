@@ -11,7 +11,7 @@ import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats } from '../lib/communityFirebase';
 
-import { mockApps as staticMockApps } from '../lib/lightFallback';
+import { mockApps as staticMockApps, loadFullStaticDataset } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
 import { getPrefetchedApp } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
@@ -26,7 +26,7 @@ import UserReviews from '../components/UserReviews';
 import { AppDetailsNavigation } from '../components/public/appDetails/AppDetailsNavigation';
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import AppNotFound from '../components/public/appDetails/AppNotFound';
-import { buildSoftwareSchema, buildWebPageSchema, buildBreadcrumbSchema } from '../components/public/appDetails/appDetailsSchemas';
+import { buildSoftwareSchema, buildWebPageSchema, buildBreadcrumbSchema, buildFaqSchema } from '../components/public/appDetails/appDetailsSchemas';
 
 export { AppDetailsSkeleton };
 
@@ -350,6 +350,16 @@ export default function AppDetails() {
       return;
     }
 
+    // 3. Instant 0ms memory fallback from static dataset (instant FCP/LCP when switching URLs)
+    loadFullStaticDataset().then(dataset => {
+      if (activeSlugRef.current !== slugKey) return;
+      const match = resolveAppSlug(slugKey, dataset?.apps || []);
+      if (match && match.description_html && match.description_html.trim().length > 10) {
+        setFetchedApp(match);
+        if (updateAppDetail) updateAppDetail(match);
+      }
+    }).catch(() => {});
+
     if (!syncAttemptedRef.current[slugKey]) {
       syncAttemptedRef.current[slugKey] = true;
       setIsFetchingDetails(true);
@@ -430,6 +440,7 @@ export default function AppDetails() {
   const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
   const webPageSchema = buildWebPageSchema(app, title, desc);
   const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
+  const faqSchema = buildFaqSchema(app);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -473,6 +484,7 @@ export default function AppDetails() {
   }, [mockNews, app?.name, app?.id, app?.slug]);
 
   const relatedNewsCount = relatedNewsArticles.length;
+  const primaryNewsSlug = relatedNewsArticles.length > 0 ? relatedNewsArticles[0]?.slug : undefined;
 
   return (
     <div className="w-full">
@@ -487,7 +499,7 @@ export default function AppDetails() {
         </div>
       )}
       
-      <AppDetailsNavigation appName={app.name} relatedNewsCount={relatedNewsCount} />
+      <AppDetailsNavigation appName={app.name} relatedNewsCount={relatedNewsCount} relatedNewsSlug={primaryNewsSlug} />
 
       <Meta 
         title={title}
@@ -495,7 +507,7 @@ export default function AppDetails() {
         keywords={app.seo_keywords}
         image={ogImage}
         canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
-        schema={[softwareSchema, webPageSchema]}
+        schema={[softwareSchema, webPageSchema, ...(faqSchema ? [faqSchema] : [])]}
         breadcrumbSchema={breadcrumbSchema}
       />
       <div className="w-full">
