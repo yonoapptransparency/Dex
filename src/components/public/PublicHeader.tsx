@@ -49,10 +49,8 @@ export function PublicHeader() {
               {settings.logo_url ? (
                 <img 
                   src={getOptimizedImageUrl(settings.logo_url, 120)} 
-                  width={40} 
-                  height={40} 
-                  loading="eager" 
-                  fetchPriority="high" 
+                  width={40}
+                  height={40}
                   decoding="async" 
                   className="w-6 h-6 xxs:w-7 xxs:h-7 xs:w-8 xs:h-8 sm:w-11 sm:h-11 object-contain drop-shadow-sm" 
                   alt={`${settings.site_title || 'RummyDex'} Official Logo`} 

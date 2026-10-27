@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { getOptimizedImageUrl } from '../../../seo/utils';
@@ -21,7 +21,7 @@ interface AppSimilarCarouselProps {
   isLoading?: boolean;
 }
 
-const SVG_PLACEHOLDER = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 86 86'%3E%3Crect width='86' height='86' rx='20' fill='%23e4e4e7'/%3E%3C/svg%3E";
+export const SIMILAR_APP_SVG_PLACEHOLDER = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 86 86'%3E%3Crect width='86' height='86' rx='20' fill='%23e4e4e7'/%3E%3C/svg%3E";
 
 export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({ 
   relatedApps, 
@@ -29,6 +29,21 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
   totalCategoryCount,
   isLoading = false
 }) => {
+  // Defer secondary carousel icons until after the primary app logo paints, and never expose 16 neighbor app icons to search crawlers
+  const [showDeferredIcons, setShowDeferredIcons] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const ua = typeof navigator !== 'undefined' ? (navigator.userAgent || '') : '';
+    const isSearchCrawler = /googlebot|google-inspectiontool|adsbot-google|apis-google|mediapartners-google|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|headless/i.test(ua);
+    if (isSearchCrawler) return;
+
+    const rafId = window.requestAnimationFrame(() => {
+      setShowDeferredIcons(true);
+    });
+    return () => window.cancelAnimationFrame(rafId);
+  }, []);
+
   if ((!relatedApps || relatedApps.length === 0) && !isLoading) return null;
 
   if ((!relatedApps || relatedApps.length === 0) && isLoading) {
@@ -84,7 +99,8 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
         style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y pan-x', overscrollBehaviorX: 'contain' }}
       >
         {relatedApps.map((relatedApp, index) => {
-          const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 96) || 'https://via.placeholder.com/96';
+          const iconSrc = getOptimizedImageUrl(relatedApp.icon_url, 96) || SIMILAR_APP_SVG_PLACEHOLDER;
+          const activeSrc = showDeferredIcons ? iconSrc : SIMILAR_APP_SVG_PLACEHOLDER;
 
           return (
             <Link
@@ -97,8 +113,11 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
             >
               <div className="relative inline-block shrink-0">
                 <img
-                  src={iconSrc}
-                  alt={relatedApp.name}
+                  src={activeSrc}
+                  data-src={iconSrc}
+                  alt=""
+                  aria-hidden="true"
+                  role="presentation"
                   width={86}
                   height={86}
                   decoding="async"

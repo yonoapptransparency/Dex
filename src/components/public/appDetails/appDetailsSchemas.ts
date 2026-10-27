@@ -1,6 +1,6 @@
-import { normalizeSchemaCategory, getOptimizedImageUrl, stripHtml, cleanFaqQuestion } from '../../../seo/utils';
+import { normalizeSchemaCategory, getOptimizedImageUrl, stripHtml, cleanFaqQuestion, normalizeFileSize } from '../../../seo/utils';
 
-export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number) {
+export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: boolean, realRatingVal: number, realReviewCount: number, initialReviews: any[] = []) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
   const configuredCount = parseInt(String(app.review_count || app.reviews || '').replace(/[^0-9]/g, ''), 10) || 0;
   const validCount = Math.round(hasLiveReviews && realReviewCount > 0 ? realReviewCount : (realReviewCount > 0 ? realReviewCount : configuredCount));
@@ -18,7 +18,7 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
     "applicationCategory": normalizeSchemaCategory(app.category),
     "operatingSystem": "Android",
     "softwareVersion": app.version || '1.0',
-    "fileSize": app.file_size || '45 MB',
+    "fileSize": normalizeFileSize(app.file_size, '45 MB'),
     "image": optimizedImg,
     "author": {
       "@type": "Organization",
@@ -31,14 +31,52 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
     }
   };
 
-  if (validCount > 0) {
+  const validAppKeys = new Set<string>(
+    [String(app.id || "").toLowerCase().trim(), String(app.slug || "").toLowerCase().trim()].filter(Boolean)
+  );
+  const validReviews = Array.isArray(initialReviews)
+    ? initialReviews
+        .filter((rev: any) => {
+          if (!rev || stripHtml(rev.reviewText || rev.comment || "").trim().length < 3) return false;
+          const rId = String(rev.appId || rev.app_id || "").toLowerCase().trim();
+          const rSlug = String(rev.appSlug || "").toLowerCase().trim();
+          if (validAppKeys.size > 0 && (rId || rSlug)) {
+            if (rId && !validAppKeys.has(rId)) return false;
+            if (rSlug && !validAppKeys.has(rSlug)) return false;
+          }
+          return true;
+        })
+        .slice(0, 10)
+        .map((rev: any) => ({
+          "@type": "Review",
+          "author": {
+            "@type": "Person",
+            "name": (rev.userName || rev.username) ? String(rev.userName || rev.username).trim() : "Verified Player"
+          },
+          "datePublished": ((rev.timestamp || rev.created_at) ? new Date(rev.timestamp || rev.created_at).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]),
+          "reviewBody": stripHtml(rev.reviewText || rev.comment || "").trim(),
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": Math.max(1, Math.min(5, Number(rev.rating) || 5)),
+            "bestRating": 5,
+            "worstRating": 1
+          }
+        }))
+    : [];
+
+  const finalValidCount = Math.round(Math.max(validCount, validReviews.length));
+  if (finalValidCount > 0) {
     schema["aggregateRating"] = {
       "@type": "AggregateRating",
       "ratingValue": ratingValue,
-      "ratingCount": validCount,
+      "ratingCount": finalValidCount,
       "bestRating": 5,
       "worstRating": 1
     };
+  }
+
+  if (validReviews.length > 0) {
+    schema["review"] = validReviews;
   }
 
   if (Array.isArray(app.screenshots) && app.screenshots.length > 0) {
@@ -50,6 +88,8 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
 
 export function buildWebPageSchema(app: any, title: string, desc: string) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
+  const rawImg = app.icon_url || app.og_image_url || "";
+  const optimizedImg = getOptimizedImageUrl(rawImg, 512) || rawImg;
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -59,6 +99,19 @@ export function buildWebPageSchema(app: any, title: string, desc: string) {
     "headline": title,
     "description": desc,
     "inLanguage": "en",
+    "primaryImageOfPage": {
+      "@type": "ImageObject",
+      "@id": `${appUrl}#primaryimage`,
+      "url": optimizedImg,
+      "contentUrl": optimizedImg,
+      "width": 512,
+      "height": 512,
+      "caption": `${app.name} app icon`
+    },
+    "image": {
+      "@id": `${appUrl}#primaryimage`
+    },
+    "thumbnailUrl": optimizedImg,
     "mainEntity": {
       "@id": `${appUrl}#software`
     }

@@ -9,7 +9,7 @@ import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
-import { getCachedLiveAppStats } from '../lib/communityFirebase';
+import { getCachedLiveAppStats, getCachedLiveReviews } from '../lib/communityFirebase';
 
 import { mockApps as staticMockApps, loadFullStaticDataset } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
@@ -27,6 +27,7 @@ import { AppDetailsNavigation } from '../components/public/appDetails/AppDetails
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import AppNotFound from '../components/public/appDetails/AppNotFound';
 import { buildSoftwareSchema, buildWebPageSchema, buildBreadcrumbSchema, buildFaqSchema } from '../components/public/appDetails/appDetailsSchemas';
+import { normalizeFileSize } from '../seo/utils';
 
 export { AppDetailsSkeleton };
 
@@ -129,7 +130,7 @@ export default function AppDetails() {
       yellow_box_msg: resolvedApp.yellow_box_msg || '',
       red_box_msg: resolvedApp.red_box_msg || '',
       idea_box_msg: resolvedApp.idea_box_msg || '',
-      file_size: resolvedApp.file_size || '45 MB',
+      file_size: normalizeFileSize(resolvedApp.file_size, '45 MB'),
       version: resolvedApp.version || '1.0.0',
       developer: resolvedApp.developer || 'Developer',
       safety_status: resolvedApp.safety_status || 'Verified',
@@ -437,7 +438,8 @@ export default function AppDetails() {
     ? Number(activeStats.totalReviews) 
     : configuredCount;
 
-  const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount);
+  const cachedReviewsForSchema = getCachedLiveReviews(app?.id, app?.slug)?.reviews || [];
+  const softwareSchema = buildSoftwareSchema(app, desc, hasLiveReviews, realRatingVal, realReviewCount, cachedReviewsForSchema);
   const webPageSchema = buildWebPageSchema(app, title, desc);
   const breadcrumbSchema = buildBreadcrumbSchema(app, specificCategory);
   const faqSchema = buildFaqSchema(app);
@@ -506,6 +508,7 @@ export default function AppDetails() {
         description={desc}
         keywords={app.seo_keywords}
         image={ogImage}
+        isCustomWidescreenOg={Boolean(app.og_image_url)}
         canonical={app.canonical_url || `https://www.rummydex.com/app/${app.slug}`}
         schema={[softwareSchema, webPageSchema, ...(faqSchema ? [faqSchema] : [])]}
         breadcrumbSchema={breadcrumbSchema}

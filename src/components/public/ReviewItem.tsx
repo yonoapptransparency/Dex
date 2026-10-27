@@ -61,10 +61,7 @@ export function ReviewItem({
   const username = (rev.username && rev.username.trim() && rev.username.toLowerCase() !== 'player') 
     ? rev.username.trim() 
     : ((rev as any).userName && (rev as any).userName.trim() ? (rev as any).userName.trim() : (rev.username || 'Player'));
-  const isLong = commentText.length > 150;
-  const displayedComment = isLong && !isExpanded 
-    ? `${commentText.substring(0, 150)}...` 
-    : commentText;
+  const displayedComment = commentText;
 
   return (
     <div
@@ -118,18 +115,6 @@ export function ReviewItem({
           className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed break-words whitespace-pre-wrap flex flex-col relative select-text"
         >
           <p>{displayedComment}</p>
-          
-          {isLong && (
-            <button
-              type="button"
-              onClick={() => onToggleExpand(rev.id)}
-              aria-label={isExpanded ? 'Show less review text' : `Read full review by ${rev.username || 'user'}`}
-              className="self-start inline-flex items-center gap-0.5 text-[11px] font-black text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-2 cursor-pointer transition-all uppercase tracking-wide select-none outline-none"
-            >
-              <span>{isExpanded ? 'Show less' : 'Read more'}</span>
-              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-          )}
 
           {rev.adminReply && rev.adminReply.text && (
             <div className="mt-3 p-3 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-xl border border-black/5 dark:border-white/5 text-[11px] text-zinc-700 dark:text-zinc-300">
@@ -166,7 +151,7 @@ export function ReviewItem({
             }`}
           >
             <ThumbsUp className="w-3 h-3" />
-            <span>Helpful {rev.helpful_count > 0 && `(${rev.helpful_count})`}</span>
+            <span>{rev.helpful_count > 0 ? `Helpful (${rev.helpful_count})` : 'Helpful'}</span>
           </button>
 
           <button

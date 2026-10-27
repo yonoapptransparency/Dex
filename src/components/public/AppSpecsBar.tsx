@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { normalizeFileSize } from '../../seo/utils';
 
 interface AppSpecsBarProps {
   rating?: number;
@@ -40,7 +41,7 @@ export function AppSpecsBar({ rating, hasReviews, file_size, category, version }
       {/* Column 2: Size */}
       <div className="flex flex-col items-center justify-center px-0.5 xxs:px-1 xs:px-2 text-center border-l border-zinc-200 dark:border-zinc-800/80 min-w-0">
         <div className="font-extrabold text-[11px] xxs:text-xs xs:text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate max-w-full">
-          {file_size || '45 MB'}
+          {normalizeFileSize(file_size, '45 MB')}
         </div>
         <div className="text-[7px] xxs:text-[8px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-0.5 xs:mt-1">Size</div>
       </div>

@@ -31,14 +31,15 @@ export default function AppHeader({ app }: AppHeaderProps) {
         <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[20px] sm:rounded-[24px] overflow-hidden shadow-sm bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/10 relative">
           {rawUrl && !isFailed ? (
             <img 
+              id="primary-app-logo"
               src={currentSrc} 
               alt={`${app.name} app icon`} 
               itemProp="image"
               loading="eager" 
               fetchPriority="high" 
-              decoding="async"
-              width={116} 
-              height={116} 
+              decoding="sync"
+              width={512} 
+              height={512} 
               className="w-full h-full object-cover block relative z-10" 
               onError={handleImageError}
             />

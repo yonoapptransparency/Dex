@@ -375,15 +375,28 @@ export default function NewsDetailPage() {
   const rawDatePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
   const datePublished = normalizeIsoDate(rawDatePublished);
   const dateModified = normalizeIsoDate(newsItem.updated_at || rawDatePublished, datePublished);
-  const authorName = newsItem.ceo_name || newsItem.author || 'Editorial Team';
+  const rawAuthorName = (newsItem.ceo_name || newsItem.author || 'Editorial Team').trim();
+  const isGenericAuthor = !rawAuthorName || /^(?:team|admin(?:\s+team)?|cto|(?:the\s+)?editorial(?:\s+team)?|rummydex(?:\s+team|\s+editorial(?:\s+team)?)?|content\s*upload|staff|official)$/i.test(rawAuthorName);
+  const authorName = isGenericAuthor ? 'RummyDex Editorial Team' : rawAuthorName;
+  const authorSchemaEntity = isGenericAuthor
+    ? {
+        "@type": "Organization",
+        "name": "RummyDex Editorial Team",
+        "url": "https://www.rummydex.com"
+      }
+    : {
+        "@type": "Person",
+        "name": authorName
+      };
   const articleCategory = newsItem.category || 'General';
 
   const newsArticleSchema = {
     "@context": "https://schema.org",
     "@type": ["NewsArticle", "Article"],
+    "@id": `${canonicalUrl}#article`,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": canonicalUrl
+      "@id": `${canonicalUrl}#webpage`
     },
     "name": articleTitle,
     "headline": articleTitle,
@@ -395,10 +408,7 @@ export default function NewsDetailPage() {
     "articleSection": articleCategory,
     "inLanguage": "en",
     "isAccessibleForFree": true,
-    "author": {
-      "@type": "Person",
-      "name": authorName
-    },
+    "author": authorSchemaEntity,
     "publisher": {
       "@type": "Organization",
       "name": mockSettings?.site_title || "RummyDex",
@@ -418,7 +428,10 @@ export default function NewsDetailPage() {
     "name": articleTitle,
     "headline": articleTitle,
     "description": articleDesc,
-    "inLanguage": "en"
+    "inLanguage": "en",
+    "mainEntity": {
+      "@id": `${canonicalUrl}#article`
+    }
   };
 
   const newsBreadcrumbSchema = {
