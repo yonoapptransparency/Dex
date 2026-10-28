@@ -167,8 +167,9 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
     return new Date(app.publish_date).getTime() > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
   
+  const isAboveFold = displayIndex <= 8;
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : isAboveFold ? 'z-1' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app)}
@@ -254,8 +255,9 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
     return new Date(app.publish_date).getTime() > Date.now();
   }, [app.is_coming_soon, app.publish_date]);
 
+  const isAboveFold = rank <= 8;
   return (
-    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
+    <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : isAboveFold ? 'z-1' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
       <Link 
         to={`/app/${app.slug}`}
         onMouseEnter={() => preloadAppDetails(app)}

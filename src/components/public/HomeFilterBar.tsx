@@ -47,13 +47,13 @@ export default function HomeFilterBar({
               value={ratingFilter}
               onChange={(e) => setRatingFilter(e.target.value)}
               aria-label="Filter applications by rating"
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
             >
-              <option value="all">All Ratings</option>
-              <option value="4.5">4.5+ ★ Superior</option>
-              <option value="4.0">4.0+ ★ Top Rated</option>
-              <option value="3.5">3.5+ ★ Premium</option>
-              <option value="3.0">3.0+ ★ Standard</option>
+              <option value="all" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">All Ratings</option>
+              <option value="4.5" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">4.5+ ★ Superior</option>
+              <option value="4.0" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">4.0+ ★ Top Rated</option>
+              <option value="3.5" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">3.5+ ★ Premium</option>
+              <option value="3.0" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">3.0+ ★ Standard</option>
             </select>
             <ChevronDown className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-zinc-400 shrink-0" />
           </div>
@@ -75,11 +75,11 @@ export default function HomeFilterBar({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               aria-label="Sort applications"
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
             >
-              <option value="default">Recommended</option>
-              <option value="rating_desc">Rating (Highest First)</option>
-              <option value="rating_asc">Rating (Lowest First)</option>
+              <option value="default" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Recommended</option>
+              <option value="rating_desc" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Rating (Highest First)</option>
+              <option value="rating_asc" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Rating (Lowest First)</option>
             </select>
             <ChevronDown className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-zinc-400 shrink-0" />
           </div>

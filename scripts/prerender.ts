@@ -154,6 +154,21 @@ async function prerender() {
       }
     );
 
+    // Move Vite <script type="module"> and <link rel="modulepreload"> to the end of <head>
+    // so <title>, OpenGraph tags, <link rel="preload" as="image" fetchpriority="high">, and critical CSS
+    // are in the first 4KB of HTML and LCP image downloads before JS bundles compete for mobile bandwidth.
+    const moduleTags: string[] = [];
+    originalTemplate = originalTemplate.replace(
+      /\s*(?:<script\s+type=["']module["'][^>]*src=["']\/?assets\/[^"']+["'][^>]*><\/script>|<link\s+rel=["']modulepreload["'][^>]*href=["']\/?assets\/[^"']+["'][^>]*\/?>)/gi,
+      (match) => {
+        moduleTags.push(match.trim());
+        return '';
+      }
+    );
+    if (moduleTags.length > 0 && originalTemplate.includes('</head>')) {
+      originalTemplate = originalTemplate.replace('</head>', () => `    ${moduleTags.join('\n    ')}\n  </head>`);
+    }
+
     // Persist pristine clean SPA template files with empty <div id="root"></div> and neutral title
     const neutralSpaTemplate = originalTemplate
       .replace(/<title[\s\S]*?<\/title>/gi, '<title></title>')

@@ -42,16 +42,16 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
     styleClasses = 'font-mono font-extrabold uppercase text-center tracking-tight leading-none text-sm xs:text-lg sm:text-2xl md:text-3xl';
   }
 
-  // Map Color Gradient Style
-  let colorClasses = 'bg-gradient-to-r from-zinc-950 via-zinc-800 to-zinc-900 bg-clip-text text-transparent dark:from-white dark:via-zinc-200 dark:to-zinc-300';
+  // Map Color Style (solid opaque colors so Chromium TextPaintTimingDetector registers h1 as a valid LCP text candidate)
+  let colorClasses = 'text-zinc-900 dark:text-white';
   if (color === 'emerald-indigo') {
-    colorClasses = 'bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 bg-clip-text text-transparent';
+    colorClasses = 'text-emerald-600 dark:text-emerald-400';
   } else if (color === 'neon-sky') {
-    colorClasses = 'bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 bg-clip-text text-transparent';
+    colorClasses = 'text-cyan-600 dark:text-cyan-400';
   } else if (color === 'sunset-fire') {
-    colorClasses = 'bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 bg-clip-text text-transparent';
+    colorClasses = 'text-orange-600 dark:text-orange-500';
   } else if (color === 'cosmic-purple') {
-    colorClasses = 'bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 bg-clip-text text-transparent';
+    colorClasses = 'text-fuchsia-600 dark:text-fuchsia-400';
   }
 
   // Map CSS Animation class

@@ -121,7 +121,7 @@ export function PublicHeader() {
                         key={`more-link-${item.to}-${idx}`}
                         to={item.to} 
                         onClick={() => { setMoreOpen(false); triggerHaptic(); }}
-                        className={`flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${pathname === item.to ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5'}`}
+                        className={`flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${pathname === item.to ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5'}`}
                       >
                         <item.icon className="w-4 h-4 opacity-70" />
                         {item.label}
@@ -145,11 +145,11 @@ export function PublicHeader() {
               <button 
                 type="button"
                 onClick={() => { triggerHaptic(); if (apps.length < 25 && fetchApps) fetchApps(); setSearchOpen(true); }}
-                className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-800/50 hover:bg-zinc-200/50 transition-all text-left px-4 py-1.5 w-44 lg:w-52 rounded-full group outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-800/50 hover:bg-zinc-200/50 dark:hover:bg-zinc-700/60 transition-all text-left px-4 py-1.5 w-44 lg:w-52 rounded-full group outline-none focus:ring-2 focus:ring-blue-500/20 border border-black/5 dark:border-white/10"
                 aria-label="Search Store"
               >
                 <Search className="w-3.5 h-3.5 text-zinc-400 group-hover:text-blue-500 transition-colors shrink-0" />
-                <span className="text-[13px] text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors truncate">{t('Search')}</span>
+                <span className="text-[13px] text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors truncate">{t('Search')}</span>
               </button>
 
               <div className="w-40">
@@ -161,7 +161,7 @@ export function PublicHeader() {
                   href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center w-8 h-8 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors"
+                  className="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-white/10 rounded-full hover:bg-blue-100 dark:hover:bg-zinc-700 transition-colors"
                   aria-label="Telegram"
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ export function PublicHeader() {
             <button 
               type="button"
               onClick={() => { triggerHaptic(); if (apps.length < 25 && fetchApps) fetchApps(); setSearchOpen(true); }}
-              className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-zinc-100 dark:bg-zinc-800 rounded-full active:scale-95 transition-all text-zinc-500"
+              className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/10 rounded-full active:scale-95 transition-all text-zinc-600 dark:text-zinc-300"
               aria-label="Search"
             >
               <Search className="w-3 h-3 xxs:w-3.5 xxs:h-3.5 xs:w-4 xs:h-4" />
@@ -186,7 +186,7 @@ export function PublicHeader() {
                 href={settings.helpline_telegram.startsWith('http') ? settings.helpline_telegram : `https://t.me/${settings.helpline_telegram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-blue-50 text-blue-500 rounded-full"
+                className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-white/10 rounded-full hover:bg-blue-100 dark:hover:bg-zinc-700 transition-colors"
                 aria-label="Telegram"
               >
                 <Send className="w-3 h-3 xxs:w-3.5 xxs:h-3.5 xs:w-4 xs:h-4" />
@@ -195,11 +195,11 @@ export function PublicHeader() {
             <SupportWidget />
             <button 
               type="button"
-              className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-zinc-900 dark:bg-white rounded-full active:scale-95 transition-transform"
+              className="flex items-center justify-center w-7 h-7 xxs:w-8 xxs:h-8 xs:w-9 xs:h-9 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-black/5 dark:border-white/10 rounded-full active:scale-95 transition-transform"
               onClick={() => { triggerHaptic(); setMenuOpen(true); }}
               aria-label="Open menu"
             >
-              <Menu className="w-3 h-3 xxs:w-3.5 xxs:h-3.5 xs:w-4 xs:h-4 text-white dark:text-zinc-900" />
+              <Menu className="w-3 h-3 xxs:w-3.5 xxs:h-3.5 xs:w-4 xs:h-4 text-zinc-800 dark:text-zinc-100" />
             </button>
           </div>
         </div>

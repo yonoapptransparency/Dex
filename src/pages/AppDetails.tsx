@@ -322,9 +322,9 @@ export default function AppDetails() {
       app &&
       !(app as any)._isTrimmed &&
       ((app as any)._isFullApp ||
-        (app.description_html && app.description_html.trim().length > 15 && Array.isArray(app.screenshots) && app.screenshots.length > 0))
+        (app.description_html && app.description_html.trim().length > 15))
     );
-    if (isFullPreRenderedApp && Array.isArray(mockApps) && mockApps.length > 5) {
+    if (isFullPreRenderedApp) {
       setRemoteCheckDoneSlug(slugKey);
       return;
     }
@@ -341,9 +341,7 @@ export default function AppDetails() {
       prefetched &&
       (String(prefetched.slug || prefetched.id || '').toLowerCase().trim() === slugKey || resolveAppSlug(slugKey, [prefetched])) &&
       prefetched.description_html &&
-      prefetched.description_html.trim().length > 10 &&
-      Array.isArray(mockApps) &&
-      mockApps.length > 5
+      prefetched.description_html.trim().length > 10
     ) {
       setFetchedApp(prefetched);
       if (updateAppDetail) updateAppDetail(prefetched);

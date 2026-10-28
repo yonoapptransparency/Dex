@@ -175,9 +175,9 @@ export function PublicFooter() {
                 href={settings.social_links.facebook} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-blue-600 dark:hover:bg-blue-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Facebook className="w-3.5 h-3.5 fill-current" />
+                <Facebook className="w-3.5 h-3.5" />
               </a>
             ) : (
               <a 
@@ -185,9 +185,9 @@ export function PublicFooter() {
                 href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-blue-600 dark:hover:bg-blue-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Facebook className="w-3.5 h-3.5 fill-current" />
+                <Facebook className="w-3.5 h-3.5" />
               </a>
             )}
 
@@ -197,7 +197,7 @@ export function PublicFooter() {
                 href={settings.social_links.instagram} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-pink-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-pink-600 dark:hover:bg-pink-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
                 <Instagram className="w-3.5 h-3.5" />
               </a>
@@ -207,7 +207,7 @@ export function PublicFooter() {
                 href="https://instagram.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-pink-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-pink-600 dark:hover:bg-pink-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
                 <Instagram className="w-3.5 h-3.5" />
               </a>
@@ -219,9 +219,9 @@ export function PublicFooter() {
                 href={settings.social_links.youtube} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-red-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-red-600 dark:hover:bg-red-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Youtube className="w-3.5 h-3.5 fill-current" />
+                <Youtube className="w-3.5 h-3.5" />
               </a>
             ) : (
               <a 
@@ -229,9 +229,9 @@ export function PublicFooter() {
                 href="https://youtube.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-red-600 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-red-600 dark:hover:bg-red-600 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Youtube className="w-3.5 h-3.5 fill-current" />
+                <Youtube className="w-3.5 h-3.5" />
               </a>
             )}
 
@@ -241,9 +241,9 @@ export function PublicFooter() {
                 href={settings.social_links.twitter} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-sky-500 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-sky-500 dark:hover:bg-sky-500 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Twitter className="w-3.5 h-3.5 fill-current" />
+                <Twitter className="w-3.5 h-3.5" />
               </a>
             )}
 
@@ -253,9 +253,9 @@ export function PublicFooter() {
                 href={settings.social_links.linkedin} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-white/[0.06] hover:bg-blue-700 text-zinc-600 dark:text-zinc-300 hover:text-white flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-black/5 dark:border-white/10 hover:bg-blue-700 dark:hover:bg-blue-700 text-zinc-700 dark:text-zinc-200 hover:text-white flex items-center justify-center transition-all"
               >
-                <Linkedin className="w-3.5 h-3.5 fill-current" />
+                <Linkedin className="w-3.5 h-3.5" />
               </a>
             )}
           </div>
