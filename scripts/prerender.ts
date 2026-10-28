@@ -362,7 +362,7 @@ async function prerender() {
     if (fs.existsSync(redirectsSrc)) {
       fs.copyFileSync(redirectsSrc, path.join(distPath, '_redirects'));
     } else {
-      fs.writeFileSync(path.join(distPath, '_redirects'), '/*    /index.html   200\n', 'utf-8');
+      fs.writeFileSync(path.join(distPath, '_redirects'), '/developer /developers 301\n/developer/* /developers/:splat 301\n/blogs/* / 301\n/blog/* / 301\n/blogs / 301\n/blog / 301\n', 'utf-8');
     }
     if (fs.existsSync(headersSrc)) {
       fs.copyFileSync(headersSrc, path.join(distPath, '_headers'));
