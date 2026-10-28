@@ -52,8 +52,10 @@ export function PublicFooter() {
     { label: 'Report / DMCA', to: '/report-removal', icon: FileText },
   ];
 
+  const isDefaultBrand = siteTitle.toLowerCase() === 'rummydex';
+
   return (
-    <footer suppressHydrationWarning={true} className="w-full mt-8 sm:mt-12 bg-zinc-100 dark:bg-[#060913] text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-white/[0.08] transition-colors select-none">
+    <footer data-nosnippet suppressHydrationWarning={true} className="w-full mt-8 sm:mt-12 bg-zinc-100 dark:bg-[#060913] text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-white/[0.08] transition-colors select-none">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         
         {/* Brand Header Line */}
@@ -62,10 +64,18 @@ export function PublicFooter() {
             <Link 
               to="/" 
               className="text-lg sm:text-xl font-black tracking-tight text-zinc-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1"
-              aria-label={`${siteTitle} Homepage`}
+              aria-label="Homepage"
             >
-              <span>{siteTitle.replace(/dex$/i, '')}</span>
-              <span className="text-blue-600 dark:text-blue-400">{siteTitle.match(/dex$/i) ? 'Dex' : ''}</span>
+              <span
+                aria-hidden="true"
+                className={isDefaultBrand ? 'rd-brand-p1' : undefined}
+                {...(isDefaultBrand ? {} : { 'data-brand-text': siteTitle.replace(/dex$/i, '') })}
+              />
+              <span
+                aria-hidden="true"
+                className={`${isDefaultBrand ? 'rd-brand-p2 ' : ''}text-blue-600 dark:text-blue-400`}
+                {...(isDefaultBrand ? {} : { 'data-brand-text': siteTitle.match(/dex$/i) ? 'Dex' : '' })}
+              />
             </Link>
 
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold tracking-wider uppercase">
@@ -150,7 +160,12 @@ export function PublicFooter() {
         {/* Bottom Bar: Copyright & Social Links */}
         <div className="pt-4 border-t border-zinc-200/80 dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-500 text-center sm:text-left">
-            &copy; {new Date().getFullYear()} <span className="font-semibold text-zinc-700 dark:text-zinc-300">{siteTitle}</span>. All rights reserved.
+            &copy; {new Date().getFullYear()}{' '}
+            <span
+              aria-hidden="true"
+              className={`${isDefaultBrand ? 'rd-brand-full ' : ''}font-semibold text-zinc-700 dark:text-zinc-300`}
+              {...(isDefaultBrand ? {} : { 'data-brand-text': siteTitle })}
+            />. All rights reserved.
           </p>
 
           <div className="flex items-center gap-2.5">

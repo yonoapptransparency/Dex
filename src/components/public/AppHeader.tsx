@@ -24,6 +24,10 @@ export default function AppHeader({ app }: AppHeaderProps) {
     }
   };
 
+  useEffect(() => {
+    setFailedUrl(null);
+  }, [app.icon_url, app.id, app.slug]);
+
   return (
     <div className="flex w-full items-center gap-2.5 xxs:gap-3 xs:gap-4 sm:gap-6 mb-3.5 sm:mb-6 px-1 xs:px-2 sm:px-4 md:px-6 mt-1 sm:mt-2">
       {/* App Icon Container - slightly bigger, clean, premium presentation */}

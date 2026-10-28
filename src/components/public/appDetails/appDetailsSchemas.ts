@@ -24,6 +24,10 @@ export function buildSoftwareSchema(app: any, desc: string, hasLiveReviews: bool
       "@type": "Organization",
       "name": app.developer || app.name || 'Official'
     },
+    "publisher": {
+      "@type": "Organization",
+      "name": app.developer || app.name || 'Official'
+    },
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -90,6 +94,7 @@ export function buildWebPageSchema(app: any, title: string, desc: string) {
   const appUrl = `https://www.rummydex.com/app/${app.slug}`;
   const rawImg = app.icon_url || app.og_image_url || "";
   const optimizedImg = getOptimizedImageUrl(rawImg, 512) || rawImg;
+  const developer = app.developer || app.name || 'Official';
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -99,6 +104,14 @@ export function buildWebPageSchema(app: any, title: string, desc: string) {
     "headline": title,
     "description": desc,
     "inLanguage": "en",
+    "author": {
+      "@type": "Organization",
+      "name": developer
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": developer
+    },
     "primaryImageOfPage": {
       "@type": "ImageObject",
       "@id": `${appUrl}#primaryimage`,
@@ -112,6 +125,9 @@ export function buildWebPageSchema(app: any, title: string, desc: string) {
       "@id": `${appUrl}#primaryimage`
     },
     "thumbnailUrl": optimizedImg,
+    "about": {
+      "@id": `${appUrl}#software`
+    },
     "mainEntity": {
       "@id": `${appUrl}#software`
     }

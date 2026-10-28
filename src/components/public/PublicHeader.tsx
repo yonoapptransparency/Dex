@@ -31,9 +31,13 @@ export function PublicHeader() {
     }
   };
 
+  const rawSiteTitle = settings?.site_title || 'RummyDex';
+  const isDefaultBrand = rawSiteTitle.toLowerCase() === 'rummydex';
+
   return (
     <>
       <header 
+        data-nosnippet
         suppressHydrationWarning={true}
         className={`sticky top-0 z-50 transition-transform duration-200 ease-out will-change-transform ${
           isHeaderHidden ? '-translate-y-full pointer-events-none' : 'translate-y-0 pointer-events-auto'
@@ -44,7 +48,7 @@ export function PublicHeader() {
         }`}
       >
         <div className="w-full max-w-7xl px-1.5 xxs:px-2.5 xs:px-4 sm:px-6 lg:px-8 mx-auto relative flex justify-between items-center">
-          <Link to="/" onClick={triggerHaptic} className="flex items-center gap-1 xxs:gap-1.5 xs:gap-2.5 sm:gap-3 group min-w-0">
+          <Link to="/" onClick={triggerHaptic} aria-label="Home" className="flex items-center gap-1 xxs:gap-1.5 xs:gap-2.5 sm:gap-3 group min-w-0">
             <div className="p-0 transition-transform group-hover:scale-[1.03] duration-300 shrink-0">
               {settings.logo_url ? (
                 <img 
@@ -52,19 +56,25 @@ export function PublicHeader() {
                   width={40}
                   height={40}
                   decoding="async" 
+                  fetchPriority="low"
+                  loading="lazy"
                   className="w-6 h-6 xxs:w-7 xxs:h-7 xs:w-8 xs:h-8 sm:w-11 sm:h-11 object-contain drop-shadow-sm" 
-                  alt={`${settings.site_title || 'RummyDex'} Official Logo`} 
+                  alt=""
+                  aria-hidden="true"
+                  role="presentation"
                 />
               ) : (
-                <div className="w-6 h-6 xxs:w-7 xxs:h-7 xs:w-8 xs:h-8 sm:w-11 sm:h-11 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-xs sm:text-base">
+                <div className="w-6 h-6 xxs:w-7 xxs:h-7 xs:w-8 xs:h-8 sm:w-11 sm:h-11 bg-blue-500 rounded-xl flex items-center justify-center text-white font-semibold text-xs sm:text-base" aria-hidden="true">
                   {settings.site_title?.substring(0, 1)}
                 </div>
               )}
             </div>
             <div className="flex flex-col leading-none min-w-0">
-              <span className="text-xs xxs:text-sm xs:text-base sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white truncate max-w-[90px] xxs:max-w-[120px] xs:max-w-[170px] sm:max-w-none">
-                {settings.site_title}
-              </span>
+              <span
+                aria-hidden="true"
+                {...(isDefaultBrand ? {} : { 'data-brand-text': rawSiteTitle })}
+                className={`${isDefaultBrand ? 'rd-brand-full ' : ''}text-xs xxs:text-sm xs:text-base sm:text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white truncate max-w-[90px] xxs:max-w-[120px] xs:max-w-[170px] sm:max-w-none`}
+              />
             </div>
           </Link>
           

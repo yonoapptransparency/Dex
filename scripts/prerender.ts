@@ -154,9 +154,12 @@ async function prerender() {
       }
     );
 
-    // Persist pristine clean SPA template files with empty <div id="root"></div>
-    fs.writeFileSync(path.join(distPath, 'template.html'), originalTemplate, 'utf-8');
-    fs.writeFileSync(path.join(distPath, 'index.spa.html'), originalTemplate, 'utf-8');
+    // Persist pristine clean SPA template files with empty <div id="root"></div> and neutral title
+    const neutralSpaTemplate = originalTemplate
+      .replace(/<title[\s\S]*?<\/title>/gi, '<title></title>')
+      .replace(/<meta\s+[^>]*property=["']og:title["'][^>]*\/?>/gi, '');
+    fs.writeFileSync(path.join(distPath, 'template.html'), neutralSpaTemplate, 'utf-8');
+    fs.writeFileSync(path.join(distPath, 'index.spa.html'), neutralSpaTemplate, 'utf-8');
 
     const data = await syncStaticDataAndSitemaps();
     
