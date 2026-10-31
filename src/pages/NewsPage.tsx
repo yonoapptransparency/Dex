@@ -28,12 +28,6 @@ export default function NewsPage() {
     }
   }, [fetchNews, mockNews?.length]);
 
-  // Instantly prefetch the NewsDetailPage chunk into memory
-  // so any news card click opens instantaneously with 0ms latency
-  useEffect(() => {
-    import('./NewsDetailPage').catch(() => {});
-  }, []);
-
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
   const activeCategory = searchParams.get('category') || 'All';
@@ -163,14 +157,51 @@ export default function NewsPage() {
   const baseTitle = mockSettings?.news_meta_title || "News & Updates";
   const seoTitle = safeCurrentPage > 1 ? `${baseTitle} - Page ${safeCurrentPage}` : baseTitle;
   const seoDescription = mockSettings?.news_meta_description || "The latest gaming news, reports, and transparency updates.";
-  const canonicalUrl = `${window.location.origin}/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
+  const canonicalUrl = `https://www.rummydex.com/news${safeCurrentPage > 1 ? `?page=${safeCurrentPage}` : ''}`;
+
+  const remainingNews = useMemo(() => {
+    if (safeCurrentPage !== 1 || activeCategory !== 'All' || searchTerm.trim().length > 0) return [];
+    return publicNewsList.slice(ITEMS_PER_PAGE);
+  }, [publicNewsList, safeCurrentPage, activeCategory, searchTerm]);
+
+  const newsCollectionSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": seoTitle,
+    "description": seoDescription,
+    "url": canonicalUrl,
+    ...(publicNewsList.length > 0 ? {
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": `${canonicalUrl}#itemlist`,
+        "name": seoTitle,
+        "itemListElement": publicNewsList.slice(0, 30).map((n, idx) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "name": n.title,
+          "url": `https://www.rummydex.com/news/${n.slug || n.id}`
+        }))
+      }
+    } : {})
+  }), [seoTitle, seoDescription, canonicalUrl, publicNewsList]);
+
+  const newsBreadcrumbSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.rummydex.com" },
+      { "@type": "ListItem", "position": 2, "name": "News", "item": "https://www.rummydex.com/news" }
+    ]
+  }), []);
 
   return (
-    <div className="w-full text-zinc-900 dark:text-zinc-100 pb-20 min-h-[70vh]">
+    <div className="w-full text-zinc-900 dark:text-zinc-100 pb-20 text-left min-h-[70vh]">
       <Meta 
         title={seoTitle}
         description={seoDescription}
         canonical={canonicalUrl}
+        schema={newsCollectionSchema}
+        breadcrumbSchema={newsBreadcrumbSchema}
       />
 
       {copyToast && (
@@ -267,6 +298,29 @@ export default function NewsPage() {
         paginationRange={paginationRange}
         onPageChange={handlePageChange}
       />
+
+      {remainingNews.length > 0 && (
+        <nav aria-label="Complete News Archive" data-nosnippet className="mt-10 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 px-3 sm:px-0">
+          <h2 className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3 uppercase tracking-wider">
+            More News &amp; Updates ({remainingNews.length})
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {remainingNews.map((n: any) => {
+              const nTitle = n.title || 'News Article';
+              const nSlug = n.slug || n.id;
+              return (
+                <Link
+                  key={n.id || nSlug}
+                  to={`/news/${encodeURIComponent(nSlug)}`}
+                  className="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-zinc-200/60 dark:border-zinc-800/60 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 truncate no-underline transition-colors"
+                >
+                  {nTitle}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
   if (newApps.length === 0) return null;
 
   return (
-    <aside data-nosnippet className="px-0 animate-fade-in">
+    <aside data-nosnippet className="px-0">
       <h2 className="text-base xxs:text-lg xs:text-xl font-bold mb-2.5 xs:mb-4 mt-3 xs:mt-6 text-zinc-900 dark:text-zinc-100 flex items-center px-0">
         New Additions <BadgeCheck className="w-4 h-4 xs:w-5 xs:h-5 text-blue-500 fill-blue-500/20 ml-1.5" />
       </h2>

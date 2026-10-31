@@ -54,15 +54,7 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
     colorClasses = 'text-fuchsia-600 dark:text-fuchsia-400';
   }
 
-  // Map CSS Animation class
-  let animClass = '';
-  if (isAnimated && animation !== 'none') {
-    if (animation === 'fade-in') animClass = '';
-    else if (animation === 'slide-up') animClass = 'animate-in slide-in-from-bottom-2 duration-300';
-    else if (animation === 'bounce-in') animClass = 'animate-in zoom-in-95 duration-300';
-    else if (animation === 'zoom-out') animClass = 'animate-in zoom-in-105 duration-300';
-    else if (animation === 'glow-pulse') animClass = 'animate-pulse duration-1000';
-  }
+  const cleanSubtitle = subtitle.replace(/^[\u200B-\u200D\uFEFF]+/, '').trim();
 
   return (
     <div className="w-full relative py-1 sm:py-1.5 px-4 overflow-hidden flex flex-col items-center justify-center text-center my-0">
@@ -83,14 +75,14 @@ export const WebsiteTitleHero = React.memo(({ settings }: WebsiteTitleHeroProps)
 
       <div className="max-w-4xl mx-auto flex flex-col items-center justify-center gap-1">
         {/* Dynamic Big Typography Header */}
-        <h1 className={`${styleClasses} ${colorClasses} ${animClass} select-text block max-w-3xl filter drop-shadow-sm`}>
+        <h1 className={`${styleClasses} ${colorClasses} select-text block max-w-3xl`}>
           {text}
         </h1>
 
         {/* Dynamic Tagline Subtitle */}
-        {subtitle && (
-          <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.18em] text-zinc-900/60 dark:text-zinc-100/60 uppercase max-w-2xl select-text pt-0.5 leading-tight">
-            {subtitle}
+        {cleanSubtitle && (
+          <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.18em] text-zinc-600 dark:text-zinc-400 uppercase max-w-2xl select-text pt-0.5 leading-tight">
+            {cleanSubtitle}
           </p>
         )}
         

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/mbm-bet</loc>
+    <lastmod>2026-10-30T13:06:43+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1788432247/rummydex_uploads/ldszslt3axhlv5ggm5pu.webp</image:loc>
+      <image:title>MBM BET</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/jaiho-play</loc>
     <lastmod>2026-10-30T03:17:56+00:00</lastmod>
     <changefreq>daily</changefreq>
@@ -382,16 +392,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784878592/download_28_mhxps5.webp</image:loc>
       <image:title>EVERY 77</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/mbm-bet</loc>
-    <lastmod>2026-10-11T06:48:41+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1788432247/rummydex_uploads/ldszslt3axhlv5ggm5pu.webp</image:loc>
-      <image:title>MBM BET</image:title>
     </image:image>
   </url>
   <url>

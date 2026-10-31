@@ -7,9 +7,9 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
-import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import { formatNewsDate, calculateReadingTime, getNextNewsChain } from '../lib/newsUtils';
 import { getOptimizedImageUrl, normalizeIsoDate } from '../seo/utils';
+import { formatPageTitle } from '../lib/seoUtils';
 
 export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();
@@ -109,6 +109,7 @@ export default function NewsDetailPage() {
 
   const hasFullBody = useMemo(() => {
     if (!newsItem) return false;
+    if ((newsItem as any)._isFullArticle) return true;
     const c = (newsItem.content || '').trim();
     const d = (newsItem.description_html || '').trim();
     return c.length > 250 || d.length > 250;
@@ -210,110 +211,6 @@ export default function NewsDetailPage() {
     return null;
   }, [relatedApp, newsItem]);
 
-  // 16 Category Similar Apps (single-pass, zero garbage allocations)
-  const similarCategoryApps = useMemo(() => {
-    if (!apps || apps.length === 0) return { list: [], category: '', totalCount: 0 };
-
-    const targetCategory = (relatedApp?.category || newsItem?.category || 'Yono Apps').trim();
-    const cleanTargetCat = targetCategory.toLowerCase();
-    const isAll = cleanTargetCat === 'all' || cleanTargetCat === 'all apps';
-    const relAppId = relatedApp ? String(relatedApp.id || '') : '';
-    const relAppSlug = relatedApp ? String(relatedApp.slug || '').toLowerCase() : '';
-
-    const newApps: any[] = [];
-    const regularApps: any[] = [];
-    let totalCatCount = 0;
-
-    for (let i = 0; i < apps.length; i++) {
-      const a = apps[i];
-      if (!a) continue;
-
-      const aId = String(a.id || '');
-      const aSlug = String(a.slug || '').toLowerCase();
-      const isBaseApp = Boolean(relatedApp && (aId === relAppId || aSlug === relAppSlug));
-
-      const aCat = (a.category || '').toLowerCase();
-      const matches = isAll || aCat.includes(cleanTargetCat) || cleanTargetCat.includes(aCat);
-
-      if (matches) {
-        totalCatCount++;
-        if (!isBaseApp) {
-          const rawItem = a as any;
-          const isHot = Boolean(
-            rawItem.is_hot === true || rawItem.is_hot === 'true' || rawItem.is_hot === 1 ||
-            rawItem.isHot === true || rawItem.isHot === 'true' || rawItem.isHot === 1 ||
-            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'hot')
-          );
-          const isNew = Boolean(
-            rawItem.is_new === true || rawItem.is_new === 'true' || rawItem.is_new === 1 ||
-            rawItem.isNew === true || rawItem.isNew === 'true' || rawItem.isNew === 1 ||
-            (typeof rawItem.badge === 'string' && rawItem.badge.trim().toLowerCase() === 'new')
-          );
-          if (isHot || isNew) {
-            newApps.push(a);
-          } else {
-            regularApps.push(a);
-          }
-        }
-      }
-    }
-
-    // 1. Sort new apps strictly by serial_number ascending
-    newApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
-
-    // 2. Sort regular apps strictly by serial_number ascending
-    regularApps.sort((a, b) => (Number(a.serial_number) || 999999) - (Number(b.serial_number) || 999999));
-
-    const maxCount = 16;
-    const strSeed = String(cleanSlug || newsItem?.slug || newsItem?.id || '');
-    let seedHash = 0;
-    for (let i = 0; i < strSeed.length; i++) seedHash = ((seedHash << 5) - seedHash) + strSeed.charCodeAt(i);
-    const absSeed = Math.abs(seedHash);
-
-    const maxNewSlots = Math.min(newApps.length, 6);
-    const pinnedNew: any[] = [];
-    if (maxNewSlots > 0 && newApps.length > 0) {
-      const newStart = absSeed % newApps.length;
-      for (let s = 0; s < maxNewSlots; s++) {
-        pinnedNew.push(newApps[(newStart + s) % newApps.length]);
-      }
-    }
-    const remainingSlots = maxCount - pinnedNew.length;
-
-    // Balanced Circular Internal Linking:
-    // Stagger regular apps circularly starting right after the base app's serial number or hash seed
-    const pickedRegular: any[] = [];
-    if (remainingSlots > 0 && regularApps.length > 0) {
-      let startIndex = absSeed % regularApps.length;
-      const baseSerial = Number(relatedApp?.serial_number);
-      if (!isNaN(baseSerial) && baseSerial > 0) {
-        const nextIdx = regularApps.findIndex(a => (Number(a.serial_number) || 0) > baseSerial);
-        if (nextIdx !== -1) startIndex = nextIdx;
-      }
-
-      const countToPick = Math.min(remainingSlots, regularApps.length);
-      for (let step = 0; step < countToPick; step++) {
-        pickedRegular.push(regularApps[(startIndex + step) % regularApps.length]);
-      }
-    }
-
-    const finalList = [...pinnedNew, ...pickedRegular].map((a: any) => ({
-      id: a.id,
-      name: a.name,
-      slug: a.slug,
-      icon_url: a.icon_url || a.logo_url,
-      is_new: Boolean(a.is_new === true || a.is_new === 'true' || a.isNew || a.badge?.toLowerCase() === 'new'),
-      is_hot: Boolean(a.is_hot === true || a.is_hot === 'true' || a.isHot || a.badge?.toLowerCase() === 'hot'),
-      serial_number: a.serial_number
-    }));
-
-    return {
-      list: finalList,
-      category: targetCategory,
-      totalCount: totalCatCount
-    };
-  }, [apps, relatedApp, newsItem, cleanSlug]);
-
   const handleShare = () => {
     const url = newsItem?.canonical_url || window.location.href;
     const shareTitle = newsItem?.seo_title || newsItem?.title || 'News Article';
@@ -365,24 +262,37 @@ export default function NewsDetailPage() {
     );
   }
 
-  const articleTitle = newsItem.seo_title || newsItem.meta_title || newsItem.title || 'News Article';
+  const rawHeading = newsItem.title || 'News Article';
+  const articleTitle = formatPageTitle(newsItem.seo_title || newsItem.meta_title || rawHeading, rawHeading);
   const bodyContent = newsItem.content || newsItem.description_html || newsItem.description || '';
-  const plainBody = bodyContent.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-  const articleDesc = newsItem.seo_description || newsItem.meta_description || newsItem.description || plainBody.substring(0, 160);
-  const rawArticleImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
-  const optimizedArticleImage = rawArticleImage ? (getOptimizedImageUrl(rawArticleImage, 1200) || rawArticleImage) : '';
-  const canonicalUrl = newsItem.canonical_url || `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
+  const plainBody = bodyContent
+    .replace(/<(script|style|svg|head|title|iframe|object|embed)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]*>?/gm, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const rawDesc = newsItem.seo_description || newsItem.meta_description || newsItem.description || plainBody.substring(0, 160);
+  const articleDesc = String(rawDesc || '')
+    .replace(/<[^>]*>?/gm, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+  const rawHeroLogo = newsItem.image || newsItem.image_url || newsItem.logo_url || newsItem.og_image_url || '';
+  const rawOgImage = newsItem.og_image_url || newsItem.image_url || newsItem.logo_url || newsItem.image || '';
+  const optimizedArticleImage = rawOgImage ? (getOptimizedImageUrl(rawOgImage, 1200) || rawOgImage) : '';
+  const canonicalUrl = `https://www.rummydex.com/news/${newsItem.slug || newsItem.id}`;
   const rawDatePublished = newsItem.published_at || newsItem.publish_date || newsItem.created_at || newsItem.date || '';
   const datePublished = normalizeIsoDate(rawDatePublished);
   const dateModified = normalizeIsoDate(newsItem.updated_at || rawDatePublished, datePublished);
-  const rawAuthorName = (newsItem.ceo_name || newsItem.author || 'Editorial Team').trim();
-  const isGenericAuthor = !rawAuthorName || /^(?:team|admin(?:\s+team)?|cto|(?:the\s+)?editorial(?:\s+team)?|rummydex(?:\s+team|\s+editorial(?:\s+team)?)?|content\s*upload|staff|official)$/i.test(rawAuthorName);
+  const rawAuthorName = (newsItem.author || newsItem.ceo_name || 'Editorial Team').trim();
+  const isGenericAuthor = !rawAuthorName || /^(?:team|admin(?:\s+team)?|cto|(?:the\s+)?editorial(?:\s+team)?|rummydex(?:\s+team|\s+editorial(?:\s+team)?)?|content(?:\s+upload|\s+team)?|upload|staff|system|official)$/i.test(rawAuthorName);
   const authorName = isGenericAuthor ? 'RummyDex Editorial Team' : rawAuthorName;
   const authorSchemaEntity = isGenericAuthor
     ? {
         "@type": "Organization",
         "name": "RummyDex Editorial Team",
-        "url": "https://www.rummydex.com"
+        "url": "https://www.rummydex.com/about"
       }
     : {
         "@type": "Person",
@@ -465,7 +375,7 @@ export default function NewsDetailPage() {
         title={articleTitle}
         description={articleDesc}
         keywords={newsItem.seo_keywords}
-        image={rawArticleImage}
+        image={rawOgImage}
         type="article"
         publishedTime={datePublished}
         modifiedTime={dateModified}
@@ -482,13 +392,13 @@ export default function NewsDetailPage() {
         category={articleCategory}
         formattedDate={formatNewsDate(newsItem.date, newsItem.published_at, newsItem.created_at)}
         author={authorName}
-        readingTime={calculateReadingTime(bodyContent)}
-        logoUrl={rawArticleImage}
+        readingTime={newsItem.read_time || calculateReadingTime(bodyContent)}
+        logoUrl={rawHeroLogo}
         copied={copied}
         onShare={handleShare}
       />
 
-      {/* 1. App View/Download Action Box (Directly below banner image) */}
+      {/* App View/Download Action Box (Directly below banner image when related app exists) */}
       <NewsRelatedAppBox 
         downloadTarget={downloadTarget}
         relatedApp={relatedApp}
@@ -511,30 +421,13 @@ export default function NewsDetailPage() {
         </div>
       )}
 
-      {/* 2. App View/Download Action Box (Directly after the full HTML body) */}
-      <NewsRelatedAppBox 
-        downloadTarget={downloadTarget}
-        relatedApp={relatedApp}
-        newsItem={newsItem}
-        className="my-8"
-      />
-
-      {/* Similar Applications in the same category (Placed below primary article body) */}
-      {similarCategoryApps.list.length > 0 && (
-        <AppSimilarCarousel 
-          relatedApps={similarCategoryApps.list}
-          specificCategory={similarCategoryApps.category}
-          totalCategoryCount={similarCategoryApps.totalCount}
-        />
-      )}
-
-      {/* 3. Latest News & Updates Internal Linking ("Next, Next, Next" Daisy-Chain Engine) */}
+      {/* Latest News & Updates Internal Linking ("Next, Next, Next" Daisy-Chain Engine) */}
       {(() => {
-        const recentNews = getNextNewsChain(newsItem, mockNews, 6);
+        const recentNews = getNextNewsChain(newsItem, mockNews, 8);
         if (recentNews.length === 0) return null;
 
         return (
-          <section aria-labelledby="recent-news-heading" className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 text-left">
+          <section aria-labelledby="recent-news-heading" className="mt-10 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 text-left">
             <div className="flex items-center justify-between gap-2 mb-4">
               <h2 id="recent-news-heading" className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 Latest News &amp; Updates
@@ -571,6 +464,20 @@ export default function NewsDetailPage() {
                 );
               })}
             </div>
+            <nav aria-label="Related Directory Links" className="mt-5 pt-4 border-t border-zinc-200/50 dark:border-zinc-800/50 flex flex-wrap items-center gap-2 text-xs">
+              <Link to="/news" className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium no-underline transition-colors">
+                All News &amp; Updates
+              </Link>
+              <Link to="/" className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium no-underline transition-colors">
+                App Store Catalog
+              </Link>
+              <Link to="/new-apps" className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium no-underline transition-colors">
+                New Additions
+              </Link>
+              <Link to="/categories" className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium no-underline transition-colors">
+                Browse Categories
+              </Link>
+            </nav>
           </section>
         );
       })()}

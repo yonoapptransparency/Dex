@@ -13,15 +13,12 @@ interface NewsCardProps {
 function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
   const navigate = useNavigate();
   const coverImage = item.og_image_url || item.image_url || item.logo_url || item.image;
-  const readingTime = calculateReadingTime(item.content || item.description);
-  const formattedDate = formatNewsDate(item.date, item.published_at);
+  const readingTime = item.read_time || calculateReadingTime(item.content || item.description_html || item.description);
+  const formattedDate = formatNewsDate(item.date, item.published_at, item.created_at);
   const snippet = getPlainTextSnippet(item.description);
   const articleUrl = `/news/${item.slug || item.id}`;
   const isEager = typeof index === 'number' && index < 3;
-
-  const prefetchArticle = () => {
-    import('../../../pages/NewsDetailPage').catch(() => {});
-  };
+  const isPriority = index === 0;
 
   const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) {
@@ -33,8 +30,6 @@ function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
   return (
     <article 
       onClick={handleCardClick}
-      onPointerEnter={prefetchArticle}
-      onTouchStart={prefetchArticle}
       style={isEager ? undefined : { contentVisibility: 'auto', containIntrinsicSize: '380px' }}
       className="bg-white dark:bg-zinc-900 overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-200 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 cursor-pointer text-left"
     >
@@ -49,6 +44,7 @@ function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
             alt={item.title || 'News article thumbnail'} 
             className="w-full h-full object-cover block transition-transform duration-200 group-hover:scale-[1.02]"
             loading={isEager ? 'eager' : 'lazy'}
+            fetchPriority={isPriority ? 'high' : undefined}
             decoding="async"
             width={600}
             height={338}
