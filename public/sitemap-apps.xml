@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/share-slots</loc>
+    <lastmod>2026-11-03T05:59:42+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879544/download_36_zeiyxs.webp</image:loc>
+      <image:title>SHARE SLOTS</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/777-game</loc>
+    <lastmod>2026-11-03T05:58:21+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784878294/download_27_ex1vzp.webp</image:loc>
+      <image:title>777 GAME</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/gogo-rummy</loc>
+    <lastmod>2026-11-03T05:56:41+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786545476/1000134098_11zon_fafk2d.webp</image:loc>
+      <image:title>GOGO RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/yono-arcade</loc>
+    <lastmod>2026-11-03T05:49:59+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877459/download_14_krbwrv.webp</image:loc>
+      <image:title>YONO ARCADE</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/yono-slots</loc>
+    <lastmod>2026-11-03T05:46:15+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1789804128/rummydex_uploads/lobb8ijx50a1jlhdjd6f.jpg</image:loc>
+      <image:title>YONO SLOTS</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/best-rummy</loc>
     <lastmod>2026-11-03T05:18:20+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -28,16 +78,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786545477/1000134097_11zon_avladx.webp</image:loc>
       <image:title>YONO GAMES</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/yono-slots</loc>
-    <lastmod>2026-11-01T09:44:54+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1789804128/rummydex_uploads/lobb8ijx50a1jlhdjd6f.jpg</image:loc>
-      <image:title>YONO SLOTS</image:title>
     </image:image>
   </url>
   <url>
@@ -281,26 +321,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rummydex.com/app/gogo-rummy</loc>
-    <lastmod>2026-10-29T18:47:40+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786545476/1000134098_11zon_fafk2d.webp</image:loc>
-      <image:title>GOGO RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/share-slots</loc>
-    <lastmod>2026-10-29T16:26:28+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879544/download_36_zeiyxs.webp</image:loc>
-      <image:title>SHARE SLOTS</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.rummydex.com/app/spin-gold</loc>
     <lastmod>2026-10-27T17:25:21+00:00</lastmod>
     <changefreq>daily</changefreq>
@@ -452,16 +472,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877512/download_16_fznggx.webp</image:loc>
       <image:title>JAIHO 91</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/yono-arcade</loc>
-    <lastmod>2026-10-25T09:49:55+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877459/download_14_krbwrv.webp</image:loc>
-      <image:title>YONO ARCADE</image:title>
     </image:image>
   </url>
   <url>
@@ -622,16 +632,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784878950/download_31_s7fonv.webp</image:loc>
       <image:title>LOVE RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/777-game</loc>
-    <lastmod>2026-10-09T10:47:50+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784878294/download_27_ex1vzp.webp</image:loc>
-      <image:title>777 GAME</image:title>
     </image:image>
   </url>
   <url>
