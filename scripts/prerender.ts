@@ -6,7 +6,8 @@ import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
 import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
 import { formatPageTitle } from '../src/lib/seoUtils';
-import { compileCanonicalApp, compileCanonicalNews, generateStaticDataFileCode, sanitizePublicSettings } from '../src/lib/githubSync';
+import { compileCanonicalApp, compileCanonicalNews, generateStaticDataFileCode, sanitizePublicSettings } from '../src/lib/canonicalCompiler';
+import { optimizeCompiledCss, clearCriticalCssCache } from '../src/seo/criticalCss';
 
 function sanitizePublicApp(app: any): any {
   if (!app || typeof app !== 'object') return app;
@@ -91,6 +92,7 @@ async function prerender() {
   }
 
   console.log('Static Prerendering started...');
+  clearCriticalCssCache();
   const distPath = path.resolve(process.cwd(), 'dist');
   const indexHtmlPath = path.join(distPath, 'index.html');
   
@@ -103,14 +105,15 @@ async function prerender() {
     const HOST = process.env.PUBLIC_DOMAIN || process.env.VITE_PUBLIC_DOMAIN || 'https://www.rummydex.com';
     let originalTemplate = cleanRootContainer(fs.readFileSync(indexHtmlPath, 'utf-8'));
 
-    // Inline compiled Vite CSS directly into <head> to eliminate render-blocking CSS network round-trips and prevent FOUC (A1, A2, A10)
+    // Inline optimized compiled Vite CSS directly into <head> to eliminate render-blocking CSS network round-trips and prevent FOUC (A1, A2, A10)
     originalTemplate = originalTemplate.replace(
       /<link\s+rel=["']stylesheet["'][^>]*href=["']\/?assets\/([^"']+\.css)["'][^>]*\/?>/gi,
       (fullMatch, cssFileName) => {
         try {
           const cssFilePath = path.join(distPath, 'assets', cssFileName);
           if (fs.existsSync(cssFilePath)) {
-            const cssContent = fs.readFileSync(cssFilePath, 'utf-8');
+            const cssContent = optimizeCompiledCss(fs.readFileSync(cssFilePath, 'utf-8'));
+            fs.writeFileSync(cssFilePath, cssContent, 'utf-8');
             return `<style id="vite-inline-css">${cssContent}</style>`;
           }
         } catch (_) {}
