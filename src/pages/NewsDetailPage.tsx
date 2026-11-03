@@ -132,15 +132,17 @@ export default function NewsDetailPage() {
       return;
     }
 
-    // 3. Instant 0ms memory fallback from static dataset (instant FCP/LCP when switching URLs)
+    // 3. Instant 0ms memory fallback from static dataset (never overwrite a live API response)
     loadFullStaticDataset().then(dataset => {
       if (activeSlugRef.current !== slugKey) return;
       const match = (dataset?.news || []).find((n: any) =>
         (n.slug || '').toLowerCase().trim() === slugKey || (n.id || '').toLowerCase().trim() === slugKey
       );
       if (match && ((match.content || '').length > 250 || (match.description_html || '').length > 250)) {
-        setFetchedNewsItem(match);
-        updateNewsDetail?.(match);
+        setFetchedNewsItem((prev: any) => prev || match);
+        if (!newsItem?.content || newsItem.content.length < 250) {
+          updateNewsDetail?.(match);
+        }
       }
     }).catch(() => {});
 
@@ -409,7 +411,7 @@ export default function NewsDetailPage() {
       {bodyContent ? (
         <div 
           onClick={handleHtmlClick}
-          className="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
+          className="rich-html-content prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-relaxed text-sm sm:text-base space-y-4 font-normal mt-6"
           dangerouslySetInnerHTML={{ __html: safeHtml(bodyContent) }}
         />
       ) : (

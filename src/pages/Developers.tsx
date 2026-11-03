@@ -1,7 +1,8 @@
 import React from 'react';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { Github, Twitter } from 'lucide-react';
+import { Github, Twitter, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getOptimizedImageUrl } from '../seo/utils';
 
 export default function Developers() {
@@ -15,102 +16,113 @@ export default function Developers() {
 
   if (!settings.developers || settings.developers.length === 0) {
     return (
-      <div className="animate-fade-in">
-        <div className="min-h-screen pt-32 px-4 pb-20 flex flex-col items-center justify-center text-center">
-          <Meta 
-            title={settings?.developers_meta_title || "Developer Profiles"}
-            description={settings?.developers_meta_description || `Browse profiles of top app developers featured on ${settings?.site_title || 'RummyDex'}.`}
-            canonical={window.location.origin + "/developers"}
-          />
-          <div className="bg-white/50 dark:bg-zinc-900/50  border border-black/5 dark:border-white/5 p-12 rounded-[3rem] max-w-lg mx-auto shadow-2xl">
-            <h1 className="text-3xl font-black mb-4 dark:text-white uppercase tracking-tight italic">Our Developers</h1>
-            <p className="text-slate-600 dark:text-slate-400 font-medium">Information about our developers is not available at this moment. Please check back later.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="animate-fade-in">
-      <div className="min-h-screen pt-32 px-4 pb-20">
+      <div className="max-w-[1000px] mx-auto px-3.5 sm:px-6 py-3 sm:py-6 animate-fade-in pb-14 min-h-[70vh] text-left">
         <Meta 
           title={settings?.developers_meta_title || "Developer Profiles"}
           description={settings?.developers_meta_description || `Browse profiles of top app developers featured on ${settings?.site_title || 'RummyDex'}.`}
           canonical={window.location.origin + "/developers"}
         />
-
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 dark:from-pink-400 dark:to-violet-400 tracking-tighter italic">
-              Meet Our Team
-            </h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium max-w-2xl mx-auto">
-              The creative minds and technical experts building the future of {settings.site_title}.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {settings.developers.map((dev, index) => (
-              <div 
-                key={`dev-card-${dev.id || dev.name || index}`} 
-                className="bg-white/70 dark:bg-zinc-900/70 border border-black/5 dark:border-white/5 rounded-[2rem] p-8  shadow-lg transition-all hover:shadow-xl hover:-translate-y-2 flex flex-col items-center text-center group animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white dark:border-zinc-800 shadow-xl group-hover:scale-105 transition-transform duration-500">
-                  <img 
-                    src={dev.image_url ? getOptimizedImageUrl(dev.image_url, 256) : `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=random`} 
-                    alt={dev.name} 
-                    loading="lazy"
-                    decoding="async"
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-2 tracking-tight">{dev.name}</h3>
-                
-                <div className="bg-pink-500/10 text-pink-600 dark:text-pink-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4">
-                  {dev.role}
-                </div>
-                
-                {dev.bio && (
-                  <p className="text-slate-600 dark:text-slate-400 mb-8 flex-grow font-medium text-sm leading-relaxed">
-                    {dev.bio}
-                  </p>
-                )}
-                
-                <div className="flex gap-4 mt-auto pt-6 border-t border-black/5 dark:border-white/5 w-full justify-center">
-                  {dev.github && (
-                    <a 
-                      href={dev.github} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white"
-                      title="GitHub"
-                      aria-label={`${dev.name || 'Developer'} GitHub Profile`}
-                    >
-                      <Github className="w-5 h-5" />
-                    </a>
-                  )}
-                  {dev.twitter && (
-                    <a 
-                      href={dev.twitter} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="p-3 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-colors text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-blue-400"
-                      title="Twitter"
-                      aria-label={`${dev.name || 'Developer'} Twitter Profile`}
-                    >
-                      <Twitter className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="mb-3 sm:mb-4">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-blue-600 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Home
+          </Link>
         </div>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-2.5 pb-2.5 border-b border-zinc-200/80 dark:border-zinc-800/80">
+          Our Developers
+        </h1>
+        <p className="text-xs xs:text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mt-3">
+          Information about our developers is not available at this moment. Please check back later.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[1000px] mx-auto px-3.5 sm:px-6 py-3 sm:py-6 animate-fade-in pb-14 min-h-[70vh] text-left">
+      <Meta 
+        title={settings?.developers_meta_title || "Developer Profiles"}
+        description={settings?.developers_meta_description || `Browse profiles of top app developers featured on ${settings?.site_title || 'RummyDex'}.`}
+        canonical={window.location.origin + "/developers"}
+      />
+      <div className="mb-3 sm:mb-4">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-blue-600 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Home
+        </Link>
+      </div>
+
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-2 pb-2.5 border-b border-zinc-200/80 dark:border-zinc-800/80">
+        Meet Our Team
+      </h1>
+      <p className="text-xs xs:text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mb-6">
+        The creative minds and technical experts building the future of {settings.site_title}.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        {settings.developers.map((dev, index) => (
+          <div 
+            key={`dev-card-${dev.id || dev.name || index}`} 
+            className="border border-zinc-200/80 dark:border-white/10 rounded-2xl p-5 flex flex-col items-center text-center group animate-fade-in"
+          >
+            <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-zinc-200 dark:border-zinc-800">
+              <img 
+                src={dev.image_url ? getOptimizedImageUrl(dev.image_url, 256) : `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=random`} 
+                alt={dev.name} 
+                loading="lazy"
+                decoding="async"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <h3 className="text-lg font-extrabold text-zinc-900 dark:text-white mb-1 tracking-tight">{dev.name}</h3>
+            
+            <div className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+              {dev.role}
+            </div>
+            
+            {dev.bio && (
+              <p className="text-zinc-600 dark:text-zinc-400 mb-4 flex-grow text-xs sm:text-sm leading-relaxed">
+                {dev.bio}
+              </p>
+            )}
+            
+            <div className="flex gap-3 mt-auto pt-3 border-t border-zinc-200/80 dark:border-white/10 w-full justify-center">
+              {dev.github && (
+                <a 
+                  href={dev.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 border border-zinc-200/80 dark:border-white/10 rounded-lg transition-colors text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white"
+                  title="GitHub"
+                  aria-label={`${dev.name || 'Developer'} GitHub Profile`}
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+              )}
+              {dev.twitter && (
+                <a 
+                  href={dev.twitter} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 border border-zinc-200/80 dark:border-white/10 rounded-lg transition-colors text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-blue-400"
+                  title="Twitter"
+                  aria-label={`${dev.name || 'Developer'} Twitter Profile`}
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

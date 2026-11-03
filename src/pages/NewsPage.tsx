@@ -35,37 +35,51 @@ export default function NewsPage() {
 
   const publicNewsList = useMemo(() => {
     return (mockNews || [])
-      .filter(item => item && item.sync_to_public !== false)
+      .filter(item => item && item.sync_to_public !== false && item.status !== 'draft')
       .sort((a, b) => {
-        if (a.is_pinned && !b.is_pinned) return -1;
-        if (!a.is_pinned && b.is_pinned) return 1;
+        const aPin = Boolean(a.pinned || a.is_pinned);
+        const bPin = Boolean(b.pinned || b.is_pinned);
+        if (aPin && !bPin) return -1;
+        if (!aPin && bPin) return 1;
         const dateA = new Date(a.date || a.published_at || a.created_at || 0).getTime();
         const dateB = new Date(b.date || b.published_at || b.created_at || 0).getTime();
         return dateB - dateA;
       });
   }, [mockNews]);
 
-  const categories = useMemo(() => {
-    const set = new Set<string>();
+  const { categories, categoryCounts } = useMemo(() => {
+    const labelByLower = new Map<string, string>();
+    const counts = new Map<string, number>();
     publicNewsList.forEach(item => {
-      if (item.category && item.category.trim()) {
-        set.add(item.category.trim());
+      const raw = (item.category || '').trim();
+      if (raw) {
+        const lower = raw.toLowerCase();
+        if (!labelByLower.has(lower)) labelByLower.set(lower, raw);
+        const canonical = labelByLower.get(lower)!;
+        counts.set(canonical, (counts.get(canonical) || 0) + 1);
       }
     });
-    return ['All', ...Array.from(set)];
+    return {
+      categories: ['All', ...Array.from(labelByLower.values())],
+      categoryCounts: counts
+    };
   }, [publicNewsList]);
 
   const filteredNews = useMemo(() => {
     return publicNewsList.filter(item => {
       const matchesCategory = activeCategory === 'All' || 
-        (item.category && item.category.toLowerCase() === activeCategory.toLowerCase());
+        (item.category && item.category.trim().toLowerCase() === activeCategory.toLowerCase());
       
       const query = searchTerm.toLowerCase().trim();
+      const tagsStr = Array.isArray(item.tags) ? item.tags.join(' ') : String(item.tags || '');
       const matchesSearch = !query || 
         item.title?.toLowerCase().includes(query) ||
         item.description?.toLowerCase().includes(query) ||
         item.ceo_name?.toLowerCase().includes(query) ||
-        item.category?.toLowerCase().includes(query);
+        item.category?.toLowerCase().includes(query) ||
+        tagsStr.toLowerCase().includes(query) ||
+        item.seo_keywords?.toLowerCase().includes(query) ||
+        item.slug?.toLowerCase().includes(query);
 
       return matchesCategory && matchesSearch;
     });
@@ -255,19 +269,24 @@ export default function NewsPage() {
 
       {categories.length > 1 && (
         <div className="px-3 sm:px-0 mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                activeCategory === cat
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                  : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {categories.map(cat => {
+            const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
+            const count = cat === 'All' ? publicNewsList.length : (categoryCounts.get(cat) || 0);
+            return (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                }`}
+              >
+                <span>{cat}</span>
+                <span className={`text-[10px] opacity-80`}>({count})</span>
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -287,7 +306,7 @@ export default function NewsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 px-3 sm:px-0">
           {currentNewsSlice.map((item, idx) => (
-            <NewsCard key={item.id || item.slug} item={item} index={idx} onShare={handleShare} />
+            <NewsCard key={item.id || item.slug} item={item} index={idx} onShare={handleShare} onSelectCategory={handleCategoryChange} />
           ))}
         </div>
       )}

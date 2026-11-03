@@ -6,60 +6,23 @@ import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
 import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
 import { formatPageTitle } from '../src/lib/seoUtils';
+import { compileCanonicalApp, compileCanonicalNews, generateStaticDataFileCode, sanitizePublicSettings } from '../src/lib/githubSync';
 
 function sanitizePublicApp(app: any): any {
   if (!app || typeof app !== 'object') return app;
-  const copy = { ...app };
-  const hasSecureLink = Boolean(
-    copy.has_secure_link ||
-    copy.more_information_url ||
-    copy.download_url ||
-    copy.encrypted_link ||
-    copy.encrypted_download_url ||
-    (copy.url && !String(copy.url).includes('com.rummydex') && !String(copy.url).includes('com.example'))
-  );
-  copy.has_secure_link = hasSecureLink;
-  delete copy.more_information_url;
-  delete copy.download_url;
-  delete copy.encrypted_link;
-  delete copy.encrypted_download_url;
-  if (copy.url && (String(copy.url).includes('com.rummydex') || String(copy.url).includes('com.example'))) {
-    copy.url = '';
-  }
-  if (typeof copy.slug === 'string') {
-    copy.slug = copy.slug.trim().replace(/^\/+|\/+$/g, '');
-  }
-  const rawSeoTitle = String(copy.seo_title || copy.meta_title || '').trim();
-  if (rawSeoTitle) {
-    const cleanTitle = formatPageTitle(rawSeoTitle, '');
-    copy.seo_title = cleanTitle;
-    copy.meta_title = cleanTitle;
-  }
-  return copy;
+  return compileCanonicalApp(app, { stripDownloadLinks: true });
 }
 
 function sanitizePublicNews(newsItem: any): any {
   if (!newsItem || typeof newsItem !== 'object') return newsItem;
-  const copy = { ...newsItem };
-  if (typeof copy.slug === 'string') {
-    copy.slug = copy.slug.trim().replace(/^\/+|\/+$/g, '');
-  }
-  if (typeof copy.title === 'string' && copy.title.trim()) {
-    copy.title = formatPageTitle(copy.title.trim(), '');
-  }
-  const rawSeoTitle = String(copy.seo_title || copy.meta_title || '').trim();
-  if (rawSeoTitle) {
-    const cleanTitle = formatPageTitle(rawSeoTitle, '');
-    copy.seo_title = cleanTitle;
-    copy.meta_title = cleanTitle;
-  }
-  return copy;
+  return compileCanonicalNews(newsItem);
 }
 
 async function syncStaticDataAndSitemaps() {
   const host = 'https://www.rummydex.com';
   const publicPath = path.resolve(process.cwd(), 'public');
   const staticJsonPath = path.join(process.cwd(), 'src/lib/staticData.json');
+  const staticTsPath = path.join(process.cwd(), 'src/lib/staticData.ts');
 
   let data = await fetchStoreData() || { apps: [], news: [], blogs: [], videos: [], settings: {} };
   if (!data.apps || data.apps.length === 0) {
@@ -85,8 +48,7 @@ async function syncStaticDataAndSitemaps() {
     .filter((n: any) => n && n.sync_to_public !== false)
     .map((n: any) => sanitizePublicNews(n));
 
-  const publicSettings = { ...(data.settings || {}) };
-  delete publicSettings.turnstile_secret_key;
+  const publicSettings = sanitizePublicSettings(data.settings || {});
 
   if (publicApps.length > 0) {
     const publicPayload = {
@@ -98,9 +60,11 @@ async function syncStaticDataAndSitemaps() {
     };
     try {
       fs.writeFileSync(staticJsonPath, JSON.stringify(publicPayload), 'utf8');
-      console.log(`Synced live Firestore data into src/lib/staticData.json (${publicApps.length} apps, ${publicNews.length} news items).`);
+      const staticTsCode = generateStaticDataFileCode(publicApps, publicSettings, publicNews, data.videos || []);
+      fs.writeFileSync(staticTsPath, staticTsCode, 'utf8');
+      console.log(`Synced live Firestore data into src/lib/staticData.json & staticData.ts (${publicApps.length} apps, ${publicNews.length} news items).`);
     } catch (e) {
-      console.warn('Failed writing staticData.json:', e);
+      console.warn('Failed writing staticData.json / staticData.ts:', e);
     }
   }
 

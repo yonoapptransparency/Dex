@@ -317,12 +317,13 @@ export default function AppDetails() {
     const slugKey = slug?.toLowerCase().trim() || '';
     if (!slugKey) return;
 
-    // 1. Check if app already has complete rich content (description & features) from pre-render or memory
+    // 1. Check if app was pre-rendered specifically for this SSR route (_isFullApp)
     const isFullPreRenderedApp = Boolean(
       app &&
       !(app as any)._isTrimmed &&
-      ((app as any)._isFullApp ||
-        (app.description_html && app.description_html.trim().length > 15))
+      (app as any)._isFullApp &&
+      app.description_html &&
+      app.description_html.trim().length > 15
     );
     if (isFullPreRenderedApp) {
       setRemoteCheckDoneSlug(slugKey);
@@ -349,13 +350,15 @@ export default function AppDetails() {
       return;
     }
 
-    // 3. Instant 0ms memory fallback from static dataset (instant FCP/LCP when switching URLs)
+    // 3. Instant 0ms memory fallback from static dataset (never overwrite an already-resolved live API fetchedApp)
     loadFullStaticDataset().then(dataset => {
       if (activeSlugRef.current !== slugKey) return;
       const match = resolveAppSlug(slugKey, dataset?.apps || []);
       if (match && match.description_html && match.description_html.trim().length > 10) {
-        setFetchedApp(match);
-        if (updateAppDetail) updateAppDetail(match);
+        setFetchedApp(prev => prev || match);
+        if (updateAppDetail && (!app?.description_html || app.description_html.trim().length < 15)) {
+          updateAppDetail(match);
+        }
       }
     }).catch(() => {});
 

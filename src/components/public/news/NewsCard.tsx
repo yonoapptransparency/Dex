@@ -8,17 +8,20 @@ interface NewsCardProps {
   item: any;
   index?: number;
   onShare: (item: any) => void;
+  onSelectCategory?: (category: string) => void;
 }
 
-function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
+function NewsCardComponent({ item, index, onShare, onSelectCategory }: NewsCardProps) {
   const navigate = useNavigate();
   const coverImage = item.og_image_url || item.image_url || item.logo_url || item.image;
-  const readingTime = item.read_time || calculateReadingTime(item.content || item.description_html || item.description);
+  const readingTime = item.read_time || calculateReadingTime(item.content_html || item.content || item.description_html || item.description);
   const formattedDate = formatNewsDate(item.date, item.published_at, item.created_at);
-  const snippet = getPlainTextSnippet(item.description);
+  const snippet = getPlainTextSnippet(item.description || item.content_html);
   const articleUrl = `/news/${item.slug || item.id}`;
   const isEager = typeof index === 'number' && index < 3;
   const isPriority = index === 0;
+  const isPinned = Boolean(item.pinned || item.is_pinned);
+  const category = (item.category || '').trim();
 
   const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) {
@@ -49,15 +52,24 @@ function NewsCardComponent({ item, index, onShare }: NewsCardProps) {
             width={600}
             height={338}
           />
-          {item.is_pinned && (
+          {isPinned && (
             <div className="absolute top-2.5 left-2.5 bg-amber-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1 z-10">
               <Pin className="w-3 h-3 fill-white" />
               <span>Pinned</span>
             </div>
           )}
-          {item.category && (
-            <div className="absolute bottom-2.5 left-2.5 bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/10 z-10">
-              {item.category}
+          {category && (
+            <div
+              onClick={(e) => {
+                if (onSelectCategory) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelectCategory(category);
+                }
+              }}
+              className="absolute bottom-2.5 left-2.5 bg-black/75 backdrop-blur-xs hover:bg-blue-600 transition-colors text-white text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/10 z-10"
+            >
+              {category}
             </div>
           )}
         </Link>
