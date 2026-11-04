@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/ace-rummy</loc>
+    <lastmod>2026-11-04T13:00:52+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1793797250/rummydex_uploads/p4o6qvgareccqsyp5he9.webp</image:loc>
+      <image:title>ACE RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/joy-rummy</loc>
+    <lastmod>2026-11-04T12:51:04+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879087/download_32_cyvkev.webp</image:loc>
+      <image:title>JOY RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/bingo-101</loc>
+    <lastmod>2026-11-04T12:49:41+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877567/download_18_lljdaa.webp</image:loc>
+      <image:title>BINGO 101</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/saga-slots</loc>
     <lastmod>2026-11-04T06:01:31+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -158,26 +188,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784878050/download_26_awtrna.webp</image:loc>
       <image:title>ABC RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/bingo-101</loc>
-    <lastmod>2026-10-31T07:05:18+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877567/download_18_lljdaa.webp</image:loc>
-      <image:title>BINGO 101</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/joy-rummy</loc>
-    <lastmod>2026-10-31T07:03:46+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879087/download_32_cyvkev.webp</image:loc>
-      <image:title>JOY RUMMY</image:title>
     </image:image>
   </url>
   <url>
