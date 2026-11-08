@@ -11,13 +11,20 @@ import React, { useState, useEffect } from 'react';
 import Meta from '../components/Meta';
 
 export default function Contact() {
-  const { settings: mockSettings } = useData();
+  const { settings: mockSettings, fetchSettings } = useData();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [msgText, setMsgText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorText, setErrorText] = useState('');
+
+  useEffect(() => {
+    if (!mockSettings?.contact_content) {
+      fetchSettings();
+    }
+  }, [mockSettings?.contact_content, fetchSettings]);
+
   return (
     <div className="max-w-[1000px] mx-auto px-3.5 sm:px-6 py-3 sm:py-6 animate-fade-in pb-14 min-h-[70vh] text-left">
       <Meta 

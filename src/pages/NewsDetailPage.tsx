@@ -7,7 +7,7 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { safeHtml } from '../lib/safeHtmlPublic';
 import { NewsArticleHeader } from '../components/public/newsDetails/NewsArticleHeader';
 import { NewsRelatedAppBox } from '../components/public/newsDetails/NewsRelatedAppBox';
-import { formatNewsDate, calculateReadingTime, getNextNewsChain } from '../lib/newsUtils';
+import { formatNewsDate, calculateReadingTime, getNextNewsChain, resolveNewsRelatedApp } from '../lib/newsUtils';
 import { getOptimizedImageUrl, normalizeIsoDate } from '../seo/utils';
 import { formatPageTitle } from '../lib/seoUtils';
 
@@ -43,6 +43,17 @@ export default function NewsDetailPage() {
   }, [slug]);
 
   const [fetchedNewsItem, setFetchedNewsItem] = useState<any | null>(null);
+  const [staticAppsFallback, setStaticAppsFallback] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (apps.length === 0 && staticAppsFallback.length === 0) {
+      loadFullStaticDataset().then(dataset => {
+        if (Array.isArray(dataset?.apps) && dataset.apps.length > 0) {
+          setStaticAppsFallback(dataset.apps);
+        }
+      }).catch(() => {});
+    }
+  }, [apps.length, staticAppsFallback.length]);
 
   const activeSlugRef = useRef<string>(cleanSlug);
   activeSlugRef.current = cleanSlug;
@@ -182,21 +193,9 @@ export default function NewsDetailPage() {
   }, [cleanSlug, hasFullBody]);
 
   const relatedApp = useMemo(() => {
-    if (!newsItem) return null;
-    if (newsItem.related_app_id) {
-      const found = apps.find(a => a.id === newsItem.related_app_id || a.slug === newsItem.related_app_id);
-      if (found) return found;
-    }
-    if (newsItem.link) {
-      const cleanLink = newsItem.link.trim();
-      const appSlugFromLink = cleanLink.replace(/^.*\/app\//, '').replace(/\/$/, '').split(/[?#]/)[0];
-      if (appSlugFromLink) {
-        const found = apps.find(a => a.slug?.toLowerCase() === appSlugFromLink.toLowerCase() || a.id === appSlugFromLink);
-        if (found) return found;
-      }
-    }
-    return null;
-  }, [newsItem, apps]);
+    const candidateApps = apps.length > 0 ? apps : staticAppsFallback;
+    return resolveNewsRelatedApp(newsItem, candidateApps);
+  }, [newsItem, apps, staticAppsFallback]);
 
   const downloadTarget = useMemo(() => {
     if (relatedApp) {
@@ -420,6 +419,27 @@ export default function NewsDetailPage() {
           <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full"></div>
           <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6"></div>
           <div className="h-24 bg-zinc-100 dark:bg-zinc-900 rounded-xl w-full"></div>
+        </div>
+      )}
+
+      {Array.isArray(newsItem.tags) && newsItem.tags.filter(Boolean).length > 0 && (
+        <div className="mt-6 pt-4 border-t border-zinc-200/60 dark:border-zinc-800/60 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mr-1">
+            Topics:
+          </span>
+          {newsItem.tags.filter(Boolean).map((tag: string, idx: number) => {
+            const cleanTag = String(tag).trim();
+            if (!cleanTag) return null;
+            return (
+              <Link
+                key={`${cleanTag}-${idx}`}
+                to={`/news?q=${encodeURIComponent(cleanTag)}`}
+                className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-medium transition-colors no-underline"
+              >
+                #{cleanTag}
+              </Link>
+            );
+          })}
         </div>
       )}
 

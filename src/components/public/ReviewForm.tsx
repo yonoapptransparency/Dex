@@ -174,6 +174,9 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
                 </button>
               ))}
             </div>
+            <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+              {(hoveredRating ?? rating)}/5
+            </span>
           </div>
         </div>
 
@@ -185,7 +188,7 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
               name="reviewerName"
               type="text"
               required
-              maxLength={30}
+              maxLength={50}
               placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -194,12 +197,15 @@ export function ReviewForm({ appId, appSlug, appName, onSuccess }: ReviewFormPro
           </div>
           
           <div className="sm:col-span-2">
-            <label htmlFor="comment" className="block text-[9px] xs:text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">Review comment</label>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="comment" className="block text-[9px] xs:text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Review comment</label>
+              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 tabular-nums">{comment.length}/1000</span>
+            </div>
             <textarea
               id="comment"
               name="comment"
               required
-              maxLength={500}
+              maxLength={1000}
               placeholder="Write a constructive, honest review of the gameplay experience..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}

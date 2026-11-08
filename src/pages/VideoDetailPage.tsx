@@ -1,16 +1,17 @@
 /**
  * VideoDetailPage deep guides layout
  * Features a 0-KB initial Lite YouTube Click-to-Play Facade for instant mobile LCP,
- * 1:1 SSR hydration parity, Related Application deep linking, and structured VideoObject schema.
+ * open box-free editorial layout, 1:1 SSR hydration parity, Related Application deep linking, and structured VideoObject schema.
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
-import { mockVideos as staticMockVideos } from '../lib/lightFallback';
-import { ArrowLeft, ShieldAlert } from 'lucide-react';
+import { mockVideos as staticMockVideos, loadFullStaticDataset } from '../lib/lightFallback';
+import { ArrowLeft, ShieldAlert, Share2, Check } from 'lucide-react';
 import { getOptimizedImageUrl } from '../seo/utils';
+import { safeHtml } from '../lib/safeHtmlPublic';
 import {
   extractYoutubeId,
   formatNewsDate,
@@ -23,9 +24,7 @@ export default function VideoDetailPage() {
     videos: mockVideos = [],
     apps = [],
     loading,
-    videosSyncedWithServer,
-    serverVideosFetched,
-    refreshAll
+    fetchVideos
   } = useData();
   const { slug } = useParams();
   const cleanSlug = decodeURIComponent(slug || '')
@@ -34,21 +33,49 @@ export default function VideoDetailPage() {
     .replace(/\/+$/, '')
     .split(/[?#]/)[0];
 
+  const [staticAppsFallback, setStaticAppsFallback] = useState<any[]>([]);
+  const [staticVideosFallback, setStaticVideosFallback] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (apps.length === 0 || mockVideos.length === 0) {
+      loadFullStaticDataset()
+        .then((dataset) => {
+          if (Array.isArray(dataset?.apps) && dataset.apps.length > 0) {
+            setStaticAppsFallback(dataset.apps);
+          }
+          if (Array.isArray(dataset?.videos) && dataset.videos.length > 0) {
+            setStaticVideosFallback(dataset.videos);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [apps.length, mockVideos.length]);
+
+  const allVideos = useMemo(() => {
+    if (Array.isArray(mockVideos) && mockVideos.length > 0) return mockVideos;
+    if (staticVideosFallback.length > 0) return staticVideosFallback;
+    return Array.isArray(staticMockVideos) ? staticMockVideos : [];
+  }, [mockVideos, staticVideosFallback]);
+
   const videoItem = useMemo(() => {
-    const fromContext = (Array.isArray(mockVideos) ? mockVideos : []).find(
+    if (!cleanSlug) return null;
+    if (typeof window !== 'undefined' && Array.isArray((window as any).__INITIAL_DATA__?.videos)) {
+      const fromInit = (window as any).__INITIAL_DATA__.videos.find(
+        (v: any) =>
+          (v?.slug || '').toLowerCase().trim() === cleanSlug ||
+          (v?.id || '').toLowerCase().trim() === cleanSlug
+      );
+      if (fromInit) return fromInit;
+    }
+    return allVideos.find(
       (v) =>
         (v?.slug || '').toLowerCase().trim() === cleanSlug ||
         (v?.id || '').toLowerCase().trim() === cleanSlug
-    );
-    if (fromContext) return fromContext;
-    return (Array.isArray(staticMockVideos) ? staticMockVideos : []).find(
-      (v) =>
-        (v?.slug || '').toLowerCase().trim() === cleanSlug ||
-        (v?.id || '').toLowerCase().trim() === cleanSlug
-    );
-  }, [mockVideos, cleanSlug]);
+    ) || null;
+  }, [allVideos, cleanSlug]);
 
   const [isPlaying, setIsPlaying] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [triedRefresh, setTriedRefresh] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
@@ -56,6 +83,7 @@ export default function VideoDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setIsPlaying(false);
+    setCopied(false);
     setTriedRefresh(false);
     setIsRefreshing(false);
   }, [cleanSlug]);
@@ -63,24 +91,25 @@ export default function VideoDetailPage() {
   useEffect(() => {
     if (!cleanSlug || videoItem) return;
 
-    if (!syncAttemptedRef.current[cleanSlug] && !triedRefresh && !isRefreshing) {
+    if (!syncAttemptedRef.current[cleanSlug] && !triedRefresh && !isRefreshing && fetchVideos) {
       syncAttemptedRef.current[cleanSlug] = true;
       setIsRefreshing(true);
-      refreshAll(true)
+      Promise.resolve(fetchVideos())
         .catch(() => {})
         .finally(() => {
           setTriedRefresh(true);
           setIsRefreshing(false);
         });
     }
-  }, [cleanSlug, videoItem, triedRefresh, isRefreshing, refreshAll]);
+  }, [cleanSlug, videoItem, triedRefresh, isRefreshing, fetchVideos]);
 
   const relatedApp = useMemo(() => {
-    return resolveVideoRelatedApp(videoItem, apps);
-  }, [videoItem, apps]);
+    const candidateApps = apps.length > 0 ? apps : staticAppsFallback;
+    return resolveVideoRelatedApp(videoItem, candidateApps);
+  }, [videoItem, apps, staticAppsFallback]);
 
   const otherVideos = useMemo(() => {
-    return (Array.isArray(mockVideos) ? mockVideos : [])
+    return allVideos
       .filter((item) => {
         if (!item) return false;
         const s = String(item.slug || item.id || '')
@@ -89,18 +118,9 @@ export default function VideoDetailPage() {
         return s && s !== cleanSlug;
       })
       .slice(0, 3);
-  }, [mockVideos, cleanSlug]);
+  }, [allVideos, cleanSlug]);
 
-  if (loading && !videoItem) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
-        <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium tracking-wide text-zinc-500 animate-pulse">Loading video...</p>
-      </div>
-    );
-  }
-
-  if (!videoItem && (!serverVideosFetched || !videosSyncedWithServer || isRefreshing || !triedRefresh)) {
+  if ((loading || isRefreshing) && !videoItem && !triedRefresh) {
     return (
       <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] text-center px-4 max-w-sm mx-auto">
         <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
@@ -147,6 +167,7 @@ export default function VideoDetailPage() {
     ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
     : '/logo.png';
   const category = (videoItem as any).category || 'Video Guide';
+  const duration = (videoItem as any).duration || '';
   const rawDate = resolveCanonicalNewsDate(
     videoItem,
     (videoItem as any).published_at,
@@ -171,7 +192,28 @@ export default function VideoDetailPage() {
 
   const vTitle = videoItem.title || 'Video Guide';
   const seoTitle = videoItem.seo_title || vTitle;
-  const vDesc = videoItem.seo_description || videoItem.description || vTitle;
+  const rawDescription = videoItem.description || '';
+  const plainDesc = String(videoItem.seo_description || rawDescription || vTitle)
+    .replace(/<[^>]*>?/gm, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const vDesc = plainDesc || vTitle;
+  const hasHtmlDescription = /<[a-z][\s\S]*>/i.test(rawDescription);
+
+  const handleShare = () => {
+    const shareUrl = canonicalVideoUrl || window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: seoTitle, text: vDesc.slice(0, 140), url: shareUrl }).catch(() => {});
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {});
+    }
+  };
 
   const videoSchemas = [
     {
@@ -236,7 +278,7 @@ export default function VideoDetailPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-6 pb-14 text-left">
+    <div className="max-w-4xl mx-auto px-3 sm:px-6 pb-16 text-left">
       <Meta
         title={seoTitle}
         description={vDesc}
@@ -251,23 +293,44 @@ export default function VideoDetailPage() {
 
       <nav
         aria-label="Breadcrumb"
-        className="mb-4 sm:mb-6 pt-2 sm:pt-4 flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 overflow-x-auto whitespace-nowrap no-scrollbar"
+        className="mb-4 sm:mb-5 pt-2 sm:pt-4 flex items-center justify-between gap-3 text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400"
       >
-        <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-          Home
-        </Link>
-        <span aria-hidden="true">/</span>
-        <Link to="/videos" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-          Videos
-        </Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-zinc-800 dark:text-zinc-200 font-semibold truncate max-w-[220px] sm:max-w-md">
-          {vTitle}
-        </span>
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap no-scrollbar min-w-0">
+          <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Home
+          </Link>
+          <span aria-hidden="true">/</span>
+          <Link to="/videos" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Videos
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-zinc-800 dark:text-zinc-200 font-semibold truncate max-w-[200px] sm:max-w-md">
+            {vTitle}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleShare}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-all border border-black/5 dark:border-white/10 shrink-0 cursor-pointer"
+          title="Share video guide"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-green-500" />
+              <span className="text-green-600 dark:text-green-400">Copied</span>
+            </>
+          ) : (
+            <>
+              <Share2 className="w-3.5 h-3.5 text-blue-500" />
+              <span>Share</span>
+            </>
+          )}
+        </button>
       </nav>
 
-      <article className="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm">
-        <div className="relative w-full bg-zinc-950 aspect-video overflow-hidden">
+      <article className="text-zinc-900 dark:text-zinc-100">
+        <div className="relative w-full bg-zinc-950 aspect-video rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shadow-sm mb-5 sm:mb-6">
           {videoId ? (
             isPlaying ? (
               <iframe
@@ -316,144 +379,160 @@ export default function VideoDetailPage() {
           )}
         </div>
 
-        <div className="p-4 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-            <div className="flex items-center gap-1.5">
-              <span className="text-blue-600 dark:text-blue-400 uppercase tracking-wider">{category}</span>
-              <span aria-hidden="true">·</span>
-              <time>{dateLabel}</time>
-            </div>
-            {watchUrl ? (
-              <a
-                href={watchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Watch on YouTube ↗
-              </a>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/videos?category=${encodeURIComponent(category)}`}
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors no-underline"
+            >
+              {category}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <time>{dateLabel}</time>
+            {duration ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="tabular-nums">{duration}</span>
+              </>
             ) : null}
           </div>
+          {watchUrl ? (
+            <a
+              href={watchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Watch on YouTube ↗
+            </a>
+          ) : null}
+        </div>
 
-          <h1 className="text-xl sm:text-3xl font-extrabold leading-snug mb-4 tracking-tight text-zinc-900 dark:text-zinc-100">
-            {vTitle}
-          </h1>
+        <h1 className="text-xl sm:text-3xl font-extrabold leading-snug mb-4 tracking-tight text-zinc-900 dark:text-zinc-100">
+          {vTitle}
+        </h1>
 
+        {hasHtmlDescription ? (
+          <div
+            className="rich-html-content prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed text-sm sm:text-base space-y-4"
+            dangerouslySetInnerHTML={{ __html: safeHtml(rawDescription) }}
+          />
+        ) : (
           <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-            <p>{videoItem.description}</p>
+            <p>{rawDescription}</p>
           </div>
+        )}
 
-          {relatedApp ? (
-            <section
-              aria-label="Featured Application"
-              className="mt-6 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80"
-            >
-              <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">
-                Featured Application in This Guide
-              </p>
-              <Link
-                to={`/app/${relatedApp.slug || relatedApp.id}`}
-                className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 hover:border-blue-500/40 transition-colors group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={getOptimizedImageUrl(relatedApp.icon_url || '/logo.png', 120)}
-                    alt={relatedApp.name}
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-12 h-12 rounded-xl object-cover shrink-0 border border-black/5 dark:border-white/10"
-                  />
-                  <div className="min-w-0">
-                    <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {relatedApp.name}
-                    </h2>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                      {relatedApp.category || 'Application'} · ★ {Number(relatedApp.rating || 4.5).toFixed(1)}
-                    </p>
-                  </div>
-                </div>
-                <span className="shrink-0 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold group-hover:bg-blue-700 transition-colors">
-                  View App
-                </span>
-              </Link>
-            </section>
-          ) : null}
-
-          {otherVideos.length > 0 ? (
-            <section
-              aria-label="More Videos"
-              className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                  More Videos &amp; Guides
-                </h2>
-                <Link to="/videos" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                  View All →
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {otherVideos.map((ov: any) => {
-                  const ovTitle = ov.title || 'Video Guide';
-                  const ovSlug = ov.slug || ov.id;
-                  const ovUrl = ov.youtube_url || ov.video_url || ov.url || '';
-                  const ovId = extractYoutubeId(ovUrl);
-                  const ovThumb = ovId ? `https://img.youtube.com/vi/${ovId}/mqdefault.jpg` : '/logo.png';
-                  return (
-                    <Link
-                      key={ov.id || ovSlug}
-                      to={`/videos/${ovSlug}`}
-                      className="group flex sm:flex-col gap-3 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800 hover:border-blue-500/40 transition-colors"
-                    >
-                      <div className="relative w-28 sm:w-full aspect-video rounded-lg overflow-hidden bg-zinc-900 shrink-0">
-                        <img
-                          src={ovThumb}
-                          alt={ovTitle}
-                          width={320}
-                          height={180}
-                          loading="lazy"
-                          decoding="async"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                          {ovTitle}
-                        </h3>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          ) : null}
-
-          <nav
-            aria-label="Related Directory Links"
-            className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400"
+        {relatedApp ? (
+          <section
+            aria-label="Featured Application"
+            className="mt-6 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80"
           >
-            <Link to="/videos" className="text-blue-600 dark:text-blue-400 hover:underline">
-              ← All Videos &amp; Guides
+            <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">
+              Featured Application in This Guide
+            </p>
+            <Link
+              to={`/app/${relatedApp.slug || relatedApp.id}`}
+              className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-blue-500/40 transition-colors group no-underline"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={getOptimizedImageUrl(relatedApp.icon_url || '/logo.png', 120)}
+                  alt={relatedApp.name}
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-12 h-12 rounded-xl object-cover shrink-0 border border-black/5 dark:border-white/10"
+                />
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {relatedApp.name}
+                  </h2>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate tabular-nums">
+                    {relatedApp.category || 'Application'} · ★ {Number(relatedApp.rating || 4.5).toFixed(1)}
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold group-hover:bg-blue-700 transition-colors">
+                View App
+              </span>
             </Link>
-            <div className="flex flex-wrap items-center gap-4">
-              <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                App Directory
-              </Link>
-              <Link to="/news" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Latest News
-              </Link>
-              <Link to="/new-apps" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                New Apps
-              </Link>
-              <Link to="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Categories
+          </section>
+        ) : null}
+
+        {otherVideos.length > 0 ? (
+          <section
+            aria-label="More Videos"
+            className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                More Videos &amp; Guides
+              </h2>
+              <Link to="/videos" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                View All →
               </Link>
             </div>
-          </nav>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {otherVideos.map((ov: any) => {
+                const ovTitle = ov.title || 'Video Guide';
+                const ovSlug = ov.slug || ov.id;
+                const ovUrl = ov.youtube_url || ov.video_url || ov.url || '';
+                const ovId = extractYoutubeId(ovUrl);
+                const ovThumb = ovId ? `https://img.youtube.com/vi/${ovId}/mqdefault.jpg` : '/logo.png';
+                return (
+                  <Link
+                    key={ov.id || ovSlug}
+                    to={`/videos/${ovSlug}`}
+                    className="group flex sm:flex-col gap-3 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/70 dark:border-zinc-800 hover:border-blue-500/40 transition-colors no-underline"
+                  >
+                    <div className="relative w-28 sm:w-full aspect-video rounded-lg overflow-hidden bg-zinc-900 shrink-0">
+                      <img
+                        src={ovThumb}
+                        alt={ovTitle}
+                        width={320}
+                        height={180}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        {ovTitle}
+                      </h3>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        <nav
+          aria-label="Related Directory Links"
+          className="mt-8 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400"
+        >
+          <Link to="/videos" className="text-blue-600 dark:text-blue-400 hover:underline">
+            ← All Videos &amp; Guides
+          </Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              App Directory
+            </Link>
+            <Link to="/news" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Latest News
+            </Link>
+            <Link to="/new-apps" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              New Apps
+            </Link>
+            <Link to="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Categories
+            </Link>
+          </div>
+        </nav>
       </article>
     </div>
   );

@@ -7,6 +7,7 @@ interface HomeFilterBarProps {
   setSortBy: (val: string) => void;
   searchTerm: string;
   activeTab: string;
+  totalCount?: number;
 }
 
 export default function HomeFilterBar({
@@ -15,7 +16,8 @@ export default function HomeFilterBar({
   sortBy,
   setSortBy,
   searchTerm,
-  activeTab
+  activeTab,
+  totalCount
 }: HomeFilterBarProps) {
   const isCategories = activeTab.toLowerCase() === 'categories';
   if (isCategories) return null;
@@ -28,17 +30,24 @@ export default function HomeFilterBar({
   return (
     <div className={`px-0 mb-3 xs:mb-4 mt-1 xs:mt-2 flex flex-wrap items-center gap-2 xs:gap-4 ${(!searchTerm && isHomeTab) ? 'justify-end' : 'justify-between'}`}>
       {(!(!searchTerm && isHomeTab)) && (
-        <h2 className="text-lg xs:text-xl font-bold text-zinc-900 dark:text-zinc-100 m-0">
-          {searchTerm ? 'Search Results' : 
-           activeTab.toLowerCase() === 'top charts' ? 'Top Charts' : 
-           activeTab}
-        </h2>
+        <div className="flex items-baseline gap-2 min-w-0">
+          <h2 className="text-lg xs:text-xl font-bold text-zinc-900 dark:text-zinc-100 m-0 truncate">
+            {searchTerm ? 'Search Results' : 
+             activeTab.toLowerCase() === 'top charts' ? 'Top Charts' : 
+             activeTab}
+          </h2>
+          {typeof totalCount === 'number' && (
+            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
+              · {totalCount} {totalCount === 1 ? 'app' : 'apps'}
+            </span>
+          )}
+        </div>
       )}
       <div className="flex items-center gap-2 xs:gap-3 flex-wrap">
         {/* Star Rating Dropdown */}
         <div className="relative">
           <label className="sr-only">Filter by Rating</label>
-          <div className="flex items-center gap-1 xs:gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-2 xs:px-3 py-1 xs:py-1.5 shadow-sm text-[11px] xs:text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none">
+          <div className="flex items-center gap-1 xs:gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-2.5 xs:px-3 py-1.5 shadow-sm text-[11px] xs:text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none whitespace-nowrap">
             <span className="flex items-center gap-1">
               <Star className="w-3 h-3 xs:w-3.5 xs:h-3.5 fill-amber-400 text-amber-400 shrink-0" />
               <span>{ratingFilter === 'all' ? 'Rating: All' : `${ratingFilter}+ Stars`}</span>
@@ -62,11 +71,12 @@ export default function HomeFilterBar({
         {/* Sort By Dropdown */}
         <div className="relative">
           <label className="sr-only">Sort by Order</label>
-          <div className="flex items-center gap-1 xs:gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-2 xs:px-3 py-1 xs:py-1.5 shadow-sm text-[11px] xs:text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none">
+          <div className="flex items-center gap-1 xs:gap-1.5 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl px-2.5 xs:px-3 py-1.5 shadow-sm text-[11px] xs:text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer select-none whitespace-nowrap">
             <span className="flex items-center gap-1">
               <SlidersHorizontal className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-blue-500 shrink-0" />
               <span>{
                 sortBy === 'default' ? 'Recommended' : 
+                sortBy === 'newest' ? 'Newest First' :
                 sortBy === 'rating_desc' ? 'High Rating' : 
                 'Low Rating'
               }</span>
@@ -78,6 +88,7 @@ export default function HomeFilterBar({
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
             >
               <option value="default" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Recommended</option>
+              <option value="newest" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Newest First</option>
               <option value="rating_desc" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Rating (Highest First)</option>
               <option value="rating_asc" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Rating (Lowest First)</option>
             </select>
@@ -88,11 +99,12 @@ export default function HomeFilterBar({
         {/* Clear filters if active */}
         {(ratingFilter !== 'all' || sortBy !== 'default') && (
           <button
+            type="button"
             onClick={() => {
               setRatingFilter('all');
               setSortBy('default');
             }}
-            className="text-[11px] xs:text-xs font-bold text-red-500 hover:text-red-650 transition-colors px-1.5 xs:px-2 py-1 cursor-pointer"
+            className="text-[11px] xs:text-xs font-bold text-red-500 hover:text-red-600 transition-colors px-2 py-1 cursor-pointer whitespace-nowrap"
           >
             Reset
           </button>

@@ -94,14 +94,6 @@ export default function UserReviews({
     }
   };
 
-  const countAll = stats?.totalReviews ?? reviews.length;
-  const countPositive = stats?.starCounts 
-    ? ((stats.starCounts[4] || 0) + (stats.starCounts[5] || 0)) 
-    : reviews.filter(r => r.rating >= 4).length;
-  const countCritical = stats?.starCounts 
-    ? ((stats.starCounts[1] || 0) + (stats.starCounts[2] || 0) + (stats.starCounts[3] || 0)) 
-    : reviews.filter(r => r.rating <= 3).length;
-
   return (
     <div id="ratings-and-reviews-section" ref={containerRef} className="py-8 border-t border-black/5 dark:border-white/5 select-none text-left">
       <div className="flex flex-col gap-6 sm:gap-8">
@@ -234,6 +226,19 @@ export default function UserReviews({
             ) : reviews.length === 0 ? (
               <div className="text-center py-10 border border-dashed border-black/5 dark:border-white/10 rounded-2xl">
                 <span className="text-sm font-semibold text-zinc-400 dark:text-zinc-500">No community reviews yet. Be the first to share!</span>
+              </div>
+            ) : displayedReviews.length === 0 ? (
+              <div className="text-center py-8 border border-dashed border-black/5 dark:border-white/10 rounded-2xl flex flex-col items-center gap-2.5">
+                <span className="text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                  No reviews match the selected filter.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter('all')}
+                  className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 cursor-pointer transition-all hover:opacity-90"
+                >
+                  Show All Reviews
+                </button>
               </div>
             ) : (
               

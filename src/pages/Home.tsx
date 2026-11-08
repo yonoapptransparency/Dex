@@ -128,8 +128,13 @@ export default function Home() {
       setSearchTerm(q);
     }
     const tab = searchParams.get('tab');
+    const pathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
     if (tab) {
       setActiveTab(tab);
+    } else if (pathLower === '/categories') {
+      setActiveTab('Categories');
+    } else if (pathLower === '/new-apps') {
+      setActiveTab('All Apps');
     } else if (categoryParam) {
       const rawCat = categoryParam.toLowerCase().replace(/[-_]+/g, ' ').trim();
       const allKnownCats = (mockSettings?.categories && mockSettings.categories.length > 0)
@@ -175,7 +180,19 @@ export default function Home() {
     }
 
     if (!term) {
-      if (deferredSortBy === 'rating_desc') {
+      if (deferredSortBy === 'newest') {
+        baseApps.sort((a, b) => {
+          const na = a.is_new ? 1 : 0;
+          const nb = b.is_new ? 1 : 0;
+          if (nb !== na) return nb - na;
+          const da = a.updated_at || a.created_at ? new Date(a.updated_at || a.created_at).getTime() : 0;
+          const db = b.updated_at || b.created_at ? new Date(b.updated_at || b.created_at).getTime() : 0;
+          if (db !== da) return db - da;
+          const sa = typeof a.serial_number === 'number' && a.serial_number > 0 ? a.serial_number : 999999;
+          const sb = typeof b.serial_number === 'number' && b.serial_number > 0 ? b.serial_number : 999999;
+          return sa - sb;
+        });
+      } else if (deferredSortBy === 'rating_desc') {
         baseApps.sort((a, b) => {
           const ra = typeof a.rating === 'number' ? a.rating : parseFloat(a.rating) || 0;
           const rb = typeof b.rating === 'number' ? b.rating : parseFloat(b.rating) || 0;
@@ -233,7 +250,16 @@ export default function Home() {
       })
       .map(item => item.app);
 
-    if (deferredSortBy === 'rating_desc') {
+    if (deferredSortBy === 'newest') {
+      resultingApps.sort((a, b) => {
+        const na = a.is_new ? 1 : 0;
+        const nb = b.is_new ? 1 : 0;
+        if (nb !== na) return nb - na;
+        const da = a.updated_at || a.created_at ? new Date(a.updated_at || a.created_at).getTime() : 0;
+        const db = b.updated_at || b.created_at ? new Date(b.updated_at || b.created_at).getTime() : 0;
+        return db - da;
+      });
+    } else if (deferredSortBy === 'rating_desc') {
       resultingApps.sort((a, b) => {
         const ra = typeof a.rating === 'number' ? a.rating : parseFloat(a.rating) || 0;
         const rb = typeof b.rating === 'number' ? b.rating : parseFloat(b.rating) || 0;
@@ -250,20 +276,32 @@ export default function Home() {
     return resultingApps;
   }, [mockApps, deferredSearchTerm, deferredRatingFilter, deferredSortBy]);
 
+  const cleanPathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const isNewAppsRoute = cleanPathLower === '/new-apps';
+  const isCategoriesIndexRoute = cleanPathLower === '/categories';
+  const isPureHomeRoute = cleanPathLower === '/';
+
   const activeTabLower = deferredActiveTab.toLowerCase().trim();
-  const isHomeTab = activeTabLower === 'all apps' || 
-                    activeTabLower === 'all' || 
-                    activeTabLower === 'home' || 
-                    activeTabLower === 'apps';
+  const isHomeTab = !isNewAppsRoute && !isCategoriesIndexRoute && !categoryParam && (
+    activeTabLower === 'all apps' || 
+    activeTabLower === 'all' || 
+    activeTabLower === 'home' || 
+    activeTabLower === 'apps'
+  );
 
   const tabFilteredApps = useMemo(() => {
-    if (deferredSearchTerm || isHomeTab) return filteredApps;
-    if (activeTabLower === 'top charts' || activeTabLower === 'categories') return filteredApps;
+    if (deferredSearchTerm) return filteredApps;
+    if (isNewAppsRoute) {
+      const newOnly = filteredApps.filter(app => Boolean(app.is_new || app.is_hot));
+      return newOnly.length > 0 ? newOnly : filteredApps.slice(0, 24);
+    }
+    if (isHomeTab) return filteredApps;
+    if (activeTabLower === 'top charts' || activeTabLower === 'categories' || isCategoriesIndexRoute) return filteredApps;
     return filteredApps.filter(app => {
       const appCategories = app.category ? app.category.toLowerCase().split(',').map(c => c.trim()) : [];
       return appCategories.some(cat => cat === activeTabLower || cat.includes(activeTabLower) || activeTabLower.includes(cat));
     });
-  }, [filteredApps, deferredSearchTerm, isHomeTab, activeTabLower]);
+  }, [filteredApps, deferredSearchTerm, isNewAppsRoute, isHomeTab, activeTabLower, isCategoriesIndexRoute]);
 
   const hasMore = visibleCount < tabFilteredApps.length;
 
@@ -295,9 +333,6 @@ export default function Home() {
   }, [hasMore, tabFilteredApps.length]);
 
   const bannerItems = mockSettings.banners || [];
-  const cleanPathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
-  const isNewAppsRoute = cleanPathLower === '/new-apps';
-  const isCategoriesIndexRoute = cleanPathLower === '/categories';
   const siteTitleLabel = mockSettings.site_title || 'RummyDex';
 
   const resolvedTitle = isNewAppsRoute
@@ -324,6 +359,46 @@ export default function Home() {
     ? `https://www.rummydex.com/category/${categoryParam}`
     : 'https://www.rummydex.com';
 
+  const collectionSchema = useMemo(() => {
+    if (isPureHomeRoute) return undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "@id": `${resolvedCanonical}#collection`,
+      "url": resolvedCanonical,
+      "name": resolvedTitle,
+      "headline": resolvedTitle,
+      "description": resolvedDescription,
+      "inLanguage": "en",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://www.rummydex.com/#website",
+        "name": siteTitleLabel,
+        "url": "https://www.rummydex.com"
+      }
+    };
+  }, [isPureHomeRoute, resolvedCanonical, resolvedTitle, resolvedDescription, siteTitleLabel]);
+
+  const collectionBreadcrumbSchema = useMemo(() => {
+    if (isPureHomeRoute) return undefined;
+    const items: any[] = [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.rummydex.com" }
+    ];
+    if (isNewAppsRoute) {
+      items.push({ "@type": "ListItem", "position": 2, "name": "New Apps", "item": resolvedCanonical });
+    } else if (isCategoriesIndexRoute) {
+      items.push({ "@type": "ListItem", "position": 2, "name": "Categories", "item": resolvedCanonical });
+    } else if (categoryParam) {
+      items.push({ "@type": "ListItem", "position": 2, "name": "Categories", "item": "https://www.rummydex.com/categories" });
+      items.push({ "@type": "ListItem", "position": 3, "name": activeTab, "item": resolvedCanonical });
+    }
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": items
+    };
+  }, [isPureHomeRoute, isNewAppsRoute, isCategoriesIndexRoute, categoryParam, activeTab, resolvedCanonical]);
+
   return (
     <div className="select-none min-h-screen">
       <Meta 
@@ -331,16 +406,52 @@ export default function Home() {
         description={resolvedDescription}
         keywords={mockSettings.seo_keywords}
         canonical={resolvedCanonical}
+        schema={collectionSchema}
+        breadcrumbSchema={collectionBreadcrumbSchema}
       />
-      {!deferredSearchTerm && (
+      {isPureHomeRoute && !deferredSearchTerm && (
         <WebsiteTitleHero settings={mockSettings} />
       )}
 
-      {!deferredSearchTerm && deferredActiveTab.toLowerCase() !== 'categories' && deferredActiveTab.toLowerCase() !== 'top charts' && (
+      {!isPureHomeRoute && !deferredSearchTerm && (
+        <div className="pt-2 pb-3 px-1">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="hover:text-blue-600 transition-colors">Home</a>
+            <span>/</span>
+            {categoryParam ? (
+              <>
+                <a href="/categories" onClick={(e) => { e.preventDefault(); navigate('/categories'); }} className="hover:text-blue-600 transition-colors">Categories</a>
+                <span>/</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{activeTab}</span>
+              </>
+            ) : (
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                {isNewAppsRoute ? 'New Apps' : 'Categories'}
+              </span>
+            )}
+          </nav>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+            {isNewAppsRoute
+              ? 'Newly Added & Updated Applications'
+              : isCategoriesIndexRoute
+              ? 'Application Categories'
+              : `${activeTab} Apps & Reviews`}
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            {isNewAppsRoute
+              ? `Discover the latest verified card, arcade, and gaming applications added to ${siteTitleLabel}.`
+              : isCategoriesIndexRoute
+              ? `Browse apps by game genre and category on ${siteTitleLabel}.`
+              : `Explore all ${tabFilteredApps.length} verified ${activeTab} applications, ratings, download specifications, and reviews on ${siteTitleLabel}.`}
+          </p>
+        </div>
+      )}
+
+      {isPureHomeRoute && !deferredSearchTerm && deferredActiveTab.toLowerCase() !== 'categories' && deferredActiveTab.toLowerCase() !== 'top charts' && (
         <FeaturedBanner items={bannerItems} />
       )}
 
-      {!deferredSearchTerm && (deferredActiveTab.toLowerCase() === 'all apps' || deferredActiveTab.toLowerCase() === 'all' || deferredActiveTab.toLowerCase() === 'home' || deferredActiveTab.toLowerCase() === 'apps') && (
+      {isPureHomeRoute && !deferredSearchTerm && isHomeTab && (
         <NewAdditions loading={false} apps={filteredApps} />
       )}
 
@@ -352,7 +463,8 @@ export default function Home() {
         sortBy={sortBy}
         setSortBy={setSortBy}
         searchTerm={deferredSearchTerm}
-        activeTab={deferredActiveTab}
+        activeTab={isNewAppsRoute ? 'New Apps' : deferredActiveTab}
+        totalCount={deferredSearchTerm ? filteredApps.length : tabFilteredApps.length}
       />
 
       <HomeSearchResults 
@@ -381,30 +493,22 @@ export default function Home() {
         </div>
       )}
 
-      {(() => {
-        if (deferredSearchTerm) return null;
-        const activeTabLower = deferredActiveTab.toLowerCase();
-        const isHomeTab = activeTabLower === 'all apps' || 
-                          activeTabLower === 'all' || 
-                          activeTabLower === 'home' || 
-                          activeTabLower === 'apps';
-        return isHomeTab && (
-          <div className="px-0 sm:px-1">
-            <div className="space-y-2">
-              {filteredApps.slice(0, visibleCount).map((app, index) => (
-                <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
-              ))}
-            </div>
+      {!deferredSearchTerm && isHomeTab && (
+        <div className="px-0 sm:px-1">
+          <div className="space-y-2">
+            {filteredApps.slice(0, visibleCount).map((app, index) => (
+              <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
+            ))}
           </div>
-        );
-      })()}
+        </div>
+      )}
 
-      {deferredActiveTab.toLowerCase() === 'categories' && (
-        <HomeCategoryGrid categories={mockSettings.categories || []} setActiveTab={setActiveTab} />
+      {(deferredActiveTab.toLowerCase() === 'categories' || isCategoriesIndexRoute) && !deferredSearchTerm && (
+        <HomeCategoryGrid categories={mockSettings.categories || []} apps={mockApps} setActiveTab={setActiveTab} />
       )}
 
       {(() => {
-        const isExcluded = isHomeTab || activeTabLower === 'top charts' || activeTabLower === 'categories';
+        const isExcluded = isHomeTab || activeTabLower === 'top charts' || activeTabLower === 'categories' || isCategoriesIndexRoute;
         
         return !isExcluded && !deferredSearchTerm && (
           <div className="animate-fade-in space-y-2 px-0 sm:px-1">
@@ -412,7 +516,7 @@ export default function Home() {
               tabFilteredApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
             ) : (
               <div className="text-center py-20 text-slate-400">
-                <p className="text-lg">No apps found in {deferredActiveTab}</p>
+                <p className="text-lg">No apps found in {isNewAppsRoute ? 'New Apps' : deferredActiveTab}</p>
               </div>
             )}
           </div>
@@ -425,7 +529,7 @@ export default function Home() {
         </div>
       )}
 
-      {!hasMore && tabFilteredApps.length > 0 && !deferredSearchTerm && activeTabLower !== 'categories' && (
+      {!hasMore && tabFilteredApps.length > 0 && !deferredSearchTerm && activeTabLower !== 'categories' && !isCategoriesIndexRoute && (
         <div className="pt-4 pb-2 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-3 w-full max-w-xs justify-center mb-1">
             <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
@@ -440,7 +544,9 @@ export default function Home() {
         </div>
       )}
 
-      <HomeFaqSection faqs={mockSettings.website_faqs} searchTerm={deferredSearchTerm} />
+      {isPureHomeRoute && (
+        <HomeFaqSection faqs={mockSettings.website_faqs} searchTerm={deferredSearchTerm} />
+      )}
     </div>
   );
 }

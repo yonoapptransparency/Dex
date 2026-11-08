@@ -15,19 +15,29 @@ interface ReportAppModalProps {
 export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) => {
   const [reason, setReason] = useState('harmful');
   const [comment, setComment] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Prevent scroll when modal is open
+  // Prevent scroll when modal is open & support Escape key
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKeyDown);
     };
-  }, []);
+  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot.trim().length > 0) {
+      setSubmitted(true);
+      return;
+    }
     setSubmitting(true);
     
     try {
@@ -36,7 +46,7 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
         appId: app.id || app.slug || 'unknown',
         appName: app.name,
         reason: reason,
-        description: comment
+        description: comment.trim().replace(/<[^>]*>?/gm, '')
       });
     } catch (err) {
       console.error('Error submitting report:', err);
@@ -106,6 +116,16 @@ export const ReportAppModal: React.FC<ReportAppModalProps> = ({ app, onClose }) 
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', left: '-9999px', height: 0, width: 0, overflow: 'hidden' }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="website_url_confirm"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
               <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 leading-relaxed">
                 Please select the reason why this app violates community guidelines or safety standards.
               </p>

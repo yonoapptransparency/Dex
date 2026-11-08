@@ -71,6 +71,15 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
     ? totalCategoryCount 
     : relatedApps.length;
 
+  const categoryHref = (() => {
+    const clean = (specificCategory || '').trim();
+    const lower = clean.toLowerCase();
+    if (!clean || lower === 'all apps' || lower === 'all' || lower === 'apps' || lower === 'general') {
+      return '/categories';
+    }
+    return `/category/${encodeURIComponent(lower.replace(/\s+/g, '-'))}`;
+  })();
+
   return (
     <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
       <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
@@ -85,8 +94,8 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
           </h2>
         </div>
         <Link 
-          to={`/?tab=${encodeURIComponent(specificCategory)}`}
-          className="inline-flex items-center gap-1.5 px-3 py-1 xs:px-3.5 xs:py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 active:scale-95 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 font-bold text-xs xs:text-xs transition-all border border-blue-200/70 dark:border-blue-800/70 shadow-2xs group shrink-0"
+          to={categoryHref}
+          className="inline-flex items-center gap-1.5 px-3 py-1 xs:px-3.5 xs:py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 active:scale-95 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 font-bold text-xs xs:text-xs transition-all border border-blue-200/70 dark:border-blue-800/70 shadow-2xs group shrink-0 no-underline tabular-nums"
           title={`Explore all ${displayTotal} ${specificCategory} apps`}
         >
           <span>View all ({displayTotal})</span>

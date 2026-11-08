@@ -1,14 +1,14 @@
 /**
  * VideosPage interactive walkthrough directory
- * Lightweight, mobile-first video catalog with 1:1 SSR parity, URL-synced pagination, and instant search filtering.
+ * Lightweight, mobile-first video catalog with 1:1 SSR parity, URL-synced pagination, category filters, and instant search filtering.
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { Video, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { extractYoutubeId, formatNewsDate, resolveCanonicalNewsDate } from '../lib/newsUtils';
+import { extractYoutubeId, formatNewsDate, resolveCanonicalNewsDate, getPlainTextSnippet } from '../lib/newsUtils';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -24,6 +24,7 @@ export default function VideosPage() {
 
   const urlPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = isNaN(urlPage) || urlPage < 1 ? 1 : urlPage;
+  const activeCategory = searchParams.get('category') || 'All';
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
 
   useEffect(() => {
@@ -42,17 +43,39 @@ export default function VideosPage() {
     return (Array.isArray(mockVideos) ? mockVideos : []).filter(Boolean);
   }, [mockVideos]);
 
+  const { categories, categoryCounts } = useMemo(() => {
+    const labelByLower = new Map<string, string>();
+    const counts = new Map<string, number>();
+    validVideos.forEach((v: any) => {
+      const raw = String(v?.category || 'Video Guide').trim();
+      if (raw) {
+        const lower = raw.toLowerCase();
+        if (!labelByLower.has(lower)) labelByLower.set(lower, raw);
+        const canonical = labelByLower.get(lower)!;
+        counts.set(canonical, (counts.get(canonical) || 0) + 1);
+      }
+    });
+    return {
+      categories: ['All', ...Array.from(labelByLower.values())],
+      categoryCounts: counts
+    };
+  }, [validVideos]);
+
   const filteredVideos = useMemo(() => {
-    return validVideos.filter(video => {
+    return validVideos.filter((video: any) => {
+      const vCat = String(video?.category || 'Video Guide').trim();
+      const matchesCategory =
+        activeCategory === 'All' || vCat.toLowerCase() === activeCategory.toLowerCase();
+      if (!matchesCategory) return false;
       if (!searchTerm.trim()) return true;
       const term = searchTerm.toLowerCase().trim();
       return (
         video.title?.toLowerCase().includes(term) ||
         video.description?.toLowerCase().includes(term) ||
-        (video as any).category?.toLowerCase().includes(term)
+        vCat.toLowerCase().includes(term)
       );
     });
-  }, [validVideos, searchTerm]);
+  }, [validVideos, activeCategory, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredVideos.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -63,9 +86,9 @@ export default function VideosPage() {
   }, [filteredVideos, startIdx]);
 
   const remainingVideos = useMemo(() => {
-    if (searchTerm.trim()) return [];
+    if (searchTerm.trim() || activeCategory !== 'All') return [];
     return validVideos.filter((_, idx) => idx < startIdx || idx >= startIdx + ITEMS_PER_PAGE);
-  }, [validVideos, startIdx, searchTerm]);
+  }, [validVideos, startIdx, searchTerm, activeCategory]);
 
   const setPage = (pageNumber: number) => {
     const nextP = Math.max(1, Math.min(pageNumber, totalPages));
@@ -77,6 +100,17 @@ export default function VideosPage() {
     }
     setSearchParams(params);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (cat === 'All') {
+      params.delete('category');
+    } else {
+      params.set('category', cat);
+    }
+    params.delete('page');
+    setSearchParams(params);
   };
 
   const pageTitle = mockSettings?.videos_meta_title || 'Video Reviews';
@@ -105,7 +139,7 @@ export default function VideosPage() {
                 url: `https://www.rummydex.com/videos/${vSlug}`,
                 ...(ytId ? { image: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` } : {}),
                 ...(v.seo_description || v.description
-                  ? { description: String(v.seo_description || v.description).slice(0, 140) }
+                  ? { description: getPlainTextSnippet(v.seo_description || v.description, 140) }
                   : {})
               };
             })
@@ -145,7 +179,7 @@ export default function VideosPage() {
         <span className="text-zinc-700 dark:text-zinc-300 font-semibold">Videos</span>
       </nav>
 
-      <header className="mb-6 sm:mb-8 pb-5 border-b border-zinc-200/80 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <header className="mb-5 sm:mb-6 pb-5 border-b border-zinc-200/80 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-1">
             Visual Walkthroughs
@@ -188,6 +222,30 @@ export default function VideosPage() {
         </div>
       </header>
 
+      {categories.length > 1 && (
+        <div className="mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          {categories.map((cat) => {
+            const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
+            const count = cat === 'All' ? validVideos.length : (categoryCounts.get(cat) || 0);
+            return (
+              <button
+                type="button"
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                }`}
+              >
+                <span>{cat}</span>
+                <span className="text-[10px] opacity-80 tabular-nums">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {loading && filteredVideos.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 min-h-[40vh]">
           <div className="w-8 h-8 border-[3px] border-black/10 dark:border-white/10 border-t-blue-500 rounded-full animate-spin mb-4"></div>
@@ -200,16 +258,16 @@ export default function VideosPage() {
           </div>
           <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">No videos found</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-            {searchTerm ? 'No videos matched your search filter.' : 'No videos have been published yet.'}
+            {searchTerm || activeCategory !== 'All' ? 'No videos matched your current filter.' : 'No videos have been published yet.'}
           </p>
-          {searchTerm && (
+          {(searchTerm || activeCategory !== 'All') && (
             <button
               type="button"
               onClick={() => {
                 setSearchTerm('');
-                setPage(1);
+                setSearchParams(new URLSearchParams());
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-all"
+              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-all cursor-pointer"
             >
               Clear filter
             </button>
@@ -227,6 +285,7 @@ export default function VideosPage() {
               const duration = (video as any).duration || '';
               const rawDate = resolveCanonicalNewsDate(video, (video as any).published_at, video.created_at);
               const dateLabel = formatNewsDate(rawDate, (video as any).published_at, video.created_at);
+              const snippet = getPlainTextSnippet(video.description, 160);
               const isHero = index === 0;
 
               return (
@@ -262,7 +321,7 @@ export default function VideosPage() {
                     </div>
 
                     {duration ? (
-                      <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-semibold">
+                      <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-semibold tabular-nums">
                         {duration}
                       </span>
                     ) : null}
@@ -279,9 +338,9 @@ export default function VideosPage() {
                       <Link to={`/videos/${videoSlug}`}>{video.title}</Link>
                     </h2>
 
-                    {video.description ? (
+                    {snippet ? (
                       <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-2">
-                        {video.description}
+                        {snippet}
                       </p>
                     ) : null}
 
@@ -305,7 +364,7 @@ export default function VideosPage() {
 
           {totalPages > 1 && (
             <div className="mt-10 pt-6 border-t border-zinc-200/70 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums">
                 Showing <span className="text-zinc-900 dark:text-zinc-100">{startIdx + 1}</span>–
                 <span className="text-zinc-900 dark:text-zinc-100">
                   {Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredVideos.length)}
@@ -318,7 +377,7 @@ export default function VideosPage() {
                   type="button"
                   onClick={() => setPage(safeCurrentPage - 1)}
                   disabled={safeCurrentPage === 1}
-                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -333,7 +392,7 @@ export default function VideosPage() {
                         type="button"
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                        className={`w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer tabular-nums ${
                           isCurrent
                             ? 'bg-blue-600 text-white shadow-sm'
                             : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
@@ -361,7 +420,7 @@ export default function VideosPage() {
                   type="button"
                   onClick={() => setPage(safeCurrentPage + 1)}
                   disabled={safeCurrentPage === totalPages}
-                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
                   aria-label="Next page"
                 >
                   <span className="hidden sm:inline">Next</span>
