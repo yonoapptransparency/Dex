@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/rummy-888</loc>
+    <lastmod>2026-11-15T14:58:36+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786545949/1000134114_11zon_1_mymv9y.webp</image:loc>
+      <image:title>RUMMY 888</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/rummy-ludo</loc>
+    <lastmod>2026-11-15T14:52:27+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879252/download_34_wrdzdw.webp</image:loc>
+      <image:title>RUMMY LUDO</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/ok-rummy</loc>
+    <lastmod>2026-11-15T14:48:33+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877617/download_19_w2sxhp.webp</image:loc>
+      <image:title>OK RUMMY</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/slots-winner</loc>
+    <lastmod>2026-11-15T14:17:58+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1791977051/rummydex_uploads/i6dcr5z5raywutg5sqqn.webp</image:loc>
+      <image:title>SLOTS WINNER</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/rummy-77</loc>
     <lastmod>2026-11-07T08:10:59+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -455,16 +495,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rummydex.com/app/rummy-ludo</loc>
-    <lastmod>2026-10-25T10:07:25+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879252/download_34_wrdzdw.webp</image:loc>
-      <image:title>RUMMY LUDO</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.rummydex.com/app/789-jackports</loc>
     <lastmod>2026-10-25T10:06:16+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -482,16 +512,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784879809/download_39_znq2ql.webp</image:loc>
       <image:title>YONO VIP</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/ok-rummy</loc>
-    <lastmod>2026-10-25T09:58:52+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1784877617/download_19_w2sxhp.webp</image:loc>
-      <image:title>OK RUMMY</image:title>
     </image:image>
   </url>
   <url>
@@ -552,16 +572,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786546190/1000134120_11zon_m6sn6w.webp</image:loc>
       <image:title>WIN RUMMY</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/slots-winner</loc>
-    <lastmod>2026-10-15T12:47:28+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1791977051/rummydex_uploads/i6dcr5z5raywutg5sqqn.webp</image:loc>
-      <image:title>SLOTS WINNER</image:title>
     </image:image>
   </url>
   <url>
@@ -642,16 +652,6 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1788431729/rummydex_uploads/iacrouhqhcfgqzzisfnm.webp</image:loc>
       <image:title>Jaiho Arcade</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.rummydex.com/app/rummy-888</loc>
-    <lastmod>2026-10-11T06:31:43+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/diewalae4/image/upload/f_auto,q_auto,w_800/v1786545949/1000134114_11zon_1_mymv9y.webp</image:loc>
-      <image:title>RUMMY 888</image:title>
     </image:image>
   </url>
   <url>
