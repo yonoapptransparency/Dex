@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Share2, Flag } from 'lucide-react';
 import { AppConfig } from '../../types';
+import { warmGatewaySession } from '../../hooks/useTurnstileVerification';
 
 declare global {
   interface Window {
-    __rdNav?: { slug: string; ts: number };
+    __rdNav?: { slug: string; ts: number; appStub?: Partial<AppConfig> };
     __rdBounced?: string;
   }
 }
@@ -23,12 +24,30 @@ export default function AppActionButtons({
   handleShare,
 }: AppActionButtonsProps) {
   const navigate = useNavigate();
+  const targetSlug = String(app.slug || app.id || '').trim();
+
+  const buildAppStub = (): Partial<AppConfig> => ({
+    id: app.id,
+    name: app.name,
+    slug: app.slug,
+    icon_url: app.icon_url,
+    version: app.version,
+    serial_number: app.serial_number,
+    safety_status: app.safety_status,
+    is_coming_soon: app.is_coming_soon,
+  });
+
+  const prewarmGateway = (withSessionInit = false) => {
+    import('../../pages/GatewayPage').catch(() => {});
+    warmGatewaySession(withSessionInit ? targetSlug : undefined);
+  };
 
   const handleDownload = () => {
-    const targetSlug = String(app.slug || app.id || '').trim();
     const now = Date.now();
+    const appStub = buildAppStub();
+    warmGatewaySession(targetSlug);
     try {
-      window.__rdNav = { slug: targetSlug.toLowerCase(), ts: now };
+      window.__rdNav = { slug: targetSlug.toLowerCase(), ts: now, appStub };
     } catch {
       // Ignore in-memory write failure
     }
@@ -39,7 +58,7 @@ export default function AppActionButtons({
     }
     const baseSegment = ['more', 'info'].join('');
     navigate(`/${baseSegment}/${encodeURIComponent(targetSlug)}`, {
-      state: { nav: now },
+      state: { nav: now, appStub },
     });
   };
 
@@ -91,12 +110,9 @@ export default function AppActionButtons({
               type="button"
               id={`gateway-cta-${app.slug || app.id}`}
               onClick={handleDownload}
-              onPointerEnter={() => {
-                import('../../pages/GatewayPage').catch(() => {});
-              }}
-              onTouchStart={() => {
-                import('../../pages/GatewayPage').catch(() => {});
-              }}
+              onPointerEnter={() => prewarmGateway(false)}
+              onPointerDown={() => prewarmGateway(true)}
+              onTouchStart={() => prewarmGateway(true)}
               className="w-full premium-action-btn premium-action-btn-blowing cursor-pointer text-white !text-white font-bold py-2 xxs:py-2.5 px-3 xxs:px-4 xs:px-5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-[11px] xxs:text-xs xs:text-sm shadow-md h-[38px] xxs:h-[40px] xs:h-[44px]"
             >
               <span className="flex items-center gap-1.5 font-bold text-white !text-white">

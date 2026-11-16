@@ -36,10 +36,59 @@ export default function GatewayPage() {
   const [isFetchingDetails, setIsFetchingDetails] = useState<boolean>(false);
   const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
   const [isBotBlocked, setIsBotBlocked] = useState<boolean>(false);
-  const [navState, setNavState] = useState<{ checked: boolean; nv: 0 | 1 }>({
-    checked: false,
-    nv: 1,
-  });
+
+  // Synchronous navProof check so ClearanceButton mounts on the very first render pass (0ms delay)
+  const navEval = useMemo((): { hasValidNavProof: boolean; shouldBounce: boolean; nv: 0 | 1 } => {
+    if (!cleanSlugKey) {
+      return { hasValidNavProof: false, shouldBounce: false, nv: 0 };
+    }
+    const now = Date.now();
+    let hasValidNavProof = false;
+
+    const stateNav = (location.state as { nav?: number } | null)?.nav;
+    if (
+      typeof stateNav === 'number' &&
+      now - stateNav >= -5000 &&
+      now - stateNav <= NAV_BREADCRUMB_TTL_MS
+    ) {
+      hasValidNavProof = true;
+    }
+
+    if (!hasValidNavProof && typeof window !== 'undefined' && window.__rdNav) {
+      const mem = window.__rdNav;
+      if (
+        mem.slug === cleanSlugKey &&
+        typeof mem.ts === 'number' &&
+        now - mem.ts >= -5000 &&
+        now - mem.ts <= NAV_BREADCRUMB_TTL_MS
+      ) {
+        hasValidNavProof = true;
+      }
+    }
+
+    if (!hasValidNavProof && typeof window !== 'undefined') {
+      try {
+        const storedTs = Number(sessionStorage.getItem(`rd_nav_${cleanSlugKey}`) || '0');
+        if (storedTs > 0 && now - storedTs >= -5000 && now - storedTs <= NAV_BREADCRUMB_TTL_MS) {
+          hasValidNavProof = true;
+        }
+      } catch {
+        // Storage blocked in private/in-app browser
+      }
+    }
+
+    if (hasValidNavProof) {
+      return { hasValidNavProof: true, shouldBounce: false, nv: 1 };
+    }
+
+    const alreadyBounced =
+      typeof window !== 'undefined' && window.__rdBounced === cleanSlugKey;
+    return {
+      hasValidNavProof: false,
+      shouldBounce: !alreadyBounced,
+      nv: 0,
+    };
+  }, [cleanSlugKey, location.state]);
 
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
   const activeSlugRef = useRef<string>(cleanSlugKey);
@@ -55,66 +104,13 @@ export default function GatewayPage() {
     });
   }, [slug, cleanSlugKey]);
 
-  // Step 5.2: Check 3-source navProof (router location.state.nav, window.__rdNav, sessionStorage)
-  // with one-time redirect and loop guard
+  // Step 5.2: One-time bounce to /app/:slug when cold direct hit has no navProof
   useEffect(() => {
-    if (!cleanSlugKey) {
-      setNavState({ checked: true, nv: 0 });
-      return;
-    }
-
-    const now = Date.now();
-    let hasValidNavProof = false;
-
-    // Source 1: Router location.state.nav
-    const stateNav = (location.state as { nav?: number } | null)?.nav;
-    if (
-      typeof stateNav === 'number' &&
-      now - stateNav >= 0 &&
-      now - stateNav <= NAV_BREADCRUMB_TTL_MS
-    ) {
-      hasValidNavProof = true;
-    }
-
-    // Source 2: In-memory window.__rdNav
-    if (!hasValidNavProof && typeof window !== 'undefined' && window.__rdNav) {
-      const mem = window.__rdNav;
-      if (
-        mem.slug === cleanSlugKey &&
-        typeof mem.ts === 'number' &&
-        now - mem.ts >= 0 &&
-        now - mem.ts <= NAV_BREADCRUMB_TTL_MS
-      ) {
-        hasValidNavProof = true;
-      }
-    }
-
-    // Source 3: sessionStorage entry
-    if (!hasValidNavProof) {
-      try {
-        const storedTs = Number(sessionStorage.getItem(`rd_nav_${cleanSlugKey}`) || '0');
-        if (storedTs > 0 && now - storedTs >= 0 && now - storedTs <= NAV_BREADCRUMB_TTL_MS) {
-          hasValidNavProof = true;
-        }
-      } catch {
-        // Storage blocked in private/in-app browser
-      }
-    }
-
-    if (hasValidNavProof) {
-      setNavState({ checked: true, nv: 1 });
-      return;
-    }
-
-    // navProof is missing: bounce ONCE to /app/:slug; on second arrival render with nv = 0 (no loop)
-    if (typeof window !== 'undefined' && window.__rdBounced !== cleanSlugKey) {
+    if (cleanSlugKey && navEval.shouldBounce && typeof window !== 'undefined') {
       window.__rdBounced = cleanSlugKey;
       navigate(`/app/${encodeURIComponent(cleanSlugKey)}`, { replace: true });
-      return;
     }
-
-    setNavState({ checked: true, nv: 0 });
-  }, [cleanSlugKey, location.state, navigate]);
+  }, [cleanSlugKey, navEval.shouldBounce, navigate]);
 
   // Step 5.3: Run client mobile gate & frozen probes once on mount
   useEffect(() => {
@@ -131,44 +127,7 @@ export default function GatewayPage() {
     };
   }, []);
 
-  // 1. High-Availability Background Static Dataset Loader
-  useEffect(() => {
-    let active = true;
-    loadFullStaticDataset()
-      .then((ds) => {
-        if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
-          setStaticApps(ds.apps);
-          setStaticLoaded(true);
-          return;
-        }
-        return fetch('/public-api/staticData.json')
-          .then((r) => r.json())
-          .then((data) => {
-            if (active && data?.apps && Array.isArray(data.apps)) {
-              setStaticApps(data.apps);
-            }
-          });
-      })
-      .catch(() => {
-        // Fallback fetch from public staticData.json if dynamic import failed
-        return fetch('/public-api/staticData.json')
-          .then((r) => r.json())
-          .then((data) => {
-            if (active && data?.apps && Array.isArray(data.apps)) {
-              setStaticApps(data.apps);
-            }
-          })
-          .catch(() => {});
-      })
-      .finally(() => {
-        if (active) setStaticLoaded(true);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  // 2. Instant Multi-Tier Slug Resolution
+  // 1. Instant Multi-Tier Slug Resolution (checks router appStub & memory BEFORE touching network)
   const app = useMemo(() => {
     if (!cleanSlugKey) return null;
 
@@ -178,6 +137,22 @@ export default function GatewayPage() {
         .trim();
       if (fSlug === cleanSlugKey || resolveAppSlug(cleanSlugKey, [fetchedApp])) {
         return fetchedApp;
+      }
+    }
+
+    const stateStub = (location.state as { appStub?: any } | null)?.appStub;
+    if (stateStub && stateStub.name) {
+      const stubSlug = String(stateStub.slug || stateStub.id || '').toLowerCase().trim();
+      if (stubSlug === cleanSlugKey || resolveAppSlug(cleanSlugKey, [stateStub])) {
+        return stateStub;
+      }
+    }
+
+    if (typeof window !== 'undefined' && window.__rdNav?.appStub) {
+      const memStub = window.__rdNav.appStub;
+      const stubSlug = String(memStub.slug || memStub.id || '').toLowerCase().trim();
+      if (stubSlug === cleanSlugKey || resolveAppSlug(cleanSlugKey, [memStub as any])) {
+        return memStub;
       }
     }
 
@@ -199,11 +174,52 @@ export default function GatewayPage() {
     if (resolvedFromStatic) return resolvedFromStatic;
 
     return null;
-  }, [cleanSlugKey, mockApps, fetchedApp, staticApps]);
+  }, [cleanSlugKey, location.state, mockApps, fetchedApp, staticApps]);
 
-  // 3. Resilient Background Fetch for App Metadata
+  // 2. Fallback Static Dataset Loader — ONLY runs if `app` could not be resolved from memory/SSR!
+  // Prevents downloading 220 KB of staticData.json on slow 2G/3G networks so 100% of bandwidth goes to Turnstile.
   useEffect(() => {
-    if (!cleanSlugKey || !navState.checked) return;
+    if (app && app.name) {
+      setStaticLoaded(true);
+      return;
+    }
+    let active = true;
+    loadFullStaticDataset()
+      .then((ds) => {
+        if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
+          setStaticApps(ds.apps);
+          setStaticLoaded(true);
+          return;
+        }
+        return fetch('/public-api/staticData.json')
+          .then((r) => r.json())
+          .then((data) => {
+            if (active && data?.apps && Array.isArray(data.apps)) {
+              setStaticApps(data.apps);
+            }
+          });
+      })
+      .catch(() => {
+        return fetch('/public-api/staticData.json')
+          .then((r) => r.json())
+          .then((data) => {
+            if (active && data?.apps && Array.isArray(data.apps)) {
+              setStaticApps(data.apps);
+            }
+          })
+          .catch(() => {});
+      })
+      .finally(() => {
+        if (active) setStaticLoaded(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [app]);
+
+  // 3. Resilient Background Fetch for App Metadata (only when app is still unknown)
+  useEffect(() => {
+    if (!cleanSlugKey || navEval.shouldBounce) return;
 
     if (app && app.name) {
       setRemoteCheckDoneSlug(cleanSlugKey);
@@ -243,7 +259,7 @@ export default function GatewayPage() {
           }
         });
     }
-  }, [cleanSlugKey, navState.checked, app, mockApps, updateAppDetail, mergeCatalogApps]);
+  }, [cleanSlugKey, navEval.shouldBounce, app, mockApps, updateAppDetail, mergeCatalogApps]);
 
   // Disguised 404 UI (§5.3 & §5.9): styled "404 — Page Not Found" screen with neutral "Home" link to "/"
   if (isBotBlocked) {
@@ -273,7 +289,7 @@ export default function GatewayPage() {
     );
   }
 
-  if (!navState.checked) {
+  if (navEval.shouldBounce) {
     return null;
   }
 
@@ -351,13 +367,13 @@ export default function GatewayPage() {
               <div className="relative z-10 w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl bg-white dark:bg-zinc-800 p-1 shadow-md border border-black/5 dark:border-white/10 overflow-hidden hover:scale-105 transition-transform duration-200">
                 {app.icon_url ? (
                   <img
-                    src={getOptimizedImageUrl(app.icon_url, 256) || app.icon_url}
+                    src={getOptimizedImageUrl(app.icon_url, 128) || app.icon_url}
                     alt={app.name}
                     loading="eager"
-                    fetchPriority="high"
+                    fetchPriority="low"
                     decoding="async"
-                    width={128}
-                    height={128}
+                    width={96}
+                    height={96}
                     className="w-full h-full object-cover rounded-[1.1rem] xs:rounded-[1.4rem] sm:rounded-[1.8rem]"
                     referrerPolicy="no-referrer"
                   />
@@ -402,7 +418,7 @@ export default function GatewayPage() {
                 <ClearanceButton
                   appId={String(app.slug || app.id)}
                   appSlug={app.slug}
-                  nv={navState.nv}
+                  nv={navEval.nv}
                   status={app.safety_status as 'Verified' | 'Caution' | 'Unsafe'}
                   onBotBlocked={() => setIsBotBlocked(true)}
                 />

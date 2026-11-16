@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Download, FileText, ExternalLink } from 'lucide-react';
 import { getOptimizedImageUrl } from '../../../seo/utils';
+import { warmGatewaySession } from '../../../hooks/useTurnstileVerification';
 
 interface NewsRelatedAppBoxProps {
   downloadTarget: { url: string; isInternal: boolean } | null;
@@ -23,17 +24,35 @@ export function NewsRelatedAppBox({ downloadTarget, relatedApp, newsItem, classN
   // Download gateway clearance route
   const gatewayUrl = appSlug ? `/moreinfo/${appSlug}` : (downloadTarget?.url || '#');
 
+  const buildAppStub = () =>
+    relatedApp
+      ? {
+          id: relatedApp.id,
+          name: relatedApp.name,
+          slug: relatedApp.slug,
+          icon_url: relatedApp.icon_url || relatedApp.logo_url,
+          version: relatedApp.version,
+          serial_number: relatedApp.serial_number,
+          safety_status: relatedApp.safety_status,
+          is_coming_soon: relatedApp.is_coming_soon,
+          package_size: relatedApp.package_size,
+        }
+      : undefined;
+
   const handleGatewayNavigate = () => {
+    const now = Date.now();
+    const appStub = buildAppStub();
     if (typeof window !== 'undefined' && appSlug) {
       const clean = String(appSlug).toLowerCase().trim();
-      (window as any).__rdNav = { slug: clean, ts: Date.now() };
+      warmGatewaySession(clean);
+      (window as any).__rdNav = { slug: clean, ts: now, appStub };
       try {
-        sessionStorage.setItem('rd_nav_' + clean, String(Date.now()));
+        sessionStorage.setItem('rd_nav_' + clean, String(now));
       } catch {
         // Ignore storage errors
       }
     }
-    navigate(gatewayUrl, { state: { nav: Date.now() } });
+    navigate(gatewayUrl, { state: { nav: now, appStub } });
   };
 
   return (
@@ -77,6 +96,18 @@ export function NewsRelatedAppBox({ downloadTarget, relatedApp, newsItem, classN
             <button
               type="button"
               onClick={handleGatewayNavigate}
+              onPointerEnter={() => {
+                import('../../../pages/GatewayPage').catch(() => {});
+                warmGatewaySession();
+              }}
+              onPointerDown={() => {
+                import('../../../pages/GatewayPage').catch(() => {});
+                if (appSlug) warmGatewaySession(String(appSlug));
+              }}
+              onTouchStart={() => {
+                import('../../../pages/GatewayPage').catch(() => {});
+                if (appSlug) warmGatewaySession(String(appSlug));
+              }}
               className="flex-1 sm:flex-none px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
               title="Download"
             >
