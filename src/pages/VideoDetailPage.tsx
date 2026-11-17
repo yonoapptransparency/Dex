@@ -4,8 +4,8 @@
  * open box-free editorial layout, 1:1 SSR hydration parity, Related Application deep linking, and structured VideoObject schema.
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import { useParams, Link, useNavigationType, useLocation } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockVideos as staticMockVideos, loadFullStaticDataset } from '../lib/lightFallback';
@@ -27,6 +27,8 @@ export default function VideoDetailPage() {
     fetchVideos
   } = useData();
   const { slug } = useParams();
+  const navType = useNavigationType();
+  const location = useLocation();
   const cleanSlug = decodeURIComponent(slug || '')
     .toLowerCase()
     .trim()
@@ -80,13 +82,15 @@ export default function VideoDetailPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    if (navType !== 'POP' && !location.hash) {
+      window.scrollTo(0, 0);
+    }
     setIsPlaying(false);
     setCopied(false);
     setTriedRefresh(false);
     setIsRefreshing(false);
-  }, [cleanSlug]);
+  }, [cleanSlug, navType, location.hash]);
 
   useEffect(() => {
     if (!cleanSlug || videoItem) return;

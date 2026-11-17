@@ -3,10 +3,10 @@
  * Renders technical and design features of individual applications with peer user reviews.
  */
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useNavigationType, useLocation } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import { Check } from 'lucide-react';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react';
 import Meta from '../components/Meta';
 import { useLiveAppStats } from '../hooks/useReviews';
 import { getCachedLiveAppStats, getCachedLiveReviews } from '../lib/communityFirebase';
@@ -27,7 +27,7 @@ import { AppDetailsNavigation } from '../components/public/appDetails/AppDetails
 import { AppSimilarCarousel } from '../components/public/appDetails/AppSimilarCarousel';
 import AppNotFound from '../components/public/appDetails/AppNotFound';
 import { buildSoftwareSchema, buildWebPageSchema, buildBreadcrumbSchema, buildFaqSchema } from '../components/public/appDetails/appDetailsSchemas';
-import { normalizeFileSize } from '../seo/utils';
+import { normalizeFileSize, resolveSpecificAppCategory } from '../seo/utils';
 
 export { AppDetailsSkeleton };
 
@@ -35,6 +35,8 @@ export default function AppDetails() {
   const { apps: mockApps, news: mockNews, settings: mockSettings, loading, refreshAll, updateAppDetail, mergeCatalogApps } = useData();
   const { slug: routeSlug, "*": splat } = useParams();
   const navigate = useNavigate();
+  const navType = useNavigationType();
+  const location = useLocation();
   const decodedSplat = splat ? decodeURIComponent(splat) : '';
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
@@ -146,9 +148,7 @@ export default function AppDetails() {
   const [shareToast, setShareToast] = useState(false);
 
   const specificCategory = useMemo(() => {
-    if (!app?.category) return 'All Apps';
-    const first = app.category.split(',')[0]?.trim() || '';
-    return (first && !['all apps', 'all', 'apps', 'general'].includes(first.toLowerCase())) ? first : 'All Apps';
+    return resolveSpecificAppCategory(app?.category);
   }, [app?.category]);
 
   // Single-pass high-performance category metrics and balanced circular internal linking
@@ -268,8 +268,10 @@ export default function AppDetails() {
   const activeSlugRef = useRef<string>(slug?.toLowerCase().trim() || '');
   activeSlugRef.current = slug?.toLowerCase().trim() || '';
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    if (navType !== 'POP' && !location.hash) {
+      window.scrollTo(0, 0);
+    }
     setTriedRefresh(false);
     const curKey = slug?.toLowerCase().trim() || '';
     setFetchedApp((prev: any) => {
@@ -279,7 +281,7 @@ export default function AppDetails() {
       return null;
     });
     setIsFetchingDetails(false);
-  }, [slug]);
+  }, [slug, navType, location.hash]);
 
   useEffect(() => {
     const handlePrefetched = (evt: any) => {
@@ -534,6 +536,7 @@ export default function AppDetails() {
         <AppSimilarCarousel 
           relatedApps={relatedApps} 
           specificCategory={specificCategory} 
+          adminCategories={mockSettings?.categories}
           totalCategoryCount={totalCategoryAppsCount}
           isLoading={relatedApps.length === 0 && (loading || isFetchingDetails || (Array.isArray(mockApps) && mockApps.length <= 1))}
         />

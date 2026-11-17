@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import { useParams, Link, Navigate, useNavigate, useNavigationType, useLocation } from 'react-router-dom';
 import Meta from '../components/Meta';
 import { useData } from '../contexts/DataContextPublic';
 import { mockNews as staticMockNews, loadFullStaticDataset } from '../lib/lightFallback';
@@ -15,6 +15,8 @@ export default function NewsDetailPage() {
   const { news: mockNews = [], apps = [], settings: mockSettings, loading, refreshAll, updateNewsDetail } = useData();
   const { slug } = useParams();
   const navigate = useNavigate();
+  const navType = useNavigationType();
+  const location = useLocation();
 
   const handleHtmlClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = (e.target as HTMLElement).closest('a');
@@ -107,8 +109,10 @@ export default function NewsDetailPage() {
   const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    if (navType !== 'POP' && !location.hash) {
+      window.scrollTo(0, 0);
+    }
     setIsRefreshing(false);
     setCopied(false);
     setFetchedNewsItem((prev: any) => {
@@ -116,7 +120,7 @@ export default function NewsDetailPage() {
       const prevSlug = String(prev.slug || prev.id || '').toLowerCase().trim();
       return prevSlug === cleanSlug ? prev : null;
     });
-  }, [slug, cleanSlug]);
+  }, [slug, cleanSlug, navType, location.hash]);
 
   const hasFullBody = useMemo(() => {
     if (!newsItem) return false;

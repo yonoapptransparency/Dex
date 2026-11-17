@@ -138,6 +138,7 @@ async function prerender() {
 
     // Persist pristine clean SPA template files with empty <div id="root"></div> and neutral title
     const neutralSpaTemplate = originalTemplate
+      .replace('<!--__SEO_HEAD__-->', '')
       .replace(/<title[\s\S]*?<\/title>/gi, '<title></title>')
       .replace(/<meta\s+[^>]*property=["']og:title["'][^>]*\/?>/gi, '');
     fs.writeFileSync(path.join(distPath, 'template.html'), neutralSpaTemplate, 'utf-8');

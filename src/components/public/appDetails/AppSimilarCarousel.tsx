@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { getOptimizedImageUrl } from '../../../seo/utils';
+import { getOptimizedImageUrl, getCategoryRouteHref, buildSimilarCategoryPills } from '../../../seo/utils';
 import { preloadAppDetails } from '../../../lib/preloadHelper';
 
 export interface RelatedAppItem {
@@ -17,6 +17,7 @@ export interface RelatedAppItem {
 interface AppSimilarCarouselProps {
   relatedApps: RelatedAppItem[];
   specificCategory: string;
+  adminCategories?: string[];
   totalCategoryCount?: number;
   isLoading?: boolean;
 }
@@ -26,7 +27,7 @@ export const SIMILAR_APP_SVG_PLACEHOLDER = "data:image/svg+xml;charset=utf-8,%3C
 export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({ 
   relatedApps, 
   specificCategory,
-  totalCategoryCount,
+  adminCategories,
   isLoading = false
 }) => {
   // Defer secondary carousel icons until after the primary app logo paints, and never expose 16 neighbor app icons to search crawlers
@@ -48,12 +49,16 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
 
   if ((!relatedApps || relatedApps.length === 0) && isLoading) {
     return (
-      <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0 min-h-[228px] xs:min-h-[248px] sm:min-h-[268px]">
-        <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
-          <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100">
+      <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0 min-h-[224px] xs:min-h-[244px] sm:min-h-[264px]">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2.5 px-1 xs:px-2 sm:px-4 md:px-6 min-w-0">
+          <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 shrink-0 whitespace-nowrap">
             Similar Applications
           </h2>
-          <div className="h-7 w-24 rounded-full bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse" />
+          <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden py-0.5">
+            <div className="h-6 w-20 rounded-full bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse shrink-0" />
+            <div className="h-6 w-20 rounded-full bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse shrink-0" />
+            <div className="h-6 w-24 rounded-full bg-zinc-200/70 dark:bg-zinc-800/70 animate-pulse shrink-0" />
+          </div>
         </div>
         <div className="grid grid-rows-2 grid-flow-col gap-x-3 xxs:gap-x-4 xs:gap-x-5 gap-y-3 xxs:gap-y-3.5 xs:gap-y-4 overflow-hidden pt-2.5 pb-2 px-2 xs:px-4 sm:px-0">
           {Array.from({ length: 12 }).map((_, idx) => (
@@ -67,40 +72,37 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
     );
   }
 
-  const displayTotal = totalCategoryCount && totalCategoryCount > 0 
-    ? totalCategoryCount 
-    : relatedApps.length;
-
-  const categoryHref = (() => {
-    const clean = (specificCategory || '').trim();
-    const lower = clean.toLowerCase();
-    if (!clean || lower === 'all apps' || lower === 'all' || lower === 'apps' || lower === 'general') {
-      return '/categories';
-    }
-    return `/category/${encodeURIComponent(lower.replace(/\s+/g, '-'))}`;
-  })();
+  const categoryHref = getCategoryRouteHref(specificCategory);
+  const categoryPills = buildSimilarCategoryPills(specificCategory, adminCategories);
 
   return (
     <aside data-nosnippet aria-labelledby="related-apps-heading" className="my-5 xs:my-6 px-0">
-      <div className="flex items-center justify-between gap-2 mb-3 px-1 xs:px-2 sm:px-4 md:px-6">
-        <div className="flex items-center gap-2 min-w-0">
-          <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold flex items-center gap-1.5 xs:gap-2 text-zinc-900 dark:text-zinc-100 truncate">
-            <span>Similar Applications</span>
-            {specificCategory && specificCategory !== 'All Apps' && (
-              <span className="text-[10px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 xs:px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/50 truncate">
-                {specificCategory}
-              </span>
-            )}
-          </h2>
-        </div>
-        <Link 
-          to={categoryHref}
-          className="inline-flex items-center gap-1.5 px-3 py-1 xs:px-3.5 xs:py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 active:scale-95 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 font-bold text-xs xs:text-xs transition-all border border-blue-200/70 dark:border-blue-800/70 shadow-2xs group shrink-0 no-underline tabular-nums"
-          title={`Explore all ${displayTotal} ${specificCategory} apps`}
-        >
-          <span>View all ({displayTotal})</span>
-          <ArrowRight className="w-3 h-3 xs:w-3.5 xs:h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+      <div className="flex items-center gap-2 sm:gap-3 mb-2.5 px-1 xs:px-2 sm:px-4 md:px-6 min-w-0">
+        <h2 id="related-apps-heading" className="text-base xs:text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 shrink-0 whitespace-nowrap">
+          <span>Similar Applications</span>
+        </h2>
+        {categoryPills.length > 0 && (
+          <nav
+            aria-label="Browse categories"
+            className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-proximity touch-auto overscroll-x-contain py-0.5 pr-2"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {categoryPills.map((cat) => (
+              <Link
+                key={cat.slug}
+                to={cat.href}
+                className={
+                  cat.isActive
+                    ? 'whitespace-nowrap shrink-0 snap-start inline-flex items-center px-2.5 xs:px-3 py-1 rounded-full text-[11px] xs:text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/60 no-underline active:scale-95 transition-all'
+                    : 'whitespace-nowrap shrink-0 snap-start inline-flex items-center px-2.5 xs:px-3 py-1 rounded-full text-[11px] xs:text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-black/5 dark:border-white/10 no-underline active:scale-95 transition-all'
+                }
+                title={`Explore ${cat.name} apps`}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
 
       <div 
@@ -155,6 +157,19 @@ export const AppSimilarCarousel: React.FC<AppSimilarCarouselProps> = ({
             </Link>
           );
         })}
+        <Link
+          to={categoryHref}
+          className="row-span-2 flex flex-col items-center justify-center gap-2 w-[74px] xxs:w-[82px] xs:w-[92px] sm:w-[104px] h-full min-h-[140px] rounded-2xl bg-blue-50/80 hover:bg-blue-100/90 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 snap-start group shrink-0 active:scale-95 transition-all duration-150 ease-out no-underline px-1.5"
+          title={specificCategory && specificCategory !== 'All Apps' ? `View all ${specificCategory} apps` : 'View all applications'}
+          aria-label={specificCategory && specificCategory !== 'All Apps' ? `View all ${specificCategory} apps` : 'View all applications'}
+        >
+          <span className="w-10 h-10 xs:w-11 xs:h-11 rounded-full bg-white dark:bg-zinc-900 border border-blue-200/80 dark:border-blue-800/70 shadow-2xs flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+            <ArrowRight className="w-4 h-4 xs:w-5 xs:h-5" />
+          </span>
+          <span className="text-[11px] xs:text-xs font-bold text-center leading-tight whitespace-nowrap">
+            View all
+          </span>
+        </Link>
       </div>
     </aside>
   );

@@ -3,7 +3,7 @@
  * Features the showcase carousel, real-time download tabs, and categorized app directories.
  */
 
-import { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useDeferredValue, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { useData } from '../contexts/DataContextPublic';
 import Meta from '../components/Meta';
@@ -17,6 +17,33 @@ import HomeSearchResults from '../components/public/home/HomeSearchResults';
 
 const ITEMS_PER_PAGE = 24;
 const STORAGE_KEY = 'home_feed_state';
+const DEFAULT_KNOWN_CATEGORIES = ['All Apps', 'Rummy Apps', 'Yono Apps', 'Teen Patti', 'Casino', 'Slot Games', 'Arcade', 'Board', 'Casual'];
+
+function resolveActiveTabFromRoute(
+  pathname: string,
+  tabParam: string | null,
+  categoryParam?: string,
+  configuredCategories?: string[]
+): string {
+  const pathLower = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  if (tabParam) return tabParam;
+  if (pathLower === '/categories') return 'Categories';
+  if (pathLower === '/new-apps') return 'All Apps';
+  if (categoryParam) {
+    const rawCat = categoryParam.toLowerCase().replace(/[-_]+/g, ' ').trim();
+    const allKnownCats = (configuredCategories && configuredCategories.length > 0)
+      ? configuredCategories
+      : DEFAULT_KNOWN_CATEGORIES;
+    const matched = allKnownCats.find(c =>
+      c.toLowerCase().trim() === rawCat ||
+      c.toLowerCase().replace(/[^a-z0-9]+/g, '') === rawCat.replace(/[^a-z0-9]+/g, '') ||
+      rawCat.includes(c.toLowerCase().trim())
+    );
+    if (matched) return matched;
+    return rawCat.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+  return 'All Apps';
+}
 
 export default function Home() {
   const { apps: mockApps, settings: mockSettings } = useData();
@@ -24,25 +51,29 @@ export default function Home() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const navType = useNavigationType();
+
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'All Apps');
+  const [activeTab, setActiveTab] = useState<string>(() =>
+    resolveActiveTabFromRoute(location.pathname, searchParams.get('tab'), categoryParam, mockSettings?.categories)
+  );
   const [ratingFilter, setRatingFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('default');
 
-  const navType = useNavigationType();
-
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10) || 1;
   const [visibleCount, setVisibleCount] = useState<number>(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed.visibleCount === 'number' && parsed.visibleCount > 0) {
-          return parsed.visibleCount;
+    if (navType === 'POP') {
+      try {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.visibleCount === 'number' && parsed.visibleCount > 0) {
+            return parsed.visibleCount;
+          }
         }
+      } catch (e) {
+        // Fallback
       }
-    } catch (e) {
-      // Fallback
     }
     return Math.max(ITEMS_PER_PAGE, pageFromUrl * ITEMS_PER_PAGE);
   });
@@ -50,11 +81,10 @@ export default function Home() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const deferredSearchTerm = useDeferredValue(searchTerm);
-  const deferredActiveTab = useDeferredValue(activeTab);
   const deferredRatingFilter = useDeferredValue(ratingFilter);
   const deferredSortBy = useDeferredValue(sortBy);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (navType === 'POP') {
       try {
         const saved = sessionStorage.getItem(STORAGE_KEY);
@@ -74,9 +104,11 @@ export default function Home() {
       } catch (e) {
         // Ignore
       }
-      window.scrollTo(0, 0);
+      if (!location.hash) {
+        window.scrollTo(0, 0);
+      }
     }
-  }, [navType]);
+  }, [navType, location.pathname, location.hash]);
 
   const feedStateRef = useRef({ visibleCount, activeTab });
   useEffect(() => {
@@ -122,39 +154,29 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    const q = searchParams.get('q');
-    if (q !== null && q !== searchTerm) {
-      setSearchTerm(q);
-    }
-    const tab = searchParams.get('tab');
-    const pathLower = location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
-    if (tab) {
-      setActiveTab(tab);
-    } else if (pathLower === '/categories') {
-      setActiveTab('Categories');
-    } else if (pathLower === '/new-apps') {
-      setActiveTab('All Apps');
-    } else if (categoryParam) {
-      const rawCat = categoryParam.toLowerCase().replace(/[-_]+/g, ' ').trim();
-      const allKnownCats = (mockSettings?.categories && mockSettings.categories.length > 0)
-        ? mockSettings.categories
-        : ['All Apps', 'Rummy Apps', 'Yono Apps', 'Teen Patti', 'Casino', 'Slot Games', 'Arcade', 'Board', 'Casual'];
-      
-      const matched = allKnownCats.find(c => 
-        c.toLowerCase().trim() === rawCat || 
-        c.toLowerCase().replace(/[-_\s]+/g, '') === rawCat.replace(/\s+/g, '') ||
-        rawCat.includes(c.toLowerCase().trim())
-      );
+  const prevRouteKeyRef = useRef<string>(`${location.pathname}?${searchParams.toString()}|${categoryParam || ''}`);
+  useLayoutEffect(() => {
+    const routeKey = `${location.pathname}?${searchParams.toString()}|${categoryParam || ''}`;
+    const routeChanged = prevRouteKeyRef.current !== routeKey;
+    prevRouteKeyRef.current = routeKey;
 
-      if (matched) {
-        setActiveTab(matched);
-      } else {
-        const capitalized = rawCat.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        setActiveTab(capitalized);
-      }
+    const q = searchParams.get('q');
+    if (q !== null) {
+      setSearchTerm(prev => (prev === q ? prev : q));
+    } else if (routeChanged) {
+      setSearchTerm(prev => (prev === '' ? prev : ''));
     }
-  }, [searchParams, categoryParam, location, mockSettings.categories]);
+
+    if (routeChanged || categoryParam) {
+      const nextTab = resolveActiveTabFromRoute(
+        location.pathname,
+        searchParams.get('tab'),
+        categoryParam,
+        mockSettings?.categories
+      );
+      setActiveTab(prev => (prev === nextTab ? prev : nextTab));
+    }
+  }, [searchParams, categoryParam, location.pathname, mockSettings?.categories]);
 
   const isInitialFilterMount = useRef(true);
   useEffect(() => {
@@ -163,7 +185,7 @@ export default function Home() {
       return;
     }
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [deferredSearchTerm, deferredActiveTab, deferredRatingFilter, deferredSortBy]);
+  }, [deferredSearchTerm, activeTab, deferredRatingFilter, deferredSortBy]);
 
   const filteredApps = useMemo(() => {
     const term = deferredSearchTerm.toLowerCase().trim();
@@ -281,7 +303,7 @@ export default function Home() {
   const isCategoriesIndexRoute = cleanPathLower === '/categories';
   const isPureHomeRoute = cleanPathLower === '/';
 
-  const activeTabLower = deferredActiveTab.toLowerCase().trim();
+  const activeTabLower = activeTab.toLowerCase().trim();
   const isHomeTab = !isNewAppsRoute && !isCategoriesIndexRoute && !categoryParam && (
     activeTabLower === 'all apps' || 
     activeTabLower === 'all' || 
@@ -447,7 +469,7 @@ export default function Home() {
         </div>
       )}
 
-      {isPureHomeRoute && !deferredSearchTerm && deferredActiveTab.toLowerCase() !== 'categories' && deferredActiveTab.toLowerCase() !== 'top charts' && (
+      {isPureHomeRoute && !deferredSearchTerm && activeTab.toLowerCase() !== 'categories' && activeTab.toLowerCase() !== 'top charts' && (
         <FeaturedBanner items={bannerItems} />
       )}
 
@@ -463,7 +485,7 @@ export default function Home() {
         sortBy={sortBy}
         setSortBy={setSortBy}
         searchTerm={deferredSearchTerm}
-        activeTab={isNewAppsRoute ? 'New Apps' : deferredActiveTab}
+        activeTab={isNewAppsRoute ? 'New Apps' : activeTab}
         totalCount={deferredSearchTerm ? filteredApps.length : tabFilteredApps.length}
       />
 
@@ -477,7 +499,7 @@ export default function Home() {
         }} 
       />
 
-      {deferredActiveTab.toLowerCase() === 'top charts' && !deferredSearchTerm && (
+      {activeTab.toLowerCase() === 'top charts' && !deferredSearchTerm && (
         <div className="space-y-1 px-0 sm:px-1">
           {filteredApps.slice(0, visibleCount).map((app, index) => (
             <TopChartItem key={`${app.id}-${index}`} rank={index + 1} app={app} />
@@ -503,7 +525,7 @@ export default function Home() {
         </div>
       )}
 
-      {(deferredActiveTab.toLowerCase() === 'categories' || isCategoriesIndexRoute) && !deferredSearchTerm && (
+      {(activeTab.toLowerCase() === 'categories' || isCategoriesIndexRoute) && !deferredSearchTerm && (
         <HomeCategoryGrid categories={mockSettings.categories || []} apps={mockApps} setActiveTab={setActiveTab} />
       )}
 
@@ -516,7 +538,7 @@ export default function Home() {
               tabFilteredApps.slice(0, visibleCount).map((app, index) => <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />)
             ) : (
               <div className="text-center py-20 text-slate-400">
-                <p className="text-lg">No apps found in {isNewAppsRoute ? 'New Apps' : deferredActiveTab}</p>
+                <p className="text-lg">No apps found in {isNewAppsRoute ? 'New Apps' : activeTab}</p>
               </div>
             )}
           </div>
@@ -542,6 +564,34 @@ export default function Home() {
             Showing all {tabFilteredApps.length} verified applications
           </p>
         </div>
+      )}
+
+      {isPureHomeRoute && !deferredSearchTerm && isHomeTab && hasMore && (
+        <nav aria-label="Complete Application Directory" data-nosnippet className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 px-2 max-w-5xl mx-auto">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">
+            More Applications in Catalog ({tabFilteredApps.length - visibleCount})
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs">
+            {tabFilteredApps.slice(visibleCount).map((app: any, idx: number) => {
+              const appSlug = app.slug || app.id;
+              return (
+                <a
+                  key={`${app.id || appSlug}-${idx}`}
+                  href={`/app/${encodeURIComponent(appSlug)}`}
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
+                      e.preventDefault();
+                      navigate(`/app/${encodeURIComponent(appSlug)}`);
+                    }
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-zinc-200/60 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium truncate no-underline transition-colors"
+                >
+                  {app.name}
+                </a>
+              );
+            })}
+          </div>
+        </nav>
       )}
 
       {isPureHomeRoute && (
