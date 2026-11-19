@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { ArrowRight, RefreshCw, Info } from 'lucide-react';
 import { useData } from '../contexts/DataContextPublic';
 import { useTurnstileVerification } from '../hooks/useTurnstileVerification';
@@ -19,6 +20,7 @@ export default function ClearanceButton({
 }: ClearanceButtonProps) {
   const { settings } = useData();
   const cleanSlug = (appSlug || appId || 'item').replace(/[^a-zA-Z0-9_-]/g, '-');
+  const isDispatchingRef = useRef(false);
 
   const {
     isReady,
@@ -34,6 +36,7 @@ export default function ClearanceButton({
   } = useTurnstileVerification({
     appId,
     adminTurnstileSiteKey: (settings as any)?.turnstile_site_key,
+    isDispatchingRef,
   });
 
   const {
@@ -49,6 +52,7 @@ export default function ClearanceButton({
     cfTokenRef,
     nonceRef,
     envRef,
+    isDispatchingRef,
     setIsBotBlocked,
     restartVerification,
     wipeSessionSecrets,

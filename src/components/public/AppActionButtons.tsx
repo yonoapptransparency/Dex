@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Share2, Flag } from 'lucide-react';
 import { AppConfig } from '../../types';
-import { warmGatewaySession } from '../../hooks/useTurnstileVerification';
+import { warmGatewaySession, preconnectTurnstileOnly } from '../../hooks/useTurnstileVerification';
 
 declare global {
   interface Window {
@@ -25,6 +26,41 @@ export default function AppActionButtons({
 }: AppActionButtonsProps) {
   const navigate = useNavigate();
   const targetSlug = String(app.slug || app.id || '').trim();
+
+  // After LCP settles on real human browsers (never crawlers/Lighthouse/Save-Data),
+  // preload the lazy GatewayPage chunk + warm DNS/TLS to challenges.cloudflare.com so
+  // tapping "Download" on moderate/slow mobile networks transitions in 0ms without chunk stall.
+  useEffect(() => {
+    if (isActuallyComingSoon || typeof window === 'undefined') return;
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent || '' : '';
+    const isCrawler =
+      /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless|playwright|puppeteer/i.test(
+        ua
+      );
+    if (isCrawler) return;
+    const conn = (navigator as unknown as { connection?: { saveData?: boolean } }).connection;
+    if (conn?.saveData) return;
+
+    let idleHandle: number | null = null;
+    const timer = window.setTimeout(() => {
+      const warm = () => {
+        import('../../pages/GatewayPage').catch(() => {});
+        preconnectTurnstileOnly();
+      };
+      if (typeof (window as any).requestIdleCallback === 'function') {
+        idleHandle = (window as any).requestIdleCallback(warm, { timeout: 2500 });
+      } else {
+        warm();
+      }
+    }, 1200);
+
+    return () => {
+      window.clearTimeout(timer);
+      if (idleHandle !== null && typeof (window as any).cancelIdleCallback === 'function') {
+        (window as any).cancelIdleCallback(idleHandle);
+      }
+    };
+  }, [isActuallyComingSoon]);
 
   const buildAppStub = (): Partial<AppConfig> => ({
     id: app.id,
