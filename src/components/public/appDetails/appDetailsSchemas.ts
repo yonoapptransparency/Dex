@@ -149,7 +149,7 @@ export function buildBreadcrumbSchema(app: any, specificCategory: string) {
       "@type": "ListItem",
       "position": 2,
       "name": specificCategory,
-      "item": `https://www.rummydex.com/category/${encodeURIComponent(specificCategory.toLowerCase().replace(/\s+/g, '-'))}`
+      "item": `https://www.rummydex.com/category/${encodeURIComponent(specificCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''))}`
     });
     breadcrumbElements.push({
       "@type": "ListItem",

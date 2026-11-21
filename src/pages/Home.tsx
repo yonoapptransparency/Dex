@@ -104,15 +104,20 @@ export default function Home() {
       } catch (e) {
         // Ignore
       }
-      if (!location.hash) {
+      if (!location.hash && window.scrollY > 0) {
         window.scrollTo(0, 0);
       }
     }
   }, [navType, location.pathname, location.hash]);
 
   const feedStateRef = useRef({ visibleCount, activeTab });
+  const isFirstPersistRef = useRef(true);
   useEffect(() => {
     feedStateRef.current = { visibleCount, activeTab };
+    if (isFirstPersistRef.current) {
+      isFirstPersistRef.current = false;
+      return;
+    }
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
         visibleCount,
@@ -474,7 +479,7 @@ export default function Home() {
       )}
 
       {isPureHomeRoute && !deferredSearchTerm && isHomeTab && (
-        <NewAdditions loading={false} apps={filteredApps} />
+        <NewAdditions loading={false} apps={filteredApps} hasBanner={bannerItems.length > 0} />
       )}
 
       <PlayStoreTabs activeTab={activeTab} onTabChange={setActiveTab} hideOnSearch={!!deferredSearchTerm} />
@@ -519,7 +524,7 @@ export default function Home() {
         <div className="px-0 sm:px-1">
           <div className="space-y-2">
             {filteredApps.slice(0, visibleCount).map((app, index) => (
-              <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} />
+              <AppListItem key={`${app.id}-${index}`} app={app} index={index + 1} hasBanner={bannerItems.length > 0} />
             ))}
           </div>
         </div>
@@ -546,7 +551,7 @@ export default function Home() {
       })()}
 
       {hasMore && (
-        <div ref={sentinelRef} className="py-8 flex flex-col items-center justify-center min-h-[72px]">
+        <div ref={sentinelRef} className="h-[72px] flex items-center justify-center">
           <div className="w-2 h-2 opacity-0" />
         </div>
       )}

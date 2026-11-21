@@ -108,9 +108,16 @@ export default function NewsDetailPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [remoteCheckDoneSlug, setRemoteCheckDoneSlug] = useState<string>('');
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+    };
+  }, []);
 
   useLayoutEffect(() => {
-    if (navType !== 'POP' && !location.hash) {
+    if (navType !== 'POP' && !location.hash && window.scrollY > 0) {
       window.scrollTo(0, 0);
     }
     setIsRefreshing(false);
@@ -148,8 +155,9 @@ export default function NewsDetailPage() {
     }
 
     // 3. Instant 0ms memory fallback from static dataset (never overwrite a live API response)
+    let cancelled = false;
     loadFullStaticDataset().then(dataset => {
-      if (activeSlugRef.current !== slugKey) return;
+      if (cancelled || activeSlugRef.current !== slugKey) return;
       const match = (dataset?.news || []).find((n: any) =>
         (n.slug || '').toLowerCase().trim() === slugKey || (n.id || '').toLowerCase().trim() === slugKey
       );
@@ -162,38 +170,55 @@ export default function NewsDetailPage() {
     }).catch(() => {});
 
     // 4. Concurrently query public API for real-time Firestore updates
-    if (!syncAttemptedRef.current[slugKey]) {
-      syncAttemptedRef.current[slugKey] = true;
-      setIsRefreshing(true);
-
-      fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {
-        headers: { 'Accept': 'application/json' }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          if (activeSlugRef.current !== slugKey) return;
-          const resolvedNews = data?.news || data?.newsItem;
-          if (data?.status === 'OK' && resolvedNews) {
-            setFetchedNewsItem(resolvedNews);
-            updateNewsDetail?.(resolvedNews);
-          } else if (!newsItem && refreshAll) {
-            refreshAll(true);
-          }
-        })
-        .catch(err => {
-          console.warn("News body fetch fallback notice:", err);
-          if (!newsItem && refreshAll) refreshAll(true);
-        })
-        .finally(() => {
-          if (activeSlugRef.current === slugKey) {
-            setIsRefreshing(false);
-            setRemoteCheckDoneSlug(slugKey);
-          }
-        });
+    if (syncAttemptedRef.current[slugKey]) {
+      setRemoteCheckDoneSlug(slugKey);
+      return () => {
+        cancelled = true;
+      };
     }
+
+    syncAttemptedRef.current[slugKey] = true;
+    const controller = new AbortController();
+    setIsRefreshing(true);
+
+    fetch(`/api/v1/public/news/${encodeURIComponent(slugKey)}`, {
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (cancelled || activeSlugRef.current !== slugKey) return;
+        const resolvedNews = data?.news || data?.newsItem;
+        if (data?.status === 'OK' && resolvedNews) {
+          setFetchedNewsItem(resolvedNews);
+          updateNewsDetail?.(resolvedNews);
+        } else if (!newsItem && refreshAll) {
+          refreshAll(true);
+        }
+      })
+      .catch(err => {
+        if (err?.name === 'AbortError') {
+          delete syncAttemptedRef.current[slugKey];
+          return;
+        }
+        delete syncAttemptedRef.current[slugKey];
+        console.warn("News body fetch fallback notice:", err);
+        if (!cancelled && !newsItem && refreshAll) refreshAll(true);
+      })
+      .finally(() => {
+        if (!cancelled && activeSlugRef.current === slugKey) {
+          setIsRefreshing(false);
+          setRemoteCheckDoneSlug(slugKey);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [cleanSlug, hasFullBody]);
 
   const relatedApp = useMemo(() => {
@@ -225,7 +250,8 @@ export default function NewsDetailPage() {
     } else {
       navigator.clipboard.writeText(url).then(() => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+        copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
       }).catch(() => {});
     }
   };

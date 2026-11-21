@@ -13,7 +13,7 @@ import { getCachedLiveAppStats, getCachedLiveReviews } from '../lib/communityFir
 
 import { mockApps as staticMockApps, loadFullStaticDataset } from '../lib/lightFallback';
 import { resolveAppSlug } from '../lib/slugResolver';
-import { getPrefetchedApp } from '../lib/preloadHelper';
+import { getPrefetchedApp, getInFlightAppFetch } from '../lib/preloadHelper';
 import AppDetailsSkeleton from '../components/public/AppDetailsSkeleton';
 import AppHeader from '../components/public/AppHeader';
 import AppActionButtons from '../components/public/AppActionButtons';
@@ -37,7 +37,14 @@ export default function AppDetails() {
   const navigate = useNavigate();
   const navType = useNavigationType();
   const location = useLocation();
-  const decodedSplat = splat ? decodeURIComponent(splat) : '';
+  let decodedSplat = '';
+  if (splat) {
+    try {
+      decodedSplat = decodeURIComponent(splat);
+    } catch {
+      decodedSplat = splat;
+    }
+  }
   const splatStripped = decodedSplat.replace(/^\/app\//, '/').replace(/^\/|\/$/g, '');
   const slug = routeSlug || splatStripped;
 
@@ -139,13 +146,19 @@ export default function AppDetails() {
     };
   }, [slug, mockApps, fetchedApp]);
   
-  const [triedRefresh, setTriedRefresh] = useState(false);
   const syncAttemptedRef = useRef<Record<string, boolean>>({});
+  const shareToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [reviewsRefreshKey] = useState(0);
   const liveStats = useLiveAppStats(app?.id || '', app?.slug || '');
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [shareToast, setShareToast] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (shareToastTimerRef.current) clearTimeout(shareToastTimerRef.current);
+    };
+  }, []);
 
   const specificCategory = useMemo(() => {
     return resolveSpecificAppCategory(app?.category);
@@ -269,10 +282,9 @@ export default function AppDetails() {
   activeSlugRef.current = slug?.toLowerCase().trim() || '';
 
   useLayoutEffect(() => {
-    if (navType !== 'POP' && !location.hash) {
+    if (navType !== 'POP' && !location.hash && window.scrollY > 0) {
       window.scrollTo(0, 0);
     }
-    setTriedRefresh(false);
     const curKey = slug?.toLowerCase().trim() || '';
     setFetchedApp((prev: any) => {
       if (!prev || !curKey) return null;
@@ -353,8 +365,9 @@ export default function AppDetails() {
     }
 
     // 3. Instant 0ms memory fallback from static dataset (never overwrite an already-resolved live API fetchedApp)
+    let cancelled = false;
     loadFullStaticDataset().then(dataset => {
-      if (activeSlugRef.current !== slugKey) return;
+      if (cancelled || activeSlugRef.current !== slugKey) return;
       const match = resolveAppSlug(slugKey, dataset?.apps || []);
       if (match && match.description_html && match.description_html.trim().length > 10) {
         setFetchedApp(prev => prev || match);
@@ -364,41 +377,78 @@ export default function AppDetails() {
       }
     }).catch(() => {});
 
-    if (!syncAttemptedRef.current[slugKey]) {
-      syncAttemptedRef.current[slugKey] = true;
+    // 4. Reuse any hover/touchstart in-flight prefetch promise before spawning a new network request
+    const existingInFlight = getInFlightAppFetch(slugKey);
+    if (existingInFlight) {
       setIsFetchingDetails(true);
-
-      fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`)
-        .then(res => {
-          if (res.ok) return res.json();
-          throw new Error(`HTTP ${res.status}`);
-        })
-        .then(data => {
-          if (data?.status === 'OK' && data?.app) {
-            if (
-              Array.isArray(data.catalogApps) &&
-              data.catalogApps.length > 0 &&
-              mergeCatalogApps &&
-              (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
-            ) {
-              mergeCatalogApps(data.catalogApps);
-            }
-            if (updateAppDetail) updateAppDetail(data.app);
-            if (activeSlugRef.current === slugKey) {
-              setFetchedApp(data.app);
-            }
+      existingInFlight
+        .then(prefetchedApp => {
+          if (cancelled || activeSlugRef.current !== slugKey) return;
+          if (prefetchedApp) {
+            if (updateAppDetail) updateAppDetail(prefetchedApp);
+            setFetchedApp(prefetchedApp);
           }
         })
-        .catch(() => {
-          // Graceful fallback to static local cache
-        })
+        .catch(() => {})
         .finally(() => {
-          if (activeSlugRef.current === slugKey) {
+          if (!cancelled && activeSlugRef.current === slugKey) {
             setIsFetchingDetails(false);
             setRemoteCheckDoneSlug(slugKey);
           }
         });
+      return () => {
+        cancelled = true;
+      };
     }
+
+    if (syncAttemptedRef.current[slugKey]) {
+      setRemoteCheckDoneSlug(slugKey);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    syncAttemptedRef.current[slugKey] = true;
+    const controller = new AbortController();
+    setIsFetchingDetails(true);
+
+    fetch(`/api/v1/public/app/${encodeURIComponent(slugKey)}`, { signal: controller.signal })
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error(`HTTP ${res.status}`);
+      })
+      .then(data => {
+        if (cancelled || activeSlugRef.current !== slugKey) return;
+        if (data?.status === 'OK' && data?.app) {
+          if (
+            Array.isArray(data.catalogApps) &&
+            data.catalogApps.length > 0 &&
+            mergeCatalogApps &&
+            (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
+          ) {
+            mergeCatalogApps(data.catalogApps);
+          }
+          if (updateAppDetail) updateAppDetail(data.app);
+          setFetchedApp(data.app);
+        }
+      })
+      .catch(err => {
+        // Release lock on abort or transient network error so revisiting recovers cleanly
+        if (err?.name === 'AbortError' || !cancelled) {
+          delete syncAttemptedRef.current[slugKey];
+        }
+      })
+      .finally(() => {
+        if (!cancelled && activeSlugRef.current === slugKey) {
+          setIsFetchingDetails(false);
+          setRemoteCheckDoneSlug(slugKey);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [slug, fetchedApp, app, mockApps, updateAppDetail, mergeCatalogApps]);
 
   const cleanSlugKey = slug?.toLowerCase().trim() || '';
@@ -451,7 +501,8 @@ export default function AppDetails() {
     navigator.clipboard.writeText(window.location.href)
       .then(() => {
         setShareToast(true);
-        setTimeout(() => setShareToast(false), 2050);
+        if (shareToastTimerRef.current) clearTimeout(shareToastTimerRef.current);
+        shareToastTimerRef.current = setTimeout(() => setShareToast(false), 2050);
       })
       .catch((err) => console.error('Failed to copy text: ', err));
   };

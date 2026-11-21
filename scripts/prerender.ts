@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
-import { generateAllSitemaps } from '../src/lib/sitemapGenerator';
+import { generateAllSitemaps, generateRobotsTxt, extractCanonicalCategories } from '../src/lib/sitemapGenerator';
 import { formatPageTitle } from '../src/lib/seoUtils';
 import { compileCanonicalApp, compileCanonicalNews, generateStaticDataFileCode, sanitizePublicSettings } from '../src/lib/canonicalCompiler';
 import { optimizeCompiledCss, clearCriticalCssCache } from '../src/seo/criticalCss';
@@ -218,22 +218,9 @@ async function prerender() {
     await generateRoute('/categories');
     await generateRoute('/new-apps');
 
-    const uniqueCategories = new Set<string>();
-    (data.apps || []).forEach((app: any) => {
-      const catField = app.category || app.category_name;
-      if (typeof catField === 'string' && catField.trim()) {
-        catField.split(',').forEach((c: string) => {
-          const trimmed = c.trim();
-          if (trimmed) uniqueCategories.add(trimmed);
-        });
-      }
-    });
-
-    for (const cat of uniqueCategories) {
-      const catSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      if (catSlug) {
-        await generateRoute(`/category/${catSlug}`);
-      }
+    const canonicalCategories = extractCanonicalCategories(data.apps || []);
+    for (const cat of canonicalCategories) {
+      await generateRoute(`/category/${cat.slug}`);
     }
 
     // 4. Generate News Routes (Only for public synced news)
@@ -252,12 +239,11 @@ async function prerender() {
       }
     }
 
-    // 6. Generate Core Static Pages
+    // 6. Generate Core Static Pages (Exclude 301 redirect aliases /developer & /faqs and noindex routes /safety & /safety-status so Cloudflare Pages _redirects & _headers work cleanly)
     await generateRoute('/news');
     await generateRoute('/videos');
     await generateRoute('/about');
     await generateRoute('/developers');
-    await generateRoute('/developer');
     await generateRoute('/contact');
     await generateRoute('/privacy');
     await generateRoute('/report-removal');
@@ -267,9 +253,6 @@ async function prerender() {
     await generateRoute('/ethics');
     await generateRoute('/disclaimer');
     await generateRoute('/faq');
-    await generateRoute('/faqs');
-    await generateRoute('/safety');
-    await generateRoute('/safety-status');
 
     // 6. Generate Master Sitemap Index (sitemap.xml), Sub-Sitemaps, and GZip (.xml.gz) companions
     const host = 'https://www.rummydex.com';
@@ -317,12 +300,15 @@ async function prerender() {
       }
     }
 
-    // 3. Copy authoritative public/robots.txt (with per-UA Disallow rules) to dist/robots.txt
-    const publicRobotsPath = path.join(publicPath, 'robots.txt');
-    if (fs.existsSync(publicRobotsPath)) {
-      fs.copyFileSync(publicRobotsPath, path.join(distPath, 'robots.txt'));
+    // 3. Write authoritative RFC 9309 robots.txt to both public/robots.txt and dist/robots.txt
+    const robotsTxt = generateRobotsTxt(host);
+    fs.writeFileSync(path.join(distPath, 'robots.txt'), robotsTxt, 'utf-8');
+    if (fs.existsSync(publicPath)) {
+      try {
+        fs.writeFileSync(path.join(publicPath, 'robots.txt'), robotsTxt, 'utf-8');
+      } catch (e) {}
     }
-    console.log('Generated sitemaps and copied robots.txt to dist');
+    console.log('Generated sitemaps and synced authoritative robots.txt to public and dist');
 
     // 4. Ensure Cloudflare Pages SPA redirects and headers exist in dist
     const redirectsSrc = path.join(publicPath, '_redirects');
@@ -330,7 +316,7 @@ async function prerender() {
     if (fs.existsSync(redirectsSrc)) {
       fs.copyFileSync(redirectsSrc, path.join(distPath, '_redirects'));
     } else {
-      fs.writeFileSync(path.join(distPath, '_redirects'), '/developer /developers 301\n/developer/* /developers/:splat 301\n/blogs/* / 301\n/blog/* / 301\n/blogs / 301\n/blog / 301\n', 'utf-8');
+      fs.writeFileSync(path.join(distPath, '_redirects'), '/developer /developers 301\n/developer/* /developers/:splat 301\n/faqs /faq 301\n/apps/* /app/:splat 301\n/game/* /app/:splat 301\n/apk/* /app/:splat 301\n/blogs/* / 301\n/blog/* / 301\n/blogs / 301\n/blog / 301\n', 'utf-8');
     }
     if (fs.existsSync(headersSrc)) {
       fs.copyFileSync(headersSrc, path.join(distPath, '_headers'));

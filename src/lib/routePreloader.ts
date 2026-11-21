@@ -13,45 +13,18 @@ export function preloadRoute(_rawPath: string): Promise<any> {
 }
 
 /**
- * Automatically preloads primary public routes during browser idle time
+ * All public routes are bundled directly in the main public bundle,
+ * so idle chunk preloading is a zero-cost no-op (no wasted timers/callbacks).
  */
 export function startIdleRoutePreloader(): void {
-  if (typeof window === 'undefined') return;
-
-  const isCrawler = typeof navigator !== 'undefined' && /googlebot|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent || '');
-  if (isCrawler) return;
-
-  const runIdle = () => {
-    const priorityRoutes = [
-      '/app/', '/news', '/news/', '/videos', '/about', '/developers',
-      '/contact', '/privacy', '/terms', '/disclaimer', '/notice',
-      '/ethics', '/responsibility', '/report-removal', '/faq'
-    ];
-    let delay = 1200;
-
-    priorityRoutes.forEach(r => {
-      setTimeout(() => {
-        if ('requestIdleCallback' in window) {
-          (window as any).requestIdleCallback(() => preloadRoute(r), { timeout: 4000 });
-        } else {
-          preloadRoute(r);
-        }
-      }, delay);
-      delay += 350;
-    });
-  };
-
-  if (document.readyState === 'complete') {
-    setTimeout(runIdle, 8000);
-  } else {
-    window.addEventListener('load', () => setTimeout(runIdle, 8000), { once: true });
-  }
+  // Public routes are statically bundled in the main entrypoint.
 }
 
 const preloadedSet = new Set<string>();
+const MAX_PRELOADED_IMAGES = 120;
 
 /**
- * Listens for touchstart, pointerover, or focus on anchor links to trigger instant preloading
+ * Listens for touchstart, pointerover, or focus on anchor links to warm incomplete images only
  */
 export function setupInteractionPreloader(): () => void {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -64,12 +37,13 @@ export function setupInteractionPreloader(): () => void {
 
     const href = target.getAttribute('href');
     if (href && (href.startsWith('/') || href.startsWith(window.location.origin))) {
-      preloadRoute(href);
-
-      // Pre-warm the browser image cache for the hero image inside this link
+      // Only warm images that haven't finished loading yet (skip already-loaded visible DOM images)
       try {
         const img = target.querySelector('img');
-        if (img && img.src && !preloadedSet.has(img.src)) {
+        if (img && img.src && !img.complete && !preloadedSet.has(img.src)) {
+          if (preloadedSet.size >= MAX_PRELOADED_IMAGES) {
+            preloadedSet.clear();
+          }
           preloadedSet.add(img.src);
           const warmImg = new Image();
           warmImg.src = img.src;

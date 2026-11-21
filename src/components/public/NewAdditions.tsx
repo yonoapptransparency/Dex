@@ -8,9 +8,10 @@ import { preloadAppDetails } from '../../lib/preloadHelper';
 interface NewAdditionsProps {
   loading?: boolean;
   apps: AppConfig[];
+  hasBanner?: boolean;
 }
 
-export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
+export default React.memo(function NewAdditions({ apps, hasBanner = false }: NewAdditionsProps) {
   const newApps = useMemo(() => apps.filter(app => app.is_new), [apps]);
   if (newApps.length === 0) return null;
 
@@ -36,9 +37,9 @@ export default React.memo(function NewAdditions({ apps }: NewAdditionsProps) {
                   <img 
                     src={getOptimizedImageUrl(app.icon_url, 120) || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=128&h=128&fit=crop"} 
                     alt={app.name} 
-                    loading={index < 6 ? "eager" : "lazy"}
+                    loading={index < 4 ? "eager" : "lazy"}
                     decoding="async"
-                    {...(index === 0 ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
+                    {...(index === 0 && !hasBanner ? { fetchPriority: "high" as const } : index >= 4 ? { fetchPriority: "low" as const } : {})}
                     width={104}
                     height={104}
                     className="w-full h-full object-cover group-hover:-translate-y-0.5 transition-transform duration-300 block" 

@@ -158,7 +158,7 @@ const AppOptionsMenu = ({ app, onMenuToggle }: { app: any; onMenuToggle?: (isOpe
   );
 };
 
-export const AppListItem = React.memo(({ app, index }: { app: any; index?: number }) => {
+export const AppListItem = React.memo(({ app, index, hasBanner = false }: { app: any; index?: number; hasBanner?: boolean }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const displayIndex = index !== undefined ? index : (app.serial_number || 1);
   const isActuallyComingSoon = React.useMemo(() => {
@@ -168,6 +168,7 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
   }, [app.is_coming_soon, app.publish_date]);
   
   const isAboveFold = displayIndex <= 8;
+  const isEagerRow = index !== undefined && index <= 4;
   return (
     <div className={`relative group ${isMenuOpen ? 'z-[100] [content-visibility:visible] [contain:none]' : isAboveFold ? 'z-1' : 'z-1 [content-visibility:auto] [contain-intrinsic-size:auto_84px]'}`}>
       <Link 
@@ -188,8 +189,8 @@ export const AppListItem = React.memo(({ app, index }: { app: any; index?: numbe
               alt={`${app.name} app icon`} 
               width={88}
               height={88}
-              loading={index !== undefined && index <= 6 ? "eager" : "lazy"}
-              fetchPriority={index !== undefined && index <= 6 ? "high" : "low"}
+              loading={isEagerRow ? "eager" : "lazy"}
+              {...(index === 1 && !hasBanner ? { fetchPriority: "high" as const } : !isEagerRow ? { fetchPriority: "low" as const } : {})}
               decoding="async"
               className="w-full h-full object-cover block"
               onError={(e) => {
@@ -272,12 +273,12 @@ export const TopChartItem = React.memo(({ rank, app }: { rank: number; app: any 
         <div className="relative w-[52px] h-[52px] xxs:w-[60px] xxs:h-[60px] xs:w-[72px] xs:h-[72px] sm:w-[88px] sm:h-[88px] shrink-0">
           <div className="w-full h-full rounded-[14px] xxs:rounded-[16px] xs:rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-sm border border-black/5 dark:border-white/10 relative z-10 transition-transform group-hover:-translate-y-0.5 duration-300">
             <img 
-              src={getOptimizedImageUrl(app.icon_url, 180) || "/logo.png"} 
+              src={getOptimizedImageUrl(app.icon_url, 120) || "/logo.png"} 
               alt={`${app.name} app icon`} 
               width={88}
               height={88}
-              loading={rank <= 8 ? "eager" : "lazy"}
-              fetchPriority={rank <= 8 ? "high" : "low"}
+              loading={rank <= 4 ? "eager" : "lazy"}
+              {...(rank === 1 ? { fetchPriority: "high" as const } : rank > 4 ? { fetchPriority: "low" as const } : {})}
               decoding="async"
               className="w-full h-full object-cover block"
               onError={(e) => {
