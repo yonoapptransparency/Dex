@@ -156,6 +156,23 @@ export default function GatewayPage() {
       }
     }
 
+    if (typeof window !== 'undefined') {
+      try {
+        const rawStub = sessionStorage.getItem(`rd_stub_${cleanSlugKey}`);
+        if (rawStub) {
+          const parsedStub = JSON.parse(rawStub);
+          if (parsedStub && parsedStub.name) {
+            const stubSlug = String(parsedStub.slug || parsedStub.id || '').toLowerCase().trim();
+            if (stubSlug === cleanSlugKey || resolveAppSlug(cleanSlugKey, [parsedStub])) {
+              return parsedStub;
+            }
+          }
+        }
+      } catch {
+        // Ignore storage / parse errors
+      }
+    }
+
     const prefetched = getPrefetchedApp(cleanSlugKey);
     if (prefetched) return prefetched;
 
@@ -176,89 +193,85 @@ export default function GatewayPage() {
     return null;
   }, [cleanSlugKey, location.state, mockApps, fetchedApp, staticApps]);
 
-  // 2. Fallback Static Dataset Loader — ONLY runs if `app` could not be resolved from memory/SSR!
-  // Prevents downloading 220 KB of staticData.json on slow 2G/3G networks so 100% of bandwidth goes to Turnstile.
-  useEffect(() => {
-    if (app && app.name) {
-      setStaticLoaded(true);
-      return;
-    }
-    let active = true;
-    loadFullStaticDataset()
-      .then((ds) => {
-        if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
-          setStaticApps(ds.apps);
-          setStaticLoaded(true);
-          return;
-        }
-        return fetch('/public-api/staticData.json')
-          .then((r) => r.json())
-          .then((data) => {
-            if (active && data?.apps && Array.isArray(data.apps)) {
-              setStaticApps(data.apps);
-            }
-          });
-      })
-      .catch(() => {
-        return fetch('/public-api/staticData.json')
-          .then((r) => r.json())
-          .then((data) => {
-            if (active && data?.apps && Array.isArray(data.apps)) {
-              setStaticApps(data.apps);
-            }
-          })
-          .catch(() => {});
-      })
-      .finally(() => {
-        if (active) setStaticLoaded(true);
-      });
-    return () => {
-      active = false;
-    };
-  }, [app]);
-
-  // 3. Resilient Background Fetch for App Metadata (only when app is still unknown)
+  // 2. Ultra-Lean App Metadata Fallback (only when app is still unknown after memory/SSR/sessionStorage):
+  // Fetch ONLY the ~300-byte ?lite=1 single-app endpoint first, and ONLY fall back to the larger
+  // offline static dataset if the tiny endpoint fails — dedicating 100% of slow 2G/3G bandwidth to Turnstile.
   useEffect(() => {
     if (!cleanSlugKey || navEval.shouldBounce) return;
 
     if (app && app.name) {
+      setStaticLoaded(true);
       setRemoteCheckDoneSlug(cleanSlugKey);
       return;
     }
 
-    if (!syncAttemptedRef.current[cleanSlugKey]) {
-      syncAttemptedRef.current[cleanSlugKey] = true;
-      setIsFetchingDetails(true);
+    if (syncAttemptedRef.current[cleanSlugKey]) return;
+    syncAttemptedRef.current[cleanSlugKey] = true;
 
-      fetch(`/api/v1/public/app/${encodeURIComponent(cleanSlugKey)}`)
-        .then((res) => {
-          if (res.ok) return res.json();
-          throw new Error(`HTTP ${res.status}`);
-        })
-        .then((data) => {
-          if (data?.status === 'OK' && data?.app) {
-            if (
-              Array.isArray(data.catalogApps) &&
-              data.catalogApps.length > 0 &&
-              mergeCatalogApps &&
-              (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
-            ) {
-              mergeCatalogApps(data.catalogApps);
-            }
-            if (updateAppDetail) updateAppDetail(data.app);
-            if (activeSlugRef.current === cleanSlugKey) {
-              setFetchedApp(data.app);
-            }
+    let active = true;
+    setIsFetchingDetails(true);
+
+    const loadStaticFallback = () =>
+      loadFullStaticDataset()
+        .then((ds) => {
+          if (active && ds?.apps && Array.isArray(ds.apps) && ds.apps.length > 0) {
+            setStaticApps(ds.apps);
+            return;
           }
+          return fetch('/public-api/staticData.json')
+            .then((r) => r.json())
+            .then((data) => {
+              if (active && data?.apps && Array.isArray(data.apps)) {
+                setStaticApps(data.apps);
+              }
+            });
         })
-        .catch(() => {})
-        .finally(() => {
-          if (activeSlugRef.current === cleanSlugKey) {
-            setIsFetchingDetails(false);
-            setRemoteCheckDoneSlug(cleanSlugKey);
+        .catch(() =>
+          fetch('/public-api/staticData.json')
+            .then((r) => r.json())
+            .then((data) => {
+              if (active && data?.apps && Array.isArray(data.apps)) {
+                setStaticApps(data.apps);
+              }
+            })
+            .catch(() => {})
+        );
+
+    fetch(`/api/v1/public/app/${encodeURIComponent(cleanSlugKey)}?lite=1`)
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error(`HTTP ${res.status}`);
+      })
+      .then((data) => {
+        if (data?.status === 'OK' && data?.app) {
+          if (
+            Array.isArray(data.catalogApps) &&
+            data.catalogApps.length > 0 &&
+            mergeCatalogApps &&
+            (!Array.isArray(mockApps) || mockApps.length < data.catalogApps.length)
+          ) {
+            mergeCatalogApps(data.catalogApps);
           }
-        });
-    }
+          if (updateAppDetail) updateAppDetail(data.app);
+          if (active && activeSlugRef.current === cleanSlugKey) {
+            setFetchedApp(data.app);
+          }
+          return;
+        }
+        return loadStaticFallback();
+      })
+      .catch(() => loadStaticFallback())
+      .finally(() => {
+        if (active && activeSlugRef.current === cleanSlugKey) {
+          setStaticLoaded(true);
+          setIsFetchingDetails(false);
+          setRemoteCheckDoneSlug(cleanSlugKey);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [cleanSlugKey, navEval.shouldBounce, app, mockApps, updateAppDetail, mergeCatalogApps]);
 
   // Disguised 404 UI (§5.3 & §5.9): styled "404 — Page Not Found" screen with neutral "Home" link to "/"

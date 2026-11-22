@@ -48,6 +48,9 @@ export function NewsRelatedAppBox({ downloadTarget, relatedApp, newsItem, classN
       (window as any).__rdNav = { slug: clean, ts: now, appStub };
       try {
         sessionStorage.setItem('rd_nav_' + clean, String(now));
+        if (appStub) {
+          sessionStorage.setItem('rd_stub_' + clean, JSON.stringify(appStub));
+        }
       } catch {
         // Ignore storage errors
       }

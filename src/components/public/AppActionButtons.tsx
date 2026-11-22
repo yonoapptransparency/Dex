@@ -88,7 +88,9 @@ export default function AppActionButtons({
       // Ignore in-memory write failure
     }
     try {
-      sessionStorage.setItem(`rd_nav_${targetSlug.toLowerCase()}`, String(now));
+      const slugKey = targetSlug.toLowerCase();
+      sessionStorage.setItem(`rd_nav_${slugKey}`, String(now));
+      sessionStorage.setItem(`rd_stub_${slugKey}`, JSON.stringify(appStub));
     } catch {
       // Tolerate storage blocked in private/in-app browsers (§5.2)
     }

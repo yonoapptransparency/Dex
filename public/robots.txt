@@ -31,12 +31,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -47,8 +41,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: Bingbot
 Allow: /
@@ -57,12 +49,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -73,8 +59,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: Applebot
 Allow: /
@@ -83,12 +67,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -99,8 +77,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: DuckDuckBot
 Allow: /
@@ -109,12 +85,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -125,8 +95,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: Baiduspider
 Allow: /
@@ -135,12 +103,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -151,8 +113,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: YandexBot
 Allow: /
@@ -161,12 +121,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -177,8 +131,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: SemrushBot
 Allow: /
@@ -187,12 +139,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -203,8 +149,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: AhrefsBot
 Allow: /
@@ -213,12 +157,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -229,8 +167,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: GPTBot
 Allow: /
@@ -239,12 +175,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -255,8 +185,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: ClaudeBot
 Allow: /
@@ -265,12 +193,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -281,8 +203,6 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 User-agent: PerplexityBot
 Allow: /
@@ -291,12 +211,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /login/
 Disallow: /masterworld/
-Disallow: /s/
-Disallow: /s/*
-Disallow: /dl/
-Disallow: /dl/*
-Disallow: /out/
-Disallow: /out/*
 Disallow: /download/
 Disallow: /download/*
 Disallow: /gateway/
@@ -307,12 +221,10 @@ Disallow: /moreinfo/
 Disallow: /moreinfo/*
 Disallow: /moredetail/
 Disallow: /moredetail/*
-Disallow: /safety
-Disallow: /safety-status
 
 Sitemap: https://www.rummydex.com/sitemap.xml
 Sitemap: https://www.rummydex.com/sitemap-apps.xml
 Sitemap: https://www.rummydex.com/sitemap-news.xml
-Sitemap: https://www.rummydex.com/sitemap-static.xml
+Sitemap: https://www.rummydex.com/sitemap-categories.xml
 Sitemap: https://www.rummydex.com/sitemap-videos.xml
-Sitemap: https://www.rummydex.com/sitemap-developers.xml
+Sitemap: https://www.rummydex.com/sitemap-static.xml
