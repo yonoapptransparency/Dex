@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
+    <loc>https://www.rummydex.com/app/567-slots</loc>
+    <lastmod>2026-11-24T04:07:22+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1795493051/rummydex_uploads/xv72eh3d7ajgoi379rck.png</image:loc>
+      <image:title>567 SLOTS</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/jaiho-win</loc>
+    <lastmod>2026-11-24T04:02:07+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1795492769/rummydex_uploads/bxhplhcbw0biamrz67vh.png</image:loc>
+      <image:title>JAIHO WIN</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.rummydex.com/app/teen-patti-master</loc>
+    <lastmod>2026-11-24T03:55:23+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/veqj16xh/image/upload/f_auto,q_auto,w_800/v1795492335/rummydex_uploads/efxm6nnqa0w217m6ay39.webp</image:loc>
+      <image:title>TEEN PATTI MASTER</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://www.rummydex.com/app/yono-arcade</loc>
     <lastmod>2026-11-19T15:33:25+00:00</lastmod>
     <changefreq>weekly</changefreq>
