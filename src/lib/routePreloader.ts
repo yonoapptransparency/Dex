@@ -1,30 +1,67 @@
 /**
  * Intelligent Route Preloader & Instant Navigation Engine
- * Preloads dynamic route chunks during idle browser time and on user interaction (hover/touch-start).
- * Guarantees 0ms navigation lag with zero loading screen flash.
+ * Warms lazy-loaded secondary page chunks and incomplete link images strictly on user interaction
+ * (touchstart / pointerover / focusin) with zero idle background bandwidth waste.
  */
 
-/**
- * All public routes are bundled directly in the main public bundle,
- * guaranteeing 0ms route transitions with zero network delay and zero Suspense fallbacks.
- */
-export function preloadRoute(_rawPath: string): Promise<any> {
+const preloadedChunks = new Set<string>();
+
+const SECONDARY_ROUTE_LOADERS: Array<[RegExp, () => Promise<any>]> = [
+  [/^\/videos\/.+/, () => import('../pages/VideoDetailPage')],
+  [/^\/videos\/?$/, () => import('../pages/VideosPage')],
+  [/^\/developers(?:\/|$)/, () => import('../pages/Developers')],
+  [/^\/about\/?$/, () => import('../pages/About')],
+  [/^\/contact\/?$/, () => import('../pages/Contact')],
+  [/^\/privacy\/?$/, () => import('../pages/Privacy')],
+  [/^\/terms\/?$/, () => import('../pages/Terms')],
+  [/^\/responsibility\/?$/, () => import('../pages/Responsibility')],
+  [/^\/notice\/?$/, () => import('../pages/Notice')],
+  [/^\/ethics\/?$/, () => import('../pages/Ethics')],
+  [/^\/disclaimer\/?$/, () => import('../pages/Disclaimer')],
+  [/^\/report-removal\/?$/, () => import('../pages/ReportRemoval')],
+  [/^\/safety(?:-status)?\/?$/, () => import('../pages/SafetyStatus')],
+  [/^\/faqs?\/?$/, () => import('../pages/FaqPage')],
+];
+
+export function preloadRoute(rawPath: string): Promise<any> {
+  if (!rawPath) return Promise.resolve();
+  let pathname = rawPath;
+  try {
+    if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+      pathname = new URL(rawPath).pathname;
+    }
+  } catch {
+    return Promise.resolve();
+  }
+  const cleanPath = (pathname.split('?')[0].split('#')[0] || '/').toLowerCase();
+
+  for (let i = 0; i < SECONDARY_ROUTE_LOADERS.length; i++) {
+    const [pattern, loader] = SECONDARY_ROUTE_LOADERS[i];
+    if (pattern.test(cleanPath)) {
+      const key = pattern.source;
+      if (preloadedChunks.has(key)) return Promise.resolve();
+      preloadedChunks.add(key);
+      return loader().catch(() => {
+        preloadedChunks.delete(key);
+      });
+    }
+  }
   return Promise.resolve();
 }
 
 /**
- * All public routes are bundled directly in the main public bundle,
- * so idle chunk preloading is a zero-cost no-op (no wasted timers/callbacks).
+ * Intentionally a zero-cost no-op: core routes (Home, AppDetails, News) are eager,
+ * and secondary routes warm on demand via touchstart/pointerover/focusin (0ms idle bandwidth waste).
  */
 export function startIdleRoutePreloader(): void {
-  // Public routes are statically bundled in the main entrypoint.
+  // No idle prefetching to protect mobile data budgets and synthetic audit cleanliness.
 }
 
 const preloadedSet = new Set<string>();
 const MAX_PRELOADED_IMAGES = 120;
 
 /**
- * Listens for touchstart, pointerover, or focus on anchor links to warm incomplete images only
+ * Listens for touchstart, pointerover, or focus on anchor links to warm secondary route chunks and incomplete images.
  */
 export function setupInteractionPreloader(): () => void {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -37,7 +74,10 @@ export function setupInteractionPreloader(): () => void {
 
     const href = target.getAttribute('href');
     if (href && (href.startsWith('/') || href.startsWith(window.location.origin))) {
-      // Only warm images that haven't finished loading yet (skip already-loaded visible DOM images)
+      // 1. Warm lazy secondary route chunk ~150-300ms before click completes
+      preloadRoute(href);
+
+      // 2. Warm images that haven't finished loading yet (skip already-loaded visible DOM images)
       try {
         const img = target.querySelector('img');
         if (img && img.src && !img.complete && !preloadedSet.has(img.src)) {

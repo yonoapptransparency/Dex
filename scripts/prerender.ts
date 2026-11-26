@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { injectSeoTags, fetchStoreData, cleanRootContainer } from '../src/seoHelper';
-import { generateAllSitemaps, generateRobotsTxt, extractCanonicalCategories } from '../src/lib/sitemapGenerator';
+import { generateAllSitemaps, generateRobotsTxt, extractCanonicalCategories, buildEdgeRouteManifest } from '../src/lib/sitemapGenerator';
 import { formatPageTitle } from '../src/lib/seoUtils';
 import { compileCanonicalApp, compileCanonicalNews, generateStaticDataFileCode, sanitizePublicSettings } from '../src/lib/canonicalCompiler';
 import { optimizeCompiledCss, clearCriticalCssCache } from '../src/seo/criticalCss';
@@ -79,6 +79,23 @@ async function syncStaticDataAndSitemaps() {
         fs.writeFileSync(path.join(publicPath, `${filename}.gz`), gzBuffer);
       } catch (e) {}
     }
+    try {
+      fs.writeFileSync(path.join(publicPath, 'robots.txt'), generateRobotsTxt(host), 'utf-8');
+    } catch (e) {}
+  }
+
+  // Generate ultra-lightweight edge route manifest (~8KB) for Cloudflare Pages functions/_middleware.js
+  // Enables canonical 301 resolution on 404 misses without bundling the 1.5MB staticData.json into edge middleware
+  try {
+    const edgeManifest = buildEdgeRouteManifest({
+      apps: publicApps,
+      news: publicNews,
+      videos: data.videos || []
+    });
+    const manifestPath = path.join(process.cwd(), 'src/lib/edgeRouteManifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify(edgeManifest), 'utf8');
+  } catch (e) {
+    console.warn('Failed writing edgeRouteManifest.json:', e);
   }
 
   return { ...data, apps: publicApps, news: publicNews };
@@ -322,7 +339,44 @@ async function prerender() {
       fs.copyFileSync(headersSrc, path.join(distPath, '_headers'));
     }
 
-    console.log('Successfully injected static HTML, metadata, and Cloudflare routing into dist.');
+    // 5. Generate static dist/404.html for Cloudflare Pages (eliminates Soft-404 HTTP 200 homepage fallbacks on unknown URLs;
+    //    /moreinfo/* and /safety* are explicitly served via functions/_middleware.js using /index.spa.html; Masterworld Admin skips prerender.ts)
+    const static404Html = `<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>404 - Page Not Found</title>
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+    <meta name="description" content="The requested page could not be found." />
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#090d16;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;box-sizing:border-box}
+      .card{max-width:480px;width:100%;text-align:center;padding:40px 24px;border-radius:24px;background:#111726;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+      h1{margin:0 0 12px;font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+      p{margin:0 0 24px;color:#94a3b8;font-size:1rem;line-height:1.6}
+      a{display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.95rem;transition:background 0.2s}
+      a:hover{background:#1d4ed8}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>404</h1>
+      <p>The application or article you requested does not exist or may have been moved.</p>
+      <a href="/">Return to Home</a>
+    </div>
+  </body>
+</html>`;
+    fs.writeFileSync(path.join(distPath, '404.html'), static404Html, 'utf-8');
+
+    // 6. Never ship internal AI Studio workspace attachment artifacts inside production dist/
+    const leakedWorkspaceAssets = path.join(distPath, 'assets', 'aistudio');
+    if (fs.existsSync(leakedWorkspaceAssets)) {
+      try {
+        fs.rmSync(leakedWorkspaceAssets, { recursive: true, force: true });
+      } catch (_) {}
+    }
+
+    console.log('Successfully injected static HTML, 404.html, metadata, and Cloudflare routing into dist.');
   } catch (err) {
     console.error('Error during prerender:', err);
   }
